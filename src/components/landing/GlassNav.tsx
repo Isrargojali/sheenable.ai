@@ -38,7 +38,7 @@ export default function GlassNav() {
                  style={{ background: "var(--grad-mauve)" }}>
               <Heart size={15} className="text-white" fill="white" />
             </div>
-            <span className="font-serif text-xl text-foreground leading-none">HerCareer</span>
+            <span className="font-serif text-xl text-foreground leading-none">SheEnableAI</span>
           </Link>
 
           {/* Center links */}
