@@ -5,9 +5,9 @@ import { Menu, X, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
-  { label: "Find Jobs",       href: "#jobs" },
-  { label: "For Employers",   href: "#employers" },
-  { label: "Community",       href: "#community" },
+  { label: "Find Jobs", href: "#jobs" },
+  { label: "For Employers", href: "#employers" },
+  { label: "Community", href: "#community" },
   { label: "Success Stories", href: "#stories" },
 ];
 
@@ -35,7 +35,7 @@ export default function GlassNav() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 group" aria-label="HerCareer home">
             <div className="w-9 h-9 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105"
-                 style={{ background: "var(--grad-mauve)" }}>
+              style={{ background: "var(--grad-mauve)" }}>
               <Heart size={15} className="text-white" fill="white" />
             </div>
             <span className="font-serif text-xl text-foreground leading-none">SheEnableAI</span>
@@ -108,15 +108,15 @@ export default function GlassNav() {
               ))}
               <div className="my-3 h-px bg-border" />
               <Link to="/auth/signup?role=EMPLOYER" onClick={() => setOpen(false)}
-                    className="px-3 py-3 rounded-xl text-sm font-semibold border-[1.5px] border-border text-foreground hover:border-primary hover:text-primary text-center">
+                className="px-3 py-3 rounded-xl text-sm font-semibold border-[1.5px] border-border text-foreground hover:border-primary hover:text-primary text-center">
                 Post a Job
               </Link>
               <Link to="/auth/signup" onClick={() => setOpen(false)}
-                    className="px-3 py-3 rounded-xl text-sm font-bold bg-primary text-primary-foreground text-center mt-2">
+                className="px-3 py-3 rounded-xl text-sm font-bold bg-primary text-primary-foreground text-center mt-2">
                 Join Free
               </Link>
               <Link to="/auth/login" onClick={() => setOpen(false)}
-                    className="px-3 py-3 text-xs text-muted-foreground text-center mt-2">
+                className="px-3 py-3 text-xs text-muted-foreground text-center mt-2">
                 Already have an account? Sign in
               </Link>
             </div>
