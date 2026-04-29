@@ -1,0 +1,263 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * HerCareer — Premium women-only hiring platform design system
+ * Mauve / off-white / mint palette · Playfair Display + Plus Jakarta Sans
+ * All colors HSL · 8px base spacing · 12px card / 20px modal radius
+ * ───────────────────────────────────────────────────────────────────── */
+
+@layer base {
+  :root {
+    /* ── Brand surfaces ────────────────────────────────────────────── */
+    --background:    33 27% 97%;      /* #FAF8F6 warm off-white */
+    --foreground:    264 31% 9%;      /* #14101F deep ink */
+
+    --card:          0 0% 100%;
+    --card-foreground: 264 31% 9%;
+
+    --popover:       0 0% 100%;
+    --popover-foreground: 264 31% 9%;
+
+    /* ── Brand primary: deep rose-mauve ────────────────────────────── */
+    --primary:       317 35% 36%;     /* #7C3B6E mauve */
+    --primary-foreground: 0 0% 100%;
+
+    /* ── Mint accent for success states ────────────────────────────── */
+    --success:       159 47% 45%;     /* #3DAA7D fresh mint */
+    --success-foreground: 0 0% 100%;
+
+    /* ── Warm sand / blush secondary ───────────────────────────────── */
+    --secondary:     30 40% 95%;      /* #F7F1EA */
+    --secondary-foreground: 264 31% 9%;
+
+    --muted:         30 25% 94%;
+    --muted-foreground: 264 12% 42%;  /* #6B6480 */
+
+    --accent:        320 50% 95%;     /* #F7E9F1 light mauve */
+    --accent-foreground: 317 45% 28%; /* #66295A */
+
+    --destructive:   0 73% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border:        320 22% 90%;     /* #EAE0E7 */
+    --input:         320 22% 90%;
+    --ring:          317 35% 36%;
+
+    --radius:        0.75rem;         /* 12px cards · 20px modals via utility */
+
+    /* ── HerCareer raw tokens (for direct CSS use) ─────────────────── */
+    --hc-mauve:       #7C3B6E;
+    --hc-mauve-d:     #5E2A53;
+    --hc-mauve-dd:    #3F1C37;
+    --hc-mauve-l:     #F7E9F1;
+    --hc-mauve-ll:    #FBF5F8;
+    --hc-mint:        #3DAA7D;
+    --hc-mint-d:      #2C8862;
+    --hc-mint-l:      #E5F5EE;
+    --hc-rose:        #C8528C;        /* secondary accent */
+    --hc-gold:        #D4A24C;
+    --hc-amber:       #D97706;
+    --hc-amber-l:     #FEF3C3;
+    --hc-blu:         #2563EB;
+    --hc-blu-l:       #EFF6FF;
+    --hc-red:         #DC2626;
+    --hc-red-l:       #FEF2F2;
+    --hc-grn:         #059669;
+    --hc-grn-l:       #D1FAE5;
+    --hc-pur:         #7C3AED;
+    --hc-pur-l:       #EDE9FE;
+    --hc-ink:         #14101F;
+    --hc-ink2:        #211B33;
+    --hc-ink3:        #3D3656;
+    --hc-mid:         #6B6480;
+    --hc-faint:       #A89EC0;
+    --hc-hint:        #D4CDE8;
+    --hc-bg:          #FAF8F6;
+    --hc-bg2:         #F3EDE8;
+    --hc-bg3:         #EAE0E7;
+    --hc-bdr:         #EAE0E7;
+    --hc-bdr2:        #D8C9D2;
+
+    /* ── Sidebar tokens ────────────────────────────────────────────── */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 264 12% 42%;
+    --sidebar-primary: 317 35% 36%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 320 50% 95%;
+    --sidebar-accent-foreground: 317 45% 28%;
+    --sidebar-border: 320 22% 90%;
+    --sidebar-ring: 317 35% 36%;
+
+    /* ── Gradients (named for reuse) ───────────────────────────────── */
+    --grad-mauve:     linear-gradient(135deg,#7C3B6E,#3F1C37);
+    --grad-mauve-rose:linear-gradient(135deg,#7C3B6E,#C8528C);
+    --grad-mint:      linear-gradient(135deg,#3DAA7D,#2C8862);
+    --grad-warm:      linear-gradient(160deg,#FAF8F6 0%,#F7F1EA 50%,#F7E9F1 100%);
+    --grad-hero:      linear-gradient(160deg,#1A0E1F 0%,#2A1428 50%,#3F1C37 100%);
+
+    /* ── Shadows (mauve-tinted) ────────────────────────────────────── */
+    --shadow-sm:      0 1px 2px hsl(264 31% 9% / 0.04);
+    --shadow-md:      0 6px 16px -4px hsl(317 35% 36% / 0.08);
+    --shadow-lg:      0 20px 40px -16px hsl(317 35% 36% / 0.18);
+    --shadow-xl:      0 30px 60px -20px hsl(317 35% 36% / 0.25);
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  html { scroll-behavior: smooth; }
+  html, body, #root { height: 100%; }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+    font-size: 13px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  .font-serif {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-feature-settings: "lnum" 1;
+  }
+  .font-sans {
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  }
+  .font-mono {
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  }
+
+  /* Universal focus ring — visible 2px brand-color ring on keyboard nav */
+  :focus-visible {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+}
+
+@layer utilities {
+  /* ── Scrollbar ─────────────────────────────────────────────────── */
+  .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 999px; }
+  .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+
+  /* ── Reveal-on-scroll ─────────────────────────────────────────── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── Patterns ─────────────────────────────────────────────────── */
+  /* Light dot grid for warm surfaces */
+  .bg-dots {
+    background-image: radial-gradient(hsl(var(--primary) / 0.10) 1px, transparent 1px);
+    background-size: 22px 22px;
+    background-position: 0 0;
+  }
+  /* Dark grid for hero panels */
+  .bg-grid {
+    background-image:
+      linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  /* Soft geometric: concentric arcs */
+  .bg-arcs {
+    background-image:
+      radial-gradient(circle at 20% 30%, hsl(var(--primary) / 0.06) 0, transparent 35%),
+      radial-gradient(circle at 80% 70%, hsl(var(--success) / 0.06) 0, transparent 35%);
+  }
+
+  /* ── Gradient text ────────────────────────────────────────────── */
+  .text-shimmer {
+    background: linear-gradient(90deg, #D4A24C 0%, #7C3B6E 30%, #C8528C 60%, #D4A24C 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: shimmer 6s linear infinite;
+  }
+  .text-mauve-grad {
+    background: var(--grad-mauve-rose);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* ── Glass surface ────────────────────────────────────────────── */
+  .glass {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: saturate(160%) blur(14px);
+    -webkit-backdrop-filter: saturate(160%) blur(14px);
+    border-bottom: 1px solid hsl(var(--border));
+  }
+  .glass-dark {
+    background: rgba(20, 16, 31, 0.55);
+    backdrop-filter: saturate(160%) blur(18px);
+    -webkit-backdrop-filter: saturate(160%) blur(18px);
+  }
+
+  /* ── Card hover lift ──────────────────────────────────────────── */
+  .lift {
+    transition: transform 0.25s cubic-bezier(0.16,1,0.3,1),
+                box-shadow 0.25s ease,
+                border-color 0.25s ease;
+  }
+  .lift:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+    border-color: hsl(var(--primary) / 0.35);
+  }
+
+  /* ── Press animation for buttons (briefed: 150ms scale 0.97) ──── */
+  .press {
+    transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 200ms ease,
+                background-color 200ms ease,
+                border-color 200ms ease,
+                color 200ms ease;
+  }
+  .press:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+
+  /* ── Skeleton shimmer ─────────────────────────────────────────── */
+  .skeleton {
+    background: linear-gradient(90deg,
+      hsl(var(--muted)) 0%,
+      hsl(var(--secondary)) 50%,
+      hsl(var(--muted)) 100%);
+    background-size: 200% 100%;
+    animation: skeleton 1.5s ease-in-out infinite;
+  }
+  @keyframes skeleton {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* ── Soft brand glow ──────────────────────────────────────────── */
+  .glow-mauve {
+    box-shadow: 0 20px 40px -16px hsl(317 35% 36% / 0.35);
+  }
+  .glow-mint {
+    box-shadow: 0 20px 40px -16px hsl(159 47% 45% / 0.35);
+  }
+}
+
+/* ── Reduced motion ─────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  html { scroll-behavior: auto; }
+}
