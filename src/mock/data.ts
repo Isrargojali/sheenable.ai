@@ -46,7 +46,7 @@ export const MOCK_USERS = [
   },
   {
     id:    "user_admin_1",
-    email: "admin@hercareer.pk",
+    email: "admin@SheEnableAI.pk",
     password: "Admin@1234",
     role:  "ADMIN",
     isVerified: true,
@@ -54,7 +54,7 @@ export const MOCK_USERS = [
   },
   {
     id:    "user_superadmin_1",
-    email: "root@hercareer.pk",
+    email: "root@SheEnableAI.pk",
     password: "Root@1234",
     role:  "SUPER_ADMIN",
     isVerified: true,

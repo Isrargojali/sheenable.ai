@@ -56,7 +56,7 @@ export default function SignupPage() {
   const [error,       setError]       = useState("");
   const [loading,     setLoading]     = useState(false);
 
-  useEffect(() => { document.title = "Join HerCareer — Free for women, forever"; }, []);
+  useEffect(() => { document.title = "Join SheEnableAI — Free for women, forever"; }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -65,7 +65,7 @@ export default function SignupPage() {
     if (role === "CANDIDATE") {
       if (!fname.trim()) return setError("First name is required");
       if (!lname.trim()) return setError("Last name is required");
-      if (!identityOk)   return setError("Please confirm your identity to continue. HerCareer is for women and non-binary individuals.");
+      if (!identityOk)   return setError("Please confirm your identity to continue. SheEnableAI is for women and non-binary individuals.");
     } else {
       if (!companyName.trim()) return setError("Company name is required");
     }
@@ -100,13 +100,13 @@ export default function SignupPage() {
             <Heart size={15} className="text-white" fill="white" />
           </div>
           <div>
-            <div className="font-serif text-xl text-foreground leading-none">HerCareer</div>
+            <div className="font-serif text-xl text-foreground leading-none">SheEnableAI</div>
             <div className="text-[9px] text-muted-foreground uppercase tracking-[2px] mt-1">Women's platform</div>
           </div>
         </div>
 
         <h1 className="font-serif text-4xl text-foreground mb-1.5 tracking-tight">
-          {role === "CANDIDATE" ? "Join HerCareer" : "Hire with HerCareer"}
+          {role === "CANDIDATE" ? "Join SheEnableAI" : "Hire with SheEnableAI"}
         </h1>
         <p className="text-sm text-muted-foreground mb-6">
           {role === "CANDIDATE"
@@ -225,7 +225,7 @@ export default function SignupPage() {
               <span className="text-[12px] text-foreground/85 leading-relaxed">
                 <strong className="text-foreground">I confirm I identify as a woman or non-binary individual.</strong>
                 <br />
-                <span className="text-muted-foreground">HerCareer exists to create safer, focused career opportunities for women — this confirmation is required.</span>
+                <span className="text-muted-foreground">SheEnableAI exists to create safer, focused career opportunities for women — this confirmation is required.</span>
               </span>
             </label>
           )}

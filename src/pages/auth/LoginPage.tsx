@@ -21,7 +21,7 @@ const ROLE_REDIRECTS: Record<string, string> = {
 const QUICK_FILL: Record<Role, { email: string; pass: string }> = {
   CANDIDATE: { email: "ayesha@test.com",    pass: "Test@1234"  },
   EMPLOYER:  { email: "hr@techflow.com",    pass: "Test@1234"  },
-  ADMIN:     { email: "admin@hercareer.pk", pass: "Admin@1234" },
+  ADMIN:     { email: "admin@SheEnableAI.pk", pass: "Admin@1234" },
 };
 
 export default function LoginPage() {
@@ -36,7 +36,7 @@ export default function LoginPage() {
   const [error,   setError]   = useState("");
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => { document.title = "Sign in · HerCareer"; }, []);
+  useEffect(() => { document.title = "Sign in · SheEnableAI"; }, []);
 
   function fillRole(r: Role) {
     setRole(r);
@@ -54,11 +54,15 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const user = await apiAuth.login(email.trim().toLowerCase(), password, role);
-      setUser({ id: user.id, email: user.email, role: user.role as any });
-      setNotifs(MOCK_NOTIFICATIONS as any);
+      setUser({ id: user.id, email: user.email, role: user.role as Role });
+      setNotifs(MOCK_NOTIFICATIONS);
       navigate(ROLE_REDIRECTS[user.role] ?? "/");
-    } catch (err: any) {
-      setError(err.message ?? "Login failed");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Login failed");
+      }
     } finally {
       setLoading(false);
     }
@@ -87,13 +91,13 @@ export default function LoginPage() {
              style={{ background: "radial-gradient(circle,rgba(61,170,125,.20),transparent 65%)", filter: "blur(70px)" }} />
 
         {/* Logo */}
-        <Link to="/" className="relative z-10 flex items-center gap-2.5 group" aria-label="HerCareer home">
+        <Link to="/" className="relative z-10 flex items-center gap-2.5 group" aria-label="SheEnableAI home">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105"
                style={{ background: "linear-gradient(135deg,#C8528C,#7C3B6E)" }}>
             <Heart size={16} className="text-white" fill="white" />
           </div>
           <div>
-            <div className="font-serif text-xl text-white leading-none">HerCareer</div>
+            <div className="font-serif text-xl text-white leading-none">SheEnableAI</div>
             <div className="text-[9px] text-white/40 uppercase tracking-[2px] mt-1">Women's platform</div>
           </div>
         </Link>
@@ -138,7 +142,7 @@ export default function LoginPage() {
             <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "var(--grad-mauve-rose)" }}>
               <Heart size={14} className="text-white" fill="white" />
             </div>
-            <span className="font-serif text-xl">HerCareer</span>
+            <span className="font-serif text-xl">SheEnableAI</span>
           </div>
 
           <h1 className="font-serif text-4xl text-foreground mb-1.5 tracking-tight">Welcome back</h1>
@@ -181,8 +185,12 @@ export default function LoginPage() {
                     try {
                       const { demoLogin } = await import("@/lib/demoLogin");
                       navigate(await demoLogin(r));
-                    } catch (err: any) {
-                      setError(err.message ?? "Demo login failed");
+                    } catch (err: unknown) {
+                      if (err instanceof Error) {
+                        setError(err.message);
+                      } else {
+                        setError("Demo login failed");
+                      }
                       setLoading(false);
                     }
                   }}
@@ -270,7 +278,7 @@ export default function LoginPage() {
           </div>
 
           <p className="text-center text-[12px] text-muted-foreground">
-            New to HerCareer?{" "}
+            New to SheEnableAI?{" "}
             <Link to="/auth/signup" className="text-primary font-bold hover:text-mauve-600">
               Join Free →
             </Link>

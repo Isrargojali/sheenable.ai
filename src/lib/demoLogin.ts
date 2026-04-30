@@ -9,7 +9,7 @@ type Role = "CANDIDATE" | "EMPLOYER" | "ADMIN";
 const CREDS: Record<Role, { email: string; pass: string; redirect: string }> = {
   CANDIDATE: { email: "ayesha@test.com",    pass: "Test@1234",  redirect: "/candidate/dashboard" },
   EMPLOYER:  { email: "hr@techflow.com",    pass: "Test@1234",  redirect: "/employer/dashboard"  },
-  ADMIN:     { email: "admin@hercareer.pk", pass: "Admin@1234", redirect: "/admin/overview"      },
+  ADMIN:     { email: "admin@SheEnableAI.pk", pass: "Admin@1234", redirect: "/admin/overview"      },
 };
 
 export async function demoLogin(role: Role): Promise<string> {
