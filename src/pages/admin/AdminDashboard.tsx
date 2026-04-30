@@ -12,6 +12,19 @@ const STATS = [
   { key: "applications", label: "Applications",  icon: FileText,  color: "from-emerald-500 to-emerald-700", deltaKey: "applications" },
 ] as const;
 
+type AdminStats = {
+  totalUsers: number;
+  activeJobs: number;
+  employers: number;
+  applications: number;
+  weeklyGrowth: {
+    users: number;
+    jobs: number;
+    employers: number;
+    applications: number;
+  };
+};
+
 const QUICK_LINKS = [
   { to: "/admin/users",    label: "Manage users",    desc: "Suspend, verify, audit",    icon: Users },
   { to: "/admin/security", label: "Security center", desc: "Live threats & rate limits", icon: ShieldCheck },
@@ -19,7 +32,7 @@ const QUICK_LINKS = [
 ];
 
 export default function AdminDashboard() {
-  const { data: stats } = useQuery({ queryKey: ["adminStats"], queryFn: apiAdmin.getStats });
+  const { data: stats } = useQuery<AdminStats>({ queryKey: ["adminStats"], queryFn: apiAdmin.getStats });
 
   return (
     <DashboardShell title="Admin overview" subtitle="Platform-wide health and metrics">
@@ -27,8 +40,8 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
         {STATS.map(s => {
           const Icon = s.icon;
-          const v   = (stats as any)?.[s.key]?.toLocaleString() ?? "—";
-          const dv  = (stats as any)?.weeklyGrowth?.[s.deltaKey] ?? 0;
+          const v   = stats?.[s.key as keyof AdminStats]?.toLocaleString() ?? "—";
+          const dv  = stats?.weeklyGrowth?.[s.deltaKey as keyof AdminStats['weeklyGrowth']] ?? 0;
           return (
             <div key={s.key} className="bg-card border border-border rounded-2xl p-4 hover:shadow-sm transition-all">
               <div className="flex items-start justify-between mb-3">

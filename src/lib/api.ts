@@ -287,7 +287,7 @@ export const apiAdmin = {
     await delay(400);
     return MOCK_USERS.filter(u => u.role === "CANDIDATE").map(u => ({
       ...u,
-      profile: u.profile ? { ...(u.profile as any), firstName: "Ayesha", lastName: "Khan" } : null,
+      profile: u.profile ? { ...(u.profile as Record<string, unknown>), firstName: "Ayesha", lastName: "Khan" } : null,
     }));
   },
 

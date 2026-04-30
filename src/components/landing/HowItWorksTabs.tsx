@@ -1,12 +1,12 @@
 // src/components/landing/HowItWorksTabs.tsx
 // Two-tab "I'm looking for a job" / "I'm hiring" with smooth underline animation.
 import { useState } from "react";
-import { Search, Sparkles, Send, PartyPopper, FileEdit, Users, ClipboardList, Handshake } from "lucide-react";
+import { LucideIcon, Search, Sparkles, Send, PartyPopper, FileEdit, Users, ClipboardList, Handshake } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type TabKey = "candidate" | "employer";
 
-const STEPS: Record<TabKey, { icon: any; title: string; desc: string; accent: string }[]> = {
+const STEPS: Record<TabKey, { icon: LucideIcon; title: string; desc: string; accent: string }[]> = {
   candidate: [
     { icon: FileEdit,    title: "Build your profile",  desc: "Sign up free, add skills and experience. Our AI scores completeness in real time.", accent: "border-l-mauve-400" },
     { icon: Sparkles,    title: "Get matched daily",   desc: "Receive curated job matches based on skills, location and salary expectations.",     accent: "border-l-mint-400"  },

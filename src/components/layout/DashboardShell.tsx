@@ -5,6 +5,7 @@ import {
   LayoutDashboard, Briefcase, FileText, User, MessageSquare, FilePlus,
   Search, Users, ShieldCheck, ScrollText, ShieldAlert, UserCog, Activity,
   Bell, LogOut, Menu, X, Heart, Settings,
+  type LucideIcon,
 } from "lucide-react";
 import { cn, initials } from "@/lib/utils";
 import { useAuthStore, UserRole } from "@/store/authStore";
@@ -14,7 +15,7 @@ import { MOCK_USERS } from "@/mock/data";
 // ────────────────────────────────────────────────────────────────────────
 // NAV CONFIG per role
 // ────────────────────────────────────────────────────────────────────────
-type NavItem = { to: string; label: string; icon: any; badge?: string };
+type NavItem = { to: string; label: string; icon: LucideIcon; badge?: string };
 type NavGroup = { label: string; items: NavItem[] };
 
 const NAV: Record<UserRole, NavGroup[]> = {
@@ -103,7 +104,12 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
 
   // Try to get profile from mock data
   const mockUser = MOCK_USERS.find(u => u.id === user?.id);
-  const profile = mockUser?.profile as any;
+  const profile = mockUser?.profile as {
+    firstName?: string;
+    lastName?: string;
+    companyName?: string;
+    isAvailable?: boolean;
+  } | undefined;
   const displayName = profile?.firstName
     ? `${profile.firstName} ${profile.lastName}`
     : profile?.companyName ?? user?.email?.split("@")[0] ?? "User";
@@ -124,7 +130,7 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
           <Heart size={16} className="text-white" fill="white" />
         </div>
         <div>
-          <div className="font-serif text-lg leading-none text-foreground">HerCareer</div>
+          <div className="font-serif text-lg leading-none text-foreground">SheEnableAI</div>
           <div className="text-[9px] uppercase tracking-[1.5px] text-muted-foreground mt-0.5">
             Women's Platform
           </div>
