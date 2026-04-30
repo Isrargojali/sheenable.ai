@@ -6,6 +6,20 @@ import { cn }           from "@/lib/utils";
 import { apiAdmin }     from "@/lib/api";
 import { DashboardShell, SectionCard, BtnPrimary } from "@/components/layout/DashboardShell";
 
+interface User {
+  id: string;
+  email: string;
+  role: string;
+  isVerified: boolean;
+  isSuspended?: boolean;
+  profile?: {
+    firstName?: string;
+    lastName?: string;
+    category?: string;
+    isAvailable?: boolean;
+  };
+}
+
 function relTime(iso: string) {
   const d = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
   return d === 0 ? "Today" : `${d}d ago`;
@@ -16,19 +30,19 @@ export default function UsersPage() {
   const [search, setSearch] = useState("");
   const [roleFilter, setRole] = useState("ALL");
 
-  const { data: users = [], isLoading } = useQuery({ queryKey: ["adminUsers"], queryFn: apiAdmin.getUsers });
+  const { data: users = [] as User[], isLoading } = useQuery<User[]>({ queryKey: ["adminUsers"], queryFn: apiAdmin.getUsers });
 
   const verifyMut  = useMutation({ mutationFn: (id: string) => apiAdmin.verifyUser(id),  onSuccess: () => qc.invalidateQueries({ queryKey: ["adminUsers"] }) });
   const suspendMut = useMutation({ mutationFn: (id: string) => apiAdmin.suspendUser(id), onSuccess: () => qc.invalidateQueries({ queryKey: ["adminUsers"] }) });
 
   // Extend mock data for display
-  const allUsers = [...users, ...Array.from({ length: 5 }, (_, i) => ({
+  const allUsers = [...(users ?? []), ...Array.from({ length: 5 }, (_, i) => ({
     id: `mock_${i}`, email: [`sara@test.com`,`maria@test.com`,`fatima@test.com`,`zara@test.com`,`hira@test.com`][i],
     role: i < 2 ? "CANDIDATE" : "EMPLOYER", isVerified: i % 2 === 0, isSuspended: i === 3,
     profile: { firstName: [`Sara`,`Maria`,`Fatima`,`Zara`,`Hira`][i], lastName: `Ahmed`, category: [`Finance`,`Design & UX`,`Healthcare`,`IT & Tech`,`Education`][i], isAvailable: i % 2 === 0 },
   }))];
 
-  const filtered = allUsers.filter((u: any) => {
+  const filtered = allUsers.filter((u: User) => {
     const name = `${u.profile?.firstName ?? ""} ${u.profile?.lastName ?? ""} ${u.email}`.toLowerCase();
     const matchSearch = !search || name.includes(search.toLowerCase());
     const matchRole   = roleFilter === "ALL" || u.role === roleFilter;
@@ -76,7 +90,7 @@ export default function UsersPage() {
                     {Array.from({ length: 7 }).map((_, j) => <td key={j} className="px-5 py-3.5"><div className="h-4 bg-[#F3EFF8] rounded animate-pulse w-20" /></td>)}
                   </tr>
                 ))
-              ) : filtered.map((u: any, i: number) => (
+              ) : filtered.map((u: User, i: number) => (
                 <tr key={u.id} className={cn("border-b border-[#F3EFF8] hover:bg-[#FAF8FC] transition-colors", i === filtered.length - 1 && "border-b-0")}>
                   <td className="px-5 py-3.5">
                     <div className="flex items-center gap-2.5">
