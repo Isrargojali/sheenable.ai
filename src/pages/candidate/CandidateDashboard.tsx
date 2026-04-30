@@ -8,17 +8,57 @@ import { DashboardShell, SectionCard, BtnPrimary, BtnOutline } from "@/component
 import { apiProfile, apiJobs } from "@/lib/api";
 import { formatSalary, relativeTime, cn } from "@/lib/utils";
 
-const STAT_ICONS = [
+type CandidateStats = {
+  profileViews: number;
+  jobMatches: number;
+  applications: number;
+  certifications: number;
+  profileScore: number;
+};
+
+type RecommendedJob = {
+  id: string;
+  title: string;
+  location?: string;
+  skills: string[];
+  aiScore: number;
+  salaryMin: number;
+  salaryMax: number;
+  createdAt: string;
+  employer: {
+    companyName: string;
+  };
+};
+
+type Interview = {
+  id: string;
+  role: string;
+  status: string;
+  company: string;
+  date: string;
+  time: string;
+  format: string;
+};
+
+type StatIcon = {
+  key: keyof CandidateStats;
+  label: string;
+  icon: typeof Eye;
+  color: string;
+  delta: string;
+};
+
+const STAT_ICONS: StatIcon[] = [
   { key: "profileViews",   label: "Profile views",   icon: Eye,       color: "from-violet-500 to-violet-700",  delta: "+12%" },
   { key: "jobMatches",     label: "Job matches",     icon: Sparkles,  color: "from-rose-500 to-rose-700",      delta: "+8%"  },
   { key: "applications",   label: "Applications",    icon: FileText,  color: "from-blue-500 to-blue-700",      delta: "+3"   },
   { key: "certifications", label: "Certifications",  icon: Award,     color: "from-emerald-500 to-emerald-700",delta: "+1"   },
-] as const;
+];
 
 export default function CandidateDashboard() {
-  const { data: stats } = useQuery({ queryKey: ["candidateStats"], queryFn: apiProfile.getCandidateStats });
-  const { data: rec }   = useQuery({ queryKey: ["recommendedJobs"], queryFn: apiJobs.getRecommendations });
-  const { data: ints }  = useQuery({ queryKey: ["interviews"],     queryFn: apiProfile.getUpcomingInterviews });
+  const { data: stats } = useQuery<CandidateStats>({ queryKey: ["candidateStats"], queryFn: apiProfile.getCandidateStats });
+  const { data: rec }   = useQuery<RecommendedJob[]>({ queryKey: ["recommendedJobs"], queryFn: apiJobs.getRecommendations });
+  const { data: ints }  = useQuery<Interview[]>({ queryKey: ["interviews"],     queryFn: apiProfile.getUpcomingInterviews });
 
   return (
     <DashboardShell
@@ -34,7 +74,7 @@ export default function CandidateDashboard() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
         {STAT_ICONS.map(s => {
           const Icon = s.icon;
-          const value = (stats as any)?.[s.key] ?? "—";
+          const value = stats?.[s.key] ?? "—";
           return (
             <div key={s.key} className="bg-card border border-border rounded-2xl p-4 hover:shadow-sm hover:border-ink-200 transition-all">
               <div className="flex items-start justify-between mb-3">
@@ -62,7 +102,7 @@ export default function CandidateDashboard() {
             noPad
           >
             <div className="divide-y divide-border">
-              {(rec ?? []).map((job: any) => (
+              {(rec ?? []).map(job => (
                 <div key={job.id} className="p-4 hover:bg-secondary/40 transition-colors">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex gap-3 min-w-0">
@@ -76,7 +116,7 @@ export default function CandidateDashboard() {
                           {job.location && <> · <MapPin size={10} className="inline" /> {job.location}</>}
                         </div>
                         <div className="flex flex-wrap gap-1 mt-2">
-                          {job.skills.slice(0, 3).map((s: string) => (
+                          {job.skills.slice(0, 3).map(s => (
                             <span key={s} className="text-[10px] px-2 py-0.5 rounded-full bg-accent text-accent-foreground font-semibold">{s}</span>
                           ))}
                         </div>
@@ -103,11 +143,11 @@ export default function CandidateDashboard() {
           {/* Profile completion */}
           <SectionCard title="Profile completion">
             <div className="text-center">
-              <div className="font-serif text-4xl text-foreground">{(stats as any)?.profileScore ?? 0}%</div>
+              <div className="font-serif text-4xl text-foreground">{stats?.profileScore ?? 0}%</div>
               <div className="text-[11px] text-muted-foreground mt-1 mb-3">Almost there!</div>
               <div className="h-1.5 bg-secondary rounded-full overflow-hidden mb-3">
                 <div className="h-full bg-gradient-to-r from-rose-500 to-violet-500 transition-all"
-                     style={{ width: `${(stats as any)?.profileScore ?? 0}%` }} />
+                     style={{ width: `${stats?.profileScore ?? 0}%` }} />
               </div>
               <Link to="/candidate/profile">
                 <BtnOutline className="w-full justify-center">Complete profile</BtnOutline>
@@ -121,7 +161,7 @@ export default function CandidateDashboard() {
               <div className="text-center py-4 text-[11px] text-muted-foreground">No interviews scheduled</div>
             )}
             <div className="space-y-2.5">
-              {(ints ?? []).map((iv: any) => (
+              {(ints ?? []).map(iv => (
                 <div key={iv.id} className="p-3 rounded-xl border border-border hover:border-primary/40 transition-colors">
                   <div className="flex items-start justify-between gap-2 mb-1">
                     <div className="text-[12px] font-semibold text-foreground truncate">{iv.role}</div>
