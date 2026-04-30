@@ -1,16 +1,33 @@
 // src/pages/admin/SecurityCenterPage.tsx
 import { useQuery } from "@tanstack/react-query";
-import { ShieldCheck, AlertTriangle, Activity, Lock } from "lucide-react";
+import { ShieldCheck, AlertTriangle, Activity, Lock, type LucideIcon } from "lucide-react";
 import { DashboardShell, SectionCard } from "@/components/layout/DashboardShell";
 import { apiAdmin } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
-const KPIS = [
+type ThreatData = {
+  threatLevel: string;
+  blockedIPs: number;
+  failedLogins24h: number;
+  activeSessions: number;
+  uptime: string;
+  apiP95: string;
+  bruteBlocks24h: number;
+  rateLimitHits: number;
+  xssAttempts: number;
+};
+
+const KPIS: Array<{
+  key: keyof ThreatData;
+  label: string;
+  icon: LucideIcon;
+  tone: "good" | "warn" | "info";
+}> = [
   { key: "threatLevel",     label: "Threat level",      icon: ShieldCheck,   tone: "good" },
   { key: "blockedIPs",      label: "Blocked IPs",       icon: Lock,          tone: "warn" },
   { key: "failedLogins24h", label: "Failed logins 24h", icon: AlertTriangle, tone: "warn" },
   { key: "activeSessions",  label: "Active sessions",   icon: Activity,      tone: "info" },
-] as const;
+];
 
 const TONE: Record<string, string> = {
   good: "from-emerald-500 to-emerald-700",
@@ -19,7 +36,7 @@ const TONE: Record<string, string> = {
 };
 
 export default function SecurityCenterPage() {
-  const { data } = useQuery({ queryKey: ["threats"], queryFn: apiAdmin.getThreatData });
+  const { data } = useQuery<ThreatData>({ queryKey: ["threats"], queryFn: apiAdmin.getThreatData });
 
   return (
     <DashboardShell
@@ -29,7 +46,7 @@ export default function SecurityCenterPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
         {KPIS.map(k => {
           const Icon = k.icon;
-          const v = (data as any)?.[k.key] ?? "—";
+          const v = data?.[k.key] ?? "—";
           return (
             <div key={k.key} className="bg-card border border-border rounded-2xl p-4">
               <div className={cn("w-9 h-9 rounded-xl bg-gradient-to-br flex items-center justify-center mb-3", TONE[k.tone])}>
@@ -45,11 +62,11 @@ export default function SecurityCenterPage() {
       <div className="grid lg:grid-cols-2 gap-4">
         <SectionCard title="System health">
           <div className="space-y-3">
-            <Row label="Uptime"               value={(data as any)?.uptime ?? "—"} good />
-            <Row label="API p95 latency"      value={(data as any)?.apiP95 ?? "—"} good />
-            <Row label="Brute-force blocks"   value={(data as any)?.bruteBlocks24h ?? 0} />
-            <Row label="Rate-limit hits"      value={(data as any)?.rateLimitHits ?? 0} />
-            <Row label="XSS attempts"         value={(data as any)?.xssAttempts ?? 0} good />
+            <Row label="Uptime"               value={data?.uptime ?? "—"} good />
+            <Row label="API p95 latency"      value={data?.apiP95 ?? "—"} good />
+            <Row label="Brute-force blocks"   value={data?.bruteBlocks24h ?? 0} />
+            <Row label="Rate-limit hits"      value={data?.rateLimitHits ?? 0} />
+            <Row label="XSS attempts"         value={data?.xssAttempts ?? 0} good />
           </div>
         </SectionCard>
 
@@ -77,7 +94,7 @@ export default function SecurityCenterPage() {
   );
 }
 
-function Row({ label, value, good }: { label: string; value: any; good?: boolean }) {
+function Row({ label, value, good }: { label: string; value: string | number; good?: boolean }) {
   return (
     <div className="flex justify-between items-center py-2 border-b border-border last:border-0">
       <span className="text-[12px] text-muted-foreground">{label}</span>
