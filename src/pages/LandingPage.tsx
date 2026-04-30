@@ -1,5 +1,5 @@
 // src/pages/LandingPage.tsx
-// HerCareer — premium women-only hiring platform landing page.
+// SheEnableAI — premium women-only hiring platform landing page.
 // Built mobile-first with Playfair Display + Plus Jakarta Sans, mauve/mint palette.
 import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -34,7 +34,7 @@ export default function LandingPage() {
 
   // Set page title for SEO
   useEffect(() => {
-    document.title = "HerCareer — Where Ambitious Women Find Careers That Match Their Worth";
+    document.title = "SheEnableAI — Where Ambitious Women Find Careers That Match Their Worth";
   }, []);
 
   return (
