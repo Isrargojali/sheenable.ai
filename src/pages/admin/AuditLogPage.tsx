@@ -13,6 +13,14 @@ const ACTION_COLORS: Record<string,string> = {
   LOGIN_FAILED:"bg-amber-50 text-amber-600", APPLICATION_SUBMITTED:"bg-blue-50 text-blue-600",
 };
 
+type AuditLogEntry = {
+  id: string;
+  action: string;
+  userId: string;
+  detail: string;
+  createdAt: string;
+};
+
 const ACTION_TYPES = ["All Actions","LOGIN_SUCCESS","LOGIN_FAILED","SIGNUP","JOB_POSTED","BRUTE_FORCE_BLOCK","RATE_LIMIT","EMPLOYER_APPROVED"];
 
 function relTime(iso: string) {
@@ -26,17 +34,17 @@ export default function AuditLogPage() {
   const [search,     setSearch]     = useState("");
   const [actionType, setActionType] = useState("All Actions");
 
-  const { data: logs = [] } = useQuery({ queryKey:["auditLog"], queryFn: apiAdmin.getAuditLog });
+  const { data: logs = [] } = useQuery<AuditLogEntry[]>({ queryKey:["auditLog"], queryFn: apiAdmin.getAuditLog });
 
   // Extend with more mock entries
-  const allLogs = [...logs, ...Array.from({ length: 10 }, (_, i) => ({
+  const allLogs: AuditLogEntry[] = [...logs, ...Array.from({ length: 10 }, (_, i) => ({
     id:`ext_${i}`, action: ACTION_TYPES[1 + (i % (ACTION_TYPES.length-1))],
     userId: [`Ayesha Khan`,`Sara Ahmed`,`TechFlow Inc.`,`unknown`,`Fatima Malik`][i % 5],
     detail: [`role=candidate ip=127.0.0.1`,`role=employer`,`jobId=xyz title="Dev"`,`ip=192.168.1.1`,`otp_verified`][i % 5],
     createdAt: new Date(Date.now() - (i + 1) * 15 * 60000).toISOString(),
   }))];
 
-  const filtered = allLogs.filter((l: any) => {
+  const filtered = allLogs.filter((l: AuditLogEntry) => {
     const matchSearch = !search || l.userId?.toLowerCase().includes(search.toLowerCase()) || l.action?.toLowerCase().includes(search.toLowerCase());
     const matchAction = actionType === "All Actions" || l.action === actionType;
     return matchSearch && matchAction;
@@ -71,7 +79,7 @@ export default function AuditLogPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.slice(0, 25).map((log: any, i: number) => (
+              {filtered.slice(0, 25).map((log: AuditLogEntry, i: number) => (
                 <tr key={log.id} className={cn("border-b border-[#F3EFF8] hover:bg-[#FAF8FC] transition-colors", i === filtered.length - 1 && "border-b-0")}>
                   <td className="px-5 py-3 font-mono text-[10px] text-[#A89EC0] whitespace-nowrap">
                     {new Date(log.createdAt).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"})}
