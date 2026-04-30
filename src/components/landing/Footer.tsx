@@ -4,22 +4,22 @@ import { Heart, Twitter, Linkedin, Instagram } from "lucide-react";
 import { useState } from "react";
 
 const COL_CANDIDATES = [
-  { label: "Browse Jobs",    href: "#jobs" },
-  { label: "CV Builder",     href: "/auth/signup" },
-  { label: "Career Advice",  href: "#community" },
-  { label: "Salary Guide",   href: "#" },
+  { label: "Browse Jobs", href: "#jobs" },
+  { label: "CV Builder", href: "/auth/signup" },
+  { label: "Career Advice", href: "#community" },
+  { label: "Salary Guide", href: "#" },
 ];
 const COL_EMPLOYERS = [
-  { label: "Post a Job",      href: "/auth/signup?role=EMPLOYER" },
-  { label: "Employer Pricing",href: "#" },
-  { label: "Talent Search",   href: "#" },
+  { label: "Post a Job", href: "/auth/signup?role=EMPLOYER" },
+  { label: "Employer Pricing", href: "#" },
+  { label: "Talent Search", href: "#" },
   { label: "Inclusion Resources", href: "#" },
 ];
 const COL_COMMUNITY = [
-  { label: "Mentorship",     href: "#community" },
-  { label: "Events",         href: "#" },
-  { label: "Blog",           href: "#" },
-  { label: "Newsletter",     href: "#newsletter" },
+  { label: "Mentorship", href: "#community" },
+  { label: "Events", href: "#" },
+  { label: "Blog", href: "#" },
+  { label: "Newsletter", href: "#newsletter" },
 ];
 
 export default function Footer() {
