@@ -39,11 +39,11 @@ export default function GlassNav() {
               style={{ background: "var(--grad-mauve)" }}>
               <Heart size={15} className="text-white" fill="white" />
             </div> */}
- <img
-  src={logo}
-  alt="SheEnableAI logo"
-  className="w-48 h-24 object-contain transition-transform group-hover:scale-105"
-/>
+            <img
+              src={logo}
+              alt="SheEnableAI logo"
+              className="w-48 h-24 object-contain transition-transform group-hover:scale-105"
+            />
             {/* <span className="font-serif text-xl text-foreground leading-none">SheEnableAI</span> */}
           </Link>
 
