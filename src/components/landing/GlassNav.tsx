@@ -33,7 +33,7 @@ export default function GlassNav() {
       >
         <div className="max-w-[1280px] mx-auto h-16 px-5 lg:px-8 flex items-center justify-between gap-4">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2.5 group" aria-label="HerCareer home">
+          <Link to="/" className="flex items-center gap-2.5 group" aria-label="SheEnableAI home">
             <div className="w-9 h-9 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105"
               style={{ background: "var(--grad-mauve)" }}>
               <Heart size={15} className="text-white" fill="white" />
