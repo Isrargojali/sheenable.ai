@@ -1,6 +1,7 @@
 // src/components/landing/GlassNav.tsx
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import logo from "@/assets/sheEnableAI-removebg-preview.png";
 import { Menu, X, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -34,11 +35,16 @@ export default function GlassNav() {
         <div className="max-w-[1280px] mx-auto h-16 px-5 lg:px-8 flex items-center justify-between gap-4">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 group" aria-label="SheEnableAI home">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105"
+            {/* <div className="w-9 h-9 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105"
               style={{ background: "var(--grad-mauve)" }}>
               <Heart size={15} className="text-white" fill="white" />
-            </div>
-            <span className="font-serif text-xl text-foreground leading-none">SheEnableAI</span>
+            </div> */}
+ <img
+  src={logo}
+  alt="SheEnableAI logo"
+  className="w-48 h-24 object-contain transition-transform group-hover:scale-105"
+/>
+            {/* <span className="font-serif text-xl text-foreground leading-none">SheEnableAI</span> */}
           </Link>
 
           {/* Center links */}
