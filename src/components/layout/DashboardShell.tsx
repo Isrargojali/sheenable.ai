@@ -1,6 +1,6 @@
 // src/components/layout/DashboardShell.tsx
 import { ReactNode, useState } from "react";
-import { NavLink, useNavigate, useLocation } from "react-router-dom";
+import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Briefcase, FileText, User, MessageSquare, FilePlus,
   Search, Users, ShieldCheck, ScrollText, ShieldAlert, UserCog, Activity,
@@ -126,6 +126,7 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
     <aside className="w-[240px] flex-shrink-0 bg-card border-r border-border flex flex-col h-full">
       {/* Brand */}
       <div className="px-4 py-4 border-b border-border flex items-center gap-2.5">
+        <Link to="/" className="relative z-10 flex items-center gap-2.5 group" aria-label="SheEnableAI home">
         {/* <div className="w-9 h-9 rounded-xl flex items-center justify-center"
              style={{ background: "var(--grad-mauve-rose)" }}>
           <Heart size={16} className="text-white" fill="white" />
@@ -135,6 +136,7 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
                                 alt="SheEnableAI logo"
                                 className="w-48 h-24 object-contain transition-transform group-hover:scale-105"
                               />
+                              </Link>
         <div>
           {/* <div className="font-serif text-lg leading-none text-foreground">SheEnableAI</div>
           <div className="text-[9px] uppercase tracking-[1.5px] text-muted-foreground mt-0.5">
