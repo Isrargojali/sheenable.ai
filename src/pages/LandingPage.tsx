@@ -1,6 +1,3 @@
-// src/pages/LandingPage.tsx
-// SheEnableAI — premium women-only hiring platform landing page.
-// Built mobile-first with Playfair Display + Plus Jakarta Sans, mauve/mint palette.
 import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, Sparkles, ShieldCheck, Heart, BadgeCheck } from "lucide-react";
