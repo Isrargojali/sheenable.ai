@@ -2,6 +2,7 @@
 // Premium split-screen login. Brand mission left, form right.
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import logo from "@/assets/sheEnableAI-removebg-preview.png";
 import { Eye, EyeOff, Mail, Lock, Heart, Sparkles, ShieldCheck, ArrowRight } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { useNotifStore } from "@/store/notifStore";
@@ -92,14 +93,19 @@ export default function LoginPage() {
 
         {/* Logo */}
         <Link to="/" className="relative z-10 flex items-center gap-2.5 group" aria-label="SheEnableAI home">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105"
+          {/* <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105"
                style={{ background: "linear-gradient(135deg,#C8528C,#7C3B6E)" }}>
             <Heart size={16} className="text-white" fill="white" />
-          </div>
-          <div>
+          </div> */}
+            <img
+                        src={logo}
+                        alt="SheEnableAI logo"
+                        className="w-48 h-24 object-contain transition-transform group-hover:scale-105"
+                      />
+          {/* <div>
             <div className="font-serif text-xl text-white leading-none">SheEnableAI</div>
             <div className="text-[9px] text-white/40 uppercase tracking-[2px] mt-1">Women's platform</div>
-          </div>
+          </div> */}
         </Link>
 
         {/* Hero text */}

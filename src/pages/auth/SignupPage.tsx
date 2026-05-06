@@ -3,6 +3,7 @@
 // Employer signup: company info + work email.
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import logo from "@/assets/sheEnableAI-removebg-preview.png";
 import { Eye, EyeOff, Heart, ArrowRight, Building2, User, Mail, Lock } from "lucide-react";
 import { apiAuth } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -84,8 +85,14 @@ export default function SignupPage() {
         role,
       });
       navigate(`/auth/verify?userId=${res.userId}&email=${encodeURIComponent(email)}`);
-    } catch (err: any) {
-      setError(err.message ?? "Signup failed");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else if (typeof err === "object" && err !== null && "message" in err && typeof (err as { message: unknown }).message === "string") {
+        setError((err as { message: string }).message);
+      } else {
+        setError("Signup failed");
+      }
     } finally {
       setLoading(false);
     }
@@ -96,13 +103,18 @@ export default function SignupPage() {
       <div className="w-full max-w-[440px]">
         {/* Brand */}
         <div className="flex items-center gap-2.5 mb-7">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "var(--grad-mauve-rose)" }}>
+          {/* <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "var(--grad-mauve-rose)" }}>
             <Heart size={15} className="text-white" fill="white" />
-          </div>
-          <div>
+          </div> */}
+          <img
+                                  src={logo}
+                                  alt="SheEnableAI logo"
+                                  className="w-48 h-24 object-contain transition-transform group-hover:scale-105"
+                                />
+          {/* <div>
             <div className="font-serif text-xl text-foreground leading-none">SheEnableAI</div>
             <div className="text-[9px] text-muted-foreground uppercase tracking-[2px] mt-1">Women's platform</div>
-          </div>
+          </div> */}
         </div>
 
         <h1 className="font-serif text-4xl text-foreground mb-1.5 tracking-tight">
