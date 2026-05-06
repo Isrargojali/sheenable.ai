@@ -45,7 +45,7 @@ export default function Footer() {
                               />
                              
             <p className="text-[12px] leading-relaxed text-white/55 mb-5 max-w-xs">
-              Pakistan's premium hiring platform built for ambitious women. Where talent finds its worth — and where inclusive employers find extraordinary teams.
+              Pakistan's premium hiring platform built for ambitious women. Where talent finds its worth and where inclusive employers find extraordinary teams.
             </p>
             <div className="flex gap-2">
               {[Twitter, Linkedin, Instagram].map((Icon, i) => (
@@ -121,7 +121,7 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="mt-14 pt-6 border-t border-white/10 flex flex-wrap items-center justify-between gap-4 text-[11px] text-white/45">
           <div className="flex items-center gap-2">
-            <Heart size={11} fill="currentColor" /> © {new Date().getFullYear()} SheEnableAI · Built for women, by women
+            <Heart size={11} fill="currentColor" /> © {new Date().getFullYear()} SheEnableAI · Built for women
           </div>
           <div className="flex gap-5">
             <a href="#" className="hover:text-white transition-colors">Privacy</a>
