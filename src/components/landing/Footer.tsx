@@ -2,7 +2,7 @@
 import { Link } from "react-router-dom";
 import { Heart, Twitter, Linkedin, Instagram } from "lucide-react";
 import { useState } from "react";
-
+import logo from "@/assets/sheEnableAI-removebg-preview.png";
 const COL_CANDIDATES = [
   { label: "Browse Jobs", href: "#jobs" },
   { label: "CV Builder", href: "/auth/signup" },
@@ -33,11 +33,17 @@ export default function Footer() {
           {/* Brand + mission */}
           <div className="lg:col-span-1">
             <div className="flex items-center gap-2.5 mb-4">
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "var(--grad-mauve-rose)" }}>
+              {/* <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "var(--grad-mauve-rose)" }}>
                 <Heart size={15} className="text-white" fill="white" />
               </div>
-              <span className="font-serif text-xl text-white">SheEnableAI</span>
+              <span className="font-serif text-xl text-white">SheEnableAI</span> */}
             </div>
+             <img
+                                src={logo}
+                                alt="SheEnableAI logo"
+                                className="w-48 h-24 object-contain transition-transform group-hover:scale-105"
+                              />
+                             
             <p className="text-[12px] leading-relaxed text-white/55 mb-5 max-w-xs">
               Pakistan's premium hiring platform built for ambitious women. Where talent finds its worth — and where inclusive employers find extraordinary teams.
             </p>
