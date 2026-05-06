@@ -38,7 +38,7 @@ export default function LandingPage() {
     <div ref={containerRef} className="min-h-screen bg-background overflow-x-hidden">
       <GlassNav />
 
-      {/* ─── HERO ─────────────────────────────────────────────────────── */}
+      {/*  HERO */}
       <section
         className="relative overflow-hidden text-white"
         style={{ background: "var(--grad-hero)", minHeight: "min(100vh, 760px)" }}
@@ -130,7 +130,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── STATS ─────────────────────────────────────────────────────── */}
+      {/*  STATS */}
       <section className="bg-secondary/40 border-b border-border bg-arcs">
         <div className="max-w-[1280px] mx-auto px-5 lg:px-8 py-16 lg:py-20">
           <div className="text-center mb-10">
@@ -160,13 +160,13 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── HOW IT WORKS ──────────────────────────────────────────────── */}
+      {/*  HOW IT WORKS  */}
       <HowItWorksTabs />
 
-      {/* ─── FEATURED JOBS ─────────────────────────────────────────────── */}
+      {/*  FEATURED JOBS ── */}
       <FeaturedJobs />
 
-      {/* ─── VALUE STRIP — between jobs and stories ───────────────────── */}
+      {/*  VALUE STRIP — between jobs and stories  */}
       <section className="border-y border-border bg-card">
         <div className="max-w-[1280px] mx-auto px-5 lg:px-8 py-10 grid sm:grid-cols-3 gap-6">
           {[
@@ -187,13 +187,13 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── TESTIMONIALS ──────────────────────────────────────────────── */}
+      {/*  TESTIMONIALS  */}
       <Testimonials />
 
-      {/* ─── EMPLOYER CTA BAND ─────────────────────────────────────────── */}
+      {/*  EMPLOYER CTA BAND ─ */}
       <EmployerCTA />
 
-      {/* ─── FOOTER ────────────────────────────────────────────────────── */}
+      {/*  FOOTER  */}
       <Footer />
     </div>
   );
