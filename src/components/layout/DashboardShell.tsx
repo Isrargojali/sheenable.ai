@@ -7,14 +7,15 @@ import {
   Bell, LogOut, Menu, X, Heart, Settings,
   type LucideIcon,
 } from "lucide-react";
+import logo from "@/assets/sheEnableAI-removebg-preview.png";
 import { cn, initials } from "@/lib/utils";
 import { useAuthStore, UserRole } from "@/store/authStore";
 import { useNotifStore } from "@/store/notifStore";
 import { MOCK_USERS } from "@/mock/data";
 
-// ────────────────────────────────────────────────────────────────────────
+//
 // NAV CONFIG per role
-// ────────────────────────────────────────────────────────────────────────
+//
 type NavItem = { to: string; label: string; icon: LucideIcon; badge?: string };
 type NavGroup = { label: string; items: NavItem[] };
 
@@ -93,9 +94,9 @@ const ROLE_LABEL: Record<UserRole, string> = {
   SUPER_ADMIN: "Super Admin",
 };
 
-// ────────────────────────────────────────────────────────────────────────
+//
 // SIDEBAR
-// ────────────────────────────────────────────────────────────────────────
+//
 function Sidebar({ onNav }: { onNav?: () => void }) {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
@@ -125,15 +126,20 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
     <aside className="w-[240px] flex-shrink-0 bg-card border-r border-border flex flex-col h-full">
       {/* Brand */}
       <div className="px-4 py-4 border-b border-border flex items-center gap-2.5">
-        <div className="w-9 h-9 rounded-xl flex items-center justify-center"
+        {/* <div className="w-9 h-9 rounded-xl flex items-center justify-center"
              style={{ background: "var(--grad-mauve-rose)" }}>
           <Heart size={16} className="text-white" fill="white" />
-        </div>
+        </div> */}
+         <img
+                                src={logo}
+                                alt="SheEnableAI logo"
+                                className="w-48 h-24 object-contain transition-transform group-hover:scale-105"
+                              />
         <div>
-          <div className="font-serif text-lg leading-none text-foreground">SheEnableAI</div>
+          {/* <div className="font-serif text-lg leading-none text-foreground">SheEnableAI</div>
           <div className="text-[9px] uppercase tracking-[1.5px] text-muted-foreground mt-0.5">
             Women's Platform
-          </div>
+          </div> */}
         </div>
       </div>
 
@@ -215,9 +221,9 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
   );
 }
 
-// ────────────────────────────────────────────────────────────────────────
+//
 // TOPBAR
-// ────────────────────────────────────────────────────────────────────────
+//
 function Topbar({
   title, subtitle, actions, onMenu,
 }: { title: string; subtitle?: string; actions?: ReactNode; onMenu: () => void }) {
@@ -295,9 +301,9 @@ function Topbar({
   );
 }
 
-// ────────────────────────────────────────────────────────────────────────
+//
 // SHELL
-// ────────────────────────────────────────────────────────────────────────
+//
 export function DashboardShell({
   title, subtitle, actions, children,
 }: { title: string; subtitle?: string; actions?: ReactNode; children: ReactNode }) {
@@ -343,9 +349,9 @@ export function DashboardShell({
   );
 }
 
-// ────────────────────────────────────────────────────────────────────────
+//
 // SHARED PRIMITIVES (re-exported so pages can import from one place)
-// ────────────────────────────────────────────────────────────────────────
+//
 export function SectionCard({
   title, subtitle, actions, action, children, className, noPad,
 }: {
