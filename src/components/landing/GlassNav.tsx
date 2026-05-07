@@ -73,11 +73,11 @@ export default function GlassNav() {
               Post a Job
             </Link>
             <Link
-  to="/auth/signup"
-  className="hidden lg:inline-flex items-center px-4 h-9 rounded-full text-[12px] font-bold bg-primary text-primary-foreground hover:bg-mauve-600 hover:-translate-y-0.5 hover:shadow-elev2 press"
->
-  Join Free
-</Link>
+              to="/auth/signup"
+              className="hidden lg:inline-flex items-center px-4 h-9 rounded-full text-[12px] font-bold bg-primary text-primary-foreground hover:bg-mauve-600 hover:-translate-y-0.5 hover:shadow-elev2 press"
+            >
+              Join Free
+            </Link>
 
             <button
               onClick={() => setOpen(true)}
