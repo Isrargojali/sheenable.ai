@@ -1,5 +1,3 @@
-// src/components/landing/JobTicker.tsx
-// Scrolling horizontal strip of "live" job postings under the hero CTAs.
 import { Briefcase, MapPin } from "lucide-react";
 
 const TICKER = [
