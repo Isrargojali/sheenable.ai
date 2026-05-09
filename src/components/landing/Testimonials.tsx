@@ -1,4 +1,3 @@
-
 import { Quote, Star } from "lucide-react";
 
 const TESTIMONIALS = [
