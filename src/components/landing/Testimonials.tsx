@@ -55,7 +55,7 @@ export default function Testimonials() {
               </div>
               <figcaption className="flex items-center gap-3 pt-4 border-t border-border">
                 <div className="w-10 h-10 rounded-full flex items-center justify-center text-[12px] font-bold text-white"
-                     style={{ background: "var(--grad-mauve-rose)" }}>
+                  style={{ background: "var(--grad-mauve-rose)" }}>
                   {t.avatar}
                 </div>
                 <div>
