@@ -2,18 +2,11 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
-    const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/she-enable-ai';
-    
-    const conn = await mongoose.connect(mongoURI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-
-    console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
-    return conn;
+    const conn = await mongoose.connect(process.env.MONGO_URI);
+    console.log(`✅ MongoDB connected: ${conn.connection.host}`);
   } catch (error) {
-    console.error(`❌ MongoDB Connection Error: ${error.message}`);
-    process.exit(1);
+    console.error(`❌ MongoDB connection failed: ${error.message}`);
+    process.exit(1); // Kill the server if DB fails — no point running without data
   }
 };
 
