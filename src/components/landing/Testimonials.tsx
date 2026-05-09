@@ -1,4 +1,4 @@
-// src/components/landing/Testimonials.tsx
+
 import { Quote, Star } from "lucide-react";
 
 const TESTIMONIALS = [
