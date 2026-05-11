@@ -3,15 +3,15 @@ const { getDatabase } = require('../config/database');
 // ─── GET ME ───────────────────────────────────────────────────────────────────
 const getMe = async (req, res, next) => {
   try {
-    const db              = getDatabase();
-    const UserModel       = db.User             || require('../models/User');
-    const CandidateModel  = db.CandidateProfile || require('../models/CandidateProfile');
-    const EmployerModel   = db.EmployerProfile  || require('../models/EmployerProfile');
+    const db = getDatabase();
+    const UserModel = db.User || require('../models/User');
+    const CandidateModel = db.CandidateProfile || require('../models/CandidateProfile');
+    const EmployerModel = db.EmployerProfile || require('../models/EmployerProfile');
 
     const user = await UserModel.findById(req.user._id);
     let profile = null;
     if (req.user.role === 'CANDIDATE') profile = await CandidateModel.findOne({ userId: req.user._id });
-    if (req.user.role === 'EMPLOYER')  profile = await EmployerModel.findOne({ userId: req.user._id });
+    if (req.user.role === 'EMPLOYER') profile = await EmployerModel.findOne({ userId: req.user._id });
 
     const userObj = user.toObject ? user.toObject() : { ...user };
     delete userObj.password;
@@ -25,7 +25,7 @@ const getMe = async (req, res, next) => {
 // ─── UPDATE PROFILE ───────────────────────────────────────────────────────────
 const updateProfile = async (req, res, next) => {
   try {
-    const db        = getDatabase();
+    const db = getDatabase();
     const UserModel = db.User || require('../models/User');
     const { firstName, lastName, phone, avatarUrl } = req.body;
     const user = await UserModel.findByIdAndUpdate(
@@ -53,10 +53,10 @@ const getCandidateStats = async (req, res, next) => {
       success: true,
       data: {
         profileViews: profileViews || 12,
-        jobMatches:   jobMatches   || 8,
-        applications:  applications || 3,
+        jobMatches: jobMatches || 8,
+        applications: applications || 3,
         certifications: certifications || 1,
-        profileScore:  profileScore || 30,
+        profileScore: profileScore || 30,
       }
     });
   } catch (err) { next(err); }
@@ -72,7 +72,7 @@ const getUpcomingInterviews = async (req, res, next) => {
       const Interview = require('../models/Interview');
       interviews = await Interview.find({
         candidateId: req.user._id,
-        status:      'SCHEDULED',
+        status: 'SCHEDULED',
         scheduledAt: { $gte: new Date() },
       })
         .populate('interviewerId', 'firstName lastName')
