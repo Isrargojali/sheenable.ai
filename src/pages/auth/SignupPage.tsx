@@ -1,10 +1,8 @@
 // src/pages/auth/SignupPage.tsx
-// Candidate signup: identity confirmation REQUIRED (women-only mission).
-// Employer signup: company info + work email.
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import logo from "@/assets/sheEnableAI-removebg-preview.png";
-import { Eye, EyeOff, Heart, ArrowRight, Building2, User, Mail, Lock } from "lucide-react";
+import { Eye, EyeOff, ArrowRight, Building2, User, Mail, Lock } from "lucide-react";
 import { apiAuth } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -17,14 +15,14 @@ function PwdStrength({ pwd }: { pwd: string }) {
   if (/[a-z]/.test(pwd)) s++;
   if (/[0-9]/.test(pwd)) s++;
   if (/[!@#$%^&*]/.test(pwd)) s++;
-  const colors = ["", "#DC2626","#D97706","#D97706","#3DAA7D","#2C8862"];
-  const labels = ["", "Very weak","Weak","Fair","Strong","Very strong"];
+  const colors = ["", "#DC2626", "#D97706", "#D97706", "#3DAA7D", "#2C8862"];
+  const labels = ["", "Very weak", "Weak", "Fair", "Strong", "Very strong"];
   return (
     <div className="mt-2">
       <div className="flex gap-1">
-        {[1,2,3,4,5].map(i => (
+        {[1, 2, 3, 4, 5].map(i => (
           <div key={i} className="flex-1 h-1 rounded-full transition-all duration-300"
-               style={{ background: i <= s ? colors[s] : "hsl(var(--border))" }} />
+            style={{ background: i <= s ? colors[s] : "hsl(var(--border))" }} />
         ))}
       </div>
       {pwd && <p className="text-[10px] mt-1 font-medium" style={{ color: colors[s] }}>{labels[s]}</p>}
@@ -34,10 +32,26 @@ function PwdStrength({ pwd }: { pwd: string }) {
 
 const COMPANY_SIZES = ["1–10", "11–50", "51–200", "201–1000", "1000+"];
 
+const inputCls =
+  "w-full h-11 px-3.5 border border-border rounded-xl text-[13px] bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/15 focus:border-primary transition-all";
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <label className="block text-[11px] font-bold text-foreground/75 uppercase tracking-wide mb-1.5">{label}</label>
+      {children}
+    </div>
+  );
+}
+
 export default function SignupPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [params] = useSearchParams();
   const initialRole: Role = params.get("role") === "EMPLOYER" ? "EMPLOYER" : "CANDIDATE";
+
+  // Show notice if redirected back from a stale OTP session
+  const notice = (location.state as { notice?: string })?.notice ?? "";
 
   const [role,        setRole]        = useState<Role>(initialRole);
   const [fname,       setFname]       = useState("");
@@ -46,53 +60,55 @@ export default function SignupPage() {
   const [pwd,         setPwd]         = useState("");
   const [confirm,     setConfirm]     = useState("");
   const [showPwd,     setShowPwd]     = useState(false);
-
-  // Candidate-only required field — enforces women-only mission
   const [identityOk,  setIdentityOk]  = useState(false);
-
-  // Employer-only fields
   const [companyName, setCompanyName] = useState("");
   const [companySize, setCompanySize] = useState(COMPANY_SIZES[1]);
-
-  const [error,       setError]       = useState("");
+  const [error,       setError]       = useState(notice);
   const [loading,     setLoading]     = useState(false);
 
-  useEffect(() => { document.title = "Join SheEnableAI — Free for women, forever"; }, []);
+  useEffect(() => {
+    document.title = "Join SheEnableAI — Free for women, forever";
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
 
     if (role === "CANDIDATE") {
-      if (!fname.trim()) return setError("First name is required");
-      if (!lname.trim()) return setError("Last name is required");
-      if (!identityOk)   return setError("Please confirm your identity to continue. SheEnableAI is for women and non-binary individuals.");
+      if (!fname.trim())  return setError("First name is required");
+      if (!lname.trim())  return setError("Last name is required");
+      if (!identityOk)    return setError("Please confirm your identity to continue.");
     } else {
       if (!companyName.trim()) return setError("Company name is required");
     }
 
-    if (!email.trim())     return setError("Email is required");
-    if (pwd.length < 8)    return setError("Password must be at least 8 characters");
-    if (pwd !== confirm)   return setError("Passwords do not match");
+    if (!email.trim())        return setError("Email is required");
+    if (pwd.length < 8)       return setError("Password must be at least 8 characters");
+    if (!/[A-Z]/.test(pwd))   return setError("Password must contain at least one uppercase letter");
+    if (!/[a-z]/.test(pwd))   return setError("Password must contain at least one lowercase letter");
+    if (!/[0-9]/.test(pwd))   return setError("Password must contain at least one number");
+    if (pwd !== confirm)      return setError("Passwords do not match");
 
     setLoading(true);
     try {
-      const res = await apiAuth.signup({
+      const res = await apiAuth.register({
         email,
         password: pwd,
         firstName: role === "CANDIDATE" ? fname : companyName,
         lastName:  role === "CANDIDATE" ? lname : companySize,
         role,
       });
-      navigate(`/auth/verify?userId=${res.userId}&email=${encodeURIComponent(email)}`);
+      // Pass devOtp in URL so VerifyOtpPage can show it for easy copy/auto-fill
+      const devOtpParam = res.data.devOtp ? `&devOtp=${res.data.devOtp}` : "";
+      navigate(`/auth/verify?userId=${res.data.userId}&email=${encodeURIComponent(email)}${devOtpParam}`);
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else if (typeof err === "object" && err !== null && "message" in err && typeof (err as { message: unknown }).message === "string") {
-        setError((err as { message: string }).message);
-      } else {
-        setError("Signup failed");
-      }
+      const axiosErr = err as { response?: { data?: { message?: string; errors?: { msg: string }[] } } };
+      console.log("REGISTER ERROR:", axiosErr.response?.data);
+      const message =
+        axiosErr.response?.data?.errors?.[0]?.msg ??
+        axiosErr.response?.data?.message ??
+        "Signup failed. Please try again.";
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -101,20 +117,14 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background bg-arcs px-4 py-10">
       <div className="w-full max-w-[440px]">
+
         {/* Brand */}
         <div className="flex items-center gap-2.5 mb-7">
-          {/* <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "var(--grad-mauve-rose)" }}>
-            <Heart size={15} className="text-white" fill="white" />
-          </div> */}
           <img
-                                  src={logo}
-                                  alt="SheEnableAI logo"
-                                  className="w-48 h-24 object-contain transition-transform group-hover:scale-105"
-                                />
-          {/* <div>
-            <div className="font-serif text-xl text-foreground leading-none">SheEnableAI</div>
-            <div className="text-[9px] text-muted-foreground uppercase tracking-[2px] mt-1">Women's platform</div>
-          </div> */}
+            src={logo}
+            alt="SheEnableAI logo"
+            className="w-48 h-24 object-contain transition-transform group-hover:scale-105"
+          />
         </div>
 
         <h1 className="font-serif text-4xl text-foreground mb-1.5 tracking-tight">
@@ -152,25 +162,23 @@ export default function SignupPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           {role === "CANDIDATE" ? (
-            <>
-              <div className="grid grid-cols-2 gap-3">
-                <Field label="First name">
-                  <input value={fname} onChange={e => setFname(e.target.value)} placeholder="Ayesha"
-                         className={inputCls} />
-                </Field>
-                <Field label="Last name">
-                  <input value={lname} onChange={e => setLname(e.target.value)} placeholder="Khan"
-                         className={inputCls} />
-                </Field>
-              </div>
-            </>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="First name">
+                <input value={fname} onChange={e => setFname(e.target.value)}
+                  placeholder="Ayesha" className={inputCls} />
+              </Field>
+              <Field label="Last name">
+                <input value={lname} onChange={e => setLname(e.target.value)}
+                  placeholder="Khan" className={inputCls} />
+              </Field>
+            </div>
           ) : (
             <>
               <Field label="Company name">
                 <div className="relative">
                   <Building2 className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={14} />
                   <input value={companyName} onChange={e => setCompanyName(e.target.value)}
-                         placeholder="Acme Inc." className={cn(inputCls, "pl-10")} />
+                    placeholder="Acme Inc." className={cn(inputCls, "pl-10")} />
                 </div>
               </Field>
               <Field label="Company size">
@@ -185,9 +193,9 @@ export default function SignupPage() {
             <div className="relative">
               <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={14} />
               <input type="email" value={email} onChange={e => setEmail(e.target.value)}
-                     placeholder={role === "EMPLOYER" ? "you@company.com" : "you@example.com"}
-                     autoComplete="email"
-                     className={cn(inputCls, "pl-10")} />
+                placeholder={role === "EMPLOYER" ? "you@company.com" : "you@example.com"}
+                autoComplete="email"
+                className={cn(inputCls, "pl-10")} />
             </div>
             {role === "EMPLOYER" && (
               <p className="text-[10px] text-muted-foreground mt-1.5">We verify employers via your work email domain.</p>
@@ -198,12 +206,12 @@ export default function SignupPage() {
             <div className="relative">
               <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={14} />
               <input type={showPwd ? "text" : "password"} value={pwd} onChange={e => setPwd(e.target.value)}
-                     placeholder="Min. 8 characters"
-                     autoComplete="new-password"
-                     className={cn(inputCls, "pl-10 pr-10")} />
+                placeholder="Min. 8 characters"
+                autoComplete="new-password"
+                className={cn(inputCls, "pl-10 pr-10")} />
               <button type="button" onClick={() => setShowPwd(v => !v)}
-                      aria-label={showPwd ? "Hide password" : "Show password"}
-                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors">
+                aria-label={showPwd ? "Hide password" : "Show password"}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors">
                 {showPwd ? <EyeOff size={14} /> : <Eye size={14} />}
               </button>
             </div>
@@ -212,27 +220,24 @@ export default function SignupPage() {
 
           <Field label="Confirm password">
             <input type="password" value={confirm} onChange={e => setConfirm(e.target.value)}
-                   placeholder="Repeat password"
-                   autoComplete="new-password"
-                   className={inputCls} />
+              placeholder="Repeat password"
+              autoComplete="new-password"
+              className={inputCls} />
           </Field>
 
-          {/* Women-only confirmation — required for candidates */}
+          {/* Women-only confirmation */}
           {role === "CANDIDATE" && (
-            <label
-              className={cn(
-                "flex items-start gap-3 rounded-2xl border-l-[3px] p-4 cursor-pointer press",
-                identityOk
-                  ? "bg-mint-50 border-mint-300 border border-l-mint-500"
-                  : "bg-mauve-50 border-mauve-200 border border-l-primary"
-              )}
-            >
+            <label className={cn(
+              "flex items-start gap-3 rounded-2xl border-l-[3px] p-4 cursor-pointer press",
+              identityOk
+                ? "bg-mint-50 border-mint-300 border border-l-mint-500"
+                : "bg-mauve-50 border-mauve-200 border border-l-primary"
+            )}>
               <input
                 type="checkbox"
                 checked={identityOk}
                 onChange={e => { setIdentityOk(e.target.checked); setError(""); }}
                 className="mt-0.5 w-4 h-4 accent-primary cursor-pointer flex-shrink-0"
-                aria-required="true"
               />
               <span className="text-[12px] text-foreground/85 leading-relaxed">
                 <strong className="text-foreground">I confirm I identify as a woman or non-binary individual.</strong>
@@ -247,7 +252,7 @@ export default function SignupPage() {
             disabled={loading}
             className="w-full h-12 rounded-full text-[13px] font-bold bg-primary text-primary-foreground hover:bg-mauve-600 hover:-translate-y-0.5 hover:shadow-elev2 press disabled:opacity-50 disabled:transform-none mt-3 inline-flex items-center justify-center gap-2"
           >
-            {loading ? "Creating account…" : <>Create account <ArrowRight size={14} /></>}
+            {loading ? "Creating account…" : <><span>Create account</span> <ArrowRight size={14} /></>}
           </button>
         </form>
 
@@ -260,18 +265,6 @@ export default function SignupPage() {
           By signing up you agree to our <a href="#" className="underline">Terms</a> and <a href="#" className="underline">Privacy Policy</a>.
         </div>
       </div>
-    </div>
-  );
-}
-
-const inputCls =
-  "w-full h-11 px-3.5 border border-border rounded-xl text-[13px] bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/15 focus:border-primary transition-all";
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <label className="block text-[11px] font-bold text-foreground/75 uppercase tracking-wide mb-1.5">{label}</label>
-      {children}
     </div>
   );
 }

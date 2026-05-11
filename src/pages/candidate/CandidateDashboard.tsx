@@ -56,9 +56,20 @@ const STAT_ICONS: StatIcon[] = [
 ];
 
 export default function CandidateDashboard() {
-  const { data: stats } = useQuery<CandidateStats>({ queryKey: ["candidateStats"], queryFn: apiProfile.getCandidateStats });
-  const { data: rec }   = useQuery<RecommendedJob[]>({ queryKey: ["recommendedJobs"], queryFn: apiJobs.getRecommendations });
-  const { data: ints }  = useQuery<Interview[]>({ queryKey: ["interviews"],     queryFn: apiProfile.getUpcomingInterviews });
+  // Each queryFn unwraps the Axios envelope (r.data) then the backend envelope (.data)
+  // so React Query stores the actual data, not the raw AxiosResponse object.
+  const { data: stats } = useQuery<CandidateStats>({
+    queryKey: ["candidateStats"],
+    queryFn:  () => apiProfile.getCandidateStats().then(r => r.data?.data ?? r.data),
+  });
+  const { data: rec } = useQuery<RecommendedJob[]>({
+    queryKey: ["recommendedJobs"],
+    queryFn:  () => apiJobs.getRecommendations().then(r => r.data?.data ?? []),
+  });
+  const { data: ints } = useQuery<Interview[]>({
+    queryKey: ["interviews"],
+    queryFn:  () => apiProfile.getUpcomingInterviews().then(r => r.data?.data ?? []),
+  });
 
   return (
     <DashboardShell

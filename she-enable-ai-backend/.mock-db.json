@@ -1,0 +1,43 @@
+{
+  "users": {
+    "mock_1778523655289_0.9713371251191973": {
+      "_id": "mock_1778523655289_0.9713371251191973",
+      "createdAt": "2026-05-11T18:20:55.289Z",
+      "updatedAt": "2026-05-11T18:21:16.035Z",
+      "firstName": "Ayesha",
+      "lastName": "khan",
+      "email": "ayeshakhan@gmail.com",
+      "password": "Ayesha@123",
+      "role": "CANDIDATE",
+      "isVerified": true,
+      "isActive": true,
+      "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Im1vY2tfMTc3ODUyMzY1NTI4OV8wLjk3MTMzNzEyNTExOTE5NzMiLCJpYXQiOjE3Nzg1MjM2NzYsImV4cCI6MTc3OTEyODQ3Nn0.d1b6WNmOkXfepWBRAScJdney55rIdmTZk55Pwwc0NOE"
+    },
+    "mock_1778523763019_0.839279611824993": {
+      "_id": "mock_1778523763019_0.839279611824993",
+      "createdAt": "2026-05-11T18:22:43.019Z",
+      "updatedAt": "2026-05-11T18:22:43.730Z",
+      "firstName": "Ayesha",
+      "lastName": "Khan",
+      "email": "ayesha@test.com",
+      "password": "Test1234!",
+      "role": "CANDIDATE",
+      "isVerified": true,
+      "isActive": true,
+      "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Im1vY2tfMTc3ODUyMzc2MzAxOV8wLjgzOTI3OTYxMTgyNDk5MyIsImlhdCI6MTc3ODUyMzc2MywiZXhwIjoxNzc5MTI4NTYzfQ.VqQBSZh1yCOVw_1_0_dgHKlUnkPvooSsSve2QhfMB8A"
+    }
+  },
+  "candidateProfiles": {
+    "mock_1778523655289_0.9713371251191973": {
+      "_id": "mock_1778523655289_0.9713371251191973",
+      "userId": "mock_1778523655289_0.9713371251191973",
+      "createdAt": "2026-05-11T18:20:55.308Z"
+    },
+    "mock_1778523763019_0.839279611824993": {
+      "_id": "mock_1778523763019_0.839279611824993",
+      "userId": "mock_1778523763019_0.839279611824993",
+      "createdAt": "2026-05-11T18:22:43.026Z"
+    }
+  },
+  "employerProfiles": {}
+}

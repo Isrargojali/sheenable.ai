@@ -1,42 +1,30 @@
-class APIFeatures {
-  constructor(query, queryStr) {
+class ApiFeatures {
+  constructor(query, queryString) {
     this.query = query;
-    this.queryStr = queryStr;
+    this.queryString = queryString;
   }
 
-  filter() {
-    // Create a shallow copy to avoid mutating the original
-    const queryCopy = { ...this.queryStr };
-
-    // Remove fields that are not for filtering
-    const removeFields = ['page', 'limit', 'sort', 'search'];
-    removeFields.forEach((field) => delete queryCopy[field]);
-
-    // Advanced filtering for price, salary, experience, etc.
-    let queryStr = JSON.stringify(queryCopy);
-    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
-
-    this.query = this.query.find(JSON.parse(queryStr));
-    return this;
-  }
-
-  search() {
-    if (this.queryStr.search) {
-      const keyword = this.queryStr.search;
-      this.query = this.query.find({
-        $or: [
-          { title: { $regex: keyword, $options: 'i' } },
-          { description: { $regex: keyword, $options: 'i' } },
-          { location: { $regex: keyword, $options: 'i' } },
-        ],
-      });
+  search(fields = []) {
+    if (this.queryString.search) {
+      const keyword = { $or: fields.map(field => ({ [field]: { $regex: this.queryString.search, $options: 'i' } })) };
+      this.query = this.query.find(keyword);
     }
     return this;
   }
 
+  filter() {
+    const queryObj = { ...this.queryString };
+    const excludedFields = ['search', 'sort', 'page', 'limit', 'fields'];
+    excludedFields.forEach(f => delete queryObj[f]);
+    let queryStr = JSON.stringify(queryObj);
+    queryStr = queryStr.replace(/\b(gt|gte|lt|lte)\b/g, match => `$${match}`);
+    this.query = this.query.find(JSON.parse(queryStr));
+    return this;
+  }
+
   sort() {
-    if (this.queryStr.sort) {
-      const sortBy = this.queryStr.sort.split(',').join(' ');
+    if (this.queryString.sort) {
+      const sortBy = this.queryString.sort.split(',').join(' ');
       this.query = this.query.sort(sortBy);
     } else {
       this.query = this.query.sort('-createdAt');
@@ -44,20 +32,15 @@ class APIFeatures {
     return this;
   }
 
-  pagination() {
-    const page = parseInt(this.queryStr.page) || 1;
-    const limit = parseInt(this.queryStr.limit) || 10;
+  paginate(defaultLimit = 10) {
+    const page = parseInt(this.queryString.page, 10) || 1;
+    const limit = parseInt(this.queryString.limit, 10) || defaultLimit;
     const skip = (page - 1) * limit;
-
-    this.query = this.query.limit(limit).skip(skip);
-    this.pagination_result = { page, limit };
-
+    this.query = this.query.skip(skip).limit(limit);
+    this.page = page;
+    this.limit = limit;
     return this;
-  }
-
-  async execute() {
-    return this.query;
   }
 }
 
-module.exports = APIFeatures;
+module.exports = ApiFeatures;
