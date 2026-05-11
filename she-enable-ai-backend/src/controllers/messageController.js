@@ -126,3 +126,4 @@ const deleteThread = async (req, res, next) => {
 };
 
 module.exports = { getThreads, getMessages, createThread, sendMessage, markThreadRead, getUnreadCount, deleteThread };
+
