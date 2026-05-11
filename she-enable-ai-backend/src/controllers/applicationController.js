@@ -65,7 +65,7 @@ const updateStatus = async (req, res, next) => {
     if (status === 'OFFERED' && offerDetails) application.offerDetails = offerDetails;
     await application.save();
     const candidate = await User.findById(application.candidateId);
-    try { await sendApplicationStatusEmail(candidate.email, candidate.firstName, job.title, status, rejectionReason); } catch {}
+    try { await sendApplicationStatusEmail(candidate.email, candidate.firstName, job.title, status, rejectionReason); } catch { }
     await Notification.create({ userId: application.candidateId, type: 'APPLICATION_STATUS', title: `Application update for "${job.title}"`, body: `Your application status changed to ${status}`, relatedId: application._id, relatedType: 'Application' });
     const io = req.app.get('io');
     if (io) io.to(application.candidateId.toString()).emit('application-update', { applicationId: application._id, jobTitle: job.title, newStatus: status, previousStatus });
@@ -103,23 +103,23 @@ const getPipeline = async (req, res, next) => {
 
     // Fetch all relevant candidate profiles in ONE query
     const candidateIds = applications.map(a => a.candidateId._id);
-    const profiles     = await CandidateProfile.find({ userId: { $in: candidateIds } })
+    const profiles = await CandidateProfile.find({ userId: { $in: candidateIds } })
       .select('userId title skills yearsOfExperience cvUrl')
       .lean();
     const profileMap = Object.fromEntries(profiles.map(p => [p.userId.toString(), p]));
 
     const pipeline = { APPLIED: [], SCREENING: [], INTERVIEW: [], OFFERED: [], REJECTED: [] };
     for (const app of applications) {
-      const profile  = profileMap[app.candidateId._id.toString()] || null;
+      const profile = profileMap[app.candidateId._id.toString()] || null;
       const enriched = { ...app, profile, allowedTransitions: ALLOWED_TRANSITIONS[app.status] };
       if (pipeline[app.status]) pipeline[app.status].push(enriched);
     }
 
     res.json({
       success: true,
-      job:     { _id: job._id, title: job.title, applicationCount: job.applicationCount },
+      job: { _id: job._id, title: job.title, applicationCount: job.applicationCount },
       pipeline,
-      totals:  Object.fromEntries(Object.entries(pipeline).map(([k, v]) => [k, v.length])),
+      totals: Object.fromEntries(Object.entries(pipeline).map(([k, v]) => [k, v.length])),
     });
   } catch (err) { next(err); }
 };
@@ -154,7 +154,7 @@ const bulkUpdateStatus = async (req, res, next) => {
           return;
         }
 
-        app.status           = status;
+        app.status = status;
         app.isReadByCandidate = false;
         app.statusHistory.push({ status, changedBy: req.user._id, changedAt: new Date(), note: note || '' });
         if (status === 'REJECTED') { app.rejectionReason = rejectionReason || ''; app.rejectedAt = new Date(); }
