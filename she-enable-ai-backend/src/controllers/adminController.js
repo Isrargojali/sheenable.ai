@@ -1,6 +1,6 @@
-const User        = require('../models/User');
-const AuditLog    = require('../models/AuditLog');
-const Job         = require('../models/Job');
+const User = require('../models/User');
+const AuditLog = require('../models/AuditLog');
+const Job = require('../models/Job');
 const Application = require('../models/Application');
 
 // ─── GET USERS (with search, role filter, pagination) ────────────────────────
@@ -13,8 +13,8 @@ const getUsers = async (req, res, next) => {
     if (search) {
       filter.$or = [
         { firstName: { $regex: search, $options: 'i' } },
-        { lastName:  { $regex: search, $options: 'i' } },
-        { email:     { $regex: search, $options: 'i' } },
+        { lastName: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
       ];
     }
     const total = await User.countDocuments(filter);
@@ -104,10 +104,10 @@ const deleteUser = async (req, res, next) => {
     }
 
     // Soft delete — deactivate and anonymize PII rather than hard delete
-    target.isActive   = false;
-    target.email      = `deleted_${target._id}@sheenableai.deleted`;
-    target.firstName  = 'Deleted';
-    target.lastName   = 'User';
+    target.isActive = false;
+    target.email = `deleted_${target._id}@sheenableai.deleted`;
+    target.firstName = 'Deleted';
+    target.lastName = 'User';
     target.refreshToken = undefined;
     await target.save();
 
@@ -121,10 +121,10 @@ const getAuditLogs = async (req, res, next) => {
     const { page = 1, limit = 50, action, userId: filterUserId } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const filter = {};
-    if (action)       filter.action   = { $regex: action, $options: 'i' };
-    if (filterUserId) filter.userId   = filterUserId;
+    if (action) filter.action = { $regex: action, $options: 'i' };
+    if (filterUserId) filter.userId = filterUserId;
     const total = await AuditLog.countDocuments(filter);
-    const logs  = await AuditLog.find(filter)
+    const logs = await AuditLog.find(filter)
       .populate('userId', 'firstName lastName email role')
       .sort('-createdAt')
       .skip(skip)
@@ -139,7 +139,7 @@ const getPlatformStats = async (req, res, next) => {
     const [totalUsers, totalCandidates, totalEmployers, totalJobs, totalApplications, newUsersThisMonth] = await Promise.all([
       User.countDocuments({ isActive: true }),
       User.countDocuments({ role: 'CANDIDATE', isActive: true }),
-      User.countDocuments({ role: 'EMPLOYER',  isActive: true }),
+      User.countDocuments({ role: 'EMPLOYER', isActive: true }),
       Job.countDocuments({ status: 'PUBLISHED' }),
       Application.countDocuments(),
       User.countDocuments({ createdAt: { $gte: new Date(new Date().setDate(1)) } }),
