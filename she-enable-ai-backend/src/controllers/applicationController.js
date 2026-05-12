@@ -14,7 +14,12 @@ const ALLOWED_TRANSITIONS = {
   WITHDRAWN: [],
 };
 
+const { isMongoConnected } = require('../config/database');
+
 const getApplications = async (req, res, next) => {
+  if (!isMongoConnected()) {
+    return res.json({ success: true, total: 0, totalPages: 0, currentPage: 1, count: 0, data: [] });
+  }
   try {
     const { status, page = 1, limit = 20 } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -90,6 +95,9 @@ const withdrawApplication = async (req, res, next) => {
 };
 
 const getPipeline = async (req, res, next) => {
+  if (!isMongoConnected()) {
+    return res.json({ success: true, job: { title: 'Offline Mode' }, pipeline: { APPLIED: [], SCREENING: [], INTERVIEW: [], OFFERED: [], REJECTED: [] }, totals: { APPLIED: 0, SCREENING: 0, INTERVIEW: 0, OFFERED: 0, REJECTED: 0 } });
+  }
   try {
     const job = await Job.findById(req.params.jobId);
     if (!job) return res.status(404).json({ success: false, message: 'Job not found.' });
@@ -172,6 +180,9 @@ const bulkUpdateStatus = async (req, res, next) => {
 };
 
 const getStats = async (req, res, next) => {
+  if (!isMongoConnected()) {
+    return res.json({ success: true, data: { summary: { total: 0, applied: 0, screening: 0, interview: 0, offered: 0, rejected: 0 }, dailyApplications: [], totalJobs: 0 } });
+  }
   try {
     const jobs = await Job.find({ employerId: req.user._id }).select('_id title');
     const myJobIds = jobs.map(j => j._id);

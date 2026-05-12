@@ -3,7 +3,7 @@
     "mock_1778523655289_0.9713371251191973": {
       "_id": "mock_1778523655289_0.9713371251191973",
       "createdAt": "2026-05-11T18:20:55.289Z",
-      "updatedAt": "2026-05-11T18:21:16.035Z",
+      "updatedAt": "2026-05-12T15:34:29.292Z",
       "firstName": "Ayesha",
       "lastName": "khan",
       "email": "ayeshakhan@gmail.com",
@@ -11,12 +11,14 @@
       "role": "CANDIDATE",
       "isVerified": true,
       "isActive": true,
-      "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Im1vY2tfMTc3ODUyMzY1NTI4OV8wLjk3MTMzNzEyNTExOTE5NzMiLCJpYXQiOjE3Nzg1MjM2NzYsImV4cCI6MTc3OTEyODQ3Nn0.d1b6WNmOkXfepWBRAScJdney55rIdmTZk55Pwwc0NOE"
+      "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Im1vY2tfMTc3ODUyMzY1NTI4OV8wLjk3MTMzNzEyNTExOTE5NzMiLCJpYXQiOjE3Nzg2MDAwNjksImV4cCI6MTc3OTIwNDg2OX0.P4tDYU3-9juAZg-RS6oV7OVt_uXt_t1HwjYnQvolFKU",
+      "lastLogin": "2026-05-12T15:34:29.288Z",
+      "loginAttempts": 0
     },
     "mock_1778523763019_0.839279611824993": {
       "_id": "mock_1778523763019_0.839279611824993",
       "createdAt": "2026-05-11T18:22:43.019Z",
-      "updatedAt": "2026-05-11T18:22:43.730Z",
+      "updatedAt": "2026-05-12T17:54:28.200Z",
       "firstName": "Ayesha",
       "lastName": "Khan",
       "email": "ayesha@test.com",
@@ -24,7 +26,40 @@
       "role": "CANDIDATE",
       "isVerified": true,
       "isActive": true,
-      "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Im1vY2tfMTc3ODUyMzc2MzAxOV8wLjgzOTI3OTYxMTgyNDk5MyIsImlhdCI6MTc3ODUyMzc2MywiZXhwIjoxNzc5MTI4NTYzfQ.VqQBSZh1yCOVw_1_0_dgHKlUnkPvooSsSve2QhfMB8A"
+      "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Im1vY2tfMTc3ODUyMzc2MzAxOV8wLjgzOTI3OTYxMTgyNDk5MyIsImlhdCI6MTc3ODYwODQ2OCwiZXhwIjoxNzc5MjEzMjY4fQ.Z7iYm6R63nq8FY70AnDxTfTEVhDD_dK3LTPd3oJ45Cg",
+      "loginAttempts": 0,
+      "lastLogin": "2026-05-12T17:54:19.358Z"
+    },
+    "mock_1778600165875_0.4337693409275527": {
+      "_id": "mock_1778600165875_0.4337693409275527",
+      "createdAt": "2026-05-12T15:36:05.875Z",
+      "updatedAt": "2026-05-12T15:39:52.482Z",
+      "firstName": "ATT",
+      "lastName": "11–50",
+      "email": "att@gmail.com",
+      "password": "Att@12345",
+      "role": "EMPLOYER",
+      "gender": "",
+      "isVerified": true,
+      "isActive": true,
+      "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Im1vY2tfMTc3ODYwMDE2NTg3NV8wLjQzMzc2OTM0MDkyNzU1MjciLCJpYXQiOjE3Nzg2MDAzOTIsImV4cCI6MTc3OTIwNTE5Mn0.XadNGvX5M8deP_c9b1sjZw_iOUj19QLYp1-2XZFJvGc"
+    },
+    "mock_1778600448812_0.700416434821499": {
+      "_id": "mock_1778600448812_0.700416434821499",
+      "createdAt": "2026-05-12T15:40:48.812Z",
+      "updatedAt": "2026-05-12T15:49:26.618Z",
+      "firstName": "Aliza ",
+      "lastName": "Kareem",
+      "email": "aliza@gmail.com",
+      "password": "Aliza@123",
+      "role": "CANDIDATE",
+      "gender": "",
+      "isVerified": true,
+      "isActive": true,
+      "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Im1vY2tfMTc3ODYwMDQ0ODgxMl8wLjcwMDQxNjQzNDgyMTQ5OSIsImlhdCI6MTc3ODYwMDk2NiwiZXhwIjoxNzc5MjA1NzY2fQ.olY3m4npdFm7C9qQ79jB5RulkEo-mhDEQxcc9TFE788",
+      "phone": "03554444444",
+      "loginAttempts": 0,
+      "lastLogin": "2026-05-12T15:49:26.611Z"
     }
   },
   "candidateProfiles": {
@@ -37,7 +72,19 @@
       "_id": "mock_1778523763019_0.839279611824993",
       "userId": "mock_1778523763019_0.839279611824993",
       "createdAt": "2026-05-11T18:22:43.026Z"
+    },
+    "mock_1778600448812_0.700416434821499": {
+      "_id": "mock_1778600448812_0.700416434821499",
+      "userId": "mock_1778600448812_0.700416434821499",
+      "createdAt": "2026-05-12T15:40:48.816Z"
     }
   },
-  "employerProfiles": {}
+  "employerProfiles": {
+    "mock_1778600165875_0.4337693409275527": {
+      "_id": "mock_1778600165875_0.4337693409275527",
+      "userId": "mock_1778600165875_0.4337693409275527",
+      "companyName": "My Company",
+      "createdAt": "2026-05-12T15:36:05.879Z"
+    }
+  }
 }

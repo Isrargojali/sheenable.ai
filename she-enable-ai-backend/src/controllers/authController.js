@@ -1,11 +1,11 @@
 const { getDatabase, isMongoConnected } = require('../config/database');
 const { generateAccessToken, generateRefreshToken } = require('../utils/generateToken');
-const { sendOTPEmail } = require('../services/emailService');
+const { sendOTPEmail, sendWelcomeEmail, sendPasswordResetEmail } = require('../services/emailService');
 const { validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
 // User model for routes that don't go through getDatabase() (login, logout, refresh)
-// These always run after MongoDB is confirmed connected (otherwise they 401 anyway)
 const User = require('../models/User');
 
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
@@ -16,7 +16,7 @@ const register = async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ success: false, errors: errors.array() });
 
-    const { firstName, lastName, email, password, role } = req.body;
+    const { firstName, lastName, email, password, role, gender } = req.body;
 
     // Block anyone self-registering as ADMIN / SUPER_ADMIN
     if (['ADMIN', 'SUPER_ADMIN'].includes(role)) {
@@ -35,21 +35,23 @@ const register = async (req, res, next) => {
     const otp = generateOTP();
     const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-    const user = await UserModel.create({ firstName, lastName, email, password, role, otpCode: otp, otpExpiry });
+    const user = await UserModel.create({
+      firstName, lastName, email, password, role,
+      gender: gender || '',
+      otpCode: otp, otpExpiry,
+    });
 
     // Create role-specific profile
     if (role === 'CANDIDATE') await CandidateProfileModel.create({ userId: user._id });
     else if (role === 'EMPLOYER') await EmployerProfileModel.create({ userId: user._id, companyName: 'My Company' });
 
-    // Send OTP email (graceful failure — registration still succeeds if email fails)
-    try {
-      await sendOTPEmail(email, firstName, otp);
-    } catch (emailErr) {
+    // Send OTP email (graceful failure)
+    try { await sendOTPEmail(email, firstName, otp); } catch (emailErr) {
       console.warn('⚠ Email service unavailable:', emailErr.message);
     }
 
     // Always log OTP in dev so you can test without SendGrid
-    if (!isMongoConnected() || process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV !== 'production') {
       console.log(`📧 Dev OTP for ${email}: ${otp}`);
     }
 
@@ -57,7 +59,6 @@ const register = async (req, res, next) => {
       success: true,
       message: 'Registration successful. Check your email for the verification code.',
       userId: user._id.toString(),
-      // Expose OTP in dev/test so signup flow can be completed without real email
       ...(process.env.NODE_ENV !== 'production' && { devOtp: otp }),
     });
   } catch (err) {
@@ -78,7 +79,7 @@ const verifyOTP = async (req, res, next) => {
     if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
     if (user.isVerified) return res.status(400).json({ success: false, message: 'Account already verified.' });
 
-    // In dev/mock mode allow any 6-digit code so you can test without real OTP
+    // In dev/mock mode allow any 6-digit code
     if (!isMongoConnected()) {
       if (!code || code.length !== 6) {
         return res.status(400).json({ success: false, message: 'Invalid OTP code (must be 6 digits).' });
@@ -97,19 +98,20 @@ const verifyOTP = async (req, res, next) => {
     user.otpCode    = undefined;
     user.otpExpiry  = undefined;
 
-    // Use .toString() so JWT payload contains a plain string ID,
-    // not a nested MockObjectId object — this is critical for auth middleware
     const idStr        = user._id.toString();
     const accessToken  = generateAccessToken(idStr);
     const refreshToken = generateRefreshToken(idStr);
     user.refreshToken  = refreshToken;
     await user.save();
 
+    // Send welcome email
+    try { await sendWelcomeEmail(user.email, user.firstName, user.role); } catch {}
+
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure:   process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge:   7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge:   7 * 24 * 60 * 60 * 1000,
     });
 
     res.json({
@@ -122,6 +124,7 @@ const verifyOTP = async (req, res, next) => {
         email:     user.email,
         role:      user.role,
         avatarUrl: user.avatarUrl || '',
+        isVerified: true,
       },
     });
   } catch (err) {
@@ -138,21 +141,67 @@ const login = async (req, res, next) => {
 
     const { email, password } = req.body;
 
-    // FIX 1 — User is now imported at the top of this file (was missing in original)
-    const user = await User.findOne({ email }).select('+password +refreshToken');
-    if (!user || !(await user.comparePassword(password))) {
+    const db = getDatabase();
+    const UserModel = db.User || User;
+
+    const user = await UserModel.findOne({ email }).select('+password +refreshToken +loginAttempts +lockedUntil');
+    if (!user) {
       return res.status(401).json({ success: false, message: 'Invalid email or password.' });
     }
-    if (!user.isVerified) {
-      return res.status(403).json({ success: false, message: 'Please verify your email first.' });
+
+    // Brute-force lockout check
+    if (user.lockedUntil && user.lockedUntil > new Date()) {
+      const minutesLeft = Math.ceil((user.lockedUntil - Date.now()) / 60000);
+      return res.status(429).json({
+        success: false,
+        message: `Account temporarily locked. Try again in ${minutesLeft} minute(s).`,
+      });
     }
+
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      // Increment attempts
+      const attempts = (user.loginAttempts || 0) + 1;
+      const update = { loginAttempts: attempts };
+      if (attempts >= 5) {
+        update.lockedUntil = new Date(Date.now() + 15 * 60 * 1000); // lock 15 min
+      }
+      if (UserModel.findByIdAndUpdate) {
+        await UserModel.findByIdAndUpdate(user._id, update);
+      } else {
+        user.loginAttempts = update.loginAttempts;
+        if (update.lockedUntil) user.lockedUntil = update.lockedUntil;
+        await user.save();
+      }
+      return res.status(401).json({ success: false, message: 'Invalid email or password.' });
+    }
+
     if (!user.isActive) {
       return res.status(403).json({ success: false, message: 'Account suspended. Contact support.' });
     }
 
-    user.lastLogin = new Date();
+    if (!user.isVerified) {
+      // Resend OTP silently
+      const otp = generateOTP();
+      const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+      user.otpCode  = otp;
+      user.otpExpiry = otpExpiry;
+      await user.save();
+      try { await sendOTPEmail(user.email, user.firstName, otp); } catch {}
+      if (process.env.NODE_ENV !== 'production') console.log(`📧 Resent Dev OTP for ${user.email}: ${otp}`);
+      return res.status(403).json({
+        success: false,
+        message: 'Please verify your email first. A new OTP has been sent.',
+        userId: user._id.toString(),
+        ...(process.env.NODE_ENV !== 'production' && { devOtp: otp }),
+      });
+    }
 
-    // Use .toString() for consistent string IDs in JWT payload
+    // Successful login — reset lockout state
+    user.loginAttempts = 0;
+    user.lockedUntil   = undefined;
+    user.lastLogin     = new Date();
+
     const idStr        = user._id.toString();
     const accessToken  = generateAccessToken(idStr);
     const refreshToken = generateRefreshToken(idStr);
@@ -176,17 +225,16 @@ const login = async (req, res, next) => {
         email:     user.email,
         role:      user.role,
         avatarUrl: user.avatarUrl || '',
+        isVerified: true,
       },
     });
   } catch (err) { next(err); }
 };
 
 // ─── REFRESH TOKEN ───────────────────────────────────────────────────────────
-// FIX 9 — Token rotation: every refresh call issues a brand-new refresh token.
-// The old token is invalidated, so stolen tokens can't be reused.
 const refreshToken = async (req, res, next) => {
   try {
-    const token = req.cookies.refreshToken;
+    const token = req.cookies.refreshToken || req.body.refreshToken;
     if (!token) return res.status(401).json({ success: false, message: 'No refresh token.' });
 
     let decoded;
@@ -196,7 +244,10 @@ const refreshToken = async (req, res, next) => {
       return res.status(401).json({ success: false, message: 'Refresh token invalid or expired.' });
     }
 
-    const user = await User.findById(decoded.id).select('+refreshToken');
+    const db = getDatabase();
+    const UserModel = db.User || User;
+
+    const user = await UserModel.findById(decoded.id).select('+refreshToken');
     if (!user || user.refreshToken !== token) {
       // Possible token reuse — clear stored token to force re-login
       if (user) {
@@ -211,8 +262,9 @@ const refreshToken = async (req, res, next) => {
     }
 
     // Issue new token pair (rotation)
-    const newAccessToken  = generateAccessToken(user._id);
-    const newRefreshToken = generateRefreshToken(user._id);
+    const idStr           = user._id.toString();
+    const newAccessToken  = generateAccessToken(idStr);
+    const newRefreshToken = generateRefreshToken(idStr);
     user.refreshToken     = newRefreshToken;
     await user.save();
 
@@ -244,9 +296,7 @@ const resendOTP = async (req, res, next) => {
     user.otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
     await user.save();
 
-    try {
-      await sendOTPEmail(user.email, user.firstName, otp);
-    } catch (emailErr) {
+    try { await sendOTPEmail(user.email, user.firstName, otp); } catch (emailErr) {
       console.warn('⚠ Email service unavailable:', emailErr.message);
     }
 
@@ -263,8 +313,9 @@ const resendOTP = async (req, res, next) => {
 // ─── LOGOUT ──────────────────────────────────────────────────────────────────
 const logout = async (req, res, next) => {
   try {
-    // FIX 1 — User is imported at module top; this no longer crashes
-    await User.findByIdAndUpdate(req.user._id, { refreshToken: undefined });
+    const db = getDatabase();
+    const UserModel = db.User || User;
+    await UserModel.findByIdAndUpdate(req.user._id, { refreshToken: undefined });
     res.clearCookie('refreshToken', {
       httpOnly: true,
       secure:   process.env.NODE_ENV === 'production',
@@ -274,4 +325,80 @@ const logout = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-module.exports = { register, verifyOTP, login, refreshToken, resendOTP, logout };
+// ─── GET ME ──────────────────────────────────────────────────────────────────
+const getMe = async (req, res, next) => {
+  try {
+    const db = getDatabase();
+    const UserModel = db.User || User;
+    const user = await UserModel.findById(req.user._id).select('-password -refreshToken -otpCode -otpExpiry');
+    if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
+    res.json({ success: true, data: user });
+  } catch (err) { next(err); }
+};
+
+// ─── FORGOT PASSWORD ─────────────────────────────────────────────────────────
+const forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    // Always return the same message to prevent email enumeration
+    const SAFE_RESPONSE = { success: true, message: "If that email exists, a reset link has been sent." };
+
+    const db = getDatabase();
+    const UserModel = db.User || User;
+
+    const user = await UserModel.findOne({ email });
+    if (!user) return res.json(SAFE_RESPONSE);
+
+    // Generate reset token
+    const rawToken   = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto.createHash('sha256').update(rawToken).digest('hex');
+
+    user.passwordResetToken  = hashedToken;
+    user.passwordResetExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+    await user.save();
+
+    const resetLink = `${process.env.FRONTEND_URL}/auth/reset-password?token=${rawToken}`;
+    console.log(`[PASSWORD RESET] ${email} => ${resetLink}`);
+
+    try { await sendPasswordResetEmail(email, resetLink); } catch (emailErr) {
+      console.warn('⚠ Email service unavailable:', emailErr.message);
+    }
+
+    res.json(SAFE_RESPONSE);
+  } catch (err) { next(err); }
+};
+
+// ─── RESET PASSWORD ──────────────────────────────────────────────────────────
+const resetPassword = async (req, res, next) => {
+  try {
+    const { token, newPassword } = req.body;
+    if (!token || !newPassword) {
+      return res.status(400).json({ success: false, message: 'Token and newPassword are required.' });
+    }
+
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    const db = getDatabase();
+    const UserModel = db.User || User;
+
+    const user = await UserModel.findOne({
+      passwordResetToken:  hashedToken,
+      passwordResetExpiry: { $gt: new Date() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ success: false, message: 'Reset token is invalid or has expired.' });
+    }
+
+    user.password            = newPassword; // bcrypt pre-save hook will hash it
+    user.passwordResetToken  = undefined;
+    user.passwordResetExpiry = undefined;
+    user.loginAttempts       = 0;
+    user.lockedUntil         = undefined;
+    await user.save();
+
+    res.json({ success: true, message: 'Password reset successful. You can now log in.' });
+  } catch (err) { next(err); }
+};
+
+module.exports = { register, verifyOTP, login, refreshToken, resendOTP, logout, getMe, forgotPassword, resetPassword };

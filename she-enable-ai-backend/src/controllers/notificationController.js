@@ -1,6 +1,11 @@
 const Notification = require('../models/Notification');
 
+const { isMongoConnected } = require('../config/database');
+
 const getNotifications = async (req, res, next) => {
+  if (!isMongoConnected()) {
+    return res.json({ success: true, unreadCount: 0, data: [] });
+  }
   try {
     const notifications = await Notification.find({ userId: req.user._id }).sort('-createdAt').limit(50);
     const unreadCount = await Notification.countDocuments({ userId: req.user._id, isRead: false });

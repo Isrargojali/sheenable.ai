@@ -3,8 +3,12 @@ const Application = require('../models/Application');
 const CandidateProfile = require('../models/CandidateProfile');
 const Notification = require('../models/Notification');
 const ApiFeatures = require('../utils/apiFeatures');
+const { isMongoConnected } = require('../config/database');
 
 const getJobs = async (req, res, next) => {
+  if (!isMongoConnected()) {
+    return res.json({ success: true, count: 0, total: 0, totalPages: 0, currentPage: 1, data: [] });
+  }
   try {
     const total = await Job.countDocuments({ status: 'PUBLISHED' });
     const features = new ApiFeatures(Job.find({ status: 'PUBLISHED' }), req.query)
@@ -26,6 +30,9 @@ const getJobs = async (req, res, next) => {
 };
 
 const getJobById = async (req, res, next) => {
+  if (!isMongoConnected()) {
+    return res.status(404).json({ success: false, message: 'Job not found (offline).' });
+  }
   try {
     const job = await Job.findById(req.params.id).populate('employerId', 'firstName lastName email').lean();
     if (!job || job.status === 'ARCHIVED') return res.status(404).json({ success: false, message: 'Job not found.' });
@@ -66,17 +73,20 @@ const deleteJob = async (req, res, next) => {
 
 // FIX 7 — Added pagination (was unbounded — could return all jobs in one query)
 const getMyListings = async (req, res, next) => {
+  if (!isMongoConnected()) {
+    return res.json({ success: true, count: 0, total: 0, totalPages: 0, currentPage: 1, data: [] });
+  }
   try {
-    const page  = parseInt(req.query.page)  || 1;
+    const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
-    const skip  = (page - 1) * limit;
+    const skip = (page - 1) * limit;
     const { status } = req.query;
 
     const filter = { employerId: req.user._id, status: { $ne: 'ARCHIVED' } };
     if (status) filter.status = status;
 
     const total = await Job.countDocuments(filter);
-    const jobs  = await Job.find(filter).sort('-createdAt').skip(skip).limit(limit);
+    const jobs = await Job.find(filter).sort('-createdAt').skip(skip).limit(limit);
     res.json({ success: true, count: jobs.length, total, totalPages: Math.ceil(total / limit), currentPage: page, data: jobs });
   } catch (err) { next(err); }
 };
