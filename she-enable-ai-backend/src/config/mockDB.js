@@ -1,6 +1,6 @@
 // Mock database — used when MongoDB Atlas is unreachable (e.g. IP not whitelisted)
 // Data is persisted to a local JSON file so it survives nodemon restarts.
-const fs   = require('fs');
+const fs = require('fs');
 const path = require('path');
 
 const STORE_FILE = path.join(__dirname, '../../.mock-db.json');
@@ -12,27 +12,27 @@ function loadStore() {
       const raw = fs.readFileSync(STORE_FILE, 'utf8');
       const parsed = JSON.parse(raw);
       return {
-        users:             new Map(Object.entries(parsed.users             || {})),
+        users: new Map(Object.entries(parsed.users || {})),
         candidateProfiles: new Map(Object.entries(parsed.candidateProfiles || {})),
-        employerProfiles:  new Map(Object.entries(parsed.employerProfiles  || {})),
+        employerProfiles: new Map(Object.entries(parsed.employerProfiles || {})),
       };
     }
   } catch (e) {
     console.warn('⚠ Could not load mock DB file, starting fresh:', e.message);
   }
   return {
-    users:             new Map(),
+    users: new Map(),
     candidateProfiles: new Map(),
-    employerProfiles:  new Map(),
+    employerProfiles: new Map(),
   };
 }
 
 function saveStore() {
   try {
     const data = {
-      users:             Object.fromEntries(store.users),
+      users: Object.fromEntries(store.users),
       candidateProfiles: Object.fromEntries(store.candidateProfiles),
-      employerProfiles:  Object.fromEntries(store.employerProfiles),
+      employerProfiles: Object.fromEntries(store.employerProfiles),
     };
     fs.writeFileSync(STORE_FILE, JSON.stringify(data, null, 2));
   } catch (e) {
@@ -45,12 +45,12 @@ const store = loadStore();
 // ── MockUser class ────────────────────────────────────────────────────────────
 class MockUser {
   constructor(data) {
-    this._id       = data._id || `mock_${Date.now()}_${Math.random()}`;
+    this._id = data._id || `mock_${Date.now()}_${Math.random()}`;
     this.createdAt = data.createdAt || new Date().toISOString();
     this.updatedAt = data.updatedAt || new Date().toISOString();
     Object.assign(this, data);
     this.isVerified = data.isVerified !== undefined ? data.isVerified : false;
-    this.isActive   = data.isActive   !== undefined ? data.isActive   : true;
+    this.isActive = data.isActive !== undefined ? data.isActive : true;
   }
 
   // toString() returns the plain string ID — critical for JWT
@@ -70,33 +70,33 @@ class MockUser {
     return this.password === candidate || process.env.NODE_ENV !== 'production';
   }
 
-  toJSON()   { return { ...this }; }
+  toJSON() { return { ...this }; }
   toObject() { return { ...this }; }
 }
 
 class MockProfile {
   constructor(data) {
-    this._id    = data.userId;
+    this._id = data.userId;
     this.userId = data.userId;
     Object.assign(this, data);
     this.createdAt = data.createdAt || new Date().toISOString();
   }
-  async save()   { return this; }
-  toJSON()       { return { ...this }; }
-  toObject()     { return { ...this }; }
+  async save() { return this; }
+  toJSON() { return { ...this }; }
+  toObject() { return { ...this }; }
 }
 
 // ── MockQuery — chainable wrapper matching Mongoose query API ─────────────────
 class MockQuery {
   constructor(promise) { this._promise = promise; }
-  select()   { return this; }     // Mongoose .select() — ignored in mock
+  select() { return this; }     // Mongoose .select() — ignored in mock
   populate() { return this; }     // Mongoose .populate() — ignored in mock
-  lean()     { return this; }     // Mongoose .lean() — ignored in mock
-  sort()     { return this; }
-  limit()    { return this; }
-  skip()     { return this; }
+  lean() { return this; }     // Mongoose .lean() — ignored in mock
+  sort() { return this; }
+  limit() { return this; }
+  skip() { return this; }
   then(onFulfilled, onRejected) { return this._promise.then(onFulfilled, onRejected); }
-  catch(onRejected)             { return this._promise.catch(onRejected); }
+  catch(onRejected) { return this._promise.catch(onRejected); }
 }
 
 // ── UserSchema ────────────────────────────────────────────────────────────────
@@ -132,10 +132,10 @@ const UserSchema = {
     if (!raw) return null;
     const user = new MockUser(raw);
     // Handle $set / $unset / plain field merges
-    if (update.$set)   Object.assign(user, update.$set);
+    if (update.$set) Object.assign(user, update.$set);
     if (update.$unset) Object.keys(update.$unset).forEach(k => delete user[k]);
     const plain = { ...update };
-    ['$set','$unset','$inc','$push','$pull'].forEach(op => delete plain[op]);
+    ['$set', '$unset', '$inc', '$push', '$pull'].forEach(op => delete plain[op]);
     Object.assign(user, plain);
     await user.save();
     return user;
@@ -178,9 +178,9 @@ const EmployerProfileSchema = {
 
 // ── Export ────────────────────────────────────────────────────────────────────
 const mockDB = {
-  User:             UserSchema,
+  User: UserSchema,
   CandidateProfile: CandidateProfileSchema,
-  EmployerProfile:  EmployerProfileSchema,
+  EmployerProfile: EmployerProfileSchema,
   // Expose for debugging in dev console
   _store: store,
   _saveStore: saveStore,
