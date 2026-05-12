@@ -17,7 +17,7 @@ const connectDB = async () => {
   } catch (error) {
     retries++;
     console.error(`✗ MongoDB Connection Error (Attempt ${retries}/${MAX_RETRIES}): ${error.message}`);
-    
+
     if (retries < MAX_RETRIES) {
       console.warn(`⚠ Retrying connection in ${RETRY_INTERVAL / 1000} seconds...`);
       setTimeout(() => {
@@ -26,7 +26,7 @@ const connectDB = async () => {
     } else {
       console.warn(`⚠ Max retries reached. Server will start without database. Manual retry recommended.`);
     }
-    
+
     return false;
   }
 };
