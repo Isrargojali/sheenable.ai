@@ -17,7 +17,7 @@ async function connectDB() {
       mongoConnected = true;
       usingMock = false;
       console.log(`✅ MongoDB connected (attempt ${attempt})`);
-      
+
       // Setup connection event listeners
       mongoose.connection.on('disconnected', () => {
         console.warn('⚠️ MongoDB disconnected — switching to MockDB');
@@ -33,7 +33,7 @@ async function connectDB() {
       if (attempt < 5) await new Promise(r => setTimeout(r, 5000));
     }
   }
-  
+
   // All retries failed — fall back to MockDB
   console.warn('⚠️ MongoDB unavailable — using MockDB fallback. Data stored in .mock-db.json');
   usingMock = true;
