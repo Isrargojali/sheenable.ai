@@ -1,15 +1,14 @@
 const mongoose = require('mongoose');
+const { ObjectId } = mongoose.Schema.Types;
 
-const messageSchema = new mongoose.Schema({
-  threadId: { type: mongoose.Schema.Types.ObjectId, ref: 'Thread', required: true },
-  senderId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  content: { type: String, required: true, maxlength: 2000, trim: true },
-  isRead: { type: Boolean, default: false },
-  readAt: { type: Date, default: null },
-  isDeletedBySender: { type: Boolean, default: false },
-  type: { type: String, enum: ['TEXT'], default: 'TEXT' },
+const MessageSchema = new mongoose.Schema({
+  threadId: { type: ObjectId, ref: 'MessageThread', required: true },
+  senderId: { type: ObjectId, ref: 'User', required: true },
+  content:  { type: String, required: true },
+  isRead:   { type: Boolean, default: false },
+  readAt:   { type: Date },
 }, { timestamps: true });
 
-messageSchema.index({ threadId: 1, createdAt: -1 });
+MessageSchema.index({ threadId: 1, createdAt: -1 });
 
-module.exports = mongoose.model('Message', messageSchema);
+module.exports = mongoose.model('Message', MessageSchema);

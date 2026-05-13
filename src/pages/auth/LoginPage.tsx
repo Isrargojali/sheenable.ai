@@ -13,28 +13,28 @@ import { MOCK_NOTIFICATIONS } from "@/mock/data";
 type Role = "CANDIDATE" | "EMPLOYER" | "ADMIN";
 
 const ROLE_REDIRECTS: Record<string, string> = {
-  CANDIDATE:   "/candidate/dashboard",
-  EMPLOYER:    "/employer/dashboard",
-  ADMIN:       "/admin/overview",
+  CANDIDATE: "/candidate/dashboard",
+  EMPLOYER: "/employer/dashboard",
+  ADMIN: "/admin/overview",
   SUPER_ADMIN: "/super-admin/overview",
 };
 
 const QUICK_FILL: Record<Role, { email: string; pass: string }> = {
-  CANDIDATE: { email: "ayesha@test.com",    pass: "Test@1234"  },
-  EMPLOYER:  { email: "hr@techflow.com",    pass: "Test@1234"  },
-  ADMIN:     { email: "admin@SheEnableAI.pk", pass: "Admin@1234" },
+  CANDIDATE: { email: "ayesha@test.com", pass: "Test@1234" },
+  EMPLOYER: { email: "hr@techflow.com", pass: "Test@1234" },
+  ADMIN: { email: "admin@SheEnableAI.pk", pass: "Admin@1234" },
 };
 
 export default function LoginPage() {
-  const navigate  = useNavigate();
-  const setUser   = useAuthStore(s => s.setUser);
+  const navigate = useNavigate();
+  const setSession = useAuthStore(s => s.setSession);
   const setNotifs = useNotifStore(s => s.setNotifs);
 
-  const [role,    setRole]    = useState<Role>("CANDIDATE");
-  const [email,   setEmail]   = useState("");
-  const [password,setPass]    = useState("");
+  const [role, setRole] = useState<Role>("CANDIDATE");
+  const [email, setEmail] = useState("");
+  const [password, setPass] = useState("");
   const [showPwd, setShowPwd] = useState(false);
-  const [error,   setError]   = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => { document.title = "Sign in · SheEnableAI"; }, []);
@@ -50,20 +50,48 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
     if (!email.trim()) return setError("Email is required");
-    if (!password)     return setError("Password is required");
+    if (!password) return setError("Password is required");
 
     setLoading(true);
     try {
-      const user = await apiAuth.login(email.trim().toLowerCase(), password, role);
-      setUser({ id: user.id, email: user.email, role: user.role as Role });
+      const response = await apiAuth.login(email.trim().toLowerCase(), password, role);
+      const { user, token } = response.data;
+
+      if (!user || !token) {
+        return setError("Invalid response from server");
+      }
+
+      // Store both user AND token in authStore using setSession
+      setSession({
+        id: user.id,
+        email: user.email,
+        role: user.role as Role,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        avatarUrl: user.avatarUrl,
+      }, token);
+
       setNotifs(MOCK_NOTIFICATIONS);
       navigate(ROLE_REDIRECTS[user.role] ?? "/");
     } catch (err: unknown) {
+      // Handle network/Chrome extension errors gracefully
+      let errorMessage = "Login failed";
+
       if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("Login failed");
+        errorMessage = err.message;
+
+        // Check if it's a network error or Chrome extension interference
+        if (errorMessage.includes("Network") || errorMessage.includes("ERR_")) {
+          errorMessage = "Connection error. Please check your internet connection and try again.";
+        }
       }
+
+      // Log the full error for debugging without showing technical details to user
+      if (err instanceof Error) {
+        console.error("Login error details:", err);
+      }
+
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -87,9 +115,9 @@ export default function LoginPage() {
           <rect width="100%" height="100%" fill="url(#login-dots)" />
         </svg>
         <div className="absolute -top-32 -right-20 w-[450px] h-[450px] rounded-full pointer-events-none"
-             style={{ background: "radial-gradient(circle,rgba(200,82,140,.30),transparent 65%)", filter: "blur(80px)" }} />
+          style={{ background: "radial-gradient(circle,rgba(200,82,140,.30),transparent 65%)", filter: "blur(80px)" }} />
         <div className="absolute -bottom-32 -left-20 w-[350px] h-[350px] rounded-full pointer-events-none"
-             style={{ background: "radial-gradient(circle,rgba(61,170,125,.20),transparent 65%)", filter: "blur(70px)" }} />
+          style={{ background: "radial-gradient(circle,rgba(61,170,125,.20),transparent 65%)", filter: "blur(70px)" }} />
 
         {/* Logo */}
         <Link to="/" className="relative z-10 flex items-center gap-2.5 group" aria-label="SheEnableAI home">
@@ -97,11 +125,11 @@ export default function LoginPage() {
                style={{ background: "linear-gradient(135deg,#C8528C,#7C3B6E)" }}>
             <Heart size={16} className="text-white" fill="white" />
           </div> */}
-            <img
-                        src={logo}
-                        alt="SheEnableAI logo"
-                        className="w-48 h-24 object-contain transition-transform group-hover:scale-105"
-                      />
+          <img
+            src={logo}
+            alt="SheEnableAI logo"
+            className="w-48 h-24 object-contain transition-transform group-hover:scale-105"
+          />
           {/* <div>
             <div className="font-serif text-xl text-white leading-none">SheEnableAI</div>
             <div className="text-[9px] text-white/40 uppercase tracking-[2px] mt-1">Women's platform</div>
@@ -118,14 +146,14 @@ export default function LoginPage() {
           </p>
 
           {[
-            { icon: Sparkles,    title: "AI-powered matching",   sub: "96% match accuracy across 47 industries" },
-            { icon: Heart,       title: "Built for women",       sub: "Verified inclusive employers only" },
-            { icon: ShieldCheck, title: "Bank-grade security",   sub: "End-to-end encrypted, never sold" },
+            { icon: Sparkles, title: "AI-powered matching", sub: "96% match accuracy across 47 industries" },
+            { icon: Heart, title: "Built for women", sub: "Verified inclusive employers only" },
+            { icon: ShieldCheck, title: "Bank-grade security", sub: "End-to-end encrypted, never sold" },
           ].map(({ icon: Icon, title, sub }) => (
             <div key={title} className="flex items-center gap-3 px-4 py-3 rounded-xl border mb-2.5 max-w-md"
-                 style={{ background: "rgba(255,255,255,.05)", borderColor: "rgba(255,255,255,.08)" }}>
+              style={{ background: "rgba(255,255,255,.05)", borderColor: "rgba(255,255,255,.08)" }}>
               <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
-                   style={{ background: "rgba(200,82,140,.22)" }}>
+                style={{ background: "rgba(200,82,140,.22)" }}>
                 <Icon size={15} />
               </div>
               <div>
@@ -158,8 +186,8 @@ export default function LoginPage() {
           <div className="flex bg-secondary rounded-full p-1 mb-5">
             {([
               { key: "CANDIDATE", label: "Candidate" },
-              { key: "EMPLOYER",  label: "Employer"  },
-              { key: "ADMIN",     label: "Admin"     },
+              { key: "EMPLOYER", label: "Employer" },
+              { key: "ADMIN", label: "Admin" },
             ] as { key: Role; label: string }[]).map(r => (
               <button
                 key={r.key}
@@ -252,8 +280,8 @@ export default function LoginPage() {
                   className="w-full h-11 pl-10 pr-10 border border-border rounded-xl text-[13px] bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/15 focus:border-primary transition-all"
                 />
                 <button type="button" onClick={() => setShowPwd(v => !v)}
-                        aria-label={showPwd ? "Hide password" : "Show password"}
-                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors">
+                  aria-label={showPwd ? "Hide password" : "Show password"}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors">
                   {showPwd ? <EyeOff size={14} /> : <Eye size={14} />}
                 </button>
               </div>
@@ -277,7 +305,7 @@ export default function LoginPage() {
           <div className="grid grid-cols-2 gap-3 mb-6">
             {["Google", "LinkedIn"].map(s => (
               <button key={s}
-                      className="h-10 border border-border rounded-xl text-[12px] font-semibold text-foreground bg-card hover:bg-secondary hover:border-foreground/20 press">
+                className="h-10 border border-border rounded-xl text-[12px] font-semibold text-foreground bg-card hover:bg-secondary hover:border-foreground/20 press">
                 {s}
               </button>
             ))}

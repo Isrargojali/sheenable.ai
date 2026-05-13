@@ -1,3 +1,6 @@
 node_modules/
 .env
-*.log
+.mock-db.json
+uploads/
+npm-debug.log
+.DS_Store

@@ -1,32 +1,27 @@
 const express = require('express');
-const router  = express.Router();
-const protect = require('../middleware/auth');
-const { authorizeRoles } = require('../middleware/roles');
+const router = express.Router();
+const { protect } = require('../middleware/auth');
+const { authorize } = require('../middleware/roles');
 const {
-  getUsers, getUserById,
-  updateUserStatus, updateUserRole, deleteUser,
-  getAuditLogs, getPlatformStats, getSecurityInfo,
-  getAnalytics, getJobsAdmin, updateJobStatus,
+  getStats, getUsers, getUserById, updateUserRole, updateUserStatus, deleteUser,
+  getAuditLogs, getSecurityInfo, getAnalytics, getJobsAdmin, updateJobStatusAdmin
 } = require('../controllers/adminController');
 
-const ADMIN_OR_SUPER = authorizeRoles('ADMIN', 'SUPER_ADMIN');
-const SUPER_ONLY     = authorizeRoles('SUPER_ADMIN');
+router.use(protect);
+router.use(authorize('ADMIN', 'SUPER_ADMIN'));
 
-// ── Platform overview ─────────────────────────────────────────────────────────
-router.get('/stats',      protect, ADMIN_OR_SUPER, getPlatformStats);
-router.get('/security',   protect, ADMIN_OR_SUPER, getSecurityInfo);
-router.get('/audit-logs', protect, ADMIN_OR_SUPER, getAuditLogs);
-router.get('/analytics',  protect, ADMIN_OR_SUPER, getAnalytics);
+router.get('/stats', getStats);
+router.get('/users', getUsers);
+router.get('/users/:id', getUserById);
+router.patch('/users/:id/role', authorize('SUPER_ADMIN'), updateUserRole); // Bug 6 fix: Only SUPER_ADMIN can change roles
+router.patch('/users/:id/status', updateUserStatus);
+router.delete('/users/:id', authorize('SUPER_ADMIN'), deleteUser);
 
-// ── User management ───────────────────────────────────────────────────────────
-router.get('/users',                   protect, ADMIN_OR_SUPER, getUsers);
-router.get('/users/:userId',           protect, ADMIN_OR_SUPER, getUserById);
-router.patch('/users/:userId/status',  protect, ADMIN_OR_SUPER, updateUserStatus);
-router.patch('/users/:userId/role',    protect, SUPER_ONLY,     updateUserRole);
-router.delete('/users/:userId',        protect, SUPER_ONLY,     deleteUser);
+router.get('/audit-logs', getAuditLogs);
+router.get('/security', getSecurityInfo);
+router.get('/analytics', getAnalytics);
 
-// ── Job management ────────────────────────────────────────────────────────────
-router.get('/jobs',                    protect, ADMIN_OR_SUPER, getJobsAdmin);
-router.put('/jobs/:jobId/status',      protect, ADMIN_OR_SUPER, updateJobStatus);
+router.get('/jobs', getJobsAdmin);
+router.patch('/jobs/:id/status', updateJobStatusAdmin);
 
 module.exports = router;

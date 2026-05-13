@@ -1,136 +1,222 @@
 const Job = require('../models/Job');
-const Application = require('../models/Application');
+const SavedJob = require('../models/SavedJob');
 const CandidateProfile = require('../models/CandidateProfile');
-const Notification = require('../models/Notification');
-const ApiFeatures = require('../utils/apiFeatures');
-const { isMongoConnected } = require('../config/database');
+const AuditLog = require('../models/AuditLog');
+const { success, error, paginated } = require('../utils/apiResponse');
+const { getPaginationParams, getPaginationData } = require('../utils/paginate');
+
+const logAudit = async (action, resourceId, req) => {
+  try {
+    await AuditLog.create({
+      userId: req.user._id,
+      action,
+      resourceType: 'job',
+      resourceId,
+      ipAddress: req.ip,
+      userAgent: req.headers['user-agent']
+    });
+  } catch (err) { console.error('AuditLog error:', err.message); }
+};
 
 const getJobs = async (req, res, next) => {
-  if (!isMongoConnected()) {
-    return res.json({ success: true, count: 0, total: 0, totalPages: 0, currentPage: 1, data: [] });
-  }
   try {
-    const total = await Job.countDocuments({ status: 'PUBLISHED' });
-    const features = new ApiFeatures(Job.find({ status: 'PUBLISHED' }), req.query)
-      .search(['title', 'description']).filter().sort().paginate(10);
-    const jobs = await features.query.lean();
+    const { page, limit, skip } = getPaginationParams(req.query);
+    const filter = { status: 'PUBLISHED' };
+    
+    // Future deadlines or no deadline
+    filter.$or = [{ deadline: { $gt: Date.now() } }, { deadline: { $exists: false } }, { deadline: null }];
 
-    let savedJobIds = [], appliedJobIds = [];
-    if (req.user && req.user.role === 'CANDIDATE') {
-      const profile = await CandidateProfile.findOne({ userId: req.user._id }).select('savedJobs');
-      savedJobIds = profile?.savedJobs?.map(id => id.toString()) || [];
-      const applications = await Application.find({ candidateId: req.user._id }).select('jobId');
-      appliedJobIds = applications.map(a => a.jobId.toString());
+    if (req.query.search) filter.$text = { $search: req.query.search };
+    if (req.query.category) filter.category = req.query.category;
+    if (req.query.jobType) filter.jobType = req.query.jobType;
+    if (req.query.jobMode) filter.jobMode = req.query.jobMode;
+    if (req.query.minSalary || req.query.maxSalary) {
+      filter['salary.min'] = {};
+      if (req.query.minSalary) filter['salary.min'].$gte = parseInt(req.query.minSalary);
+      if (req.query.maxSalary) filter['salary.max'] = { $lte: parseInt(req.query.maxSalary) };
     }
 
-    const jobsWithFlags = jobs.map(job => ({ ...job, isSaved: savedJobIds.includes(job._id.toString()), hasApplied: appliedJobIds.includes(job._id.toString()) }));
+    let sortOption = { createdAt: -1 };
+    if (req.query.sort === 'salary') sortOption = { 'salary.max': -1 };
+    if (req.query.sort === 'popular') sortOption = { applicationCount: -1 };
 
-    res.json({ success: true, count: jobs.length, total, totalPages: Math.ceil(total / (features.limit || 10)), currentPage: features.page || 1, data: jobsWithFlags });
+    const [jobs, total] = await Promise.all([
+      Job.find(filter)
+        .populate('employerId', 'firstName lastName')
+        .sort(sortOption)
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      Job.countDocuments(filter)
+    ]);
+
+    // If logged in candidate, add isSaved flag (ignoring hasApplied for now to keep simple, can be fetched separately)
+    if (req.user && req.user.role === 'CANDIDATE') {
+      const savedJobs = await SavedJob.find({ candidateId: req.user._id }).lean();
+      const savedJobIds = new Set(savedJobs.map(s => s.jobId.toString()));
+      jobs.forEach(job => {
+        job.isSaved = savedJobIds.has(job._id.toString());
+      });
+    }
+
+    return paginated(res, jobs, getPaginationData(total, page, limit));
   } catch (err) { next(err); }
 };
 
 const getJobById = async (req, res, next) => {
-  if (!isMongoConnected()) {
-    return res.status(404).json({ success: false, message: 'Job not found (offline).' });
-  }
   try {
-    const job = await Job.findById(req.params.id).populate('employerId', 'firstName lastName email').lean();
-    if (!job || job.status === 'ARCHIVED') return res.status(404).json({ success: false, message: 'Job not found.' });
-    Job.findByIdAndUpdate(req.params.id, { $inc: { viewCount: 1 } }).exec();
-    res.json({ success: true, data: job });
+    const job = await Job.findByIdAndUpdate(req.params.id, { $inc: { viewCount: 1 } }, { new: true })
+      .populate('employerId', 'firstName lastName avatarUrl')
+      .lean();
+    
+    if (!job) return error(res, 'Job not found', 404);
+
+    if (req.user && req.user.role === 'CANDIDATE') {
+      const savedJob = await SavedJob.findOne({ candidateId: req.user._id, jobId: job._id });
+      job.isSaved = !!savedJob;
+    }
+
+    return success(res, job);
   } catch (err) { next(err); }
 };
 
-const createJob = async (req, res, next) => {
+const postJob = async (req, res, next) => {
   try {
-    const job = await Job.create({ ...req.body, employerId: req.user._id, publishedAt: req.body.status === 'PUBLISHED' ? new Date() : null });
-    res.status(201).json({ success: true, data: job });
+    const { title, description, category, jobType, jobMode } = req.body;
+    if (!title || !description || !category || !jobType || !jobMode) {
+      return error(res, 'Missing required fields', 400);
+    }
+
+    const job = await Job.create({
+      ...req.body,
+      employerId: req.user.id,
+      status: 'PUBLISHED',
+      publishedAt: Date.now()
+    });
+
+    await logAudit('JOB_CREATED', job._id, req);
+
+    return res.status(201).json({ success: true, data: job });
   } catch (err) { next(err); }
 };
 
 const updateJob = async (req, res, next) => {
   try {
     const job = await Job.findById(req.params.id);
-    if (!job) return res.status(404).json({ success: false, message: 'Job not found.' });
-    if (job.employerId.toString() !== req.user._id.toString()) return res.status(403).json({ success: false, message: 'Not authorized.' });
-    const updated = await Job.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
-    res.json({ success: true, data: updated });
+    if (!job) return error(res, 'Job not found', 404);
+
+    if (job.employerId.toString() !== req.user.id) return error(res, 'Not authorized', 403);
+    if (job.status === 'ARCHIVED') return error(res, 'Cannot edit archived job', 400);
+
+    Object.assign(job, req.body);
+    await job.save();
+
+    await logAudit('JOB_UPDATED', job._id, req);
+
+    return success(res, job);
   } catch (err) { next(err); }
 };
 
 const deleteJob = async (req, res, next) => {
   try {
     const job = await Job.findById(req.params.id);
-    if (!job) return res.status(404).json({ success: false, message: 'Job not found.' });
-    const isOwner = job.employerId.toString() === req.user._id.toString();
-    const isAdmin = ['ADMIN', 'SUPER_ADMIN'].includes(req.user.role);
-    if (!isOwner && !isAdmin) return res.status(403).json({ success: false, message: 'Not authorized.' });
+    if (!job) return error(res, 'Job not found', 404);
+
+    if (job.employerId.toString() !== req.user.id) return error(res, 'Not authorized', 403);
+
     job.status = 'ARCHIVED';
     await job.save();
-    res.json({ success: true, message: 'Job removed.' });
+
+    await logAudit('JOB_ARCHIVED', job._id, req);
+
+    return success(res, null, 'Job successfully archived');
   } catch (err) { next(err); }
 };
 
-// FIX 7 — Added pagination (was unbounded — could return all jobs in one query)
+// FIX FOR BUG 7
 const getMyListings = async (req, res, next) => {
-  if (!isMongoConnected()) {
-    return res.json({ success: true, count: 0, total: 0, totalPages: 0, currentPage: 1, data: [] });
-  }
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
+    const limit = Math.min(parseInt(req.query.limit) || 10, 50); // max 50 per page
     const skip = (page - 1) * limit;
-    const { status } = req.query;
+    const statusFilter = req.query.status ? { status: req.query.status } : {};
 
-    const filter = { employerId: req.user._id, status: { $ne: 'ARCHIVED' } };
-    if (status) filter.status = status;
+    const query = { employerId: req.user.id, status: { $ne: 'ARCHIVED' }, ...statusFilter };
+    const [jobs, total] = await Promise.all([
+      Job.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      Job.countDocuments(query)
+    ]);
 
-    const total = await Job.countDocuments(filter);
-    const jobs = await Job.find(filter).sort('-createdAt').skip(skip).limit(limit);
-    res.json({ success: true, count: jobs.length, total, totalPages: Math.ceil(total / limit), currentPage: page, data: jobs });
+    return paginated(res, jobs, getPaginationData(total, page, limit));
   } catch (err) { next(err); }
 };
 
 const saveJob = async (req, res, next) => {
   try {
-    const profile = await CandidateProfile.findOne({ userId: req.user._id });
-    if (!profile) return res.status(404).json({ success: false, message: 'Profile not found.' });
-    const alreadySaved = profile.savedJobs && profile.savedJobs.map(id => id.toString()).includes(req.params.id);
-    if (alreadySaved) {
-      profile.savedJobs = profile.savedJobs.filter(id => id.toString() !== req.params.id);
-      await profile.save();
-      return res.json({ success: true, saved: false, message: 'Job removed from saved.' });
+    const job = await Job.findOne({ _id: req.params.id, status: 'PUBLISHED' });
+    if (!job) return error(res, 'Job not found or not published', 404);
+
+    const existing = await SavedJob.findOne({ candidateId: req.user.id, jobId: req.params.id });
+    if (existing) {
+      await SavedJob.findByIdAndDelete(existing._id);
+      return success(res, { saved: false });
+    } else {
+      await SavedJob.create({ candidateId: req.user.id, jobId: req.params.id });
+      return success(res, { saved: true });
     }
-    if (!profile.savedJobs) profile.savedJobs = [];
-    profile.savedJobs.push(req.params.id);
-    await profile.save();
-    res.json({ success: true, saved: true, message: 'Job saved.' });
   } catch (err) { next(err); }
 };
 
 const getSavedJobs = async (req, res, next) => {
   try {
-    const profile = await CandidateProfile.findOne({ userId: req.user._id }).populate({ path: 'savedJobs', match: { status: 'PUBLISHED' } });
-    if (!profile) return res.status(404).json({ success: false, message: 'Profile not found.' });
-    res.json({ success: true, count: profile.savedJobs.length, data: profile.savedJobs });
+    const savedJobs = await SavedJob.find({ candidateId: req.user.id })
+      .populate({
+        path: 'jobId',
+        match: { status: 'PUBLISHED' },
+        populate: { path: 'employerId', select: 'firstName lastName' }
+      })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const jobs = savedJobs.map(s => s.jobId).filter(Boolean); // filter out if job was deleted
+    jobs.forEach(j => j.isSaved = true);
+
+    return success(res, jobs);
   } catch (err) { next(err); }
 };
 
-const applyToJob = async (req, res, next) => {
+const getRecommendedJobs = async (req, res, next) => {
   try {
-    const job = await Job.findById(req.params.id);
-    if (!job || job.status !== 'PUBLISHED') return res.status(404).json({ success: false, message: 'Job not found.' });
-    if (job.deadline && new Date() > job.deadline) return res.status(400).json({ success: false, message: 'Application deadline has passed.' });
-    const existing = await Application.findOne({ jobId: req.params.id, candidateId: req.user._id });
-    if (existing) return res.status(400).json({ success: false, message: 'You have already applied.' });
-    const profile = await CandidateProfile.findOne({ userId: req.user._id }).select('cvUrl');
-    const application = await Application.create({ jobId: req.params.id, candidateId: req.user._id, coverLetter: req.body.coverLetter || '', resumeUrl: profile?.cvUrl || '', status: 'APPLIED', statusHistory: [{ status: 'APPLIED', changedBy: req.user._id }] });
-    await Job.findByIdAndUpdate(req.params.id, { $inc: { applicationCount: 1 } });
-    const io = req.app.get('io');
-    if (io) io.to(job.employerId.toString()).emit('new-application', { jobId: job._id, jobTitle: job.title });
-    await Notification.create({ userId: job.employerId, type: 'APPLICATION_STATUS', title: 'New Application', body: `Someone applied to "${job.title}"`, relatedId: application._id, relatedType: 'Application' });
-    res.status(201).json({ success: true, message: 'Application submitted.', data: application });
+    const profile = await CandidateProfile.findOne({ userId: req.user.id });
+    if (!profile || !profile.skills || profile.skills.length === 0) {
+      return success(res, []);
+    }
+
+    const candidateSkills = profile.skills.map(s => s.name);
+
+    const jobs = await Job.aggregate([
+      { $match: { status: 'PUBLISHED', skillsRequired: { $in: candidateSkills } } },
+      { $addFields: {
+          matchScore: { $size: { $setIntersection: ["$skillsRequired", candidateSkills] } }
+        }
+      },
+      { $sort: { matchScore: -1, createdAt: -1 } },
+      { $limit: 10 }
+    ]);
+
+    await Job.populate(jobs, { path: 'employerId', select: 'firstName lastName' });
+    
+    // Add isSaved flag
+    const savedJobs = await SavedJob.find({ candidateId: req.user.id }).lean();
+    const savedJobIds = new Set(savedJobs.map(s => s.jobId.toString()));
+    jobs.forEach(job => {
+      job.isSaved = savedJobIds.has(job._id.toString());
+    });
+
+    return success(res, jobs);
   } catch (err) { next(err); }
 };
 
-module.exports = { getJobs, getJobById, createJob, updateJob, deleteJob, getMyListings, saveJob, getSavedJobs, applyToJob };
+module.exports = {
+  getJobs, getJobById, postJob, updateJob, deleteJob, getMyListings, saveJob, getSavedJobs, getRecommendedJobs
+};

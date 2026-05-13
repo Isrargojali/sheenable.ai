@@ -1,14 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const protect = require('../middleware/auth');
-const { getThreads, getMessages, createThread, sendMessage, markThreadRead, getUnreadCount, deleteThread } = require('../controllers/messageController');
+const { protect } = require('../middleware/auth');
+const { getMyThreads, getThreadMessages, sendMessage } = require('../controllers/messageController');
 
-router.get('/unread-count', protect, getUnreadCount);
-router.get('/threads', protect, getThreads);
-router.post('/threads', protect, createThread);
-router.get('/threads/:threadId', protect, getMessages);
-router.post('/threads/:threadId', protect, sendMessage);
-router.put('/threads/:threadId/read', protect, markThreadRead);
-router.delete('/threads/:threadId', protect, deleteThread);
+router.use(protect);
+
+router.get('/threads', getMyThreads);
+router.get('/threads/:threadId/messages', getThreadMessages);
+router.post('/send', sendMessage);
 
 module.exports = router;

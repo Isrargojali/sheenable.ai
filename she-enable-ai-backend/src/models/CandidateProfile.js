@@ -1,25 +1,52 @@
 const mongoose = require('mongoose');
+const { ObjectId } = mongoose.Schema.Types;
 
-const candidateProfileSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
-  title: { type: String, trim: true, maxlength: 100 },
-  bio: { type: String, maxlength: 1000 },
-  location: { type: String, trim: true },
-  category: { type: String, trim: true },
-  skills: [{ name: String, proficiency: { type: String, enum: ['Beginner', 'Intermediate', 'Expert'] } }],
-  expectedSalaryMin: { type: Number },
-  expectedSalaryMax: { type: Number },
-  yearsOfExperience: { type: Number, default: 0 },
-  isAvailable: { type: Boolean, default: true },
-  linkedinUrl: { type: String, trim: true },
-  portfolioUrl: { type: String, trim: true },
-  cvUrl: { type: String, default: '' },
-  cvPublicId: { type: String, default: '' },
-  savedJobs: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Job' }],
-  education: [{ institution: String, degree: String, field: String, startYear: Number, endYear: Number }],
-  experience: [{ company: String, position: String, startDate: Date, endDate: Date, current: { type: Boolean, default: false }, description: String }],
-  certifications: [{ name: String, issuer: String, year: Number }],
-  profileCompletionScore: { type: Number, default: 0 },
+const CandidateProfileSchema = new mongoose.Schema({
+  userId:       { type: ObjectId, ref: 'User', required: true, unique: true, index: true },
+  title:        { type: String, trim: true },
+  bio:          { type: String, maxlength: 1000 },
+  location: {
+    city:       String,
+    country:    String,
+    remote:     { type: Boolean, default: false }
+  },
+  category:     { type: String, index: true },
+  skills:       [{ name: { type: String, required: true }, level: { type: String, enum: ['beginner','intermediate','advanced','expert'] } }],
+  experience: [{
+    title:       String, company: String,
+    from:        Date,   to: Date,
+    current:     { type: Boolean, default: false },
+    description: String
+  }],
+  education: [{
+    degree: String, institution: String, year: Number, field: String
+  }],
+  certifications: [{
+    name: String, issuer: String, year: Number, url: String
+  }],
+  cv: {
+    headline:  String,
+    summary:   String,
+    skills:    [String],
+    lastUpdated: Date
+  },
+  cvFileUrl:    String,
+  expectedSalary: {
+    min:      Number,
+    max:      Number,
+    currency: { type: String, default: 'USD' }
+  },
+  yearsOfExperience: Number,
+  portfolioUrl: String,
+  linkedinUrl:  String,
+  githubUrl:    String,
+  isAvailable:  { type: Boolean, default: true, index: true },
+  profileViews: { type: Number, default: 0 },
+  completionScore: { type: Number, default: 0, min: 0, max: 100 },
 }, { timestamps: true });
 
-module.exports = mongoose.model('CandidateProfile', candidateProfileSchema);
+// Text search index for AI matching
+CandidateProfileSchema.index({ 'skills.name': 'text', title: 'text', bio: 'text', category: 'text' });
+CandidateProfileSchema.index({ category: 1, isAvailable: 1 });
+
+module.exports = mongoose.model('CandidateProfile', CandidateProfileSchema);
