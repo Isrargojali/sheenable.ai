@@ -22,7 +22,7 @@ const getStats = async (req, res, next) => {
   try {
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
-    startOfMonth.setHours(0,0,0,0);
+    startOfMonth.setHours(0, 0, 0, 0);
 
     const [totalUsers, totalCandidates, totalEmployers, totalJobs, totalApplications, successfulHires, newUsersThisMonth, activeJobs] = await Promise.all([
       User.countDocuments({ isActive: true }),
@@ -99,7 +99,7 @@ const updateUserRole = async (req, res, next) => {
     await targetUser.save();
 
     await logAudit('ROLE_CHANGED', 'user', targetUser._id, req);
-    
+
     return success(res, targetUser);
   } catch (err) { next(err); }
 };
@@ -133,7 +133,7 @@ const deleteUser = async (req, res, next) => {
     if (!targetUser) return error(res, 'User not found', 404);
 
     if (targetUser._id.toString() === req.user.id) return error(res, 'Cannot delete yourself', 400);
-    
+
     if (req.user.role !== 'SUPER_ADMIN') {
       return error(res, 'Only SUPER_ADMIN can delete users', 403);
     }
@@ -176,7 +176,7 @@ const getAuditLogs = async (req, res, next) => {
 const getSecurityInfo = async (req, res, next) => {
   try {
     const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    
+
     const [suspendedUsers, unverifiedAccounts, recentFailedLogins, accountsLockedToday, recentAdminActions, newUsersLast24h] = await Promise.all([
       User.countDocuments({ isActive: false }),
       User.countDocuments({ isVerified: false, createdAt: { $gte: twentyFourHoursAgo } }),
@@ -201,10 +201,12 @@ const getAnalytics = async (req, res, next) => {
 
     const pipeline = [
       { $match: { createdAt: { $gte: startDate } } },
-      { $group: {
-        _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
-        count: { $sum: 1 }
-      }},
+      {
+        $group: {
+          _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+          count: { $sum: 1 }
+        }
+      },
       { $sort: { _id: 1 } }
     ];
 
@@ -235,7 +237,7 @@ const updateJobStatusAdmin = async (req, res, next) => {
     const { status } = req.body;
     const job = await Job.findByIdAndUpdate(req.params.id, { status }, { new: true });
     if (!job) return error(res, 'Job not found', 404);
-    
+
     await logAudit('JOB_STATUS_FORCED', 'job', job._id, req);
     return success(res, job);
   } catch (err) { next(err); }
