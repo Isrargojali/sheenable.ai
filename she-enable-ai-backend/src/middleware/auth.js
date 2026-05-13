@@ -17,7 +17,7 @@ const protect = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const { User } = getDatabase();
-    
+
     const user = await User.findById(decoded.id).select('+isActive');
     if (!user || !user.isActive) {
       return res.status(401).json({ success: false, message: 'Account not found or suspended' });
@@ -46,7 +46,7 @@ const optionalAuth = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const { User } = getDatabase();
-    
+
     const user = await User.findById(decoded.id).select('+isActive');
     if (user && user.isActive) {
       req.user = user;
