@@ -70,32 +70,58 @@ export default function VerifyOtpPage() {
     setLoading(true);
 
     try {
-      const { data } = await apiAuth.verifyOTP(userId, code);
+      const response = await apiAuth.verifyOTP(userId, code);
+      
+      // axios wraps response body in .data, backend wraps result in .data wrapper
+      // So response.data = { success: true, data: { token, user } }
+      const payload = response.data?.data || response.data;
+      
+      if (!payload || !payload.user || !payload.token) {
+        console.error('❌ Invalid API response:', response.data);
+        setError("Invalid response from server. Please try again.");
+        return;
+      }
 
-      // FIX — populate all required AuthUser fields (firstName/lastName were missing)
+      // Extract user and token
+      const userRole = payload.user.role as UserRole;
+      const redirectPath = ROLE_REDIRECTS[userRole];
+      
+      if (!redirectPath) {
+        console.error('❌ No redirect path for role:', userRole);
+        setError("Invalid user role. Please contact support.");
+        return;
+      }
+
+      // Set session with complete user data
       setSession(
         {
-          id:        data.user.id,
-          email:     data.user.email,
-          role:      data.user.role as UserRole,
-          firstName: data.user.firstName ?? "",
-          lastName:  data.user.lastName  ?? "",
-          avatarUrl: data.user.avatarUrl ?? "",
+          id:        payload.user.id,
+          email:     payload.user.email,
+          role:      userRole,
+          firstName: payload.user.firstName ?? "",
+          lastName:  payload.user.lastName  ?? "",
+          avatarUrl: payload.user.avatarUrl ?? "",
         },
-        data.token
+        payload.token
       );
 
       setNotifs(MOCK_NOTIFICATIONS);
-      navigate(ROLE_REDIRECTS[data.user.role] ?? "/");
+      
+      console.log(`✅ OTP verified for ${payload.user.email}. Redirecting to ${redirectPath}`);
+      
+      // Hard replace to prevent back button to verify page
+      navigate(redirectPath, { replace: true });
     } catch (err: unknown) {
       const axiosErr = err as { response?: { data?: { message?: string } } };
       const message  = axiosErr.response?.data?.message ?? "Invalid OTP";
 
-      // If the user (mock) no longer exists after a server restart, send them
-      // back to signup with a clear message rather than leaving them stuck.
-      if (message.toLowerCase().includes("not found") || message.toLowerCase().includes("user not found")) {
+      console.error('❌ OTP verification failed:', message);
+
+      // If user session expired, redirect to signup
+      if (message.toLowerCase().includes("not found")) {
         navigate("/auth/signup", {
           state: { notice: "Your session expired. Please sign up again." },
+          replace: true
         });
         return;
       }

@@ -1,6 +1,41 @@
+# Dependencies
 node_modules/
+
+# Environment variables (CRITICAL - never commit)
+# Environment variables
 .env
+.env.*
+**/.env
+**/.env.*
+!.env.example
+# Mock database
 .mock-db.json
+
+# Uploads (local)
 uploads/
+
+# Logs
 npm-debug.log
+*.log
+logs/
+
+# OS files
 .DS_Store
+Thumbs.db
+
+# Build output
+dist/
+build/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Testing
+coverage/
+
+# Temporary files
+*.tmp
+*.temp

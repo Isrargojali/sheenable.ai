@@ -2,11 +2,12 @@
 node_modules/
 
 # Environment variables (CRITICAL - never commit)
+# Environment variables
 .env
-.env.local
-.env.development
-.env.production
-.env.staging
+.env.*
+**/.env
+**/.env.*
+!.env.example
 
 # Build output
 dist/

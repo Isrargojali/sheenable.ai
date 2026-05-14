@@ -50,13 +50,20 @@ const register = async (req, res, next) => {
       await EmployerProfile.create({ userId: user._id, companyName: `${firstName}'s Company`, industry: 'Other' });
     }
 
-    await sendOtpEmail(user.email, user.firstName, otp);
+    try {
+      await sendOtpEmail(user.email, user.firstName, otp);
+    } catch (emailErr) {
+      console.error('⚠️ OTP email failed, but user was created:', emailErr.message);
+      // Don't fail signup if email fails - allow manual resend
+    }
+    
     await logAudit('USER_REGISTERED', 'user', user._id, user._id);
 
     return res.status(201).json({
       success: true,
       userId: user._id,
-      message: 'Verification code sent to your email'
+      message: 'Account created! Check your email for the verification code. If you don\'t see it, click "Resend Code".',
+      devOtp: process.env.NODE_ENV === 'development' ? otp : undefined
     });
   } catch (err) { next(err); }
 };
@@ -222,20 +229,28 @@ const forgotPassword = async (req, res, next) => {
     if (!email) return error(res, 'Email is required', 400);
 
     const user = await User.findOne({ email: email.toLowerCase() });
+    
     if (user) {
-      const rawToken = crypto.randomBytes(32).toString('hex');
-      const hashed = crypto.createHash('sha256').update(rawToken).digest('hex');
-      
-      user.passwordResetToken = hashed;
-      user.passwordResetExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
-      await user.save();
+      try {
+        const rawToken = crypto.randomBytes(32).toString('hex');
+        const hashed = crypto.createHash('sha256').update(rawToken).digest('hex');
+        
+        user.passwordResetToken = hashed;
+        user.passwordResetExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+        await user.save();
 
-      const resetLink = `${process.env.FRONTEND_URL}/auth/reset-password?token=${rawToken}`;
-      await sendPasswordResetEmail(user.email, resetLink);
+        const resetLink = `${process.env.FRONTEND_URL}/auth/reset-password?token=${rawToken}`;
+        await sendPasswordResetEmail(user.email, resetLink);
+        
+        console.log(`✅ Password reset email sent to ${user.email}`);
+      } catch (emailErr) {
+        console.error('⚠️ Failed to send password reset email:', emailErr.message);
+        // Don't throw - allow user to try resend or contact support
+      }
     }
 
-    // Always return success
-    return success(res, null, 'If that email is registered, a reset link has been sent');
+    // Always return success (for security - don't reveal if email exists)
+    return success(res, null, 'If that email is registered, a password reset link has been sent');
   } catch (err) { next(err); }
 };
 
@@ -273,9 +288,21 @@ const resendOtp = async (req, res, next) => {
     user.otp = { code: hash, expiresAt };
     await user.save();
 
-    await sendOtpEmail(user.email, user.firstName, otp);
+    try {
+      await sendOtpEmail(user.email, user.firstName, otp);
+      console.log(`✅ Resent OTP to ${user.email}`);
+    } catch (emailErr) {
+      console.error('⚠️ Failed to send OTP email:', emailErr.message);
+      // Don't fail the request if email fails in dev mode
+      if (process.env.NODE_ENV === 'production') {
+        throw emailErr;
+      }
+    }
 
-    return success(res, null, 'New verification code sent');
+    return success(res, { 
+      message: 'Verification code sent to your email',
+      devOtp: process.env.NODE_ENV === 'development' ? otp : undefined 
+    });
   } catch (err) { next(err); }
 };
 
