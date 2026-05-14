@@ -6,16 +6,19 @@ const initializeSocket = (io) => {
   // Use io globally to emit events from controllers
   global.io = io;
 
+  // Track online users in memory (userId -> Set of socketIds)
+  const onlineUsers = new Map();
+
   io.use(async (socket, next) => {
     try {
       const token = socket.handshake.auth.token || socket.handshake.headers.token;
       if (!token) return next(new Error('Authentication error: No token'));
 
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      
+
       const { User: DbUser } = getDatabase();
       const user = await (DbUser || User).findById(decoded.id).select('+isActive');
-      
+
       if (!user || !user.isActive) {
         return next(new Error('Authentication error: Invalid or inactive user'));
       }
@@ -29,12 +32,32 @@ const initializeSocket = (io) => {
 
   io.on('connection', (socket) => {
     console.log(`[Socket] User connected: ${socket.user._id} (${socket.user.role})`);
-    
+
     // Join a personal room named by user ID so we can emit direct messages easily
-    socket.join(socket.user._id.toString());
+    const userIdStr = socket.user._id.toString();
+    socket.join(userIdStr);
+
+    // Track online status
+    if (!onlineUsers.has(userIdStr)) {
+      onlineUsers.set(userIdStr, new Set());
+      // Broadcast that this user is now online
+      io.emit('user-online', userIdStr);
+    }
+    onlineUsers.get(userIdStr).add(socket.id);
+
+    // Send the current online users to the newly connected user
+    socket.emit('online-users', Array.from(onlineUsers.keys()));
 
     socket.on('disconnect', () => {
       console.log(`[Socket] User disconnected: ${socket.user._id}`);
+      const userSockets = onlineUsers.get(userIdStr);
+      if (userSockets) {
+        userSockets.delete(socket.id);
+        if (userSockets.size === 0) {
+          onlineUsers.delete(userIdStr);
+          io.emit('user-offline', userIdStr);
+        }
+      }
     });
 
     // Optional: client can explicitly join a thread room if they want real-time typing indicators

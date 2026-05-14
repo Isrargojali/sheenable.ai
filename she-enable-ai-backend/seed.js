@@ -3,10 +3,15 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
+if (process.env.NODE_ENV === 'production') {
+  console.error('❌ Cannot run seed script in production environment!');
+  process.exit(1);
+}
+
 mongoose.connect(process.env.MONGODB_URI).then(async () => {
   const User = require('./src/models/User');
   const CandidateProfile = require('./src/models/CandidateProfile');
-  const EmployerProfile  = require('./src/models/EmployerProfile');
+  const EmployerProfile = require('./src/models/EmployerProfile');
 
   await User.deleteMany({ email: { $in: ['ayesha@test.com', 'hr@techflow.com', 'admin@SheEnableAI.pk'] } });
 

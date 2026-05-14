@@ -74,11 +74,13 @@ export default function LoginPage() {
       setNotifs(MOCK_NOTIFICATIONS);
       navigate(ROLE_REDIRECTS[user.role] ?? "/");
     } catch (err: unknown) {
-      // Handle network/Chrome extension errors gracefully
-      let errorMessage = "Login failed";
+      const axiosErr = err as { response?: { data?: { message?: string } } };
+      let errorMessage = axiosErr.response?.data?.message || "Login failed";
 
       if (err instanceof Error) {
-        errorMessage = err.message;
+        if (!axiosErr.response?.data?.message) {
+           errorMessage = err.message;
+        }
 
         // Check if it's a network error or Chrome extension interference
         if (errorMessage.includes("Network") || errorMessage.includes("ERR_")) {
@@ -86,10 +88,8 @@ export default function LoginPage() {
         }
       }
 
-      // Log the full error for debugging without showing technical details to user
-      if (err instanceof Error) {
-        console.error("Login error details:", err);
-      }
+      // Log the full error for debugging
+      console.error("Login error details:", err);
 
       setError(errorMessage);
     } finally {
@@ -173,10 +173,15 @@ export default function LoginPage() {
       <div className="flex items-center justify-center px-5 py-10 lg:py-12 bg-background">
         <div className="w-full max-w-[400px]">
           <div className="lg:hidden flex items-center gap-2 mb-7">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "var(--grad-mauve-rose)" }}>
+            {/* <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "var(--grad-mauve-rose)" }}>
               <Heart size={14} className="text-white" fill="white" />
-            </div>
-            <span className="font-serif text-xl">SheEnableAI</span>
+            </div> */}
+             <img
+            src={logo}
+            alt="SheEnableAI logo"
+            className="w-48 h-24 object-contain transition-transform group-hover:scale-105"
+          />
+            {/* <span className="font-serif text-xl">SheEnableAI</span> */}
           </div>
 
           <h1 className="font-serif text-4xl text-foreground mb-1.5 tracking-tight">Welcome back</h1>

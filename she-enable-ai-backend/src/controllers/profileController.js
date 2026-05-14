@@ -1,6 +1,8 @@
 const CandidateProfile = require('../models/CandidateProfile');
 const EmployerProfile = require('../models/EmployerProfile');
 const User = require('../models/User');
+const Application = require('../models/Application');
+const SavedJob = require('../models/SavedJob');
 const { success, error } = require('../utils/apiResponse');
 
 const getProfile = async (req, res, next) => {
@@ -33,7 +35,7 @@ const getProfile = async (req, res, next) => {
 const updateProfile = async (req, res, next) => {
   try {
     const { role, id } = req.user;
-    
+
     // Update basic user info if provided
     if (req.body.firstName || req.body.lastName) {
       await User.findByIdAndUpdate(id, {
@@ -112,7 +114,7 @@ const uploadCvFile = async (req, res, next) => {
   try {
     if (req.user.role !== 'CANDIDATE') return error(res, 'Only candidates can upload CV files', 403);
     if (!req.file) return error(res, 'No file uploaded', 400);
-    
+
     const cvFileUrl = req.file.path;
     const profile = await CandidateProfile.findOneAndUpdate(
       { userId: req.user.id },
@@ -123,6 +125,34 @@ const uploadCvFile = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+const getCandidateStats = async (req, res, next) => {
+  try {
+    if (req.user.role !== 'CANDIDATE') return error(res, 'Only candidates can access these stats', 403);
+
+    const [applications, savedJobs, profile] = await Promise.all([
+      Application.countDocuments({ candidateId: req.user.id }),
+      SavedJob.countDocuments({ candidateId: req.user.id }),
+      CandidateProfile.findOne({ userId: req.user.id })
+    ]);
+
+    let completionScore = 20; // Base score for having an account
+    if (profile) {
+      if (profile.title) completionScore += 10;
+      if (profile.bio) completionScore += 10;
+      if (profile.skills && profile.skills.length > 0) completionScore += 20;
+      if (profile.experience && profile.experience.length > 0) completionScore += 20;
+      if (profile.education && profile.education.length > 0) completionScore += 20;
+    }
+
+    return success(res, {
+      totalApplications: applications,
+      savedJobs,
+      profileViews: profile ? profile.profileViews || 0 : 0,
+      profileCompletionScore: Math.min(completionScore, 100)
+    });
+  } catch (err) { next(err); }
+};
+
 module.exports = {
-  getProfile, updateProfile, getCandidateProfile, getEmployerProfile, getCv, saveCv, uploadAvatar, uploadCvFile
+  getProfile, updateProfile, getCandidateProfile, getEmployerProfile, getCv, saveCv, uploadAvatar, uploadCvFile, getCandidateStats
 };

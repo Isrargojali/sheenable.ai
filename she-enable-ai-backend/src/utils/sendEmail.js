@@ -3,6 +3,7 @@ const nodemailer = require('nodemailer');
 
 const sendEmail = async (options) => {
   try {
+    // Production: Use SendGrid if API key is configured
     if (process.env.SENDGRID_API_KEY) {
       sgMail.setApiKey(process.env.SENDGRID_API_KEY);
       const msg = {
@@ -12,16 +13,27 @@ const sendEmail = async (options) => {
         html: options.html,
       };
       await sgMail.send(msg);
+      console.log(`✅ Email sent to ${options.to} via SendGrid`);
       return;
     }
 
-    // Fallback to Nodemailer (for development, logs to console)
+    // Development: Log to console if no email service configured
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      console.log(`\n📧 [DEV MODE] Email would be sent to: ${options.to}`);
+      console.log(`📝 Subject: ${options.subject}`);
+      console.log(`📄 Body preview: ${options.html.substring(0, 100)}...`);
+      console.log(`💡 Set SENDGRID_API_KEY for production or EMAIL_USER/EMAIL_PASS for real emails\n`);
+      return;
+    }
+
+    // Fallback: Use Nodemailer with configured SMTP
     const transporter = nodemailer.createTransport({
-      host: 'smtp.ethereal.email',
-      port: 587,
+      host: process.env.SMTP_HOST || 'smtp.gmail.com',
+      port: process.env.SMTP_PORT || 587,
+      secure: process.env.SMTP_SECURE === 'true',
       auth: {
-        user: process.env.EMAIL_USER || 'ethereal_user',
-        pass: process.env.EMAIL_PASS || 'ethereal_pass',
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
       },
     });
 
@@ -32,9 +44,10 @@ const sendEmail = async (options) => {
       html: options.html,
     });
 
-    console.log(`Email sent: ${info.messageId}`);
+    console.log(`✅ Email sent: ${info.messageId}`);
   } catch (error) {
-    console.error(`Error sending email to ${options.to}:`, error.message);
+    console.error(`❌ Error sending email to ${options.to}:`, error.message);
+    throw error;
   }
 };
 

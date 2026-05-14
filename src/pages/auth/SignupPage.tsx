@@ -97,6 +97,7 @@ export default function SignupPage() {
         firstName: role === "CANDIDATE" ? fname : companyName,
         lastName:  role === "CANDIDATE" ? lname : companySize,
         role,
+        gender: role === "CANDIDATE" ? "female" : "prefer-not-to-say",
       });
       // Pass devOtp in URL so VerifyOtpPage can show it for easy copy/auto-fill
       const devOtpParam = res.data.devOtp ? `&devOtp=${res.data.devOtp}` : "";
