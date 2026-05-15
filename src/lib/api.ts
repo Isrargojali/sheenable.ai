@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { type AxiosResponse } from 'axios';
 import { useAuthStore } from '../store/authStore';
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -6,28 +6,40 @@ const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 export const api = axios.create({
   baseURL: BASE_URL,
   timeout: 15000,
-  withCredentials: true, // Sends cookies (needed for refresh token)
+  withCredentials: true,
 });
 
-// Suppress uncaught Chrome extension errors that don't affect API calls
-if (typeof window !== 'undefined' && (window as any).chrome?.runtime) {
-  (window as any).chrome.runtime.onMessage?.addListener?.(() => {
-    // This prevents "Receiving end does not exist" errors from cluttering console
+// ─── HELPER — unwrap standard { data: { data: T } } envelope ─────────────────
+const unwrap = <T>(res: AxiosResponse<{ data: T } | T>): T => {
+  const body = res.data as Record<string, unknown>;
+  return (body?.data ?? body) as T;
+};
+
+// ─── Suppress Chrome-extension "Receiving end does not exist" noise ───────────
+interface ChromeWindow extends Window {
+  chrome?: {
+    runtime?: {
+      onMessage?: {
+        addListener?: (cb: () => void) => void;
+      };
+    };
+  };
+}
+
+if (typeof window !== 'undefined') {
+  (window as ChromeWindow).chrome?.runtime?.onMessage?.addListener?.(() => {
+    // intentionally empty — prevents uncaught extension errors
   });
 }
 
 // ─── REQUEST INTERCEPTOR — attach JWT from authStore ─────────────────────────
 api.interceptors.request.use((config) => {
-  const state = useAuthStore.getState();
-  console.log('[API Interceptor] Token present:', !!state.token, 'Token value:', state.token ? state.token.substring(0, 20) + '...' : 'null');
-  if (state.token) {
-    config.headers.Authorization = `Bearer ${state.token}`;
+  const { token } = useAuthStore.getState();
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
 
-  // FIX 4: For FormData payloads, explicitly set Content-Type to multipart/form-data
-  // so axios includes the correct boundary parameter that multer needs to parse the body.
-  // Without this, some environments send the wrong Content-Type and multer finds no file,
-  // causing req.file to be undefined and the controller to return a 500.
   if (config.data instanceof FormData) {
     config.headers['Content-Type'] = 'multipart/form-data';
   }
@@ -49,7 +61,12 @@ api.interceptors.response.use(
   async (error) => {
     const original = error.config;
 
-    if (error.response?.status === 401 && !original._retry && original.url !== '/auth/login' && original.url !== '/auth/refresh-token') {
+    if (
+      error.response?.status === 401 &&
+      !original._retry &&
+      original.url !== '/auth/login' &&
+      original.url !== '/auth/refresh-token'
+    ) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -63,8 +80,13 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const { data } = await axios.post(`${BASE_URL}/auth/refresh-token`, {}, { withCredentials: true });
-        const newToken = data.data?.token || data.token;
+        const { data } = await axios.post(
+          `${BASE_URL}/auth/refresh-token`,
+          {},
+          { withCredentials: true },
+        );
+        const payload = data as Record<string, Record<string, string>>;
+        const newToken = payload.data?.token || (data as Record<string, string>).token;
         if (!newToken) throw new Error('No token returned');
 
         useAuthStore.setState({ token: newToken });
@@ -82,125 +104,119 @@ api.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 // ─── AUTH ─────────────────────────────────────────────────────────────────────
 export const apiAuth = {
-  login: (email: string, password: string, role?: string) => {
-    return api.post('/auth/login', { email, password, role });
-  },
-  register: (data: object) => api.post('/auth/register', data),
-  verifyOTP: (userId: string, code: string) => api.post('/auth/verify-otp', { userId, code }),
-  resendOTP: (userId: string) => api.post('/auth/resend-otp', { userId }),
-  logout: () => api.post('/auth/logout'),
-  forgotPassword: (email: string) => api.post('/auth/forgot-password', { email }),
-  resetPassword: (token: string, newPassword: string) => api.post('/auth/reset-password', { token, newPassword }),
-  getMe: () => api.get('/auth/me'),
-  refresh: () => api.post('/auth/refresh-token'),
+  login:          (email: string, password: string, role?: string) => api.post('/auth/login', { email, password, role }),
+  register:       (data: object)                                   => api.post('/auth/register', data),
+  verifyOTP:      (userId: string, code: string)                   => api.post('/auth/verify-otp', { userId, code }),
+  resendOTP:      (userId: string)                                 => api.post('/auth/resend-otp', { userId }),
+  logout:         ()                                               => api.post('/auth/logout'),
+  forgotPassword: (email: string)                                  => api.post('/auth/forgot-password', { email }),
+  resetPassword:  (token: string, newPassword: string)             => api.post('/auth/reset-password', { token, newPassword }),
+  getMe:          ()                                               => api.get('/auth/me').then(unwrap),
+  refresh:        ()                                               => api.post('/auth/refresh-token'),
 };
 
 // ─── PROFILE ──────────────────────────────────────────────────────────────────
 export const apiProfile = {
-  getMe: () => api.get('/profile/me'),
-  updateMe: (data: object) => api.put('/profile/me', data),
-  getCandidateStats: () => api.get('/profile/candidate-stats'),
-  getUpcomingInterviews: () => api.get('/interviews', { params: { upcoming: 'true' } }),
-  getCandidateProfile: (id: string) => api.get(`/profile/candidate/${id}`),
-  updateCandidateProfile: (data: object) => api.put('/profile/me', data),
-  getEmployerProfile: (id: string) => api.get(`/profile/employer/${id}`),
-  updateEmployerProfile: (data: object) => api.put('/profile/me', data),
-  toggleAvailability: (isAvailable: boolean) => api.put('/profile/me', { isAvailable }),
-  uploadAvatar: (formData: FormData) => api.post('/upload/avatar', formData),
-  getCv: () => api.get('/profile/cv'),
-  saveCv: (data: object) => api.post('/profile/cv', data),
-  updateProfile: (data: object) => api.put('/profile/me', data),
+  getMe:                  ()                     => api.get('/profile/me').then(unwrap),
+  updateMe:               (data: object)         => api.put('/profile/me', data).then(unwrap),
+  getCandidateStats:      ()                     => api.get('/profile/candidate-stats').then(unwrap),
+  getUpcomingInterviews:  ()                     => api.get('/interviews', { params: { upcoming: 'true' } }).then(unwrap),
+  getCandidateProfile:    (id: string)           => api.get(`/profile/candidate/${id}`).then(unwrap),
+  updateCandidateProfile: (data: object)         => api.put('/profile/me', data).then(unwrap),
+  getEmployerProfile:     (id: string)           => api.get(`/profile/employer/${id}`).then(unwrap),
+  updateEmployerProfile:  (data: object)         => api.put('/profile/me', data).then(unwrap),
+  toggleAvailability:     (isAvailable: boolean) => api.put('/profile/me', { isAvailable }).then(unwrap),
+  uploadAvatar:           (formData: FormData)   => api.post('/upload/avatar', formData).then(unwrap),
+  getCv:                  ()                     => api.get('/profile/cv').then(unwrap),
+  saveCv:                 (data: object)         => api.post('/profile/cv', data).then(unwrap),
+  updateProfile:          (data: object)         => api.put('/profile/me', data).then(unwrap),
 };
 
 // ─── JOBS ─────────────────────────────────────────────────────────────────────
 export const apiJobs = {
-  getJobs: (params?: object) => api.get('/jobs', { params }),
-  getJobById: (id: string) => api.get(`/jobs/${id}`),
-  postJob: (data: object) => api.post('/jobs', data),
-  updateJob: (id: string, data: object) => api.put(`/jobs/${id}`, data),
-  deleteJob: (id: string) => api.delete(`/jobs/${id}`),
-  getMyListings: (params?: object) => api.get('/jobs/me', { params }),
-  saveJob: (id: string) => api.post(`/jobs/${id}/save`),
-  getSavedJobs: () => api.get('/jobs/saved'),
-  getRecommendations: () => api.get('/jobs/recommended'),
+  getJobs:            (params?: object)          => api.get('/jobs', { params }).then(unwrap),
+  getJobById:         (id: string)               => api.get(`/jobs/${id}`).then(unwrap),
+  postJob:            (data: object)             => api.post('/jobs', data).then(unwrap),
+  updateJob:          (id: string, data: object) => api.put(`/jobs/${id}`, data).then(unwrap),
+  deleteJob:          (id: string)               => api.delete(`/jobs/${id}`).then(unwrap),
+  getMyListings:      (params?: object)          => api.get('/jobs/me', { params }).then(unwrap),
+  saveJob:            (id: string)               => api.post(`/jobs/${id}/save`).then(unwrap),
+  getSavedJobs:       ()                         => api.get('/jobs/saved').then(unwrap),
+  getRecommendations: ()                         => api.get('/jobs/recommended').then(unwrap),
 };
 
 // ─── APPLICATIONS ─────────────────────────────────────────────────────────────
 export const apiApplications = {
-  apply: (jobId: string, data: object) => api.post(`/applications/${jobId}/apply`, data),
-  getApplications: (params?: object) => api.get('/applications/me', { params }),
-  getJobApplications: (jobId: string, params?: object) => api.get(`/applications/job/${jobId}`, { params }),
-  updateStatus: (id: string, status: string, data?: object) =>
-    api.patch(`/applications/${id}/status`, { status, ...data }),
-  getPipeline: (jobId: string) => api.get(`/applications/job/${jobId}/pipeline`),
-  bulkUpdateStatus: (applicationIds: string[], status: string) =>
-    api.patch('/applications/bulk-status', { applicationIds, status }),
+  apply:              (jobId: string, data: object)               => api.post(`/applications/${jobId}/apply`, data).then(unwrap),
+  getApplications:    (params?: object)                           => api.get('/applications/me', { params }).then(unwrap),
+  getJobApplications: (jobId: string, params?: object)            => api.get(`/applications/job/${jobId}`, { params }).then(unwrap),
+  updateStatus:       (id: string, status: string, data?: object) => api.patch(`/applications/${id}/status`, { status, ...data }).then(unwrap),
+  getPipeline:        (jobId: string)                             => api.get(`/applications/job/${jobId}/pipeline`).then(unwrap),
+  bulkUpdateStatus:   (applicationIds: string[], status: string)  => api.patch('/applications/bulk-status', { applicationIds, status }).then(unwrap),
 };
 
 // ─── MESSAGES ─────────────────────────────────────────────────────────────────
 export const apiMessages = {
-  getThreads: () => api.get('/messages/threads'),
-  startThread: (data: { recipientId: string; jobId?: string; initialMessage?: string }) =>
-    api.post('/messages/send', { receiverId: data.recipientId, jobId: data.jobId, content: data.initialMessage }),
-  getMessages: (threadId: string, params?: object) => api.get(`/messages/threads/${threadId}/messages`, { params }),
-  sendMessage: (threadId: string, content: string) => api.post(`/messages/send`, { threadId, content }),
+  getThreads:  ()                                                                        => api.get('/messages/threads').then(unwrap),
+  getThread:   (threadId: string)                                                        => api.get(`/messages/threads/${threadId}`).then(unwrap),
+  getMessages: (threadId: string, params?: object)                                       => api.get(`/messages/threads/${threadId}/messages`, { params }).then(unwrap),
+  sendMessage: (threadId: string, content: string)                                       => api.post('/messages/send', { threadId, content }).then(unwrap),
+  startThread: (data: { recipientId: string; jobId?: string; initialMessage?: string }) => api.post('/messages/send', { receiverId: data.recipientId, jobId: data.jobId, content: data.initialMessage }).then(unwrap),
 };
 
 // ─── INTERVIEWS ───────────────────────────────────────────────────────────────
 export const apiInterviews = {
-  schedule: (data: object) => api.post('/interviews', data),
-  getAll: (params?: object) => api.get('/interviews', { params }),
-  getById: (id: string) => api.get(`/interviews/${id}`),
-  update: (id: string, data: object) => api.patch(`/interviews/${id}`, data),
-  cancel: (id: string, cancelReason?: string) => api.post(`/interviews/${id}/cancel`, { cancelReason }),
+  schedule: (data: object)                      => api.post('/interviews', data).then(unwrap),
+  getAll:   (params?: object)                   => api.get('/interviews', { params }).then(unwrap),
+  getById:  (id: string)                        => api.get(`/interviews/${id}`).then(unwrap),
+  update:   (id: string, data: object)          => api.patch(`/interviews/${id}`, data).then(unwrap),
+  cancel:   (id: string, cancelReason?: string) => api.post(`/interviews/${id}/cancel`, { cancelReason }).then(unwrap),
 };
 
 // ─── NOTIFICATIONS ────────────────────────────────────────────────────────────
 export const apiNotifications = {
-  getAll: (params?: object) => api.get('/notifications', { params }),
-  markRead: (id: string) => api.patch(`/notifications/${id}/read`),
-  markAllRead: () => api.patch('/notifications/read-all'),
+  getAll:      (params?: object) => api.get('/notifications', { params }).then(unwrap),
+  markRead:    (id: string)      => api.patch(`/notifications/${id}/read`).then(unwrap),
+  markAllRead: ()                => api.patch('/notifications/read-all').then(unwrap),
 };
 
 // ─── ADMIN ────────────────────────────────────────────────────────────────────
 export const apiAdmin = {
-  getStats: () => api.get('/admin/stats'),
-  getUsers: (params?: object) => api.get('/admin/users', { params }),
-  getUserById: (id: string) => api.get(`/admin/users/${id}`),
-  updateUserRole: (id: string, role: string) => api.patch(`/admin/users/${id}/role`, { role }),
-  updateUserStatus: (id: string, isActive: boolean) => api.patch(`/admin/users/${id}/status`, { isActive }),
-  deleteUser: (id: string) => api.delete(`/admin/users/${id}`),
-  getAuditLogs: (params?: object) => api.get('/admin/audit-logs', { params }),
-  getSecurityInfo: () => api.get('/admin/security'),
-  getAnalytics: (period?: '7d' | '30d' | '90d') => api.get('/admin/analytics', { params: { period } }),
-  getJobs: (params?: object) => api.get('/admin/jobs', { params }),
-  updateJobStatus: (jobId: string, status: string) => api.patch(`/admin/jobs/${jobId}/status`, { status }),
+  getStats:         ()                               => api.get('/admin/stats').then(unwrap),
+  getUsers:         (params?: object)                => api.get('/admin/users', { params }).then(unwrap),
+  getUserById:      (id: string)                     => api.get(`/admin/users/${id}`).then(unwrap),
+  updateUserRole:   (id: string, role: string)       => api.patch(`/admin/users/${id}/role`, { role }).then(unwrap),
+  updateUserStatus: (id: string, isActive: boolean)  => api.patch(`/admin/users/${id}/status`, { isActive }).then(unwrap),
+  deleteUser:       (id: string)                     => api.delete(`/admin/users/${id}`).then(unwrap),
+  getAuditLogs:     (params?: object)                => api.get('/admin/audit-logs', { params }).then(unwrap),
+  getSecurityInfo:  ()                               => api.get('/admin/security').then(unwrap),
+  getAnalytics:     (period?: '7d' | '30d' | '90d') => api.get('/admin/analytics', { params: { period } }).then(unwrap),
+  getJobs:          (params?: object)                => api.get('/admin/jobs', { params }).then(unwrap),
+  updateJobStatus:  (jobId: string, status: string)  => api.patch(`/admin/jobs/${jobId}/status`, { status }).then(unwrap),
 };
 
 // ─── UPLOAD ───────────────────────────────────────────────────────────────────
 export const apiUpload = {
-  uploadAvatar: (formData: FormData) =>
-    api.post('/upload/avatar', formData),
-  uploadCv: (formData: FormData) =>
-    api.post('/upload/cv', formData),
+  uploadAvatar: (formData: FormData) => api.post('/upload/avatar', formData).then(unwrap),
+  uploadCv:     (formData: FormData) => api.post('/upload/cv', formData).then(unwrap),
 };
 
 // ─── AI ───────────────────────────────────────────────────────────────────────
 export const apiAI = {
-  generateCV: (data: object) => api.post('/ai/cv-builder', data),
-  improveCVSection: (section: string, text: string) => api.post('/ai/improve-cv', { section, text }),
-  searchCandidates: (query: string, params?: object) => api.get('/ai/search-candidates', { params: { ...params, q: query } }),
-  analyzeProfile: (userId: string) => api.post('/ai/analyze-profile', { userId }),
+  generateCV:       (data: object)                   => api.post('/ai/cv-builder', data).then(unwrap),
+  improveCVSection: (section: string, text: string)  => api.post('/ai/improve-cv', { section, text }).then(unwrap),
+  searchCandidates: (query: string, params?: object) => api.get('/ai/search-candidates', { params: { ...params, q: query } }).then(unwrap),
+  analyzeProfile:   (userId: string)                 => api.post('/ai/analyze-profile', { userId }).then(unwrap),
 };
 
 // ─── PIPELINE (legacy alias) ──────────────────────────────────────────────────
 export const apiPipeline = {
-  getPipeline: (jobId: string) => apiApplications.getPipeline(jobId),
+  getPipeline:      (jobId: string)                           => apiApplications.getPipeline(jobId),
   bulkUpdateStatus: (applicationIds: string[], status: string) => apiApplications.bulkUpdateStatus(applicationIds, status),
-  updateStatus: (id: string, status: string, data?: object) => apiApplications.updateStatus(id, status, data),
+  updateStatus:     (id: string, status: string, data?: object) => apiApplications.updateStatus(id, status, data),
 };
