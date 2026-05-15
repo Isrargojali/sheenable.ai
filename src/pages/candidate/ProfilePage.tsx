@@ -20,9 +20,9 @@ function StepIndicator({ current, onChange }: { current: number; onChange: (n: n
           >
             <div className={cn(
               "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all",
-              i < current  ? "bg-emerald-500 text-white"
-              : i === current ? "bg-rose-500 text-white ring-4 ring-rose-500/20"
-              : "bg-[#EDE8F5] text-[#A89EC0] group-hover:bg-[#D4CBE8]"
+              i < current ? "bg-emerald-500 text-white"
+                : i === current ? "bg-rose-500 text-white ring-4 ring-rose-500/20"
+                  : "bg-[#EDE8F5] text-[#A89EC0] group-hover:bg-[#D4CBE8]"
             )}>
               {i < current ? <Check size={14} /> : i + 1}
             </div>
@@ -62,17 +62,17 @@ function SkillInput({ chips, onAdd, onRemove }: { chips: string[]; onAdd: (v: st
   function add() { const t = val.trim(); if (t && !chips.includes(t)) { onAdd(t); setVal(""); } }
   return (
     <div onClick={e => (e.currentTarget.querySelector("input") as HTMLInputElement)?.focus()}
-         className="min-h-[44px] w-full px-3 py-2 border border-[#E8E1F0] rounded-xl cursor-text flex flex-wrap gap-1.5 items-center focus-within:border-rose-400 focus-within:ring-2 focus-within:ring-rose-500/10 transition-all">
+      className="min-h-[44px] w-full px-3 py-2 border border-[#E8E1F0] rounded-xl cursor-text flex flex-wrap gap-1.5 items-center focus-within:border-rose-400 focus-within:ring-2 focus-within:ring-rose-500/10 transition-all">
       {chips.map((c, i) => (
         <span key={c} className="flex items-center gap-1 bg-rose-50 border border-rose-200 text-rose-600 text-[11px] font-semibold px-2.5 py-0.5 rounded-full">
           {c}<button type="button" onClick={() => onRemove(i)}><X size={10} /></button>
         </span>
       ))}
       <input value={val} onChange={e => setVal(e.target.value)}
-             onKeyDown={e => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); add(); } }}
-             onBlur={add}
-             placeholder={chips.length === 0 ? "Type a skill and press Enter…" : ""}
-             className="flex-1 min-w-[120px] outline-none text-sm text-[#0F0B1A] placeholder:text-[#C4BEDD] bg-transparent" />
+        onKeyDown={e => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); add(); } }}
+        onBlur={add}
+        placeholder={chips.length === 0 ? "Type a skill and press Enter…" : ""}
+        className="flex-1 min-w-[120px] outline-none text-sm text-[#0F0B1A] placeholder:text-[#C4BEDD] bg-transparent" />
     </div>
   );
 }
@@ -84,7 +84,7 @@ function MiniRing({ score }: { score: number }) {
       <svg width="48" height="48" viewBox="0 0 48 48" style={{ transform: "rotate(-90deg)" }}>
         <circle cx="24" cy="24" r={r} fill="none" stroke="#F5DCEA" strokeWidth="4" />
         <circle cx="24" cy="24" r={r} fill="none" stroke="#C8315A" strokeWidth="4"
-                strokeDasharray={circ} strokeDashoffset={circ * (1 - score / 100)} strokeLinecap="round" />
+          strokeDasharray={circ} strokeDashoffset={circ * (1 - score / 100)} strokeLinecap="round" />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center font-serif text-xs text-rose-500">{score}%</div>
     </div>
@@ -392,7 +392,7 @@ export default function ProfilePage() {
             </SectionCard>
           ))}
           <button onClick={() => setExps(es => [...es, { id: Date.now(), title: "", company: "", from: "", to: "", isCurrent: false, desc: "" }])}
-                  className="flex items-center gap-2 px-4 py-2.5 border-2 border-dashed rounded-2xl text-sm font-semibold w-full justify-center">
+            className="flex items-center gap-2 px-4 py-2.5 border-2 border-dashed rounded-2xl text-sm font-semibold w-full justify-center">
             <Plus size={15} /> Add Experience
           </button>
         </div>
@@ -420,8 +420,8 @@ export default function ProfilePage() {
                 <div className="flex gap-2 flex-wrap">
                   {[["REMOTE", "Remote"], ["HYBRID", "Hybrid"], ["ONSITE", "On-site"]].map(([v, l]) => (
                     <button key={v} onClick={() => setPrefMode(v)}
-                            className={cn("flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold border transition-all",
-                              prefMode === v ? "bg-rose-500 border-rose-500 text-white" : "bg-[#F7F4F9] border-[#E8E1F0]")}>
+                      className={cn("flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold border transition-all",
+                        prefMode === v ? "bg-rose-500 border-rose-500 text-white" : "bg-[#F7F4F9] border-[#E8E1F0]")}>
                       {l}
                     </button>
                   ))}
@@ -436,7 +436,7 @@ export default function ProfilePage() {
               <div className="flex flex-wrap gap-1.5 mt-3">
                 {["Urdu", "Punjabi", "Sindhi", "Pashto"].filter(l => !langs.includes(l)).map(l => (
                   <button key={l} onClick={() => setLangs(ls => [...ls, l])}
-                          className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold border">
+                    className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold border">
                     <Plus size={9} /> {l}
                   </button>
                 ))}
