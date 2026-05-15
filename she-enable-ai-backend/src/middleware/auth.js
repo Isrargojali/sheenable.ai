@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { getDatabase } = require('../config/database');
+const User = require('../models/User');
 
 const protect = async (req, res, next) => {
   let token;
@@ -16,7 +16,6 @@ const protect = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const { User } = getDatabase();
 
     const user = await User.findById(decoded.id).select('+isActive');
     if (!user || !user.isActive) {
@@ -45,7 +44,6 @@ const optionalAuth = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const { User } = getDatabase();
 
     const user = await User.findById(decoded.id).select('+isActive');
     if (user && user.isActive) {

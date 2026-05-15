@@ -95,7 +95,6 @@ export default function ProfilePage() {
   const { user, setUser } = useAuthStore();
   const [step, setStep] = useState(0);
   const [saved, setSaved] = useState(false);
-  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [avatarError, setAvatarError] = useState("");
 
   // Step 1 — Personal
@@ -103,6 +102,7 @@ export default function ProfilePage() {
   const [lastName, setLast] = useState(user?.lastName ?? "");
   const [cnic, setCnic] = useState("");
   const [phone, setPhone] = useState("");
+  // FIX 1: was `setLocation` (undefined) — correct setter name is `setLoc`
   const [location, setLoc] = useState("");
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
@@ -138,13 +138,16 @@ export default function ProfilePage() {
           setCnic(profile.cnic || "");
           setPhone(profile.phone || "");
           setAvatarUrl(profile.userId?.avatarUrl || user?.avatarUrl || "");
-          setLocation(profile.location?.city ? `${profile.location.city}${profile.location.country ? ', ' + profile.location.country : ''}` : "");
+          // FIX 1: was `setLocation(...)` which is undefined — use correct setter `setLoc`
+          setLoc(profile.location?.city
+            ? `${profile.location.city}${profile.location.country ? ', ' + profile.location.country : ''}`
+            : "");
           setTitle(profile.title || "");
           setSummary(profile.bio || "");
           setLinkedin(profile.linkedinUrl || "");
           setPort(profile.portfolioUrl || "");
           setSkills(profile.skills?.map((s: any) => s.name || s) || []);
-          setCategory(profile.category || "IT & Tech");
+          setCat(profile.category || "IT & Tech");
           setSalary(String(profile.expectedSalary?.min || 90000));
           setLangs(profile.cv?.skills || ["English"]);
           if (profile.experience?.length) setExps(profile.experience.map((e: any) => ({
@@ -168,7 +171,6 @@ export default function ProfilePage() {
     mutationFn: (data: any) => apiProfile.updateProfile(data),
     onSuccess: () => {
       setSaved(true);
-      // Update auth store with new firstName/lastName
       if (user) setUser({ ...user, firstName, lastName });
       setTimeout(() => setSaved(false), 3000);
     },
@@ -180,13 +182,15 @@ export default function ProfilePage() {
   const avatarUpload = useMutation({
     mutationFn: async (file: File) => {
       const formData = new FormData();
-      formData.append("file", file);
+      // FIX 2: was `formData.append("file", file)` — multer expects field name "avatar"
+      // matching `uploadAvatar.single('avatar')` in the backend route
+      formData.append("avatar", file);
       return apiUpload.uploadAvatar(formData);
     },
     onSuccess: (response) => {
-      const avatarUrl = response.data?.data?.avatarUrl || response.data?.avatarUrl;
-      setAvatarUrl(avatarUrl);
-      if (user) setUser({ ...user, avatarUrl });
+      const url = response.data?.data?.avatarUrl || response.data?.avatarUrl;
+      setAvatarUrl(url);
+      if (user) setUser({ ...user, avatarUrl: url });
       setAvatarError("");
     },
     onError: (err: any) => {
@@ -208,9 +212,10 @@ export default function ProfilePage() {
       return;
     }
 
-    setUploadingAvatar(true);
+    // FIX 3: removed broken `setUploadingAvatar(true/false)` around an async mutate call.
+    // `avatarUpload.isPending` (already used in JSX below) correctly tracks loading state.
+    setAvatarError("");
     avatarUpload.mutate(file);
-    setUploadingAvatar(false);
   }
 
   function save() {
@@ -277,6 +282,7 @@ export default function ProfilePage() {
                     <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="+92 300 1234567" className={inp} />
                   </Field>
                   <Field label="Location">
+                    {/* FIX 1: onChange uses correct setter `setLoc` */}
                     <input value={location} onChange={e => setLoc(e.target.value)} placeholder="City, Country" className={inp} />
                   </Field>
                 </div>
@@ -308,8 +314,15 @@ export default function ProfilePage() {
                 <p className="text-xs text-[#6B6480] mb-3">Upload a professional photo (max 3MB)</p>
                 <label className="inline-flex items-center gap-2 px-4 py-2 border border-[#E8E1F0] rounded-full text-xs font-semibold text-[#6B6480] hover:bg-[#F7F4F9] transition-colors cursor-pointer">
                   <Upload size={14} />
-                  {uploadingAvatar || avatarUpload.isPending ? "Uploading…" : "Upload Photo"}
-                  <input type="file" accept="image/*" onChange={handleAvatarChange} className="hidden" disabled={uploadingAvatar || avatarUpload.isPending} />
+                  {/* FIX 3: use avatarUpload.isPending only — no more broken uploadingAvatar state */}
+                  {avatarUpload.isPending ? "Uploading…" : "Upload Photo"}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarChange}
+                    className="hidden"
+                    disabled={avatarUpload.isPending}
+                  />
                 </label>
                 {avatarError && <p className="text-xs text-red-500 mt-2">{avatarError}</p>}
               </div>

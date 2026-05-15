@@ -7,6 +7,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const path = require('path');
+const mongoose = require('mongoose'); // ✅ Added
 
 // Local imports
 const { connectDB } = require('./src/config/database');
@@ -35,7 +36,7 @@ connectDB();
 // Environment checks
 const isProd = process.env.NODE_ENV === 'production';
 
-// FIX FOR BUG 2: Strict CORS config
+// Strict CORS config
 const extraOrigins = process.env.EXTRA_ORIGINS ? process.env.EXTRA_ORIGINS.split(',') : [];
 const allowedOrigins = [
   process.env.FRONTEND_URL,
@@ -46,8 +47,7 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    // In strict production you might want to disallow !origin depending on requirements
+    // Allow requests with no origin (mobile apps, curl, etc.)
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -59,7 +59,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Setup Socket.io with strict CORS as well
+// Setup Socket.io with strict CORS
 const io = new Server(server, {
   cors: {
     origin: allowedOrigins,
@@ -94,7 +94,7 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/upload', uploadRoutes);
 
-// Error Handling Middleware MUST be last
+// Error Handling Middleware — must be last
 app.use(errorHandler);
 
 // Start server
@@ -106,6 +106,5 @@ server.listen(PORT, () => {
 // Handle unhandled promise rejections gracefully
 process.on('unhandledRejection', (err, promise) => {
   console.error(`Error: ${err.message}`);
-  // In production, you might want to restart gracefully or alert monitoring
-  // server.close(() => process.exit(1));
+  // In production: server.close(() => process.exit(1));
 });

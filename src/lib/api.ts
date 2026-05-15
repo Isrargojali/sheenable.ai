@@ -19,11 +19,19 @@ if (typeof window !== 'undefined' && (window as any).chrome?.runtime) {
 // ─── REQUEST INTERCEPTOR — attach JWT from authStore ─────────────────────────
 api.interceptors.request.use((config) => {
   const state = useAuthStore.getState();
-  // Debug: Log token status for every request
   console.log('[API Interceptor] Token present:', !!state.token, 'Token value:', state.token ? state.token.substring(0, 20) + '...' : 'null');
   if (state.token) {
     config.headers.Authorization = `Bearer ${state.token}`;
   }
+
+  // FIX 4: For FormData payloads, explicitly set Content-Type to multipart/form-data
+  // so axios includes the correct boundary parameter that multer needs to parse the body.
+  // Without this, some environments send the wrong Content-Type and multer finds no file,
+  // causing req.file to be undefined and the controller to return a 500.
+  if (config.data instanceof FormData) {
+    config.headers['Content-Type'] = 'multipart/form-data';
+  }
+
   return config;
 });
 
@@ -56,7 +64,7 @@ api.interceptors.response.use(
 
       try {
         const { data } = await axios.post(`${BASE_URL}/auth/refresh-token`, {}, { withCredentials: true });
-        const newToken = data.data?.token || data.token; // Handle standard vs custom apiResponse wrapped responses
+        const newToken = data.data?.token || data.token;
         if (!newToken) throw new Error('No token returned');
 
         useAuthStore.setState({ token: newToken });
@@ -96,7 +104,7 @@ export const apiAuth = {
 export const apiProfile = {
   getMe: () => api.get('/profile/me'),
   updateMe: (data: object) => api.put('/profile/me', data),
-  getCandidateStats: () => api.get('/profile/candidate-stats'), // Currently unused in backend, stub here
+  getCandidateStats: () => api.get('/profile/candidate-stats'),
   getUpcomingInterviews: () => api.get('/interviews', { params: { upcoming: 'true' } }),
   getCandidateProfile: (id: string) => api.get(`/profile/candidate/${id}`),
   updateCandidateProfile: (data: object) => api.put('/profile/me', data),
@@ -141,7 +149,6 @@ export const apiMessages = {
     api.post('/messages/send', { receiverId: data.recipientId, jobId: data.jobId, content: data.initialMessage }),
   getMessages: (threadId: string, params?: object) => api.get(`/messages/threads/${threadId}/messages`, { params }),
   sendMessage: (threadId: string, content: string) => api.post(`/messages/send`, { threadId, content }),
-  // Note: Unread mark logic handled via getMessages optionally or distinct route if needed.
 };
 
 // ─── INTERVIEWS ───────────────────────────────────────────────────────────────
@@ -175,7 +182,7 @@ export const apiAdmin = {
   updateJobStatus: (jobId: string, status: string) => api.patch(`/admin/jobs/${jobId}/status`, { status }),
 };
 
-// ─── UPLOAD (direct upload helpers) ──────────────────────────────────────────
+// ─── UPLOAD ───────────────────────────────────────────────────────────────────
 export const apiUpload = {
   uploadAvatar: (formData: FormData) =>
     api.post('/upload/avatar', formData),
@@ -183,7 +190,7 @@ export const apiUpload = {
     api.post('/upload/cv', formData),
 };
 
-// Legacy aliases for backward compatibility with existing components
+// ─── AI ───────────────────────────────────────────────────────────────────────
 export const apiAI = {
   generateCV: (data: object) => api.post('/ai/cv-builder', data),
   improveCVSection: (section: string, text: string) => api.post('/ai/improve-cv', { section, text }),
@@ -191,7 +198,7 @@ export const apiAI = {
   analyzeProfile: (userId: string) => api.post('/ai/analyze-profile', { userId }),
 };
 
-// Legacy: some components use apiPipeline directly
+// ─── PIPELINE (legacy alias) ──────────────────────────────────────────────────
 export const apiPipeline = {
   getPipeline: (jobId: string) => apiApplications.getPipeline(jobId),
   bulkUpdateStatus: (applicationIds: string[], status: string) => apiApplications.bulkUpdateStatus(applicationIds, status),

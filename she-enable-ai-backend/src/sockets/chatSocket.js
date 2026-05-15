@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const { getDatabase } = require('../config/database');
 
 const initializeSocket = (io) => {
   // Use io globally to emit events from controllers
@@ -16,8 +15,7 @@ const initializeSocket = (io) => {
 
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      const { User: DbUser } = getDatabase();
-      const user = await (DbUser || User).findById(decoded.id).select('+isActive');
+      const user = await User.findById(decoded.id).select('+isActive');
 
       if (!user || !user.isActive) {
         return next(new Error('Authentication error: Invalid or inactive user'));

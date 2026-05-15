@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { getDatabase } = require('../config/database');
+const User = require('../models/User');
 
 /**
  * optionalAuth — same as protect but doesn't block unauthenticated requests.
@@ -14,9 +14,7 @@ const optionalAuth = async (req, res, next) => {
     }
     if (token) {
       const decoded   = jwt.verify(token, process.env.JWT_SECRET);
-      const db        = getDatabase();
-      const UserModel = db.User || require('../models/User');
-      req.user        = await UserModel.findById(decoded.id).select('-password');
+      req.user        = await User.findById(decoded.id).select('-password');
     }
   } catch {
     req.user = null;
