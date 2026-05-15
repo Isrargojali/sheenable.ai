@@ -7,6 +7,7 @@ import {
 import { DashboardShell, SectionCard, BtnPrimary, BtnOutline } from "@/components/layout/DashboardShell";
 import { apiProfile, apiJobs } from "@/lib/api";
 import { formatSalary, relativeTime, cn } from "@/lib/utils";
+import { useAuthStore } from "@/store/authStore"; // ✅ Added
 
 type CandidateStats = {
   profileViews: number;
@@ -56,8 +57,8 @@ const STAT_ICONS: StatIcon[] = [
 ];
 
 export default function CandidateDashboard() {
-  // Each queryFn unwraps the Axios envelope (r.data) then the backend envelope (.data)
-  // so React Query stores the actual data, not the raw AxiosResponse object.
+  const user = useAuthStore((s) => s.user); // ✅ Added
+
   const { data: stats } = useQuery<CandidateStats>({
     queryKey: ["candidateStats"],
     queryFn:  () => apiProfile.getCandidateStats().then(r => r.data?.data ?? r.data),
@@ -73,7 +74,7 @@ export default function CandidateDashboard() {
 
   return (
     <DashboardShell
-      title="Welcome back, Ayesha"
+      title={`Welcome back, ${user?.firstName ?? "there"}`} // ✅ Dynamic name
       subtitle="Here's what's happening with your job search today"
       actions={
         <Link to="/candidate/jobs">
