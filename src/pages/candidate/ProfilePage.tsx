@@ -9,6 +9,71 @@ import { DashboardShell, SectionCard, BtnPrimary, BtnOutline } from "@/component
 const STEPS = ["Personal Info", "Experience", "Education", "Preferences"];
 const MAX_AVATAR_SIZE = 3 * 1024 * 1024; // 3MB
 
+// ─── Types ────────────────────────────────────────────────────────────────────
+interface ExperienceEntry {
+  id: number;
+  title: string;
+  company: string;
+  from: string;
+  to: string;
+  isCurrent: boolean;
+  desc: string;
+}
+
+interface RawExperience {
+  _id?: string;
+  title: string;
+  company: string;
+  from?: string;
+  to?: string;
+  current: boolean;
+  description: string;
+}
+
+interface RawSkill {
+  name?: string;
+}
+
+interface RawProfile {
+  userId?: {
+    firstName?: string;
+    lastName?: string;
+    avatarUrl?: string;
+  };
+  cnic?: string;
+  phone?: string;
+  location?: { city?: string; country?: string };
+  title?: string;
+  bio?: string;
+  linkedinUrl?: string;
+  portfolioUrl?: string;
+  skills?: (RawSkill | string)[];
+  category?: string;
+  expectedSalary?: { min?: number };
+  cv?: { skills?: string[] };
+  experience?: RawExperience[];
+}
+
+interface SavePayload {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  location: string;
+  title: string;
+  summary: string;
+  linkedin: string;
+  portfolio: string;
+  cnic: string;
+  skills: { name: string }[];
+  category: string;
+  experience: ExperienceEntry[];
+  expectedSalary: { min: number };
+  noticePeriod: string;
+  preferredMode: string;
+  languages: string[];
+}
+
+// ─── Components ───────────────────────────────────────────────────────────────
 function StepIndicator({ current, onChange }: { current: number; onChange: (n: number) => void }) {
   return (
     <div className="flex items-center gap-0 mb-8">
@@ -91,6 +156,7 @@ function MiniRing({ score }: { score: number }) {
   );
 }
 
+// ─── Main Page ────────────────────────────────────────────────────────────────
 export default function ProfilePage() {
   const { user, setUser } = useAuthStore();
   const [step, setStep] = useState(0);
@@ -102,7 +168,6 @@ export default function ProfilePage() {
   const [lastName, setLast] = useState(user?.lastName ?? "");
   const [cnic, setCnic] = useState("");
   const [phone, setPhone] = useState("");
-  // FIX 1: was `setLocation` (undefined) — correct setter name is `setLoc`
   const [location, setLoc] = useState("");
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
@@ -115,7 +180,7 @@ export default function ProfilePage() {
   const [category, setCat] = useState("IT & Tech");
 
   // Step 3 — Experience entries
-  const [exps, setExps] = useState([
+  const [exps, setExps] = useState<ExperienceEntry[]>([
     { id: 1, title: "", company: "", from: "", to: "", isCurrent: false, desc: "" },
   ]);
 
@@ -130,7 +195,7 @@ export default function ProfilePage() {
     const loadProfile = async () => {
       try {
         const response = await apiProfile.getMe();
-        const profile = response.data?.data || response.data;
+        const profile: RawProfile = response.data?.data || response.data; // ✅ Ln 149
 
         if (profile) {
           setFirst(profile.userId?.firstName || user?.firstName || "");
@@ -138,7 +203,6 @@ export default function ProfilePage() {
           setCnic(profile.cnic || "");
           setPhone(profile.phone || "");
           setAvatarUrl(profile.userId?.avatarUrl || user?.avatarUrl || "");
-          // FIX 1: was `setLocation(...)` which is undefined — use correct setter `setLoc`
           setLoc(profile.location?.city
             ? `${profile.location.city}${profile.location.country ? ', ' + profile.location.country : ''}`
             : "");
@@ -146,19 +210,25 @@ export default function ProfilePage() {
           setSummary(profile.bio || "");
           setLinkedin(profile.linkedinUrl || "");
           setPort(profile.portfolioUrl || "");
-          setSkills(profile.skills?.map((s: any) => s.name || s) || []);
+          setSkills(
+            (profile.skills ?? []).map((s: RawSkill | string) => // ✅ Ln 153
+              typeof s === "string" ? s : (s.name ?? "")
+            ).filter(Boolean)
+          );
           setCat(profile.category || "IT & Tech");
           setSalary(String(profile.expectedSalary?.min || 90000));
           setLangs(profile.cv?.skills || ["English"]);
-          if (profile.experience?.length) setExps(profile.experience.map((e: any) => ({
-            id: e._id || Math.random(),
-            title: e.title,
-            company: e.company,
-            from: e.from ? new Date(e.from).toISOString().split('T')[0] : "",
-            to: e.to ? new Date(e.to).toISOString().split('T')[0] : "",
-            isCurrent: e.current,
-            desc: e.description
-          })));
+          if (profile.experience?.length) {
+            setExps(profile.experience.map((e: RawExperience) => ({ // ✅ Ln 171
+              id: e._id ? parseInt(e._id, 16) : Math.random(),
+              title: e.title,
+              company: e.company,
+              from: e.from ? new Date(e.from).toISOString().split('T')[0] : "",
+              to: e.to ? new Date(e.to).toISOString().split('T')[0] : "",
+              isCurrent: e.current,
+              desc: e.description,
+            })));
+          }
         }
       } catch (err) {
         console.error("Failed to load profile:", err);
@@ -168,13 +238,13 @@ export default function ProfilePage() {
   }, [user]);
 
   const mutation = useMutation({
-    mutationFn: (data: any) => apiProfile.updateProfile(data),
+    mutationFn: (data: SavePayload) => apiProfile.updateProfile(data), // ✅ Ln 177
     onSuccess: () => {
       setSaved(true);
       if (user) setUser({ ...user, firstName, lastName });
       setTimeout(() => setSaved(false), 3000);
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       console.error("Save error:", err);
     }
   });
@@ -182,19 +252,18 @@ export default function ProfilePage() {
   const avatarUpload = useMutation({
     mutationFn: async (file: File) => {
       const formData = new FormData();
-      // FIX 2: was `formData.append("file", file)` — multer expects field name "avatar"
-      // matching `uploadAvatar.single('avatar')` in the backend route
       formData.append("avatar", file);
       return apiUpload.uploadAvatar(formData);
     },
     onSuccess: (response) => {
-      const url = response.data?.data?.avatarUrl || response.data?.avatarUrl;
+      const url: string = response.data?.data?.avatarUrl || response.data?.avatarUrl;
       setAvatarUrl(url);
       if (user) setUser({ ...user, avatarUrl: url });
       setAvatarError("");
     },
-    onError: (err: any) => {
-      setAvatarError(err.response?.data?.message || "Upload failed");
+    onError: (err: Error) => { // ✅ Ln 196
+      const message = (err as { response?: { data?: { message?: string } } }).response?.data?.message;
+      setAvatarError(message || "Upload failed");
     }
   });
 
@@ -212,8 +281,6 @@ export default function ProfilePage() {
       return;
     }
 
-    // FIX 3: removed broken `setUploadingAvatar(true/false)` around an async mutate call.
-    // `avatarUpload.isPending` (already used in JSX below) correctly tracks loading state.
     setAvatarError("");
     avatarUpload.mutate(file);
   }
@@ -282,7 +349,6 @@ export default function ProfilePage() {
                     <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="+92 300 1234567" className={inp} />
                   </Field>
                   <Field label="Location">
-                    {/* FIX 1: onChange uses correct setter `setLoc` */}
                     <input value={location} onChange={e => setLoc(e.target.value)} placeholder="City, Country" className={inp} />
                   </Field>
                 </div>
@@ -314,7 +380,6 @@ export default function ProfilePage() {
                 <p className="text-xs text-[#6B6480] mb-3">Upload a professional photo (max 3MB)</p>
                 <label className="inline-flex items-center gap-2 px-4 py-2 border border-[#E8E1F0] rounded-full text-xs font-semibold text-[#6B6480] hover:bg-[#F7F4F9] transition-colors cursor-pointer">
                   <Upload size={14} />
-                  {/* FIX 3: use avatarUpload.isPending only — no more broken uploadingAvatar state */}
                   {avatarUpload.isPending ? "Uploading…" : "Upload Photo"}
                   <input
                     type="file"
