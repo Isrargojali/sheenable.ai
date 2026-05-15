@@ -1,14 +1,13 @@
-// src/pages/candidate/ProfilePage.tsx
-import { useState }           from "react";
-import { useMutation }        from "@tanstack/react-query";
-import { X, Plus, Check }     from "lucide-react";
-import { cn }                 from "@/lib/utils";
-import { apiProfile }         from "@/lib/api";
+import { useState, useEffect } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { X, Plus, Check, Upload } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { apiProfile, apiUpload } from "@/lib/api";
+import { useAuthStore } from "@/store/authStore";
 import { DashboardShell, SectionCard, BtnPrimary, BtnOutline } from "@/components/layout/DashboardShell";
-import { MOCK_USERS }         from "@/mock/data";
 
-// ── Step indicator ────────────────────────────────────────────────────────────
 const STEPS = ["Personal Info", "Experience", "Education", "Preferences"];
+const MAX_AVATAR_SIZE = 3 * 1024 * 1024; // 3MB
 
 function StepIndicator({ current, onChange }: { current: number; onChange: (n: number) => void }) {
   return (
@@ -41,7 +40,6 @@ function StepIndicator({ current, onChange }: { current: number; onChange: (n: n
   );
 }
 
-// ── Field ─────────────────────────────────────────────────────────────────────
 function Field({ label, required, hint, error, children }: {
   label: string; required?: boolean; hint?: string; error?: string; children: React.ReactNode;
 }) {
@@ -59,7 +57,6 @@ function Field({ label, required, hint, error, children }: {
 
 const inp = "w-full px-3.5 py-2.5 border border-[#E8E1F0] rounded-xl text-sm bg-white text-[#0F0B1A] placeholder:text-[#C4BEDD] focus:outline-none focus:ring-2 focus:ring-rose-500/10 focus:border-rose-400 transition-all hover:border-[#D4CBE8]";
 
-// ── Skill chip input ──────────────────────────────────────────────────────────
 function SkillInput({ chips, onAdd, onRemove }: { chips: string[]; onAdd: (v: string) => void; onRemove: (i: number) => void }) {
   const [val, setVal] = useState("");
   function add() { const t = val.trim(); if (t && !chips.includes(t)) { onAdd(t); setVal(""); } }
@@ -80,7 +77,6 @@ function SkillInput({ chips, onAdd, onRemove }: { chips: string[]; onAdd: (v: st
   );
 }
 
-// ── Profile completion ring ───────────────────────────────────────────────────
 function MiniRing({ score }: { score: number }) {
   const r = 18, circ = 2 * Math.PI * r;
   return (
@@ -95,50 +91,151 @@ function MiniRing({ score }: { score: number }) {
   );
 }
 
-// ── Main page ─────────────────────────────────────────────────────────────────
-const profile = MOCK_USERS[0].profile as any;
-
 export default function ProfilePage() {
-  const [step, setStep]       = useState(0);
-  const [saved, setSaved]     = useState(false);
+  const { user, setUser } = useAuthStore();
+  const [step, setStep] = useState(0);
+  const [saved, setSaved] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [avatarError, setAvatarError] = useState("");
 
   // Step 1 — Personal
-  const [firstName, setFirst]   = useState(profile.firstName ?? "Ayesha");
-  const [lastName,  setLast]    = useState(profile.lastName  ?? "Khan");
-  const [phone,     setPhone]   = useState(profile.phone     ?? "");
-  const [location,  setLoc]     = useState(profile.location  ?? "Lahore, Pakistan");
-  const [title,     setTitle]   = useState(profile.title     ?? "Full-Stack Developer");
-  const [summary,   setSummary] = useState(profile.summary   ?? "");
-  const [linkedin,  setLinkedin]= useState(profile.linkedin  ?? "");
-  const [portfolio, setPort]    = useState(profile.portfolio ?? "");
+  const [firstName, setFirst] = useState(user?.firstName ?? "");
+  const [lastName, setLast] = useState(user?.lastName ?? "");
+  const [cnic, setCnic] = useState("");
+  const [phone, setPhone] = useState("");
+  const [location, setLoc] = useState("");
+  const [title, setTitle] = useState("");
+  const [summary, setSummary] = useState("");
+  const [linkedin, setLinkedin] = useState("");
+  const [portfolio, setPort] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl ?? "");
 
   // Step 2 — Skills
-  const [skills, setSkills] = useState<string[]>(profile.skills ?? ["React","TypeScript","Node.js"]);
-  const [category, setCat]  = useState(profile.category ?? "IT & Tech");
+  const [skills, setSkills] = useState<string[]>([]);
+  const [category, setCat] = useState("IT & Tech");
 
   // Step 3 — Experience entries
   const [exps, setExps] = useState([
-    { id: 1, title: "Senior Frontend Developer", company: "TechSolutions", from: "2021-01", to: "", isCurrent: true, desc: "" },
+    { id: 1, title: "", company: "", from: "", to: "", isCurrent: false, desc: "" },
   ]);
 
   // Step 4 — Preferences
-  const [salary,   setSalary]  = useState(String(profile.expectedSalary ?? "90000"));
-  const [notice,   setNotice]  = useState(profile.noticePeriod ?? "1 month");
-  const [prefMode, setPrefMode]= useState(profile.preferredMode ?? "REMOTE");
-  const [langs,    setLangs]   = useState<string[]>(["English","Urdu"]);
+  const [salary, setSalary] = useState("90000");
+  const [notice, setNotice] = useState("1 month");
+  const [prefMode, setPrefMode] = useState("REMOTE");
+  const [langs, setLangs] = useState<string[]>(["English"]);
+
+  // Fetch existing profile on mount
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const response = await apiProfile.getMe();
+        const profile = response.data?.data || response.data;
+
+        if (profile) {
+          setFirst(profile.userId?.firstName || user?.firstName || "");
+          setLast(profile.userId?.lastName || user?.lastName || "");
+          setCnic(profile.cnic || "");
+          setPhone(profile.phone || "");
+          setAvatarUrl(profile.userId?.avatarUrl || user?.avatarUrl || "");
+          setLocation(profile.location?.city ? `${profile.location.city}${profile.location.country ? ', ' + profile.location.country : ''}` : "");
+          setTitle(profile.title || "");
+          setSummary(profile.bio || "");
+          setLinkedin(profile.linkedinUrl || "");
+          setPort(profile.portfolioUrl || "");
+          setSkills(profile.skills?.map((s: any) => s.name || s) || []);
+          setCategory(profile.category || "IT & Tech");
+          setSalary(String(profile.expectedSalary?.min || 90000));
+          setLangs(profile.cv?.skills || ["English"]);
+          if (profile.experience?.length) setExps(profile.experience.map((e: any) => ({
+            id: e._id || Math.random(),
+            title: e.title,
+            company: e.company,
+            from: e.from ? new Date(e.from).toISOString().split('T')[0] : "",
+            to: e.to ? new Date(e.to).toISOString().split('T')[0] : "",
+            isCurrent: e.current,
+            desc: e.description
+          })));
+        }
+      } catch (err) {
+        console.error("Failed to load profile:", err);
+      }
+    };
+    loadProfile();
+  }, [user]);
 
   const mutation = useMutation({
     mutationFn: (data: any) => apiProfile.updateProfile(data),
-    onSuccess: () => { setSaved(true); setTimeout(() => setSaved(false), 3000); },
+    onSuccess: () => {
+      setSaved(true);
+      // Update auth store with new firstName/lastName
+      if (user) setUser({ ...user, firstName, lastName });
+      setTimeout(() => setSaved(false), 3000);
+    },
+    onError: (err: any) => {
+      console.error("Save error:", err);
+    }
   });
 
+  const avatarUpload = useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      return apiUpload.uploadAvatar(formData);
+    },
+    onSuccess: (response) => {
+      const avatarUrl = response.data?.data?.avatarUrl || response.data?.avatarUrl;
+      setAvatarUrl(avatarUrl);
+      if (user) setUser({ ...user, avatarUrl });
+      setAvatarError("");
+    },
+    onError: (err: any) => {
+      setAvatarError(err.response?.data?.message || "Upload failed");
+    }
+  });
+
+  function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > MAX_AVATAR_SIZE) {
+      setAvatarError("Image must be smaller than 3MB");
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      setAvatarError("Please upload an image file");
+      return;
+    }
+
+    setUploadingAvatar(true);
+    avatarUpload.mutate(file);
+    setUploadingAvatar(false);
+  }
+
   function save() {
-    mutation.mutate({ firstName, lastName, phone, location, title, summary, linkedin, portfolio, skills, category, expectedSalary: parseInt(salary), noticePeriod: notice, preferredMode: prefMode, languages: langs });
+    mutation.mutate({
+      firstName,
+      lastName,
+      phone,
+      location,
+      title,
+      summary,
+      linkedin,
+      portfolio,
+      cnic,
+      skills: skills.map(s => ({ name: s })),
+      category,
+      experience: exps.filter(e => e.title || e.company),
+      expectedSalary: { min: parseInt(salary) },
+      noticePeriod: notice,
+      preferredMode: prefMode,
+      languages: langs,
+    });
   }
 
   const score = [firstName, lastName, title, summary, skills.length > 0, linkedin, portfolio, phone, location].filter(Boolean).length * 11;
-
-  const CATS = ["IT & Tech","Finance","Healthcare","Education","Sales & Marketing","Customer Service","Design & UX","Legal","Research","Engineering","Media & PR","Management"];
+  const CATS = ["IT & Tech", "Finance", "Healthcare", "Education", "Sales & Marketing", "Customer Service", "Design & UX", "Legal", "Research", "Engineering", "Media & PR", "Management"];
 
   return (
     <DashboardShell
@@ -155,7 +252,7 @@ export default function ProfilePage() {
     >
       <StepIndicator current={step} onChange={setStep} />
 
-      {/* ── Step 0: Personal Info ─────────────────────────── */}
+      {/* Step 0: Personal Info */}
       {step === 0 && (
         <div className="grid lg:grid-cols-3 gap-5">
           <div className="lg:col-span-2 space-y-5">
@@ -163,12 +260,15 @@ export default function ProfilePage() {
               <div className="space-y-4 mt-3">
                 <div className="grid grid-cols-2 gap-3">
                   <Field label="First Name" required>
-                    <input value={firstName} onChange={e => setFirst(e.target.value)} placeholder="Ayesha" className={inp} />
+                    <input value={firstName} onChange={e => setFirst(e.target.value)} placeholder="First name" className={inp} />
                   </Field>
                   <Field label="Last Name" required>
-                    <input value={lastName} onChange={e => setLast(e.target.value)} placeholder="Khan" className={inp} />
+                    <input value={lastName} onChange={e => setLast(e.target.value)} placeholder="Last name" className={inp} />
                   </Field>
                 </div>
+                <Field label="CNIC">
+                  <input value={cnic} onChange={e => setCnic(e.target.value)} placeholder="e.g. 12345-1234567-1" className={inp} />
+                </Field>
                 <Field label="Professional Title">
                   <input value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Full-Stack Developer" className={inp} />
                 </Field>
@@ -196,20 +296,25 @@ export default function ProfilePage() {
           </div>
 
           <div className="space-y-4">
-            {/* Photo upload placeholder */}
             <SectionCard title="Profile Photo">
               <div className="text-center py-6">
-                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-rose-500 to-rose-700 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-3">
-                  {firstName[0]}{lastName[0]}
-                </div>
-                <p className="text-xs text-[#6B6480] mb-3">Upload a professional photo</p>
-                <button className="px-4 py-2 border border-[#E8E1F0] rounded-full text-xs font-semibold text-[#6B6480] hover:bg-[#F7F4F9] transition-colors">
-                  Upload Photo
-                </button>
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt="Profile" className="w-20 h-20 rounded-2xl object-cover mx-auto mb-3" />
+                ) : (
+                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-rose-500 to-rose-700 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-3">
+                    {firstName[0]}{lastName[0]}
+                  </div>
+                )}
+                <p className="text-xs text-[#6B6480] mb-3">Upload a professional photo (max 3MB)</p>
+                <label className="inline-flex items-center gap-2 px-4 py-2 border border-[#E8E1F0] rounded-full text-xs font-semibold text-[#6B6480] hover:bg-[#F7F4F9] transition-colors cursor-pointer">
+                  <Upload size={14} />
+                  {uploadingAvatar || avatarUpload.isPending ? "Uploading…" : "Upload Photo"}
+                  <input type="file" accept="image/*" onChange={handleAvatarChange} className="hidden" disabled={uploadingAvatar || avatarUpload.isPending} />
+                </label>
+                {avatarError && <p className="text-xs text-red-500 mt-2">{avatarError}</p>}
               </div>
             </SectionCard>
 
-            {/* Completion score */}
             <SectionCard title="Completion Score">
               <div className="flex items-center gap-3 mt-2">
                 <MiniRing score={Math.min(score, 100)} />
@@ -220,33 +325,15 @@ export default function ProfilePage() {
                   <p className="text-[10px] text-[#A89EC0] mt-1">{Math.min(score, 100)}% complete</p>
                 </div>
               </div>
-              <div className="space-y-1.5 mt-3">
-                {[
-                  ["Profile photo",  !!profile.photoUrl],
-                  ["Professional title", !!title],
-                  ["Summary",        summary.length > 30],
-                  ["Skills added",   skills.length > 0],
-                  ["LinkedIn URL",   !!linkedin],
-                  ["Portfolio link", !!portfolio],
-                ].map(([l, done]) => (
-                  <div key={l as string} className="flex items-center gap-2 text-[11px]">
-                    <span className={cn("w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 text-[9px]",
-                      done ? "bg-emerald-100 text-emerald-600" : "bg-[#F3EFF8] text-[#A89EC0]")}>
-                      {done ? "✓" : "○"}
-                    </span>
-                    <span className={cn(done ? "text-[#3D3656]" : "text-[#A89EC0]")}>{l}</span>
-                  </div>
-                ))}
-              </div>
             </SectionCard>
           </div>
         </div>
       )}
 
-      {/* ── Step 1: Skills ───────────────────────────────── */}
+      {/* Step 1: Skills */}
       {step === 1 && (
         <div className="grid lg:grid-cols-2 gap-5">
-          <SectionCard title="Skills" subtitle="Add skills you're proficient in — AI uses these for matching">
+          <SectionCard title="Skills" subtitle="Add skills you're proficient in">
             <div className="mt-3 space-y-3">
               <Field label="Category">
                 <select value={category} onChange={e => setCat(e.target.value)} className={cn(inp, "cursor-pointer")}>
@@ -256,85 +343,55 @@ export default function ProfilePage() {
               <Field label="Skills" hint="Press Enter or comma after each skill">
                 <SkillInput chips={skills} onAdd={v => setSkills(s => [...s, v])} onRemove={i => setSkills(s => s.filter((_, idx) => idx !== i))} />
               </Field>
-
-              {/* Common skills quick-add */}
-              <div>
-                <p className="text-[10px] text-[#A89EC0] mb-2 uppercase font-semibold tracking-wide">Quick add</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {["Python","SQL","Figma","Leadership","Communication","Excel","React","Node.js","AWS"].filter(s => !skills.includes(s)).map(s => (
-                    <button key={s} onClick={() => setSkills(ps => [...ps, s])}
-                            className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold border border-[#E8E1F0] bg-[#F7F4F9] text-[#6B6480] hover:border-rose-300 hover:text-rose-500 transition-all">
-                      <Plus size={9} /> {s}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </SectionCard>
-
-          <SectionCard title="Resume / CV">
-            <div className="text-center py-8 mt-2">
-              <div className="text-4xl mb-3">📄</div>
-              <p className="text-sm font-semibold text-[#0F0B1A] mb-1">Upload your CV</p>
-              <p className="text-xs text-[#6B6480] mb-4">PDF format, max 10MB. AI will parse and enhance it.</p>
-              <button className="px-4 py-2 border border-[#E8E1F0] rounded-full text-xs font-semibold text-[#6B6480] hover:bg-[#F7F4F9] transition-colors mr-2">
-                Upload PDF
-              </button>
-              <button className="px-4 py-2 bg-rose-500 text-white rounded-full text-xs font-bold hover:bg-rose-600 transition-colors">
-                Use AI CV Builder →
-              </button>
             </div>
           </SectionCard>
         </div>
       )}
 
-      {/* ── Step 2: Experience ───────────────────────────── */}
+      {/* Step 2: Experience */}
       {step === 2 && (
         <div className="space-y-4">
           {exps.map((exp, i) => (
             <SectionCard key={exp.id} title={`Experience ${i + 1}`}
-              action={exps.length > 1 ? <button onClick={() => setExps(es => es.filter(e => e.id !== exp.id))} className="text-red-400 hover:text-red-600 transition-colors"><X size={15} /></button> : undefined}>
+              action={exps.length > 1 ? <button onClick={() => setExps(es => es.filter(e => e.id !== exp.id))} className="text-red-400"><X size={15} /></button> : undefined}>
               <div className="space-y-3 mt-3">
                 <div className="grid grid-cols-2 gap-3">
                   <Field label="Job Title" required>
-                    <input value={exp.title} onChange={e => setExps(es => es.map(x => x.id === exp.id ? { ...x, title: e.target.value } : x))} placeholder="e.g. Senior Developer" className={inp} />
+                    <input value={exp.title} onChange={e => setExps(es => es.map(x => x.id === exp.id ? { ...x, title: e.target.value } : x))} className={inp} />
                   </Field>
                   <Field label="Company" required>
-                    <input value={exp.company} onChange={e => setExps(es => es.map(x => x.id === exp.id ? { ...x, company: e.target.value } : x))} placeholder="Company name" className={inp} />
+                    <input value={exp.company} onChange={e => setExps(es => es.map(x => x.id === exp.id ? { ...x, company: e.target.value } : x))} className={inp} />
                   </Field>
                 </div>
                 <div className="grid grid-cols-3 gap-3 items-end">
                   <Field label="From">
-                    <input type="month" value={exp.from} onChange={e => setExps(es => es.map(x => x.id === exp.id ? { ...x, from: e.target.value } : x))} className={inp} />
+                    <input type="date" value={exp.from} onChange={e => setExps(es => es.map(x => x.id === exp.id ? { ...x, from: e.target.value } : x))} className={inp} />
                   </Field>
                   <Field label="To">
-                    <input type="month" value={exp.to} disabled={exp.isCurrent} onChange={e => setExps(es => es.map(x => x.id === exp.id ? { ...x, to: e.target.value } : x))} className={cn(inp, exp.isCurrent && "opacity-40")} />
+                    <input type="date" value={exp.to} disabled={exp.isCurrent} onChange={e => setExps(es => es.map(x => x.id === exp.id ? { ...x, to: e.target.value } : x))} className={cn(inp, exp.isCurrent && "opacity-40")} />
                   </Field>
                   <label className="flex items-center gap-2 pb-2 cursor-pointer">
                     <input type="checkbox" checked={exp.isCurrent} onChange={e => setExps(es => es.map(x => x.id === exp.id ? { ...x, isCurrent: e.target.checked } : x))} className="accent-rose-500" />
-                    <span className="text-xs font-semibold text-[#3D3656]">Current role</span>
+                    <span className="text-xs font-semibold">Current</span>
                   </label>
                 </div>
-                <Field label="Description">
-                  <textarea value={exp.desc} onChange={e => setExps(es => es.map(x => x.id === exp.id ? { ...x, desc: e.target.value } : x))} rows={3} placeholder="Describe your responsibilities and achievements…" className={cn(inp, "resize-y")} />
-                </Field>
               </div>
             </SectionCard>
           ))}
           <button onClick={() => setExps(es => [...es, { id: Date.now(), title: "", company: "", from: "", to: "", isCurrent: false, desc: "" }])}
-                  className="flex items-center gap-2 px-4 py-2.5 border-2 border-dashed border-[#D4CBE8] rounded-2xl text-sm font-semibold text-[#6B6480] hover:border-rose-300 hover:text-rose-500 transition-all w-full justify-center">
-            <Plus size={15} /> Add Another Experience
+                  className="flex items-center gap-2 px-4 py-2.5 border-2 border-dashed rounded-2xl text-sm font-semibold w-full justify-center">
+            <Plus size={15} /> Add Experience
           </button>
         </div>
       )}
 
-      {/* ── Step 3: Preferences ──────────────────────────── */}
+      {/* Step 3: Preferences */}
       {step === 3 && (
         <div className="grid lg:grid-cols-2 gap-5">
           <SectionCard title="Work Preferences">
             <div className="space-y-4 mt-3">
               <Field label="Expected Salary (PKR/month)">
-                <input type="number" value={salary} onChange={e => setSalary(e.target.value)} placeholder="90,000" className={inp} />
+                <input type="number" value={salary} onChange={e => setSalary(e.target.value)} className={inp} />
               </Field>
               <Field label="Notice Period">
                 <select value={notice} onChange={e => setNotice(e.target.value)} className={cn(inp, "cursor-pointer")}>
@@ -348,11 +405,11 @@ export default function ProfilePage() {
               </Field>
               <Field label="Preferred Work Mode">
                 <div className="flex gap-2 flex-wrap">
-                  {[["REMOTE","Remote","🌍"],["HYBRID","Hybrid","🏢"],["ONSITE","On-site","🏗️"]].map(([v,l,e]) => (
+                  {[["REMOTE", "Remote"], ["HYBRID", "Hybrid"], ["ONSITE", "On-site"]].map(([v, l]) => (
                     <button key={v} onClick={() => setPrefMode(v)}
                             className={cn("flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold border transition-all",
-                              prefMode === v ? "bg-rose-500 border-rose-500 text-white" : "bg-[#F7F4F9] border-[#E8E1F0] text-[#6B6480] hover:border-rose-300")}>
-                      {e} {l}
+                              prefMode === v ? "bg-rose-500 border-rose-500 text-white" : "bg-[#F7F4F9] border-[#E8E1F0]")}>
+                      {l}
                     </button>
                   ))}
                 </div>
@@ -363,11 +420,10 @@ export default function ProfilePage() {
           <SectionCard title="Languages">
             <div className="mt-3">
               <SkillInput chips={langs} onAdd={v => setLangs(l => [...l, v])} onRemove={i => setLangs(l => l.filter((_, idx) => idx !== i))} />
-              <p className="text-[10px] text-[#A89EC0] mt-1">Add all languages you're proficient in</p>
               <div className="flex flex-wrap gap-1.5 mt-3">
-                {["English","Urdu","Punjabi","Sindhi","Pashto","Arabic","French"].filter(l => !langs.includes(l)).map(l => (
+                {["Urdu", "Punjabi", "Sindhi", "Pashto"].filter(l => !langs.includes(l)).map(l => (
                   <button key={l} onClick={() => setLangs(ls => [...ls, l])}
-                          className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold border border-[#E8E1F0] bg-[#F7F4F9] text-[#6B6480] hover:border-rose-300 hover:text-rose-500 transition-all">
+                          className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold border">
                     <Plus size={9} /> {l}
                   </button>
                 ))}

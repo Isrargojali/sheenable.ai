@@ -138,15 +138,15 @@ export default function VerifyOtpPage() {
     setResending(true);
     setError("");
     try {
-      const { data } = await apiAuth.resendOTP(userId);
-      setSecs(585); // reset countdown
+      const response = await apiAuth.resendOTP(userId);
+      const payload = response.data?.data || response.data;
+      setSecs(585);
       setDigits(["","","","","",""]);
       refs[0].current?.focus();
-      if (data.devOtp) setDevOtp(data.devOtp);
+      if (payload?.devOtp) setDevOtp(payload.devOtp);
     } catch (err: unknown) {
       const axiosErr = err as { response?: { data?: { message?: string } } };
       const message  = axiosErr.response?.data?.message ?? "Could not resend code";
-      // If user no longer exists, bounce back to signup
       if (message.toLowerCase().includes("not found")) {
         navigate("/auth/signup", {
           state: { notice: "Your session expired. Please sign up again." },

@@ -3,6 +3,7 @@ const { ObjectId } = mongoose.Schema.Types;
 
 const CandidateProfileSchema = new mongoose.Schema({
   userId:       { type: ObjectId, ref: 'User', required: true, unique: true, index: true },
+  cnic:         { type: String, trim: true, sparse: true },
   title:        { type: String, trim: true },
   bio:          { type: String, maxlength: 1000 },
   location: {

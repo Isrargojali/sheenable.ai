@@ -55,7 +55,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const response = await apiAuth.login(email.trim().toLowerCase(), password, role);
-      const { user, token } = response.data;
+      const { user, token } = response.data.data;
 
       if (!user || !token) {
         return setError("Invalid response from server");

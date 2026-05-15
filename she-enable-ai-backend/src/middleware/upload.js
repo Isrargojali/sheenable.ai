@@ -20,7 +20,7 @@ const cvStorage = new CloudinaryStorage({
 
 const uploadAvatar = multer({
   storage: avatarStorage,
-  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB max
+  limits: { fileSize: 3 * 1024 * 1024 }, // 3MB max
 });
 
 const uploadCv = multer({

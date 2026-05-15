@@ -15,13 +15,14 @@ const CREDS: Record<Role, { email: string; pass: string; redirect: string }> = {
 
 export async function demoLogin(role: Role): Promise<string> {
   const c = CREDS[role];
-  const { data } = await apiAuth.login(c.email, c.pass); // ← fixed: no role, destructure .data
+  const response = await apiAuth.login(c.email, c.pass);
+  const { user, token } = response.data.data;
   useAuthStore.getState().setUser({
-    id:    data.user.id,
-    email: data.user.email,
-    role:  data.user.role as UserRole,
+    id:    user.id,
+    email: user.email,
+    role:  user.role as UserRole,
   });
-  useAuthStore.getState().setToken(data.token); // ← save token too
+  useAuthStore.getState().setToken(token);
   useNotifStore.getState().setNotifs(MOCK_NOTIFICATIONS);
   return c.redirect;
 }

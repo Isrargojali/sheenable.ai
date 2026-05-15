@@ -103,17 +103,10 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
   const role = user?.role ?? "CANDIDATE";
   const groups = NAV[role];
 
-  // Try to get profile from mock data
-  const mockUser = MOCK_USERS.find(u => u.id === user?.id);
-  const profile = mockUser?.profile as {
-    firstName?: string;
-    lastName?: string;
-    companyName?: string;
-    isAvailable?: boolean;
-  } | undefined;
-  const displayName = profile?.firstName
-    ? `${profile.firstName} ${profile.lastName}`
-    : profile?.companyName ?? user?.email?.split("@")[0] ?? "User";
+  const displayName = user?.firstName && user?.lastName
+    ? `${user.firstName} ${user.lastName}`
+    : user?.email?.split("@")[0] ?? "User";
+  const profile = user?.avatarUrl;
 
   const [available, setAvailable] = useState(profile?.isAvailable ?? true);
 
