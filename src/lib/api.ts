@@ -19,6 +19,8 @@ if (typeof window !== 'undefined' && (window as any).chrome?.runtime) {
 // ─── REQUEST INTERCEPTOR — attach JWT from authStore ─────────────────────────
 api.interceptors.request.use((config) => {
   const state = useAuthStore.getState();
+  // Debug: Log token status for every request
+  console.log('[API Interceptor] Token present:', !!state.token, 'Token value:', state.token ? state.token.substring(0, 20) + '...' : 'null');
   if (state.token) {
     config.headers.Authorization = `Bearer ${state.token}`;
   }
@@ -56,7 +58,7 @@ api.interceptors.response.use(
         const { data } = await axios.post(`${BASE_URL}/auth/refresh-token`, {}, { withCredentials: true });
         const newToken = data.data?.token || data.token; // Handle standard vs custom apiResponse wrapped responses
         if (!newToken) throw new Error('No token returned');
-        
+
         useAuthStore.setState({ token: newToken });
         original.headers.Authorization = `Bearer ${newToken}`;
         processQueue(null, newToken);
@@ -101,9 +103,7 @@ export const apiProfile = {
   getEmployerProfile: (id: string) => api.get(`/profile/employer/${id}`),
   updateEmployerProfile: (data: object) => api.put('/profile/me', data),
   toggleAvailability: (isAvailable: boolean) => api.put('/profile/me', { isAvailable }),
-  uploadAvatar: (formData: FormData) => api.post('/upload/avatar', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  }),
+  uploadAvatar: (formData: FormData) => api.post('/upload/avatar', formData),
   getCv: () => api.get('/profile/cv'),
   saveCv: (data: object) => api.post('/profile/cv', data),
   updateProfile: (data: object) => api.put('/profile/me', data),
@@ -178,9 +178,9 @@ export const apiAdmin = {
 // ─── UPLOAD (direct upload helpers) ──────────────────────────────────────────
 export const apiUpload = {
   uploadAvatar: (formData: FormData) =>
-    api.post('/upload/avatar', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
+    api.post('/upload/avatar', formData),
   uploadCv: (formData: FormData) =>
-    api.post('/upload/cv', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
+    api.post('/upload/cv', formData),
 };
 
 // Legacy aliases for backward compatibility with existing components
