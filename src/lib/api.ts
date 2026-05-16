@@ -220,3 +220,4 @@ export const apiPipeline = {
   bulkUpdateStatus: (applicationIds: string[], status: string) => apiApplications.bulkUpdateStatus(applicationIds, status),
   updateStatus:     (id: string, status: string, data?: object) => apiApplications.updateStatus(id, status, data),
 };
+
