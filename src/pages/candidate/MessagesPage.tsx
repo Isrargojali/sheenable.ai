@@ -6,22 +6,52 @@ import { cn }                         from "@/lib/utils";
 import { apiMessages }                from "@/lib/api";
 import { DashboardShell }             from "@/components/layout/DashboardShell";
 
+// ── Domain types ────────────────────────────────────────────────────────────
+
+interface ThreadParticipant {
+  name:     string;
+  initials: string;
+  color:    string;
+}
+
+interface Thread {
+  id:          string;
+  with:        ThreadParticipant;
+  lastMessage: string;
+  lastTime:    string;
+  unread:      number;
+}
+
+interface Message {
+  id:       string;
+  threadId: string;
+  text:     string;
+  sentAt:   string;
+  isMe:     boolean;
+}
+
+interface ThreadDetail {
+  messages: Message[];
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+
 export default function MessagesPage() {
   const [activeThread, setActive] = useState("thread_1");
   const [text, setText]           = useState("");
-  const [localMsgs, setLocal]     = useState<any[]>([]);
+  const [localMsgs, setLocal]     = useState<Message[]>([]);
   const bottomRef                  = useRef<HTMLDivElement>(null);
 
-  const { data: threads = [] } = useQuery({ queryKey: ["threads"], queryFn: apiMessages.getThreads });
-  const { data: thread }       = useQuery({ queryKey: ["thread", activeThread], queryFn: () => apiMessages.getThread(activeThread), enabled: !!activeThread });
+  const { data: threads = [] } = useQuery<Thread[]>({ queryKey: ["threads"], queryFn: apiMessages.getThreads });
+  const { data: thread }       = useQuery<ThreadDetail>({ queryKey: ["thread", activeThread], queryFn: () => apiMessages.getThread(activeThread), enabled: !!activeThread });
 
   const sendMut = useMutation({
     mutationFn: () => apiMessages.sendMessage(activeThread, text),
-    onSuccess: (msg: any) => { setLocal(l => [...l, msg]); setText(""); },
+    onSuccess: (msg: Message) => { setLocal(l => [...l, msg]); setText(""); },
   });
 
   const allMsgs = [...(thread?.messages ?? []), ...localMsgs.filter(m => m.threadId === activeThread)];
-  const active  = threads.find((t: any) => t.id === activeThread);
+  const active  = threads.find((t: Thread) => t.id === activeThread);
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [allMsgs.length]);
 
@@ -47,7 +77,7 @@ export default function MessagesPage() {
           <div className="flex-1 overflow-y-auto">
             {threads.length === 0 ? (
               <div className="text-center py-10 text-[#A89EC0] text-xs">No conversations yet</div>
-            ) : threads.map((t: any) => (
+            ) : threads.map((t: Thread) => (
               <button
                 key={t.id}
                 onClick={() => { setActive(t.id); setLocal([]); }}
@@ -106,7 +136,7 @@ export default function MessagesPage() {
 
               {/* Messages */}
               <div className="flex-1 overflow-y-auto p-5 space-y-3">
-                {allMsgs.map((msg: any) => (
+                {allMsgs.map((msg: Message) => (
                   <div key={msg.id} className={cn("flex", msg.isMe ? "justify-end" : "justify-start")}>
                     {!msg.isMe && (
                       <div className={cn("w-7 h-7 rounded-lg flex items-center justify-center text-white text-[9px] font-bold bg-gradient-to-br mr-2 flex-shrink-0 self-end", active.with.color)}>
@@ -153,4 +183,3 @@ export default function MessagesPage() {
     </DashboardShell>
   );
 }
-
