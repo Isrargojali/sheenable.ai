@@ -4,6 +4,6 @@ const { protect } = require('../middleware/auth');
 const { generateCV } = require('../controllers/aiController');
 
 router.use(protect);
-router.post('/generate-cv', generateCV);
+router.post('/cv-builder', generateCV);
 
 module.exports = router;

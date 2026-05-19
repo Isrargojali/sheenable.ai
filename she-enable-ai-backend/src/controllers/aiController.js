@@ -2,7 +2,8 @@ const { success, error } = require('../utils/apiResponse');
 
 const generateCV = async (req, res, next) => {
   try {
-    const { notes } = req.body;
+    const { notes, prompt } = req.body;
+    const input = notes || prompt;
     
     // Simulate AI processing delay
     await new Promise(resolve => setTimeout(resolve, 2000));
@@ -11,7 +12,7 @@ const generateCV = async (req, res, next) => {
     const generatedCv = {
       name: (req.user.firstName || 'Candidate') + ' ' + (req.user.lastName || ''),
       title: "Senior Professional",
-      summary: notes ? `AI Generated Summary based on: ${notes.substring(0, 100)}... A highly skilled professional with a proven track record of delivering high-quality results.` : "A highly skilled professional with experience in modern technologies. Proven track record of delivering high-quality solutions and leading teams to success.",
+      summary: input ? `AI Generated Summary based on: ${input.substring(0, 100)}... A highly skilled professional with a proven track record of delivering high-quality results.` : "A highly skilled professional with experience in modern technologies. Proven track record of delivering high-quality solutions and leading teams to success.",
       skills: ["React", "TypeScript", "Node.js", "MongoDB", "AWS", "Communication", "Leadership"],
       experience: [
         {
