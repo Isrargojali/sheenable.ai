@@ -11,16 +11,17 @@ const getProfile = async (req, res, next) => {
 
     let profile;
     if (role === 'CANDIDATE') {
-      profile = await CandidateProfile.findOne({ userId: id }).populate('userId', 'firstName lastName email avatarUrl');
+      // Include `phone` in populate so the profile page can hydrate that field
+      profile = await CandidateProfile.findOne({ userId: id }).populate('userId', 'firstName lastName email phone avatarUrl');
       if (!profile) {
         profile = await CandidateProfile.create({ userId: id });
-        profile = await CandidateProfile.findById(profile._id).populate('userId', 'firstName lastName email avatarUrl');
+        profile = await CandidateProfile.findById(profile._id).populate('userId', 'firstName lastName email phone avatarUrl');
       }
     } else if (role === 'EMPLOYER') {
-      profile = await EmployerProfile.findOne({ userId: id }).populate('userId', 'firstName lastName email avatarUrl');
+      profile = await EmployerProfile.findOne({ userId: id }).populate('userId', 'firstName lastName email phone avatarUrl');
       if (!profile) {
         profile = await EmployerProfile.create({ userId: id, companyName: 'My Company', industry: 'Other' });
-        profile = await EmployerProfile.findById(profile._id).populate('userId', 'firstName lastName email avatarUrl');
+        profile = await EmployerProfile.findById(profile._id).populate('userId', 'firstName lastName email phone avatarUrl');
       }
     } else {
       // Admin might fetch their basic user info
@@ -36,26 +37,87 @@ const updateProfile = async (req, res, next) => {
   try {
     const { role, id } = req.user;
 
-    // Update basic user info if provided
-    if (req.body.firstName || req.body.lastName) {
-      await User.findByIdAndUpdate(id, {
-        ...(req.body.firstName && { firstName: req.body.firstName }),
-        ...(req.body.lastName && { lastName: req.body.lastName })
-      });
+    // ── 1. Fields that live on the User document ──────────────────────────────
+    const userFieldUpdates = {};
+    if (req.body.firstName && typeof req.body.firstName === 'string') {
+      userFieldUpdates.firstName = req.body.firstName.trim();
+    }
+    if (req.body.lastName && typeof req.body.lastName === 'string') {
+      userFieldUpdates.lastName = req.body.lastName.trim();
+    }
+    if (req.body.phone !== undefined) {
+      userFieldUpdates.phone = req.body.phone;
     }
 
+    let updatedUser;
+    if (Object.keys(userFieldUpdates).length > 0) {
+      updatedUser = await User.findByIdAndUpdate(
+        id,
+        userFieldUpdates,
+        { new: true }
+      ).select('firstName lastName email avatarUrl role');
+    } else {
+      updatedUser = await User.findById(id).select('firstName lastName email avatarUrl role');
+    }
+
+    // ── 2. Parse location string → { city, country } if needed ───────────────
+    const buildProfileUpdate = (body) => {
+      const update = {};
+
+      // Never allow caller to override the userId foreign key
+      const FORBIDDEN = new Set(['userId', 'firstName', 'lastName', 'phone', 'password']);
+
+      for (const [key, value] of Object.entries(body)) {
+        if (FORBIDDEN.has(key)) continue;
+
+        if (key === 'location' && typeof value === 'string') {
+          // Frontend sends "City, Country" as a single string — split it
+          const parts = value.split(',').map(s => s.trim()).filter(Boolean);
+          update.location = {
+            city: parts[0] || '',
+            country: parts[1] || ''
+          };
+          continue;
+        }
+
+        update[key] = value;
+      }
+
+      return update;
+    };
+
+    // ── 3. Update the role-specific profile ───────────────────────────────────
     let profile;
     if (role === 'CANDIDATE') {
-      const updateData = { ...req.body };
-      delete updateData.userId; // prevent overriding userId
-      profile = await CandidateProfile.findOneAndUpdate({ userId: id }, updateData, { new: true, runValidators: true }).populate('userId', 'firstName lastName email avatarUrl');
+      const profileUpdate = buildProfileUpdate(req.body);
+      profile = await CandidateProfile.findOneAndUpdate(
+        { userId: id },
+        profileUpdate,
+        { new: true, runValidators: true, upsert: true }
+      ).populate('userId', 'firstName lastName email avatarUrl');
     } else if (role === 'EMPLOYER') {
-      const updateData = { ...req.body };
-      delete updateData.userId;
-      profile = await EmployerProfile.findOneAndUpdate({ userId: id }, updateData, { new: true, runValidators: true }).populate('userId', 'firstName lastName email avatarUrl');
+      const profileUpdate = buildProfileUpdate(req.body);
+      profile = await EmployerProfile.findOneAndUpdate(
+        { userId: id },
+        profileUpdate,
+        { new: true, runValidators: true, upsert: true }
+      ).populate('userId', 'firstName lastName email avatarUrl');
     }
 
-    return success(res, profile);
+    // ── 4. Return merged payload so the frontend can update auth state ────────
+    const responsePayload = {
+      profile,
+      user: {
+        id: updatedUser._id,
+        email: updatedUser.email,
+        role: updatedUser.role,
+        firstName: updatedUser.firstName,
+        lastName: updatedUser.lastName,
+        avatarUrl: updatedUser.avatarUrl,
+      }
+    };
+
+    return success(res, responsePayload);
   } catch (err) { next(err); }
 };
 

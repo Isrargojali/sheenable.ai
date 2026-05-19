@@ -8,16 +8,16 @@ type TabKey = "candidate" | "employer";
 
 const STEPS: Record<TabKey, { icon: LucideIcon; title: string; desc: string; accent: string }[]> = {
   candidate: [
-    { icon: FileEdit,    title: "Build your profile",  desc: "Sign up free, add skills and experience. Our AI scores completeness in real time.", accent: "border-l-mauve-400" },
-    { icon: Sparkles,    title: "Get matched daily",   desc: "Receive curated job matches based on skills, location and salary expectations.",     accent: "border-l-mint-400"  },
-    { icon: Send,        title: "Apply with one click",desc: "ATS-ready CV, tailored cover letter — submit a polished application in seconds.",    accent: "border-l-amber-400" },
-    { icon: PartyPopper, title: "Land the offer",      desc: "Track every application, message HR directly, and accept your next role.",            accent: "border-l-rose-400"  },
+    { icon: FileEdit, title: "Build your profile", desc: "Sign up free, add skills and experience. Our AI scores completeness in real time.", accent: "border-l-mauve-400" },
+    { icon: Sparkles, title: "Get matched daily", desc: "Receive curated job matches based on skills, location and salary expectations.", accent: "border-l-mint-400" },
+    { icon: Send, title: "Apply with one click", desc: "ATS-ready CV, tailored cover letter — submit a polished application in seconds.", accent: "border-l-amber-400" },
+    { icon: PartyPopper, title: "Land the offer", desc: "Track every application, message HR directly, and accept your next role.", accent: "border-l-rose-400" },
   ],
   employer: [
-    { icon: ClipboardList,title:"Post your role",       desc: "Use our 5-step wizard. Pre-filled templates for 47 industries.",                       accent: "border-l-mauve-400" },
-    { icon: Search,       title:"Discover talent",      desc: "AI search filters 50,000+ verified women candidates by skill, role and availability.", accent: "border-l-mint-400"  },
-    { icon: Users,        title:"Build a shortlist",    desc: "Drag-and-drop pipeline keeps your team aligned through every hiring stage.",            accent: "border-l-amber-400" },
-    { icon: Handshake,    title:"Make the hire",        desc: "Message, schedule interviews, send offers — all without leaving the platform.",         accent: "border-l-rose-400"  },
+    { icon: ClipboardList, title: "Post your role", desc: "Use our 5-step wizard. Pre-filled templates for 47 industries.", accent: "border-l-mauve-400" },
+    { icon: Search, title: "Discover talent", desc: "AI search filters 50,000+ verified women candidates by skill, role and availability.", accent: "border-l-mint-400" },
+    { icon: Users, title: "Build a shortlist", desc: "Drag-and-drop pipeline keeps your team aligned through every hiring stage.", accent: "border-l-amber-400" },
+    { icon: Handshake, title: "Make the hire", desc: "Message, schedule interviews, send offers — all without leaving the platform.", accent: "border-l-rose-400" },
   ],
 };
 
@@ -25,7 +25,7 @@ export default function HowItWorksTabs() {
   const [tab, setTab] = useState<TabKey>("candidate");
   const tabs: { key: TabKey; label: string }[] = [
     { key: "candidate", label: "I'm looking for a job" },
-    { key: "employer",  label: "I'm hiring" },
+    { key: "employer", label: "I'm hiring" },
   ];
 
   return (
@@ -47,7 +47,7 @@ export default function HowItWorksTabs() {
               key={t.key}
               onClick={() => setTab(t.key)}
               className={cn(
-                "relative z-10 px-5 h-10 rounded-full text-[12px] font-bold press transition-colors",
+                "relative z-10 px-8 h-10 rounded-full text-[12px] font-bold press transition-colors",
                 tab === t.key ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground"
               )}
             >
@@ -58,8 +58,8 @@ export default function HowItWorksTabs() {
           <div
             className="absolute top-1 bottom-1 rounded-full bg-primary shadow-elev1 transition-all duration-300"
             style={{
-              width:  "calc(50% - 0.25rem)",
-              left:   tab === "candidate" ? "0.25rem" : "calc(50% + 0.0rem)",
+              width: "calc(50% - 0.25rem)",
+              left: tab === "candidate" ? "0.25rem" : "calc(50% + 0.0rem)",
             }}
           />
         </div>

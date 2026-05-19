@@ -6,10 +6,26 @@ import { apiProfile, apiUpload } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
 import { DashboardShell, SectionCard, BtnPrimary, BtnOutline } from "@/components/layout/DashboardShell";
 
-const STEPS = ["Personal Info", "Experience", "Education", "Preferences"];
+const STEPS = ["Personal Info", "Education", "Skills", "Experience", "Preferences"];
 const MAX_AVATAR_SIZE = 3 * 1024 * 1024; // 3MB
 
 // ─── Types ────────────────────────────────────────────────────────────────────
+interface EducationEntry {
+  id: number;
+  degree: string;
+  institution: string;
+  field: string;
+  year: string;
+}
+
+interface CertificationEntry {
+  id: number;
+  name: string;
+  issuer: string;
+  year: string;
+  url: string;
+}
+
 interface ExperienceEntry {
   id: number;
   title: string;
@@ -18,6 +34,22 @@ interface ExperienceEntry {
   to: string;
   isCurrent: boolean;
   desc: string;
+}
+
+interface RawEducation {
+  _id?: string;
+  degree: string;
+  institution: string;
+  year?: number;
+  field: string;
+}
+
+interface RawCertification {
+  _id?: string;
+  name: string;
+  issuer: string;
+  year?: number;
+  url?: string;
 }
 
 interface RawExperience {
@@ -38,10 +70,10 @@ interface RawProfile {
   userId?: {
     firstName?: string;
     lastName?: string;
+    phone?: string;
     avatarUrl?: string;
   };
   cnic?: string;
-  phone?: string;
   location?: { city?: string; country?: string };
   title?: string;
   bio?: string;
@@ -50,8 +82,12 @@ interface RawProfile {
   skills?: (RawSkill | string)[];
   category?: string;
   expectedSalary?: { min?: number };
-  cv?: { skills?: string[] };
+  noticePeriod?: string;
+  preferredMode?: string;
+  languages?: string[];
   experience?: RawExperience[];
+  education?: RawEducation[];
+  certifications?: RawCertification[];
 }
 
 interface SavePayload {
@@ -60,13 +96,19 @@ interface SavePayload {
   phone: string;
   location: string;
   title: string;
-  summary: string;
-  linkedin: string;
-  portfolio: string;
+  bio: string;
+  linkedinUrl: string;
+  portfolioUrl: string;
   cnic: string;
   skills: { name: string }[];
   category: string;
-  experience: ExperienceEntry[];
+  education: { degree: string; institution: string; field: string; year: number }[];
+  certifications: { name: string; issuer: string; year: number; url: string }[];
+  experience: {
+    title: string; company: string;
+    from?: string; to?: string;
+    current: boolean; description: string;
+  }[];
   expectedSalary: { min: number };
   noticePeriod: string;
   preferredMode: string;
@@ -175,6 +217,12 @@ export default function ProfilePage() {
   const [portfolio, setPort] = useState("");
   const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl ?? "");
 
+  // Step 1 — Education
+  const [edus, setEdus] = useState<EducationEntry[]>([
+    { id: 1, degree: "", institution: "", field: "", year: "" },
+  ]);
+  const [certs, setCerts] = useState<CertificationEntry[]>([]);
+
   // Step 2 — Skills
   const [skills, setSkills] = useState<string[]>([]);
   const [category, setCat] = useState("IT & Tech");
@@ -194,32 +242,59 @@ export default function ProfilePage() {
   useEffect(() => {
     const loadProfile = async () => {
       try {
-        const response = await apiProfile.getMe();
-        const profile: RawProfile = response.data?.data || response.data; // ✅ Ln 149
+        // apiProfile.getMe() applies .then(unwrap), so `response` is already
+        // the inner data object — no need for .data?.data double-unwrap
+        const profile: RawProfile = await apiProfile.getMe() as unknown as RawProfile;
 
         if (profile) {
           setFirst(profile.userId?.firstName || user?.firstName || "");
           setLast(profile.userId?.lastName || user?.lastName || "");
           setCnic(profile.cnic || "");
-          setPhone(profile.phone || "");
+          // phone is stored on the User document, returned via populate
+          setPhone(profile.userId?.phone || "");
           setAvatarUrl(profile.userId?.avatarUrl || user?.avatarUrl || "");
-          setLoc(profile.location?.city
-            ? `${profile.location.city}${profile.location.country ? ', ' + profile.location.country : ''}`
-            : "");
+          setLoc(
+            profile.location?.city
+              ? `${profile.location.city}${profile.location.country ? ', ' + profile.location.country : ''}`
+              : ""
+          );
           setTitle(profile.title || "");
           setSummary(profile.bio || "");
           setLinkedin(profile.linkedinUrl || "");
           setPort(profile.portfolioUrl || "");
           setSkills(
-            (profile.skills ?? []).map((s: RawSkill | string) => // ✅ Ln 153
+            (profile.skills ?? []).map((s: RawSkill | string) =>
               typeof s === "string" ? s : (s.name ?? "")
             ).filter(Boolean)
           );
           setCat(profile.category || "IT & Tech");
           setSalary(String(profile.expectedSalary?.min || 90000));
-          setLangs(profile.cv?.skills || ["English"]);
+          // `languages` is its own top-level array in the schema
+          if (profile.languages && profile.languages.length > 0) {
+            setLangs(profile.languages);
+          }
+          if (profile.noticePeriod) setNotice(profile.noticePeriod);
+          if (profile.preferredMode) setPrefMode(profile.preferredMode);
+          if (profile.education?.length) {
+            setEdus(profile.education.map((e: RawEducation) => ({
+              id: e._id ? parseInt(e._id, 16) : Math.random(),
+              degree: e.degree || "",
+              institution: e.institution || "",
+              field: e.field || "",
+              year: e.year ? String(e.year) : "",
+            })));
+          }
+          if (profile.certifications?.length) {
+            setCerts(profile.certifications.map((c: RawCertification) => ({
+              id: c._id ? parseInt(c._id, 16) : Math.random(),
+              name: c.name || "",
+              issuer: c.issuer || "",
+              year: c.year ? String(c.year) : "",
+              url: c.url || "",
+            })));
+          }
           if (profile.experience?.length) {
-            setExps(profile.experience.map((e: RawExperience) => ({ // ✅ Ln 171
+            setExps(profile.experience.map((e: RawExperience) => ({
               id: e._id ? parseInt(e._id, 16) : Math.random(),
               title: e.title,
               company: e.company,
@@ -235,13 +310,28 @@ export default function ProfilePage() {
       }
     };
     loadProfile();
-  }, [user]);
+  }, []);
 
   const mutation = useMutation({
-    mutationFn: (data: SavePayload) => apiProfile.updateProfile(data), // ✅ Ln 177
-    onSuccess: () => {
+    mutationFn: (data: SavePayload) => apiProfile.updateProfile(data),
+    onSuccess: (response) => {
       setSaved(true);
-      if (user) setUser({ ...user, firstName, lastName });
+      // The backend now returns { profile, user } — sync ALL user fields into the global auth store
+      const updatedUser = (response as { user?: { id: string; email: string; role: string; firstName: string; lastName: string; avatarUrl?: string } }).user
+        ?? (response as { data?: { user?: { id: string; email: string; role: string; firstName: string; lastName: string; avatarUrl?: string } } }).data?.user;
+      if (user && updatedUser) {
+        setUser({
+          id: updatedUser.id ?? user.id,
+          email: updatedUser.email ?? user.email,
+          role: (updatedUser.role ?? user.role) as import("@/store/authStore").UserRole,
+          firstName: updatedUser.firstName ?? firstName,
+          lastName: updatedUser.lastName ?? lastName,
+          avatarUrl: updatedUser.avatarUrl ?? avatarUrl ?? user.avatarUrl,
+        });
+      } else if (user) {
+        // Fallback: at minimum sync the local form state
+        setUser({ ...user, firstName, lastName, avatarUrl: avatarUrl || user.avatarUrl });
+      }
       setTimeout(() => setSaved(false), 3000);
     },
     onError: (err: Error) => {
@@ -256,14 +346,21 @@ export default function ProfilePage() {
       return apiUpload.uploadAvatar(formData);
     },
     onSuccess: (response) => {
-      const url: string = response.data?.data?.avatarUrl || response.data?.avatarUrl;
-      setAvatarUrl(url);
-      if (user) setUser({ ...user, avatarUrl: url });
+      // apiUpload.uploadAvatar uses .then(unwrap), so `response` is already the
+      // unwrapped inner data object: { avatarUrl: "https://..." }
+      const url: string =
+        (response as { avatarUrl?: string })?.avatarUrl ??
+        (response as { data?: { avatarUrl?: string } })?.data?.avatarUrl ??
+        "";
+      if (url) {
+        setAvatarUrl(url);
+        if (user) setUser({ ...user, avatarUrl: url });
+      }
       setAvatarError("");
     },
-    onError: (err: Error) => { // ✅ Ln 196
+    onError: (err: Error) => {
       const message = (err as { response?: { data?: { message?: string } } }).response?.data?.message;
-      setAvatarError(message || "Upload failed");
+      setAvatarError(message || "Upload failed. Please try again.");
     }
   });
 
@@ -292,21 +389,51 @@ export default function ProfilePage() {
       phone,
       location,
       title,
-      summary,
-      linkedin,
-      portfolio,
+      bio: summary,            // CandidateProfile stores this as `bio`
+      linkedinUrl: linkedin,   // CandidateProfile stores this as `linkedinUrl`
+      portfolioUrl: portfolio, // CandidateProfile stores this as `portfolioUrl`
       cnic,
       skills: skills.map(s => ({ name: s })),
       category,
-      experience: exps.filter(e => e.title || e.company),
-      expectedSalary: { min: parseInt(salary) },
+      education: edus
+        .filter(e => e.degree || e.institution)
+        .map(e => ({
+          degree: e.degree,
+          institution: e.institution,
+          field: e.field,
+          year: parseInt(e.year, 10) || new Date().getFullYear(),
+        })),
+      certifications: certs
+        .filter(c => c.name)
+        .map(c => ({
+          name: c.name,
+          issuer: c.issuer,
+          year: parseInt(c.year, 10) || new Date().getFullYear(),
+          url: c.url,
+        })),
+      experience: exps
+        .filter(e => e.title || e.company)
+        .map(e => ({
+          title: e.title,
+          company: e.company,
+          from: e.from || undefined,
+          to: e.isCurrent ? undefined : (e.to || undefined),
+          current: e.isCurrent,
+          description: e.desc,
+        })),
+      expectedSalary: { min: parseInt(salary, 10) || 0 },
       noticePeriod: notice,
       preferredMode: prefMode,
       languages: langs,
     });
   }
 
-  const score = [firstName, lastName, title, summary, skills.length > 0, linkedin, portfolio, phone, location].filter(Boolean).length * 11;
+  const score = [
+    firstName, lastName, title, summary, phone, location,
+    skills.length > 0, linkedin, portfolio,
+    edus.some(e => e.degree),
+    exps.some(e => e.title),
+  ].filter(Boolean).length * 9;
   const CATS = ["IT & Tech", "Finance", "Healthcare", "Education", "Sales & Marketing", "Customer Service", "Design & UX", "Legal", "Research", "Engineering", "Media & PR", "Management"];
 
   return (
@@ -408,8 +535,148 @@ export default function ProfilePage() {
         </div>
       )}
 
-      {/* Step 1: Skills */}
+      {/* Step 1: Education & Certifications */}
       {step === 1 && (
+        <div className="space-y-5">
+          {/* ── Education entries ─────────────────────────────────── */}
+          <div className="space-y-3">
+            {edus.map((edu, i) => (
+              <SectionCard
+                key={edu.id}
+                title={`Education ${i + 1}`}
+                action={
+                  edus.length > 1
+                    ? <button type="button" onClick={() => setEdus(es => es.filter(e => e.id !== edu.id))} className="text-red-400 hover:text-red-600 transition-colors"><X size={15} /></button>
+                    : undefined
+                }
+              >
+                <div className="space-y-3 mt-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <Field label="Degree / Qualification" required>
+                      <input
+                        value={edu.degree}
+                        onChange={e => setEdus(es => es.map(x => x.id === edu.id ? { ...x, degree: e.target.value } : x))}
+                        placeholder="e.g. Bachelor of Science"
+                        className={inp}
+                      />
+                    </Field>
+                    <Field label="Institution" required>
+                      <input
+                        value={edu.institution}
+                        onChange={e => setEdus(es => es.map(x => x.id === edu.id ? { ...x, institution: e.target.value } : x))}
+                        placeholder="e.g. LUMS, NUST, IBA"
+                        className={inp}
+                      />
+                    </Field>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Field label="Field of Study">
+                      <input
+                        value={edu.field}
+                        onChange={e => setEdus(es => es.map(x => x.id === edu.id ? { ...x, field: e.target.value } : x))}
+                        placeholder="e.g. Computer Science"
+                        className={inp}
+                      />
+                    </Field>
+                    <Field label="Graduation Year">
+                      <input
+                        type="number"
+                        min="1970"
+                        max={new Date().getFullYear() + 5}
+                        value={edu.year}
+                        onChange={e => setEdus(es => es.map(x => x.id === edu.id ? { ...x, year: e.target.value } : x))}
+                        placeholder={String(new Date().getFullYear())}
+                        className={inp}
+                      />
+                    </Field>
+                  </div>
+                </div>
+              </SectionCard>
+            ))}
+            <button
+              type="button"
+              onClick={() => setEdus(es => [...es, { id: Date.now(), degree: "", institution: "", field: "", year: "" }])}
+              className="flex items-center gap-2 px-4 py-2.5 border-2 border-dashed border-[#E8E1F0] rounded-2xl text-sm font-semibold w-full justify-center text-[#6B6480] hover:border-rose-300 hover:text-rose-500 transition-colors"
+            >
+              <Plus size={15} /> Add Education
+            </button>
+          </div>
+
+          {/* ── Certifications ─────────────────────────────────────── */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h3 className="text-sm font-bold text-[#3D3656]">Certifications</h3>
+                <p className="text-[11px] text-[#A89EC0] mt-0.5">Add any professional certifications you hold</p>
+              </div>
+            </div>
+            <div className="space-y-3">
+              {certs.map((cert, i) => (
+                <SectionCard
+                  key={cert.id}
+                  title={`Certification ${i + 1}`}
+                  action={
+                    <button type="button" onClick={() => setCerts(cs => cs.filter(c => c.id !== cert.id))} className="text-red-400 hover:text-red-600 transition-colors"><X size={15} /></button>
+                  }
+                >
+                  <div className="space-y-3 mt-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <Field label="Certification Name" required>
+                        <input
+                          value={cert.name}
+                          onChange={e => setCerts(cs => cs.map(x => x.id === cert.id ? { ...x, name: e.target.value } : x))}
+                          placeholder="e.g. AWS Solutions Architect"
+                          className={inp}
+                        />
+                      </Field>
+                      <Field label="Issuing Organisation">
+                        <input
+                          value={cert.issuer}
+                          onChange={e => setCerts(cs => cs.map(x => x.id === cert.id ? { ...x, issuer: e.target.value } : x))}
+                          placeholder="e.g. Amazon, Google, Coursera"
+                          className={inp}
+                        />
+                      </Field>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <Field label="Year Issued">
+                        <input
+                          type="number"
+                          min="1990"
+                          max={new Date().getFullYear()}
+                          value={cert.year}
+                          onChange={e => setCerts(cs => cs.map(x => x.id === cert.id ? { ...x, year: e.target.value } : x))}
+                          placeholder={String(new Date().getFullYear())}
+                          className={inp}
+                        />
+                      </Field>
+                      <Field label="Certificate URL" hint="Link to verify online">
+                        <input
+                          type="url"
+                          value={cert.url}
+                          onChange={e => setCerts(cs => cs.map(x => x.id === cert.id ? { ...x, url: e.target.value } : x))}
+                          placeholder="https://credential.net/…"
+                          className={inp}
+                        />
+                      </Field>
+                    </div>
+                  </div>
+                </SectionCard>
+              ))}
+              <button
+                type="button"
+                onClick={() => setCerts(cs => [...cs, { id: Date.now(), name: "", issuer: "", year: "", url: "" }])}
+                className="flex items-center gap-2 px-4 py-2.5 border-2 border-dashed border-[#E8E1F0] rounded-2xl text-sm font-semibold w-full justify-center text-[#6B6480] hover:border-violet-300 hover:text-violet-500 transition-colors"
+              >
+                <Plus size={15} /> Add Certification
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Step 2: Skills */}
+      {step === 2 && (
         <div className="grid lg:grid-cols-2 gap-5">
           <SectionCard title="Skills" subtitle="Add skills you're proficient in">
             <div className="mt-3 space-y-3">
@@ -426,8 +693,8 @@ export default function ProfilePage() {
         </div>
       )}
 
-      {/* Step 2: Experience */}
-      {step === 2 && (
+      {/* Step 3: Experience */}
+      {step === 3 && (
         <div className="space-y-4">
           {exps.map((exp, i) => (
             <SectionCard key={exp.id} title={`Experience ${i + 1}`}
@@ -463,8 +730,8 @@ export default function ProfilePage() {
         </div>
       )}
 
-      {/* Step 3: Preferences */}
-      {step === 3 && (
+      {/* Step 4: Preferences */}
+      {step === 4 && (
         <div className="grid lg:grid-cols-2 gap-5">
           <SectionCard title="Work Preferences">
             <div className="space-y-4 mt-3">

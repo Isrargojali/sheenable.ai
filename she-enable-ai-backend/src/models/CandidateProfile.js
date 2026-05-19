@@ -26,9 +26,22 @@ const CandidateProfileSchema = new mongoose.Schema({
     name: String, issuer: String, year: Number, url: String
   }],
   cv: {
-    headline:  String,
-    summary:   String,
-    skills:    [String],
+    name: String,
+    title: String,
+    summary: String,
+    skills: [String],
+    experience: [{
+      title: String,
+      company: String,
+      from: String,
+      to: String,
+      bullets: [String]
+    }],
+    education: [{
+      degree: String,
+      school: String,
+      year: String
+    }],
     lastUpdated: Date
   },
   cvFileUrl:    String,
@@ -41,6 +54,9 @@ const CandidateProfileSchema = new mongoose.Schema({
   portfolioUrl: String,
   linkedinUrl:  String,
   githubUrl:    String,
+  noticePeriod: { type: String, default: 'Immediate' },
+  preferredMode: { type: String, enum: ['REMOTE', 'HYBRID', 'ONSITE'], default: 'REMOTE' },
+  languages: [{ type: String, trim: true }],
   isAvailable:  { type: Boolean, default: true, index: true },
   profileViews: { type: Number, default: 0 },
   completionScore: { type: Number, default: 0, min: 0, max: 100 },

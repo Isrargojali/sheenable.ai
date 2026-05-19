@@ -14,7 +14,9 @@ type CandidateStats = {
   jobMatches: number;
   applications: number;
   certifications: number;
-  profileScore: number;
+  totalApplications: number;
+  savedJobs: number;
+  profileCompletionScore: number;
 };
 
 type RecommendedJob = {
@@ -52,25 +54,53 @@ type StatIcon = {
 const STAT_ICONS: StatIcon[] = [
   { key: "profileViews",   label: "Profile views",   icon: Eye,       color: "from-violet-500 to-violet-700",  delta: "+12%" },
   { key: "jobMatches",     label: "Job matches",     icon: Sparkles,  color: "from-rose-500 to-rose-700",      delta: "+8%"  },
-  { key: "applications",   label: "Applications",    icon: FileText,  color: "from-blue-500 to-blue-700",      delta: "+3"   },
+  { key: "totalApplications", label: "Applications", icon: FileText,  color: "from-blue-500 to-blue-700",      delta: "+3"   },
   { key: "certifications", label: "Certifications",  icon: Award,     color: "from-emerald-500 to-emerald-700",delta: "+1"   },
 ];
 
 export default function CandidateDashboard() {
-  const user = useAuthStore((s) => s.user); // ✅ Added
+  const user = useAuthStore((s) => s.user);
 
+  // apiProfile.getCandidateStats already applies .then(unwrap) — `data` is the plain stats object
   const { data: stats } = useQuery<CandidateStats>({
     queryKey: ["candidateStats"],
-    queryFn:  () => apiProfile.getCandidateStats().then(r => r.data?.data ?? r.data),
+    queryFn: () => apiProfile.getCandidateStats() as unknown as Promise<CandidateStats>,
   });
+
+  // Fetch full profile to compute an accurate real-time completion score
+  const { data: profileData } = useQuery({
+    queryKey: ["profileCompletion"],
+    queryFn:  () => apiProfile.getMe(),
+  });
+
   const { data: rec } = useQuery<RecommendedJob[]>({
     queryKey: ["recommendedJobs"],
-    queryFn:  () => apiJobs.getRecommendations().then(r => r.data?.data ?? []),
+    queryFn:  () => apiJobs.getRecommendations() as unknown as Promise<RecommendedJob[]>,
   });
   const { data: ints } = useQuery<Interview[]>({
     queryKey: ["interviews"],
-    queryFn:  () => apiProfile.getUpcomingInterviews().then(r => r.data?.data ?? []),
+    queryFn:  () => apiProfile.getUpcomingInterviews() as unknown as Promise<Interview[]>,
   });
+
+  // Compute profile completion score from real profile data
+  // Falls back to backend-computed score if profile data isn't loaded yet
+  const computedScore = (() => {
+    const p = profileData as Record<string, unknown> | null | undefined;
+    if (!p) return stats?.profileCompletionScore ?? 0;
+
+    let score = 20; // base for having an account
+    if (user?.firstName && user?.lastName) score += 10;
+    if (p.title) score += 10;
+    if (p.bio) score += 10;
+    const skills = p.skills as unknown[];
+    if (Array.isArray(skills) && skills.length > 0) score += 15;
+    const exp = p.experience as unknown[];
+    if (Array.isArray(exp) && exp.length > 0) score += 15;
+    if (user?.avatarUrl || (p.userId as Record<string, unknown>)?.avatarUrl) score += 10;
+    if (p.linkedinUrl) score += 5;
+    if (p.portfolioUrl) score += 5;
+    return Math.min(score, 100);
+  })();
 
   return (
     <DashboardShell
@@ -155,14 +185,41 @@ export default function CandidateDashboard() {
           {/* Profile completion */}
           <SectionCard title="Profile completion">
             <div className="text-center">
-              <div className="font-serif text-4xl text-foreground">{stats?.profileScore ?? 0}%</div>
-              <div className="text-[11px] text-muted-foreground mt-1 mb-3">Almost there!</div>
+              <div className="relative w-20 h-20 mx-auto mb-3">
+                <svg width="80" height="80" viewBox="0 0 80 80" style={{ transform: "rotate(-90deg)" }}>
+                  <circle cx="40" cy="40" r="32" fill="none" stroke="#F5DCEA" strokeWidth="6" />
+                  <circle
+                    cx="40" cy="40" r="32" fill="none"
+                    stroke="url(#dash-grad)" strokeWidth="6"
+                    strokeLinecap="round"
+                    strokeDasharray={`${2 * Math.PI * 32}`}
+                    strokeDashoffset={`${2 * Math.PI * 32 * (1 - computedScore / 100)}`}
+                    style={{ transition: "stroke-dashoffset 0.6s ease" }}
+                  />
+                  <defs>
+                    <linearGradient id="dash-grad" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stopColor="#f43f5e" />
+                      <stop offset="100%" stopColor="#8b5cf6" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ transform: "none" }}>
+                  <span className="font-serif text-xl font-bold text-foreground leading-none">{computedScore}%</span>
+                </div>
+              </div>
+              <div className="text-[11px] text-muted-foreground mb-1">
+                {computedScore >= 80 ? "Looking great!" : computedScore >= 50 ? "Almost there!" : "Keep building!"}
+              </div>
               <div className="h-1.5 bg-secondary rounded-full overflow-hidden mb-3">
-                <div className="h-full bg-gradient-to-r from-rose-500 to-violet-500 transition-all"
-                     style={{ width: `${stats?.profileScore ?? 0}%` }} />
+                <div
+                  className="h-full bg-gradient-to-r from-rose-500 to-violet-500 transition-all duration-700 rounded-full"
+                  style={{ width: `${computedScore}%` }}
+                />
               </div>
               <Link to="/candidate/profile">
-                <BtnOutline className="w-full justify-center">Complete profile</BtnOutline>
+                <BtnOutline className="w-full justify-center">
+                  {computedScore >= 80 ? "View profile" : "Complete profile"}
+                </BtnOutline>
               </Link>
             </div>
           </SectionCard>

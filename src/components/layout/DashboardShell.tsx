@@ -106,9 +106,9 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
   const displayName = user?.firstName && user?.lastName
     ? `${user.firstName} ${user.lastName}`
     : user?.email?.split("@")[0] ?? "User";
-  const profile = user?.avatarUrl;
+  const avatarUrl = user?.avatarUrl ?? null;
 
-  const [available, setAvailable] = useState(profile?.isAvailable ?? true);
+  const [available, setAvailable] = useState(true);
 
   function handleLogout() {
     logout();
@@ -141,8 +141,18 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
       {/* User block */}
       <div className="px-4 py-3.5 border-b border-border">
         <div className="flex items-center gap-2.5 mb-2">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
-               style={{ background: "var(--grad-mauve)" }}>
+          {avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt={displayName}
+              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; (e.currentTarget.nextElementSibling as HTMLElement | null)?.style.setProperty('display', 'flex'); }}
+              className="w-10 h-10 rounded-xl object-cover flex-shrink-0"
+            />
+          ) : null}
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
+            style={{ background: "var(--grad-mauve)", display: avatarUrl ? 'none' : 'flex' }}
+          >
             {initials(displayName)}
           </div>
           <div className="min-w-0 flex-1">

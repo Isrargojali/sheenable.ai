@@ -25,6 +25,7 @@ const interviewRoutes = require('./src/routes/interviews');
 const messageRoutes = require('./src/routes/messages');
 const notificationRoutes = require('./src/routes/notifications');
 const uploadRoutes = require('./src/routes/upload');
+const aiRoutes = require('./src/routes/ai');
 
 // Initialize app
 const app = express();
@@ -93,6 +94,7 @@ app.use('/api/interviews', interviewRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Error Handling Middleware — must be last
 app.use(errorHandler);

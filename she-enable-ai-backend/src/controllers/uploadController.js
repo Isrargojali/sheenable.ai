@@ -5,7 +5,14 @@ const CandidateProfile = require('../models/CandidateProfile');
 const uploadAvatarFile = async (req, res, next) => {
   try {
     if (!req.file) return error(res, 'No image file uploaded', 400);
-    const avatarUrl = req.file.path;
+
+    // Validate MIME type server-side (multer-storage-cloudinary may bypass fileFilter)
+    const ALLOWED_MIME = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+    if (!ALLOWED_MIME.includes(req.file.mimetype)) {
+      return error(res, 'Only JPEG, PNG, WebP, and GIF images are allowed', 415);
+    }
+
+    const avatarUrl = req.file.path; // Cloudinary returns the secure URL in req.file.path
     await User.findByIdAndUpdate(req.user.id, { avatarUrl });
     return success(res, { avatarUrl });
   } catch (err) { next(err); }
