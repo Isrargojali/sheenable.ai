@@ -1,12 +1,12 @@
 /**
- * she-enable-ai-backend/src/scripts/seed.js
+ * she-enable-ai-backend/src/config/seed.js
  *
  * Creates the one-time SUPER_ADMIN account from environment variables.
  * Safe to run multiple times — skips if the account already exists.
  *
  * Usage:
  *   cd she-enable-ai-backend
- *   node src/scripts/seed.js
+ *   npm run seed
  *
  * Required .env variables:
  *   MONGO_URI=...
