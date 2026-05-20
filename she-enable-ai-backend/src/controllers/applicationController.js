@@ -1,6 +1,9 @@
 const Application = require('../models/Application');
 const Job = require('../models/Job');
 const AuditLog = require('../models/AuditLog');
+const User = require('../models/User');
+const EmployerProfile = require('../models/EmployerProfile');
+const CandidateProfile = require('../models/CandidateProfile');
 const { success, error, paginated } = require('../utils/apiResponse');
 const { getPaginationParams, getPaginationData } = require('../utils/paginate');
 const { sendApplicationStatusEmail } = require('../utils/sendEmail');
@@ -33,7 +36,7 @@ const getMyApplications = async (req, res, next) => {
     const { page, limit, skip } = getPaginationParams(req.query);
     const [applications, total] = await Promise.all([
       Application.find({ candidateId: req.user.id })
-        .populate({ path: 'jobId', populate: { path: 'employerId', select: 'firstName lastName companyName' } })
+        .populate({ path: 'jobId', populate: { path: 'employerId', select: 'firstName lastName' } })
         .sort({ appliedAt: -1 })
         .skip(skip)
         .limit(limit)
@@ -41,7 +44,40 @@ const getMyApplications = async (req, res, next) => {
       Application.countDocuments({ candidateId: req.user.id })
     ]);
 
-    return paginated(res, applications, getPaginationData(total, page, limit));
+    // Fetch employer profiles in batch to get actual companyName
+    const employerIds = applications.map(app => app.jobId?.employerId?._id || app.jobId?.employerId).filter(Boolean);
+    const profiles = await EmployerProfile.find({ userId: { $in: employerIds } }).lean();
+    const profileMap = new Map(profiles.map(p => [p.userId.toString(), p]));
+
+    const mapped = applications.map(app => {
+      const job = app.jobId;
+      if (!job) return null; // Filter out if job was deleted
+      
+      const empId = (job.employerId?._id || job.employerId || '').toString();
+      const profile = profileMap.get(empId);
+      const companyName = profile ? profile.companyName : (job.employerId?.firstName ? `${job.employerId.firstName} ${job.employerId.lastName}` : 'Company');
+
+      return {
+        id: app._id.toString(),
+        stage: app.status, // maps status -> stage
+        coverLetter: app.coverLetter,
+        resumeUrl: app.resumeUrl,
+        aiMatchScore: app.aiMatchScore || 75,
+        appliedAt: app.appliedAt,
+        job: {
+          id: job._id.toString(),
+          title: job.title,
+          location: job.location,
+          salaryMin: job.salary?.min || 0,
+          salaryMax: job.salary?.max || 0,
+          employer: {
+            companyName
+          }
+        }
+      };
+    }).filter(Boolean);
+
+    return paginated(res, mapped, getPaginationData(total, page, limit));
   } catch (err) { next(err); }
 };
 
@@ -65,7 +101,35 @@ const getJobApplications = async (req, res, next) => {
       Application.countDocuments(filter)
     ]);
 
-    return paginated(res, applications, getPaginationData(total, page, limit));
+    const candidateIds = applications.map(app => app.candidateId?._id || app.candidateId).filter(Boolean);
+    const profiles = await CandidateProfile.find({ userId: { $in: candidateIds } }).lean();
+    const profileMap = new Map(profiles.map(p => [p.userId.toString(), p]));
+
+    const mappedApplications = applications.map(app => {
+      const candUser = app.candidateId;
+      const candIdStr = (candUser?._id || candUser || '').toString();
+      const profile = profileMap.get(candIdStr);
+      
+      const skillsList = profile?.skills ? profile.skills.map(s => s.name) : [];
+      
+      return {
+        id: app._id.toString(),
+        stage: app.status,
+        coverLetter: app.coverLetter,
+        resumeUrl: app.resumeUrl,
+        cand: {
+          firstName: candUser?.firstName || 'Candidate',
+          lastName: candUser?.lastName || '',
+          title: profile?.title || 'Job Seeker',
+          aiMatchScore: app.aiMatchScore || 75,
+          skills: skillsList,
+          avatarUrl: candUser?.avatarUrl || null
+        },
+        applied: new Date(app.appliedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+      };
+    });
+
+    return paginated(res, mappedApplications, getPaginationData(total, page, limit));
   } catch (err) { next(err); }
 };
 

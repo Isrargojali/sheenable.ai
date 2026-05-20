@@ -4,7 +4,7 @@ const { ObjectId } = mongoose.Schema.Types;
 const ApplicationSchema = new mongoose.Schema({
   jobId: { type: ObjectId, ref: 'Job', required: true, index: true },
   candidateId: { type: ObjectId, ref: 'User', required: true, index: true },
-  status: { type: String, enum: ['APPLIED', 'SCREENING', 'INTERVIEW', 'OFFERED', 'REJECTED'], default: 'APPLIED', index: true },
+  status: { type: String, enum: ['APPLIED', 'SCREENING', 'INTERVIEW', 'ASSESSMENT', 'OFFER', 'HIRED', 'REJECTED'], default: 'APPLIED', index: true },
   coverLetter: String,
   resumeUrl: String,
   aiMatchScore: { type: Number, min: 0, max: 100, default: 0 },

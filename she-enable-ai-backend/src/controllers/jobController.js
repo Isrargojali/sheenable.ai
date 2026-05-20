@@ -2,8 +2,51 @@ const Job = require('../models/Job');
 const SavedJob = require('../models/SavedJob');
 const CandidateProfile = require('../models/CandidateProfile');
 const AuditLog = require('../models/AuditLog');
+const EmployerProfile = require('../models/EmployerProfile');
+const Application = require('../models/Application');
 const { success, error, paginated } = require('../utils/apiResponse');
 const { getPaginationParams, getPaginationData } = require('../utils/paginate');
+
+const mapJobsList = async (jobs, userId = null) => {
+  if (!jobs || jobs.length === 0) return [];
+
+  const employerIds = jobs.map(j => j.employerId?._id || j.employerId).filter(Boolean);
+  const profiles = await EmployerProfile.find({ userId: { $in: employerIds } }).lean();
+  const profileMap = new Map(profiles.map(p => [p.userId.toString(), p]));
+
+  let appliedJobIds = new Set();
+  if (userId) {
+    const jobIds = jobs.map(j => j._id);
+    const applications = await Application.find({ candidateId: userId, jobId: { $in: jobIds } }).lean();
+    appliedJobIds = new Set(applications.map(a => a.jobId.toString()));
+  }
+
+  return jobs.map(job => {
+    const empId = (job.employerId?._id || job.employerId || '').toString();
+    const profile = profileMap.get(empId);
+    const companyName = profile ? profile.companyName : (job.employerId?.firstName ? `${job.employerId.firstName} ${job.employerId.lastName}` : 'Company');
+    
+    return {
+      id: job._id.toString(),
+      title: job.title,
+      description: job.description,
+      employer: {
+        companyName
+      },
+      type: job.jobType,
+      mode: job.jobMode,
+      isFeatured: job.isFeatured || false,
+      isSaved: job.isSaved || false,
+      hasApplied: appliedJobIds.has(job._id.toString()),
+      skills: job.skillsRequired || [],
+      salaryMin: job.salary?.min || 0,
+      salaryMax: job.salary?.max || 0,
+      location: job.location,
+      createdAt: job.createdAt
+    };
+  });
+};
+
 
 const logAudit = async (action, resourceId, req) => {
   try {
@@ -50,7 +93,7 @@ const getJobs = async (req, res, next) => {
       Job.countDocuments(filter)
     ]);
 
-    // If logged in candidate, add isSaved flag (ignoring hasApplied for now to keep simple, can be fetched separately)
+    // If logged in candidate, add isSaved flag
     if (req.user && req.user.role === 'CANDIDATE') {
       const savedJobs = await SavedJob.find({ candidateId: req.user._id }).lean();
       const savedJobIds = new Set(savedJobs.map(s => s.jobId.toString()));
@@ -59,7 +102,9 @@ const getJobs = async (req, res, next) => {
       });
     }
 
-    return paginated(res, jobs, getPaginationData(total, page, limit));
+    const mapped = await mapJobsList(jobs, req.user?.role === 'CANDIDATE' ? req.user.id : null);
+
+    return paginated(res, mapped, getPaginationData(total, page, limit));
   } catch (err) { next(err); }
 };
 
@@ -76,7 +121,9 @@ const getJobById = async (req, res, next) => {
       job.isSaved = !!savedJob;
     }
 
-    return success(res, job);
+    const mapped = await mapJobsList([job], req.user?.role === 'CANDIDATE' ? req.user.id : null);
+
+    return success(res, mapped[0]);
   } catch (err) { next(err); }
 };
 
@@ -147,7 +194,9 @@ const getMyListings = async (req, res, next) => {
       Job.countDocuments(query)
     ]);
 
-    return paginated(res, jobs, getPaginationData(total, page, limit));
+    const mapped = await mapJobsList(jobs, null);
+
+    return paginated(res, mapped, getPaginationData(total, page, limit));
   } catch (err) { next(err); }
 };
 
@@ -181,7 +230,9 @@ const getSavedJobs = async (req, res, next) => {
     const jobs = savedJobs.map(s => s.jobId).filter(Boolean); // filter out if job was deleted
     jobs.forEach(j => j.isSaved = true);
 
-    return success(res, jobs);
+    const mapped = await mapJobsList(jobs, req.user.id);
+
+    return success(res, mapped);
   } catch (err) { next(err); }
 };
 
@@ -213,7 +264,9 @@ const getRecommendedJobs = async (req, res, next) => {
       job.isSaved = savedJobIds.has(job._id.toString());
     });
 
-    return success(res, jobs);
+    const mapped = await mapJobsList(jobs, req.user.id);
+
+    return success(res, mapped);
   } catch (err) { next(err); }
 };
 

@@ -3,6 +3,8 @@ const EmployerProfile = require('../models/EmployerProfile');
 const User = require('../models/User');
 const Application = require('../models/Application');
 const SavedJob = require('../models/SavedJob');
+const Job = require('../models/Job');
+const Interview = require('../models/Interview');
 const { success, error } = require('../utils/apiResponse');
 
 const getProfile = async (req, res, next) => {
@@ -215,6 +217,38 @@ const getCandidateStats = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+const getEmployerStats = async (req, res, next) => {
+  try {
+    if (req.user.role !== 'EMPLOYER') return error(res, 'Only employers can access employer stats', 403);
+
+    // Get all jobs of the employer
+    const jobs = await Job.find({ employerId: req.user.id });
+    const jobIds = jobs.map(j => j._id);
+    const activeJobs = jobs.filter(j => j.status === 'PUBLISHED').length;
+
+    // Get total applicants (applications on these jobs)
+    const totalApplicants = await Application.countDocuments({ jobId: { $in: jobIds } });
+
+    // Get interviews booked (SCHEDULED interviews for these applications)
+    const applications = await Application.find({ jobId: { $in: jobIds } }).select('_id');
+    const applicationIds = applications.map(a => a._id);
+    const interviews = await Interview.countDocuments({
+      applicationId: { $in: applicationIds },
+      status: 'SCHEDULED'
+    });
+
+    // Get total matches (available candidate pool)
+    const aiMatches = await CandidateProfile.countDocuments({ isAvailable: true });
+
+    return success(res, {
+      activeJobs,
+      totalApplicants,
+      interviews,
+      aiMatches
+    });
+  } catch (err) { next(err); }
+};
+
 module.exports = {
-  getProfile, updateProfile, getCandidateProfile, getEmployerProfile, getCv, saveCv, uploadAvatar, uploadCvFile, getCandidateStats
+  getProfile, updateProfile, getCandidateProfile, getEmployerProfile, getCv, saveCv, uploadAvatar, uploadCvFile, getCandidateStats, getEmployerStats
 };
