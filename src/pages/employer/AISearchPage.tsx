@@ -1,6 +1,7 @@
 // src/pages/employer/AISearchPage.tsx
 import { useState }       from "react";
 import { useMutation }    from "@tanstack/react-query";
+import { Link }           from "react-router-dom";
 import { Zap, X }         from "lucide-react";
 import { cn }             from "@/lib/utils";
 import { apiAI }          from "@/lib/api";
@@ -39,8 +40,26 @@ function CandidateCard({ cand, rank }: { cand: any; rank: number }) {
       )}
 
       <div className="flex items-start gap-3 mb-3">
-        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-rose-500 to-rose-700 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
-          {cand.firstName[0]}{cand.lastName[0]}
+        {/* Avatar: real photo with initials fallback */}
+        <div className="relative w-11 h-11 flex-shrink-0">
+          {cand.avatarUrl && (
+            <img
+              src={cand.avatarUrl}
+              alt={`${cand.firstName} ${cand.lastName}`}
+              className="w-11 h-11 rounded-xl object-cover absolute inset-0"
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).style.display = 'none';
+                const sib = e.currentTarget.nextElementSibling as HTMLElement | null;
+                if (sib) sib.style.display = 'flex';
+              }}
+            />
+          )}
+          <div
+            className="w-11 h-11 rounded-xl bg-gradient-to-br from-rose-500 to-rose-700 flex items-center justify-center text-white text-sm font-bold"
+            style={{ display: cand.avatarUrl ? 'none' : 'flex' }}
+          >
+            {cand.firstName[0]}{cand.lastName[0]}
+          </div>
         </div>
         <div className="flex-1 min-w-0">
           <div className="font-bold text-sm text-[#0F0B1A]">{cand.firstName} {cand.lastName}</div>
@@ -76,9 +95,12 @@ function CandidateCard({ cand, rank }: { cand: any; rank: number }) {
       </div>
 
       <div className="flex gap-2">
-        <button className="flex-1 py-2 bg-rose-500 text-white text-xs font-bold rounded-full hover:bg-rose-600 transition-colors">
+        <Link
+          to={`/employer/candidate/${cand.id}`}
+          className="flex-1 py-2 bg-rose-500 text-white text-xs font-bold rounded-full hover:bg-rose-600 transition-colors text-center"
+        >
           View Profile
-        </button>
+        </Link>
         <button onClick={() => setMsgSent(true)}
                 className={cn("flex-1 py-2 text-xs font-bold rounded-full border transition-all",
                   msgSent ? "bg-emerald-50 border-emerald-200 text-emerald-600 cursor-default"
@@ -96,7 +118,7 @@ export default function AISearchPage() {
   const [results,    setResults] = useState<any>(null);
 
   const mutation = useMutation({
-    mutationFn: () => apiAI.search(query, { filter: activeFilter }),
+    mutationFn: () => apiAI.searchCandidates(query, { filter: activeFilter }),
     onSuccess: data => setResults(data),
   });
 

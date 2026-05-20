@@ -27,6 +27,9 @@ interface CV {
   skills?: string[];
   experience?: CVExperience[];
   education?: CVEducation[];
+  avatarUrl?: string;
+  email?: string;
+  phone?: string;
 }
 
 interface ProfileData {
@@ -177,9 +180,24 @@ export default function CVBuilderPage() {
                 id="cv-print-area"
                 className="bg-white border border-border rounded-xl p-6 lg:p-8 shadow-sm"
               >
-                <div className="border-b border-border pb-4 mb-4">
-                  <h2 className="font-serif text-2xl text-foreground">{cv.name}</h2>
-                  <div className="text-sm text-muted-foreground mt-0.5">{cv.title}</div>
+                <div className="flex items-center gap-4 border-b border-border pb-4 mb-4">
+                  {cv.avatarUrl && (
+                    <img
+                      src={cv.avatarUrl}
+                      alt={cv.name}
+                      className="w-16 h-16 rounded-full object-cover border border-border flex-shrink-0"
+                    />
+                  )}
+                  <div>
+                    <h2 className="font-serif text-2xl text-foreground">{cv.name}</h2>
+                    <div className="text-sm text-muted-foreground mt-0.5">{cv.title}</div>
+                    {(cv.email || cv.phone) && (
+                      <div className="text-[10px] text-muted-foreground mt-1 flex gap-3 flex-wrap">
+                        {cv.email && <span>📧 {cv.email}</span>}
+                        {cv.phone && <span>📞 {cv.phone}</span>}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {cv.summary && (

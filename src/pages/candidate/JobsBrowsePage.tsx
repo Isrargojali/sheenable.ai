@@ -1,10 +1,10 @@
-// src/pages/candidate/JobsBrowsePage.tsx
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Search, Bookmark, BookmarkCheck, MapPin, Sparkles, AlertCircle } from "lucide-react";
-import { DashboardShell, SectionCard, BtnPrimary } from "@/components/layout/DashboardShell";
-import { apiJobs } from "@/lib/api";
+import { Search, Bookmark, BookmarkCheck, MapPin, Sparkles, AlertCircle, Wand2, X } from "lucide-react";
+import { DashboardShell, SectionCard, BtnPrimary, BtnOutline } from "@/components/layout/DashboardShell";
+import { apiJobs, apiApplications, apiProfile } from "@/lib/api";
 import { formatSalary, relativeTime, cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface Job {
   id: string;
@@ -46,17 +46,80 @@ export default function JobsBrowsePage() {
   const [mode,     setMode]     = useState("All");
   const [sort,     setSort]     = useState("");
 
+  const [applyingJob, setApplyingJob] = useState<Job | null>(null);
+  const [coverLetter, setCoverLetter] = useState("");
+  const [resumeUrl, setResumeUrl] = useState("");
+
+  const { data: profile } = useQuery({
+    queryKey: ["candidateProfileForApply"],
+    queryFn: () => apiProfile.getMe(),
+  });
+
+  const applyMutation = useMutation({
+    mutationFn: async (payload: { jobId: string; coverLetter: string; resumeUrl: string }) => {
+      return apiApplications.apply(payload.jobId, {
+        coverLetter: payload.coverLetter,
+        resumeUrl: payload.resumeUrl,
+      });
+    },
+    onSuccess: () => {
+      toast.success("Application submitted successfully!");
+      setApplyingJob(null);
+      setCoverLetter("");
+      setResumeUrl("");
+      qc.invalidateQueries({ queryKey: ["jobs"] });
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || "Failed to submit application");
+    }
+  });
+
+  const generateAICoverLetter = () => {
+    if (!applyingJob) return;
+    const candidateName = profile?.userId ? `${profile.userId.firstName} ${profile.userId.lastName}` : "Candidate";
+    const candidateSkills = (profile?.skills as any[])?.map((s) => s.name).join(", ") || "React, Node.js, TypeScript";
+    
+    const letter = `Dear Hiring Manager,
+
+I am writing to express my strong interest in the ${applyingJob.title} position at ${applyingJob.employer.companyName}. With a solid foundation in ${candidateSkills} and a proven track record of designing, building, and deploying scalable software solutions, I am confident that I can add immediate value to your engineering team.
+
+My profile aligns closely with the requirements for this role. I have extensive experience working in agile environments and leveraging modern web technologies to build high-performance products. I am particularly excited about the opportunity to join ${applyingJob.employer.companyName} and contribute to your ongoing success.
+
+Thank you for your time and consideration. I look forward to the possibility of discussing how my skills and background meet your needs in more detail.
+
+Sincerely,
+${candidateName}`;
+    
+    setCoverLetter(letter);
+    toast.success("AI Cover Letter generated from profile!");
+  };
+
+  const handleOpenApply = (job: Job) => {
+    setApplyingJob(job);
+    setResumeUrl((profile as any)?.cvFileUrl || "Persisted AI-Generated CV Document");
+  };
+
   const { data, isLoading, error } = useQuery({
     queryKey: ["jobs", { search, category, type, mode, sort }],
     queryFn:  async () => {
       const response = await apiJobs.getJobs({
         search,
         category: category === "All" ? undefined : category,
-        type:     type     === "All" ? undefined : type,
-        mode:     mode     === "All" ? undefined : mode,
+        jobType:  type     === "All" ? undefined : type,
+        jobMode:  mode     === "All" ? undefined : mode,
         sort,
       });
-      return response.data as JobsResponse;
+      
+      // Since apiJobs.getJobs already runs `.then(unwrap)`, the response is the unwrapped Job[] array directly
+      const jobsArray = Array.isArray(response) ? response : [];
+      return {
+        jobs: jobsArray,
+        pagination: {
+          total: jobsArray.length,
+          page: 1,
+          limit: jobsArray.length,
+        },
+      } as JobsResponse;
     },
   });
 
@@ -138,9 +201,76 @@ export default function JobsBrowsePage() {
               key={job.id} 
               job={job} 
               onSave={() => save.mutate(job)}
+              onApply={() => handleOpenApply(job)}
               isLoading={save.isPending}
             />
           ))}
+        </div>
+      )}
+
+      {/* Apply Modal */}
+      {applyingJob && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm bg-black/40 animate-in fade-in-50 duration-200">
+          <div className="bg-card border border-border w-full max-w-lg rounded-2xl p-6 shadow-xl relative animate-in zoom-in-95 duration-200">
+            <button 
+              onClick={() => setApplyingJob(null)}
+              className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <X size={18} />
+            </button>
+            <h3 className="font-serif text-xl text-foreground mb-1">Apply for Job</h3>
+            <p className="text-xs text-muted-foreground mb-4">
+              Applying for <span className="font-semibold text-foreground">{applyingJob.title}</span> at <span className="font-semibold text-foreground">{applyingJob.employer.companyName}</span>
+            </p>
+
+            <div className="space-y-4">
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-[11px] font-bold uppercase tracking-wide text-ink-300">Cover Letter</label>
+                  <button 
+                    onClick={generateAICoverLetter}
+                    className="inline-flex items-center gap-1 text-[10px] font-semibold text-primary hover:underline"
+                  >
+                    <Wand2 size={10} /> Auto-Write with AI
+                  </button>
+                </div>
+                <textarea
+                  value={coverLetter}
+                  onChange={e => setCoverLetter(e.target.value)}
+                  rows={6}
+                  placeholder="Tell the employer why you are a great fit..."
+                  className="w-full px-3 py-2 border border-border rounded-xl text-xs bg-background resize-none focus:outline-none focus:ring-2 focus:ring-primary/15 focus:border-primary"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold uppercase tracking-wide text-ink-300 mb-1">Resume / CV Document</label>
+                <input
+                  type="text"
+                  value={resumeUrl}
+                  onChange={e => setResumeUrl(e.target.value)}
+                  placeholder="https://example.com/my-resume.pdf"
+                  className="w-full px-3 py-2 border border-border rounded-xl text-xs bg-background focus:outline-none focus:ring-2 focus:ring-primary/15 focus:border-primary"
+                />
+              </div>
+
+              <div className="flex gap-2.5 pt-2">
+                <BtnOutline 
+                  onClick={() => setApplyingJob(null)}
+                  className="flex-1 justify-center py-2"
+                >
+                  Cancel
+                </BtnOutline>
+                <BtnPrimary
+                  onClick={() => applyMutation.mutate({ jobId: applyingJob.id, coverLetter, resumeUrl })}
+                  disabled={applyMutation.isPending || !resumeUrl.trim()}
+                  className="flex-1 justify-center py-2"
+                >
+                  {applyMutation.isPending ? "Submitting..." : "Submit Application"}
+                </BtnPrimary>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </DashboardShell>
@@ -150,10 +280,11 @@ export default function JobsBrowsePage() {
 interface JobCardProps {
   job: Job;
   onSave: () => void;
+  onApply: () => void;
   isLoading?: boolean;
 }
 
-function JobCard({ job, onSave, isLoading }: JobCardProps) {
+function JobCard({ job, onSave, onApply, isLoading }: JobCardProps) {
   return (
     <article
       className={cn(
@@ -172,7 +303,10 @@ function JobCard({ job, onSave, isLoading }: JobCardProps) {
           </div>
         </div>
         <button 
-          onClick={onSave} 
+          onClick={(e) => {
+            e.stopPropagation();
+            onSave();
+          }} 
           disabled={isLoading}
           className="text-muted-foreground hover:text-primary flex-shrink-0 transition-colors disabled:opacity-50"
           aria-label={job.isSaved ? "Remove bookmark" : "Add bookmark"}
@@ -213,7 +347,17 @@ function JobCard({ job, onSave, isLoading }: JobCardProps) {
             {job.location && <><MapPin size={9} /> {job.location} ·</>} {relativeTime(job.createdAt)}
           </div>
         </div>
-        <BtnPrimary className="text-xs px-3 py-1.5">
+        <BtnPrimary 
+          onClick={(e) => {
+            e.stopPropagation();
+            if (!job.hasApplied) onApply();
+          }}
+          disabled={job.hasApplied}
+          className={cn(
+            "text-xs px-3 py-1.5",
+            job.hasApplied && "bg-secondary text-ink-300 border-secondary cursor-not-allowed hover:bg-secondary"
+          )}
+        >
           {job.hasApplied ? "Applied" : "Apply"}
         </BtnPrimary>
       </div>

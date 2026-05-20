@@ -17,7 +17,7 @@ const STAGE_COLOR: Record<string, string> = {
 };
 
 export default function ApplicationsPage() {
-  const { data, isLoading } = useQuery({ queryKey: ["myApps"], queryFn: apiApplications.getMyApplications });
+  const { data, isLoading } = useQuery({ queryKey: ["myApps"], queryFn: apiApplications.getApplications });
   const [filter, setFilter] = useState("ALL");
 
   const apps = (data ?? []).filter(a => filter === "ALL" || a.stage === filter);

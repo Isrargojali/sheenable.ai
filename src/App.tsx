@@ -31,6 +31,7 @@ import PostJobPage       from "@/pages/employer/PostJobPage";
 import ListingsPage      from "@/pages/employer/ListingsPage";
 import AISearchPage      from "@/pages/employer/AISearchPage";
 import ATSPipelinePage   from "@/pages/employer/ATSPipelinePage";
+import CandidateProfileViewPage from "@/pages/employer/CandidateProfileViewPage";
 
 // Admin
 import AdminDashboard     from "@/pages/admin/AdminDashboard";
@@ -104,11 +105,12 @@ const App = () => (
           <Route path="/candidate/messages"     element={<Guard roles={["CANDIDATE"]}><MessagesPage /></Guard>} />
 
           {/* Employer */}
-          <Route path="/employer/dashboard" element={<Guard roles={["EMPLOYER"]}><EmployerDashboard /></Guard>} />
-          <Route path="/employer/post-job"  element={<Guard roles={["EMPLOYER"]}><PostJobPage /></Guard>} />
-          <Route path="/employer/listings"  element={<Guard roles={["EMPLOYER"]}><ListingsPage /></Guard>} />
-          <Route path="/employer/ai-search" element={<Guard roles={["EMPLOYER"]}><AISearchPage /></Guard>} />
-          <Route path="/employer/pipeline"  element={<Guard roles={["EMPLOYER"]}><ATSPipelinePage /></Guard>} />
+          <Route path="/employer/dashboard"         element={<Guard roles={["EMPLOYER"]}><EmployerDashboard /></Guard>} />
+          <Route path="/employer/post-job"          element={<Guard roles={["EMPLOYER"]}><PostJobPage /></Guard>} />
+          <Route path="/employer/listings"          element={<Guard roles={["EMPLOYER"]}><ListingsPage /></Guard>} />
+          <Route path="/employer/ai-search"         element={<Guard roles={["EMPLOYER"]}><AISearchPage /></Guard>} />
+          <Route path="/employer/pipeline"          element={<Guard roles={["EMPLOYER"]}><ATSPipelinePage /></Guard>} />
+          <Route path="/employer/candidate/:id"     element={<Guard roles={["EMPLOYER"]}><CandidateProfileViewPage /></Guard>} />
 
           {/* Admin */}
           <Route path="/admin/overview" element={<Guard roles={["ADMIN","SUPER_ADMIN"]}><AdminDashboard /></Guard>} />

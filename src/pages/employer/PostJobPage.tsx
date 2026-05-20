@@ -23,7 +23,7 @@ export default function PostJobPage() {
   const [skillInp, setSkillInp] = useState("");
 
   const create = useMutation({
-    mutationFn: apiJobs.create,
+    mutationFn: apiJobs.postJob,
     onSuccess:  () => navigate("/employer/listings"),
   });
 
@@ -36,10 +36,17 @@ export default function PostJobPage() {
   function submit(e: React.FormEvent) {
     e.preventDefault();
     create.mutate({
-      title, category, type, mode, location: location || null,
-      salaryMin: Number(min) || null,
-      salaryMax: Number(max) || null,
-      description: desc, skills,
+      title,
+      category,
+      jobType: type,
+      jobMode: mode,
+      location: location || null,
+      salary: {
+        min: Number(min) || null,
+        max: Number(max) || null,
+      },
+      description: desc,
+      skillsRequired: skills,
     });
   }
 

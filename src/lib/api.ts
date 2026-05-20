@@ -125,6 +125,7 @@ export const apiProfile = {
   getMe:                  ()                     => api.get('/profile/me').then(unwrap),
   updateMe:               (data: object)         => api.put('/profile/me', data).then(unwrap),
   getCandidateStats:      ()                     => api.get('/profile/candidate-stats').then(unwrap),
+  getEmployerStats:       ()                     => api.get('/profile/employer-stats').then(unwrap),
   getUpcomingInterviews:  ()                     => api.get('/interviews', { params: { upcoming: 'true' } }).then(unwrap),
   getCandidateProfile:    (id: string)           => api.get(`/profile/candidate/${id}`).then(unwrap),
   updateCandidateProfile: (data: object)         => api.put('/profile/me', data).then(unwrap),
@@ -211,6 +212,7 @@ export const apiAI = {
   generateCV:       (data: object)                   => api.post('/ai/cv-builder', data).then(unwrap),
   improveCVSection: (section: string, text: string)  => api.post('/ai/improve-cv', { section, text }).then(unwrap),
   searchCandidates: (query: string, params?: object) => api.get('/ai/search-candidates', { params: { ...params, q: query } }).then(unwrap),
+  getMatchedCandidates: ()                           => api.get('/ai/matched-candidates').then(unwrap),
   analyzeProfile:   (userId: string)                 => api.post('/ai/analyze-profile', { userId }).then(unwrap),
 };
 
