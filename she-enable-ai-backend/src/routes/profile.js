@@ -24,3 +24,4 @@ router.post('/avatar', uploadAvatarMiddleware.single('avatar'), uploadAvatar);
 router.post('/cv/file', authorize('CANDIDATE'), uploadCvMiddleware.single('cv'), uploadCvFile);
 
 module.exports = router;
+

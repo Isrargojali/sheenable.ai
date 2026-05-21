@@ -11,5 +11,3 @@ router.post('/avatar', uploadAvatar.single('avatar'), uploadAvatarFile);
 router.post('/cv', authorize('CANDIDATE'), uploadCv.single('cv'), uploadCvDocument);
 
 module.exports = router;
-
-
