@@ -25,3 +25,5 @@ router.get('/jobs', getJobsAdmin);
 router.patch('/jobs/:id/status', updateJobStatusAdmin);
 
 module.exports = router;
+
+
