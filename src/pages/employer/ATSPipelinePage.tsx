@@ -1,19 +1,19 @@
 // src/pages/employer/ATSPipelinePage.tsx
-import { useState }       from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { cn }             from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { apiApplications, apiJobs } from "@/lib/api";
 import { DashboardShell, SectionCard } from "@/components/layout/DashboardShell";
-import { toast }          from "sonner";
-import { Loader2 }        from "lucide-react";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 const STAGES = [
-  { key: "APPLIED",    label: "Applied",     color: "bg-blue-500",    light: "bg-blue-50 text-blue-600"   },
-  { key: "SCREENING",  label: "Screening",   color: "bg-amber-500",   light: "bg-amber-50 text-amber-600" },
-  { key: "INTERVIEW",  label: "Interview",   color: "bg-rose-500",    light: "bg-rose-50 text-rose-500"   },
-  { key: "ASSESSMENT", label: "Assessment",  color: "bg-violet-500",  light: "bg-violet-50 text-violet-600"},
-  { key: "OFFER",      label: "Offer",       color: "bg-emerald-500", light: "bg-emerald-50 text-emerald-600"},
-  { key: "HIRED",      label: "Hired ✓",     color: "bg-emerald-700", light: "bg-emerald-100 text-emerald-700"},
+  { key: "APPLIED", label: "Applied", color: "bg-blue-500", light: "bg-blue-50 text-blue-600" },
+  { key: "SCREENING", label: "Screening", color: "bg-amber-500", light: "bg-amber-50 text-amber-600" },
+  { key: "INTERVIEW", label: "Interview", color: "bg-rose-500", light: "bg-rose-50 text-rose-500" },
+  { key: "ASSESSMENT", label: "Assessment", color: "bg-violet-500", light: "bg-violet-50 text-violet-600" },
+  { key: "OFFER", label: "Offer", color: "bg-emerald-500", light: "bg-emerald-50 text-emerald-600" },
+  { key: "HIRED", label: "Hired ✓", color: "bg-emerald-700", light: "bg-emerald-100 text-emerald-700" },
 ];
 
 const NEXT_STAGE: Record<string, string> = {
@@ -22,8 +22,8 @@ const NEXT_STAGE: Record<string, string> = {
 };
 
 interface Applicant {
-  id:      string;
-  stage:   string;
+  id: string;
+  stage: string;
   cand: {
     firstName: string;
     lastName: string;
@@ -82,7 +82,7 @@ function ApplicantCard({
 
       <div className="flex gap-1.5">
         {nextStage && (
-          <button 
+          <button
             onClick={() => onMove(app.id, nextStage)}
             disabled={isPending}
             className="flex-1 py-1.5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full hover:opacity-90 active:scale-95 transition-all truncate flex items-center justify-center gap-1 disabled:opacity-50"
@@ -90,7 +90,7 @@ function ApplicantCard({
             {isPending ? <Loader2 size={10} className="animate-spin" /> : <>→ {nextLabel}</>}
           </button>
         )}
-        <button 
+        <button
           onClick={() => onReject(app.id)}
           disabled={isPending}
           className="px-2 py-1.5 border border-red-200 text-red-400 text-[10px] font-semibold rounded-full hover:bg-red-50 active:scale-95 transition-all flex-shrink-0 disabled:opacity-50"
@@ -105,7 +105,7 @@ function ApplicantCard({
 export default function ATSPipelinePage() {
   const qc = useQueryClient();
   const [selectedJobId, setSelectedJobId] = useState<string>("");
-  const [filter, setFilter]= useState("ALL");
+  const [filter, setFilter] = useState("ALL");
 
   const { data: listings, isLoading: loadingListings } = useQuery({
     queryKey: ["myListings"],
@@ -184,14 +184,14 @@ export default function ATSPipelinePage() {
       {/* Stage filter pills */}
       <div className="flex gap-2 flex-wrap mb-5">
         <button onClick={() => setFilter("ALL")}
-                className={cn("px-3 py-1.5 rounded-full text-[11px] font-bold border transition-all",
-                  filter === "ALL" ? "bg-primary border-primary text-primary-foreground" : "bg-card border-border text-ink-500 hover:border-primary/40")}>
+          className={cn("px-3 py-1.5 rounded-full text-[11px] font-bold border transition-all",
+            filter === "ALL" ? "bg-primary border-primary text-primary-foreground" : "bg-card border-border text-ink-500 hover:border-primary/40")}>
           All ({apps.length})
         </button>
         {STAGES.map(s => (
           <button key={s.key} onClick={() => setFilter(s.key)}
-                  className={cn("px-3 py-1.5 rounded-full text-[11px] font-bold border transition-all",
-                    filter === s.key ? "bg-primary border-primary text-primary-foreground" : "bg-card border-border text-ink-500 hover:border-primary/40")}>
+            className={cn("px-3 py-1.5 rounded-full text-[11px] font-bold border transition-all",
+              filter === s.key ? "bg-primary border-primary text-primary-foreground" : "bg-card border-border text-ink-500 hover:border-primary/40")}>
             {s.label} ({totalByStage(s.key)})
           </button>
         ))}
@@ -238,11 +238,11 @@ export default function ATSPipelinePage() {
                   {stageApps.length === 0 ? (
                     <div className="text-center py-16 text-[#C4BEDD] text-[11px]">No candidates</div>
                   ) : stageApps.map((app: Applicant) => (
-                    <ApplicantCard 
-                      key={app.id} 
-                      app={app} 
-                      onMove={moveApp} 
-                      onReject={rejectApp} 
+                    <ApplicantCard
+                      key={app.id}
+                      app={app}
+                      onMove={moveApp}
+                      onReject={rejectApp}
                       isPending={updateStatusMut.isPending}
                     />
                   ))}
