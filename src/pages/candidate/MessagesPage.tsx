@@ -175,7 +175,7 @@ export default function MessagesPage() {
         initialMessage: "Hello! Let's connect." 
       }),
     onSuccess: (newThread: any) => {
-      const tId = newThread.data?._id || newThread.data?.id || newThread._id || newThread.id;
+      const tId = newThread.threadId || newThread.data?.threadId || newThread.data?._id || newThread._id || newThread.id;
       setActive(tId);
       setShowNewChatModal(false);
       refetchThreads();
@@ -193,14 +193,14 @@ export default function MessagesPage() {
   const newChatContacts = (() => {
     if (user?.role === "CANDIDATE") {
       const apps = Array.isArray(appsData) ? appsData : [];
-      const uniqueEmps = Array.from(new Set(apps.map(a => a.job?.employer?._id || a.job?.employer))).filter(Boolean);
+      const uniqueEmps = Array.from(new Set(apps.map(a => a.job?.employer?.id).filter(Boolean)));
       return uniqueEmps.map(empId => {
-        const app = apps.find(a => (a.job?.employer?._id || a.job?.employer) === empId);
+        const app = apps.find(a => a.job?.employer?.id === empId);
         return {
           id: empId as string,
           name: app?.job?.employer?.companyName || "Employer",
           subtitle: `Regarding role: ${app?.job?.title || "Job Listing"}`,
-          jobId: app?.job?._id || app?.job?.id
+          jobId: app?.job?.id || app?.job?._id
         };
       });
     } else {
