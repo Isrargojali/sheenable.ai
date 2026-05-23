@@ -12,7 +12,7 @@ import logo from "@/assets/sheEnableAI-removebg-preview.png";
 import { cn, initials, relativeTime } from "@/lib/utils";
 import { useAuthStore, UserRole } from "@/store/authStore";
 import { useNotifStore } from "@/store/notifStore";
-import { apiNotifications, apiProfile } from "@/lib/api";
+import { apiNotifications, apiProfile, apiMessages } from "@/lib/api";
 import { toast } from "sonner";
 import { MOCK_USERS } from "@/mock/data";
 
@@ -49,6 +49,7 @@ const NAV: Record<UserRole, NavGroup[]> = {
         { to: "/employer/listings",  label: "My Listings",   icon: Briefcase },
         { to: "/employer/post-job",  label: "Post a Job",    icon: FilePlus },
         { to: "/employer/pipeline",  label: "ATS Pipeline",  icon: FileText },
+        { to: "/employer/messages",  label: "Messages",      icon: MessageSquare, badge: "2" },
       ],
     },
     {
@@ -106,6 +107,19 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
   const role = user?.role ?? "CANDIDATE";
   const groups = NAV[role];
 
+  // Dynamic real-time messages unread badges query
+  const { data: threadsData } = useQuery<any>({
+    queryKey: ["threadsBadge", role],
+    queryFn: apiMessages.getThreads,
+    refetchInterval: 10000, // Poll threads every 10s for unread badges
+    enabled: role === "CANDIDATE" || role === "EMPLOYER"
+  });
+
+  const unreadMessagesCount = (threadsData?.results ?? []).reduce(
+    (acc: number, t: any) => acc + (role === "CANDIDATE" ? t.unreadCandidate : t.unreadEmployer),
+    0
+  );
+
   const displayName = user?.firstName && user?.lastName
     ? `${user.firstName} ${user.lastName}`
     : user?.email?.split("@")[0] ?? "User";
@@ -123,10 +137,6 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
       {/* Brand */}
       <div className="px-4 py-4 border-b border-border flex items-center gap-2.5">
         <Link to="/" className="relative z-10 flex items-center gap-2.5 group" aria-label="SheEnableAI home">
-        {/* <div className="w-9 h-9 rounded-xl flex items-center justify-center"
-             style={{ background: "var(--grad-mauve-rose)" }}>
-          <Heart size={16} className="text-white" fill="white" />
-        </div> */}
          <img
                                 src={logo}
                                 alt="SheEnableAI logo"
@@ -134,10 +144,6 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
                               />
                               </Link>
         <div>
-          {/* <div className="font-serif text-lg leading-none text-foreground">SheEnableAI</div>
-          <div className="text-[9px] uppercase tracking-[1.5px] text-muted-foreground mt-0.5">
-            Women's Platform
-          </div> */}
         </div>
       </div>
 
@@ -189,6 +195,13 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
             </div>
             {g.items.map(item => {
               const Icon = item.icon;
+              
+              // Dynamic unread count badge override for messages
+              let badge = item.badge;
+              if (item.to.includes("messages")) {
+                badge = unreadMessagesCount > 0 ? String(unreadMessagesCount) : undefined;
+              }
+
               return (
                 <NavLink
                   key={item.to}
@@ -203,9 +216,9 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
                 >
                   <Icon size={15} className="flex-shrink-0 opacity-80" />
                   <span className="truncate">{item.label}</span>
-                  {item.badge && (
+                  {badge && (
                     <span className="ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground min-w-[18px] text-center">
-                      {item.badge}
+                      {badge}
                     </span>
                   )}
                 </NavLink>

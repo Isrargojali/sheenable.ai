@@ -106,6 +106,7 @@ const App = () => (
 
           {/* Employer */}
           <Route path="/employer/dashboard"         element={<Guard roles={["EMPLOYER"]}><EmployerDashboard /></Guard>} />
+          <Route path="/employer/messages"          element={<Guard roles={["EMPLOYER"]}><MessagesPage /></Guard>} />
           <Route path="/employer/post-job"          element={<Guard roles={["EMPLOYER"]}><PostJobPage /></Guard>} />
           <Route path="/employer/listings"          element={<Guard roles={["EMPLOYER"]}><ListingsPage /></Guard>} />
           <Route path="/employer/ai-search"         element={<Guard roles={["EMPLOYER"]}><AISearchPage /></Guard>} />
