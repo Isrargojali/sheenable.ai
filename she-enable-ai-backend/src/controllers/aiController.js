@@ -254,29 +254,38 @@ const searchCandidates = async (req, res, next) => {
       }
     }
 
-    // Text search or regex matching
+    let candidates = [];
+    
     if (q) {
-      dbFilter.$text = { $search: q };
+      // Split the search query into terms of length > 1
+      const terms = q.split(/[\s,]+/).filter(t => t.trim().length > 1);
+      if (terms.length > 0) {
+        dbFilter.$or = terms.flatMap(term => [
+          { title: { $regex: term, $options: 'i' } },
+          { bio: { $regex: term, $options: 'i' } },
+          { 'skills.name': { $regex: term, $options: 'i' } },
+          { category: { $regex: term, $options: 'i' } }
+        ]);
+      }
     }
 
-    let candidates = [];
-    try {
-      candidates = await CandidateProfile.find(dbFilter)
-        .populate('userId', 'firstName lastName avatarUrl email phone')
-        .lean();
-    } catch (dbErr) {
-      // Fallback if text index search fails or is not supported
-      if (q) {
-        delete dbFilter.$text;
-        dbFilter.$or = [
-          { title: { $regex: q, $options: 'i' } },
-          { bio: { $regex: q, $options: 'i' } },
-          { 'skills.name': { $regex: q, $options: 'i' } }
-        ];
+    // Query candidates
+    candidates = await CandidateProfile.find(dbFilter)
+      .populate('userId', 'firstName lastName avatarUrl email phone')
+      .lean();
+
+    // Fallback search: if no matching candidates found and we have a query q, try a text search
+    if (candidates.length === 0 && q) {
+      try {
+        const textFilter = { ...dbFilter };
+        delete textFilter.$or;
+        textFilter.$text = { $search: q };
+        candidates = await CandidateProfile.find(textFilter)
+          .populate('userId', 'firstName lastName avatarUrl email phone')
+          .lean();
+      } catch (err) {
+        // If text search throws an error, keep candidates as empty
       }
-      candidates = await CandidateProfile.find(dbFilter)
-        .populate('userId', 'firstName lastName avatarUrl email phone')
-        .lean();
     }
 
     // If query was supplied, we score matches, otherwise we assign default scores

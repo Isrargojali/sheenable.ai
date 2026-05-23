@@ -7,6 +7,8 @@ import { DashboardShell, SectionCard, BtnPrimary, BtnOutline } from "@/component
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "sonner";
 
+import { useLocation } from "react-router-dom";
+
 // ── Domain types ────────────────────────────────────────────────────────────
 
 interface ThreadParticipant {
@@ -37,7 +39,8 @@ interface Message {
 export default function MessagesPage() {
   const { user } = useAuthStore();
   const qc = useQueryClient();
-  const [activeThread, setActive] = useState<string>("thread_1");
+  const location = useLocation();
+  const [activeThread, setActive] = useState<string>(location.state?.activeThreadId || "thread_1");
   const [text, setText]           = useState("");
   const [showNewChatModal, setShowNewChatModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
