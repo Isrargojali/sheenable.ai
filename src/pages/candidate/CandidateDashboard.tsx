@@ -66,6 +66,7 @@ export default function CandidateDashboard() {
   const { data: stats } = useQuery<CandidateStats>({
     queryKey: ["candidateStats"],
     queryFn: () => apiProfile.getCandidateStats() as unknown as Promise<CandidateStats>,
+    refetchInterval: 10000, // Real-time poll every 10s
   });
 
   // Fetch full profile to compute an accurate real-time completion score

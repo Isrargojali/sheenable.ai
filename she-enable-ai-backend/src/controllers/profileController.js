@@ -200,19 +200,34 @@ const getCandidateStats = async (req, res, next) => {
     ]);
 
     let completionScore = 20; // Base score for having an account
+    let certificationsCount = 0;
+    let jobMatchesCount = 0;
+
     if (profile) {
       if (profile.title) completionScore += 10;
       if (profile.bio) completionScore += 10;
       if (profile.skills && profile.skills.length > 0) completionScore += 20;
       if (profile.experience && profile.experience.length > 0) completionScore += 20;
       if (profile.education && profile.education.length > 0) completionScore += 20;
+
+      certificationsCount = profile.certifications ? profile.certifications.length : 0;
+
+      if (profile.skills && profile.skills.length > 0) {
+        const candidateSkills = profile.skills.map(s => s.name);
+        jobMatchesCount = await Job.countDocuments({
+          status: 'PUBLISHED',
+          skillsRequired: { $in: candidateSkills }
+        });
+      }
     }
 
     return success(res, {
       totalApplications: applications,
       savedJobs,
       profileViews: profile ? profile.profileViews || 0 : 0,
-      profileCompletionScore: Math.min(completionScore, 100)
+      profileCompletionScore: Math.min(completionScore, 100),
+      certifications: certificationsCount,
+      jobMatches: jobMatchesCount
     });
   } catch (err) { next(err); }
 };

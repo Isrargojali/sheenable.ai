@@ -17,6 +17,7 @@ export default function EmployerDashboard() {
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["employer-stats"],
     queryFn: () => apiProfile.getEmployerStats(),
+    refetchInterval: 10000, // Real-time poll every 10s
   });
 
   const { data: profile } = useQuery({
