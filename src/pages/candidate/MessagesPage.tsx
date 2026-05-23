@@ -50,7 +50,7 @@ export default function MessagesPage() {
     refetchInterval: 5000,
   });
 
-  const rawThreads = threadsData?.results ?? [];
+  const rawThreads = Array.isArray(threadsData) ? threadsData : (threadsData?.results ?? []);
 
   // Map backend threads to UI layout
   const threads: Thread[] = rawThreads.map((t: any) => {
@@ -119,7 +119,7 @@ export default function MessagesPage() {
     refetchInterval: 3000,
   });
 
-  const rawMessages = messagesData?.results ?? [];
+  const rawMessages = Array.isArray(messagesData) ? messagesData : (messagesData?.results ?? []);
   const messages: Message[] = [...rawMessages].reverse().map((m: any) => ({
     id: m._id || m.id,
     threadId: m.threadId,
@@ -174,11 +174,12 @@ export default function MessagesPage() {
         jobId: data.jobId,
         initialMessage: "Hello! Let's connect." 
       }),
-    onSuccess: (newThread: any) => {
+    onSuccess: async (newThread: any) => {
       const tId = newThread.threadId || newThread.data?.threadId || newThread.data?._id || newThread._id || newThread.id;
+      // Invalidate and await the query refetch to ensure the threads list contains the new thread before setting it active
+      await qc.refetchQueries({ queryKey: ["threads"] });
       setActive(tId);
       setShowNewChatModal(false);
-      refetchThreads();
       qc.invalidateQueries({ queryKey: ["threadsBadge"] });
       toast.success("Conversation started!");
     },

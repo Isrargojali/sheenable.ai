@@ -115,7 +115,8 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
     enabled: role === "CANDIDATE" || role === "EMPLOYER"
   });
 
-  const unreadMessagesCount = (threadsData?.results ?? []).reduce(
+  const rawThreads = Array.isArray(threadsData) ? threadsData : (threadsData?.results ?? []);
+  const unreadMessagesCount = rawThreads.reduce(
     (acc: number, t: any) => acc + (role === "CANDIDATE" ? t.unreadCandidate : t.unreadEmployer),
     0
   );
