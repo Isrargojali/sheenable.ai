@@ -159,6 +159,8 @@ export const apiApplications = {
   updateStatus:       (id: string, status: string, data?: object) => api.patch(`/applications/${id}/status`, { status, ...data }).then(unwrap),
   getPipeline:        (jobId: string)                             => api.get(`/applications/job/${jobId}/pipeline`).then(unwrap),
   bulkUpdateStatus:   (applicationIds: string[], status: string)  => api.patch('/applications/bulk-status', { applicationIds, status }).then(unwrap),
+  acceptInterview:    (id: string)                                => api.post(`/applications/${id}/accept-interview`).then(unwrap),
+  acceptOffer:        (id: string)                                => api.post(`/applications/${id}/accept-offer`).then(unwrap),
 };
 
 // ─── MESSAGES ─────────────────────────────────────────────────────────────────

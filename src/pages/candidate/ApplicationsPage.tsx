@@ -1,10 +1,11 @@
 // src/pages/candidate/ApplicationsPage.tsx
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { CheckCircle2, Circle, MapPin, Calendar } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { CheckCircle2, Circle, MapPin, Calendar, Loader2 } from "lucide-react";
 import { DashboardShell, SectionCard } from "@/components/layout/DashboardShell";
 import { apiApplications } from "@/lib/api";
 import { formatSalary, relativeTime, cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const STAGES = ["APPLIED", "SCREENING", "INTERVIEW", "OFFER", "HIRED"];
 const STAGE_COLOR: Record<string, string> = {
@@ -17,8 +18,31 @@ const STAGE_COLOR: Record<string, string> = {
 };
 
 export default function ApplicationsPage() {
+  const qc = useQueryClient();
   const { data, isLoading } = useQuery({ queryKey: ["myApps"], queryFn: apiApplications.getApplications });
   const [filter, setFilter] = useState("ALL");
+
+  const acceptMutation = useMutation({
+    mutationFn: (appId: string) => apiApplications.acceptInterview(appId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["myApps"] });
+      toast.success("Interview invitation accepted successfully!");
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || "Failed to accept interview invitation");
+    }
+  });
+
+  const acceptOfferMutation = useMutation({
+    mutationFn: (appId: string) => apiApplications.acceptOffer(appId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["myApps"] });
+      toast.success("Job offer accepted successfully!");
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || "Failed to accept job offer");
+    }
+  });
 
   const apps = (data ?? []).filter(a => filter === "ALL" || a.stage === filter);
 
@@ -97,6 +121,44 @@ export default function ApplicationsPage() {
                   </div>
                 ))}
               </div>
+
+              {app.stage === "INTERVIEW" && (
+                <div className="mt-4 pt-3 border-t border-border flex flex-wrap gap-2.5 justify-between items-center bg-[#F7F4F9]/60 backdrop-blur-md -mx-4 -mb-4 px-4 py-3 rounded-b-2xl">
+                  <div className="text-[11px] text-[#7C3AED] font-bold">
+                    {app.interviewAccepted
+                      ? "✓ You have accepted the interview invitation! The employer will schedule the interview soon."
+                      : "You have been selected for an interview! Please accept the invitation to proceed."}
+                  </div>
+                  {!app.interviewAccepted && (
+                    <button
+                      onClick={() => acceptMutation.mutate(app.id)}
+                      disabled={acceptMutation.isPending}
+                      className="px-3.5 py-1.5 bg-[#7C3AED] hover:bg-violet-700 text-white rounded-full text-[10px] font-bold shadow-sm transition-all flex items-center gap-1 active:scale-95 disabled:opacity-50"
+                    >
+                      {acceptMutation.isPending ? <Loader2 size={10} className="animate-spin" /> : "Accept Invitation"}
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {app.stage === "OFFER" && (
+                <div className="mt-4 pt-3 border-t border-border flex flex-wrap gap-2.5 justify-between items-center bg-emerald-50/50 backdrop-blur-md -mx-4 -mb-4 px-4 py-3 rounded-b-2xl">
+                  <div className="text-[11px] text-emerald-700 font-bold">
+                    {app.offerAccepted
+                      ? "✓ You have accepted the job offer! The employer has been notified and can now finalize your hiring."
+                      : "Congratulations! You have received a Job Offer Letter! Please accept the offer to join."}
+                  </div>
+                  {!app.offerAccepted && (
+                    <button
+                      onClick={() => acceptOfferMutation.mutate(app.id)}
+                      disabled={acceptOfferMutation.isPending}
+                      className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full text-[10px] font-bold shadow-sm transition-all flex items-center gap-1 active:scale-95 disabled:opacity-50"
+                    >
+                      {acceptOfferMutation.isPending ? <Loader2 size={10} className="animate-spin" /> : "Accept Job Offer"}
+                    </button>
+                  )}
+                </div>
+              )}
             </SectionCard>
           );
         })}

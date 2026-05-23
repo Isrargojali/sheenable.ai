@@ -1,13 +1,14 @@
 // src/pages/candidate/CandidateDashboard.tsx
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import {
-  Eye, Sparkles, FileText, Award, ArrowRight, MapPin, Briefcase, Calendar, Video,
+  Eye, Sparkles, FileText, Award, ArrowRight, MapPin, Briefcase, Calendar, Video, Loader2
 } from "lucide-react";
 import { DashboardShell, SectionCard, BtnPrimary, BtnOutline } from "@/components/layout/DashboardShell";
-import { apiProfile, apiJobs } from "@/lib/api";
+import { apiProfile, apiJobs, apiApplications } from "@/lib/api";
 import { formatSalary, relativeTime, cn } from "@/lib/utils";
-import { useAuthStore } from "@/store/authStore"; // ✅ Added
+import { useAuthStore } from "@/store/authStore";
+import { toast } from "sonner";
 
 type CandidateStats = {
   profileViews: number;
@@ -77,10 +78,61 @@ export default function CandidateDashboard() {
     queryKey: ["recommendedJobs"],
     queryFn:  () => apiJobs.getRecommendations() as unknown as Promise<RecommendedJob[]>,
   });
-  const { data: ints } = useQuery<Interview[]>({
+  const { data: ints } = useQuery({
     queryKey: ["interviews"],
-    queryFn:  () => apiProfile.getUpcomingInterviews() as unknown as Promise<Interview[]>,
+    queryFn:  () => apiProfile.getUpcomingInterviews(),
   });
+
+  const qc = useQueryClient();
+
+  const { data: appsData } = useQuery({
+    queryKey: ["myApps"],
+    queryFn: () => apiApplications.getApplications(),
+  });
+
+  const acceptMutation = useMutation({
+    mutationFn: (appId: string) => apiApplications.acceptInterview(appId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["myApps"] });
+      qc.invalidateQueries({ queryKey: ["interviews"] });
+      toast.success("Interview invitation accepted successfully!");
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || "Failed to accept interview invitation");
+    }
+  });
+
+  const scheduled = (ints ?? []).map((iv: any) => {
+    const dateObj = new Date(iv.scheduledAt);
+    return {
+      id: iv._id || iv.id,
+      isScheduled: true,
+      role: iv.applicationId?.jobId?.title || "Job Interview",
+      company: iv.interviewerId?.companyName || (iv.interviewerId?.firstName ? `${iv.interviewerId.firstName} ${iv.interviewerId.lastName}` : "Company"),
+      status: iv.status === "SCHEDULED" ? "CONFIRMED" : iv.status,
+      date: dateObj.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+      time: dateObj.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
+      format: iv.type || "VIDEO",
+    };
+  });
+
+  const scheduledAppIds = new Set((ints ?? []).map((iv: any) => iv.applicationId?._id || iv.applicationId));
+
+  const invitations = (appsData ?? [])
+    .filter((app: any) => app.stage === "INTERVIEW" && !scheduledAppIds.has(app.id))
+    .map((app: any) => ({
+      id: app.id,
+      isScheduled: false,
+      role: app.job.title,
+      company: app.job.employer.companyName,
+      status: app.interviewAccepted ? "ACCEPTED" : "INVITATION PENDING",
+      interviewAccepted: app.interviewAccepted,
+      date: app.interviewAccepted ? "Pending employer scheduling" : "Action required",
+      time: "",
+      format: "To be decided",
+    }));
+
+  const combinedInterviews = [...scheduled, ...invitations];
 
   // Compute profile completion score from real profile data
   // Falls back to backend-computed score if profile data isn't loaded yet
@@ -226,26 +278,45 @@ export default function CandidateDashboard() {
 
           {/* Upcoming interviews */}
           <SectionCard title="Upcoming interviews">
-            {(!ints || ints.length === 0) && (
+            {combinedInterviews.length === 0 && (
               <div className="text-center py-4 text-[11px] text-muted-foreground">No interviews scheduled</div>
             )}
             <div className="space-y-2.5">
-              {(ints ?? []).map(iv => (
-                <div key={iv.id} className="p-3 rounded-xl border border-border hover:border-primary/40 transition-colors">
+              {combinedInterviews.map(iv => (
+                <div key={iv.id} className="p-3 rounded-xl border border-border hover:border-[#7C3AED]/40 hover:shadow-sm transition-all bg-card">
                   <div className="flex items-start justify-between gap-2 mb-1">
-                    <div className="text-[12px] font-semibold text-foreground truncate">{iv.role}</div>
+                    <div className="text-[12px] font-bold text-foreground truncate">{iv.role}</div>
                     <span className={cn(
                       "text-[9px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap",
-                      iv.status === "CONFIRMED" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"
+                      iv.status === "CONFIRMED" || iv.status === "ACCEPTED" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"
                     )}>
                       {iv.status}
                     </span>
                   </div>
                   <div className="text-[11px] text-muted-foreground mb-1.5">{iv.company}</div>
-                  <div className="flex items-center gap-3 text-[10px] text-ink-400">
-                    <span className="inline-flex items-center gap-1"><Calendar size={10} /> {iv.date}, {iv.time}</span>
-                    <span className="inline-flex items-center gap-1"><Video size={10} /> {iv.format}</span>
-                  </div>
+                  
+                  {iv.isScheduled ? (
+                    <div className="flex items-center gap-3 text-[10px] text-ink-400">
+                      <span className="inline-flex items-center gap-1"><Calendar size={10} /> {iv.date}, {iv.time}</span>
+                      <span className="inline-flex items-center gap-1"><Video size={10} /> {iv.format}</span>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center gap-3 text-[10px] text-ink-400">
+                        <span className="inline-flex items-center gap-1"><Calendar size={10} /> {iv.date}</span>
+                        <span className="inline-flex items-center gap-1"><Video size={10} /> {iv.format}</span>
+                      </div>
+                      {!iv.interviewAccepted && (
+                        <button
+                          onClick={() => acceptMutation.mutate(iv.id)}
+                          disabled={acceptMutation.isPending}
+                          className="mt-1 w-full py-1.5 bg-[#7C3AED] hover:bg-violet-700 text-white rounded-lg text-[10px] font-bold shadow-sm transition-all flex items-center justify-center gap-1 active:scale-95 disabled:opacity-50"
+                        >
+                          {acceptMutation.isPending ? <Loader2 size={10} className="animate-spin" /> : "Accept Invitation"}
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

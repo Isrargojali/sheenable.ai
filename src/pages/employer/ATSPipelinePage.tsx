@@ -24,6 +24,7 @@ const NEXT_STAGE: Record<string, string> = {
 interface Applicant {
   id: string;
   stage: string;
+  offerAccepted?: boolean;
   cand: {
     firstName: string;
     lastName: string;
@@ -84,10 +85,21 @@ function ApplicantCard({
         {nextStage && (
           <button
             onClick={() => onMove(app.id, nextStage)}
-            disabled={isPending}
-            className="flex-1 py-1.5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full hover:opacity-90 active:scale-95 transition-all truncate flex items-center justify-center gap-1 disabled:opacity-50"
+            disabled={isPending || (app.stage === "OFFER" && !app.offerAccepted)}
+            className={cn(
+              "flex-1 py-1.5 text-[10px] font-bold rounded-full transition-all truncate flex items-center justify-center gap-1 disabled:opacity-60",
+              app.stage === "OFFER" && !app.offerAccepted
+                ? "bg-amber-50 text-amber-700 hover:bg-amber-50 border border-amber-200"
+                : "bg-primary text-primary-foreground hover:opacity-90 active:scale-95"
+            )}
           >
-            {isPending ? <Loader2 size={10} className="animate-spin" /> : <>→ {nextLabel}</>}
+            {isPending ? (
+              <Loader2 size={10} className="animate-spin" />
+            ) : app.stage === "OFFER" ? (
+              app.offerAccepted ? "→ Hire" : "Awaiting Offer"
+            ) : (
+              `→ ${nextLabel}`
+            )}
           </button>
         )}
         <button

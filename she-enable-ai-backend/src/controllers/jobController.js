@@ -42,6 +42,9 @@ const mapJobsList = async (jobs, userId = null) => {
       salaryMin: job.salary?.min || 0,
       salaryMax: job.salary?.max || 0,
       location: job.location,
+      applicationCount: job.applicationCount || 0,
+      viewCount: job.viewCount || 0,
+      status: job.status,
       createdAt: job.createdAt
     };
   });

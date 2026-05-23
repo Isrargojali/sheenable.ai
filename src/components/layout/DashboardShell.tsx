@@ -1,16 +1,19 @@
 // src/components/layout/DashboardShell.tsx
-import { ReactNode, useState } from "react";
+import { ReactNode, useState, useEffect } from "react";
 import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   LayoutDashboard, Briefcase, FileText, User, MessageSquare, FilePlus,
   Search, Users, ShieldCheck, ScrollText, ShieldAlert, UserCog, Activity,
-  Bell, LogOut, Menu, X, Heart, Settings,
+  Bell, LogOut, Menu, X, Heart, Settings, Loader2,
   type LucideIcon,
 } from "lucide-react";
 import logo from "@/assets/sheEnableAI-removebg-preview.png";
-import { cn, initials } from "@/lib/utils";
+import { cn, initials, relativeTime } from "@/lib/utils";
 import { useAuthStore, UserRole } from "@/store/authStore";
 import { useNotifStore } from "@/store/notifStore";
+import { apiNotifications, apiProfile } from "@/lib/api";
+import { toast } from "sonner";
 import { MOCK_USERS } from "@/mock/data";
 
 //
@@ -226,15 +229,51 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
   );
 }
 
-//
-// TOPBAR
-//
+const NOTIF_ICONS: Record<string, string> = {
+  JOB_MATCH: "✨",
+  APPLICATION_STATUS: "📋",
+  MESSAGE: "💬",
+  INTERVIEW: "🤝",
+  SYSTEM: "⚙️",
+};
+
 function Topbar({
-  title, subtitle, actions, onMenu,
-}: { title: string; subtitle?: string; actions?: ReactNode; onMenu: () => void }) {
-  const { unread, markAllRead } = useNotifStore();
+  title, subtitle, actions, onMenu, onSettingsClick,
+}: { title: string; subtitle?: string; actions?: ReactNode; onMenu: () => void; onSettingsClick?: () => void }) {
+  const qc = useQueryClient();
   const [showNotif, setShowNotif] = useState(false);
-  const notifs = useNotifStore(s => s.notifs);
+
+  const { data: realNotifs } = useQuery({
+    queryKey: ["notifications"],
+    queryFn: () => apiNotifications.getAll(),
+    refetchInterval: 10000, // Real-time poll every 10s
+  });
+
+  const markAllReadMut = useMutation({
+    mutationFn: () => apiNotifications.markAllRead(),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["notifications"] });
+    }
+  });
+
+  const markReadMut = useMutation({
+    mutationFn: (id: string) => apiNotifications.markRead(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["notifications"] });
+    }
+  });
+
+  const notifsList = (realNotifs ?? []).map((n: any) => ({
+    id: n._id || n.id,
+    type: n.type,
+    title: n.title,
+    body: n.body,
+    unread: !n.isRead,
+    icon: NOTIF_ICONS[n.type] || "🔔",
+    timestamp: relativeTime(n.createdAt),
+  }));
+
+  const unreadCount = notifsList.filter(n => n.unread).length;
 
   return (
     <header className="bg-card border-b border-border px-5 lg:px-6 py-3 flex items-center justify-between gap-3 flex-wrap">
@@ -258,9 +297,9 @@ function Topbar({
             className="relative w-9 h-9 rounded-xl flex items-center justify-center bg-secondary hover:bg-ink-100 transition-colors"
           >
             <Bell size={15} className="text-foreground" />
-            {unread > 0 && (
+            {unreadCount > 0 && (
               <span className="absolute -top-1 -right-1 w-4 h-4 text-[9px] font-bold rounded-full bg-primary text-primary-foreground flex items-center justify-center">
-                {unread}
+                {unreadCount}
               </span>
             )}
           </button>
@@ -271,19 +310,27 @@ function Topbar({
               <div className="absolute right-0 mt-2 w-80 bg-card rounded-2xl border border-border shadow-xl z-40 overflow-hidden animate-fade-in">
                 <div className="px-4 py-3 border-b border-border flex items-center justify-between">
                   <span className="text-sm font-semibold">Notifications</span>
-                  <button onClick={markAllRead} className="text-[11px] text-primary font-semibold hover:underline">
+                  <button onClick={() => markAllReadMut.mutate()} className="text-[11px] text-primary font-semibold hover:underline">
                     Mark all read
                   </button>
                 </div>
                 <div className="max-h-80 overflow-y-auto scrollbar-thin">
-                  {notifs.length === 0 && (
+                  {notifsList.length === 0 && (
                     <div className="px-4 py-8 text-center text-xs text-muted-foreground">No notifications</div>
                   )}
-                  {notifs.map(n => (
-                    <div key={n.id} className={cn(
-                      "px-4 py-3 border-b border-border last:border-0 flex gap-2.5",
-                      n.unread && "bg-accent/40"
-                    )}>
+                  {notifsList.map(n => (
+                    <div
+                      key={n.id}
+                      onClick={() => {
+                        if (n.unread) {
+                          markReadMut.mutate(n.id);
+                        }
+                      }}
+                      className={cn(
+                        "px-4 py-3 border-b border-border last:border-0 flex gap-2.5 cursor-pointer hover:bg-secondary/30 transition-all",
+                        n.unread && "bg-accent/40"
+                      )}
+                    >
                       <div className="text-lg flex-shrink-0">{n.icon}</div>
                       <div className="min-w-0 flex-1">
                         <div className="text-[12px] font-semibold text-foreground">{n.title}</div>
@@ -298,7 +345,7 @@ function Topbar({
           )}
         </div>
 
-        <button className="w-9 h-9 rounded-xl flex items-center justify-center bg-secondary hover:bg-ink-100 transition-colors">
+        <button onClick={onSettingsClick} className="w-9 h-9 rounded-xl flex items-center justify-center bg-secondary hover:bg-ink-100 transition-colors">
           <Settings size={15} />
         </button>
       </div>
@@ -313,12 +360,36 @@ export function DashboardShell({
   title, subtitle, actions, children,
 }: { title: string; subtitle?: string; actions?: ReactNode; children: ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const location = useLocation();
 
   // Close mobile drawer on route change
   if (mobileOpen) {
     setTimeout(() => {}, 0); // noop, kept for clarity
   }
+
+  // Load and apply the theme on mount
+  useEffect(() => {
+    const storedTheme = localStorage.getItem("dashboard-theme") || "lavender";
+    const root = document.documentElement;
+    if (storedTheme === "lavender") {
+      root.style.setProperty("--primary", "317 35% 36%");
+      root.style.setProperty("--ring", "317 35% 36%");
+      root.style.setProperty("--hc-mauve", "#7C3B6E");
+    } else if (storedTheme === "emerald") {
+      root.style.setProperty("--primary", "159 47% 45%");
+      root.style.setProperty("--ring", "159 47% 45%");
+      root.style.setProperty("--hc-mauve", "#3DAA7D");
+    } else if (storedTheme === "sunset") {
+      root.style.setProperty("--primary", "30 70% 50%");
+      root.style.setProperty("--ring", "30 70% 50%");
+      root.style.setProperty("--hc-mauve", "#D4A24C");
+    } else if (storedTheme === "indigo") {
+      root.style.setProperty("--primary", "260 70% 55%");
+      root.style.setProperty("--ring", "260 70% 55%");
+      root.style.setProperty("--hc-mauve", "#7C3AED");
+    }
+  }, []);
 
   return (
     <div className="min-h-screen w-full flex bg-background">
@@ -345,11 +416,14 @@ export function DashboardShell({
 
       {/* Main */}
       <main className="flex-1 min-w-0 flex flex-col h-screen overflow-hidden">
-        <Topbar title={title} subtitle={subtitle} actions={actions} onMenu={() => setMobileOpen(true)} />
+        <Topbar title={title} subtitle={subtitle} actions={actions} onMenu={() => setMobileOpen(true)} onSettingsClick={() => setShowSettings(true)} />
         <div className="flex-1 overflow-y-auto px-5 lg:px-6 py-5 scrollbar-thin" key={location.pathname}>
           <div className="animate-fade-in">{children}</div>
         </div>
       </main>
+
+      {/* Fully functional settings modal */}
+      <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
     </div>
   );
 }
@@ -422,5 +496,324 @@ export function BtnOutline({
     >
       {children}
     </button>
+  );
+}
+
+// ─── SETTINGS MODAL ──────────────────────────────────────────────────────────
+function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  const user = useAuthStore((s) => s.user);
+  const setUser = useAuthStore((s) => s.setUser);
+  const qc = useQueryClient();
+
+  const [activeTab, setActiveTab] = useState<"profile" | "preferences">("profile");
+
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    phone: "",
+    companyName: "",
+    title: "",
+    bio: "",
+  });
+
+  const [prefs, setPrefs] = useState({
+    theme: "lavender",
+    emailAlerts: true,
+    soundAlerts: false,
+  });
+
+  // Fetch full profile when modal opens
+  const { data: profile, isLoading } = useQuery({
+    queryKey: ["settingsProfile"],
+    queryFn: () => apiProfile.getMe(),
+    enabled: isOpen,
+  });
+
+  // Sync profile data to form
+  useEffect(() => {
+    if (profile) {
+      const pUser = (profile as any).userId || {};
+      setFormData({
+        firstName: pUser.firstName || "",
+        lastName: pUser.lastName || "",
+        phone: pUser.phone || "",
+        companyName: (profile as any).companyName || "",
+        title: (profile as any).title || "",
+        bio: (profile as any).bio || "",
+      });
+    }
+  }, [profile]);
+
+  // Load preferences from local storage
+  useEffect(() => {
+    if (isOpen) {
+      const storedTheme = localStorage.getItem("dashboard-theme") || "lavender";
+      const storedEmail = localStorage.getItem("pref-email") !== "false";
+      const storedSound = localStorage.getItem("pref-sound") === "true";
+      setPrefs({ theme: storedTheme, emailAlerts: storedEmail, soundAlerts: storedSound });
+    }
+  }, [isOpen]);
+
+  const updateProfileMut = useMutation({
+    mutationFn: (data: any) => apiProfile.updateMe(data),
+    onSuccess: (res: any) => {
+      qc.invalidateQueries({ queryKey: ["settingsProfile"] });
+      qc.invalidateQueries({ queryKey: ["employerProfile"] });
+      qc.invalidateQueries({ queryKey: ["candidateStats"] });
+      qc.invalidateQueries({ queryKey: ["myApps"] });
+      qc.invalidateQueries({ queryKey: ["employerProfile"] });
+      // Update auth store user
+      if (res && res.user) {
+        setUser(res.user);
+      }
+      toast.success("Settings updated successfully!");
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || "Failed to update profile settings");
+    }
+  });
+
+  const applyTheme = (themeName: string) => {
+    const root = document.documentElement;
+    if (themeName === "lavender") {
+      root.style.setProperty("--primary", "317 35% 36%");
+      root.style.setProperty("--ring", "317 35% 36%");
+      root.style.setProperty("--hc-mauve", "#7C3B6E");
+    } else if (themeName === "emerald") {
+      root.style.setProperty("--primary", "159 47% 45%");
+      root.style.setProperty("--ring", "159 47% 45%");
+      root.style.setProperty("--hc-mauve", "#3DAA7D");
+    } else if (themeName === "sunset") {
+      root.style.setProperty("--primary", "30 70% 50%");
+      root.style.setProperty("--ring", "30 70% 50%");
+      root.style.setProperty("--hc-mauve", "#D4A24C");
+    } else if (themeName === "indigo") {
+      root.style.setProperty("--primary", "260 70% 55%");
+      root.style.setProperty("--ring", "260 70% 55%");
+      root.style.setProperty("--hc-mauve", "#7C3AED");
+    }
+    setPrefs(p => ({ ...p, theme: themeName }));
+    localStorage.setItem("dashboard-theme", themeName);
+    toast.success(`Theme updated to ${themeName}!`);
+  };
+
+  const handlePrefChange = (key: "emailAlerts" | "soundAlerts", value: boolean) => {
+    setPrefs(p => ({ ...p, [key]: value }));
+    localStorage.setItem(key === "emailAlerts" ? "pref-email" : "pref-sound", String(value));
+    toast.success("Preference saved!");
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-foreground/45 backdrop-blur-sm animate-fade-in">
+      <div className="bg-card w-full max-w-lg rounded-3xl border border-border/85 shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+        {/* Header */}
+        <header className="px-6 py-4 border-b border-border flex items-center justify-between">
+          <div>
+            <h2 className="font-serif text-lg text-foreground font-bold">Account Settings</h2>
+            <p className="text-[11px] text-muted-foreground mt-0.5">Customize your personal profile and theme preferences</p>
+          </div>
+          <button onClick={onClose} className="p-1.5 hover:bg-secondary rounded-full text-ink-400 hover:text-foreground transition-all">
+            <X size={16} />
+          </button>
+        </header>
+
+        {/* Tabs */}
+        <div className="flex border-b border-border bg-secondary/20">
+          <button
+            onClick={() => setActiveTab("profile")}
+            className={cn(
+              "flex-1 py-3 text-xs font-bold text-center border-b-[2.5px] transition-all",
+              activeTab === "profile" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
+            )}
+          >
+            User Profile
+          </button>
+          <button
+            onClick={() => setActiveTab("preferences")}
+            className={cn(
+              "flex-1 py-3 text-xs font-bold text-center border-b-[2.5px] transition-all",
+              activeTab === "preferences" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
+            )}
+          >
+            Preferences
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="p-6 overflow-y-auto scrollbar-thin flex-1 space-y-4">
+          {isLoading ? (
+            <div className="py-12 flex justify-center items-center gap-2 text-muted-foreground">
+              <Loader2 className="animate-spin text-primary" size={20} />
+              <span>Loading details…</span>
+            </div>
+          ) : activeTab === "profile" ? (
+            <form onSubmit={(e) => { e.preventDefault(); updateProfileMut.mutate(formData); }} className="space-y-3.5">
+              <div className="grid grid-cols-2 gap-3.5">
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-wide text-ink-300 mb-1.5">First Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.firstName}
+                    onChange={(e) => setFormData(d => ({ ...d, firstName: e.target.value }))}
+                    className="w-full px-3.5 py-2 border border-border rounded-xl text-xs bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-wide text-ink-300 mb-1.5">Last Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.lastName}
+                    onChange={(e) => setFormData(d => ({ ...d, lastName: e.target.value }))}
+                    className="w-full px-3.5 py-2 border border-border rounded-xl text-xs bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-wide text-ink-300 mb-1.5">Email (Read Only)</label>
+                <input
+                  type="email"
+                  disabled
+                  value={user?.email || ""}
+                  className="w-full px-3.5 py-2 border border-border rounded-xl text-xs bg-secondary/50 text-muted-foreground focus:outline-none cursor-not-allowed"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-wide text-ink-300 mb-1.5">Phone Number</label>
+                <input
+                  type="text"
+                  value={formData.phone}
+                  onChange={(e) => setFormData(d => ({ ...d, phone: e.target.value }))}
+                  placeholder="e.g. +1 555-0199"
+                  className="w-full px-3.5 py-2 border border-border rounded-xl text-xs bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all"
+                />
+              </div>
+
+              {user?.role === "EMPLOYER" ? (
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-wide text-ink-300 mb-1.5">Company Name</label>
+                  <input
+                    type="text"
+                    value={formData.companyName}
+                    onChange={(e) => setFormData(d => ({ ...d, companyName: e.target.value }))}
+                    className="w-full px-3.5 py-2 border border-border rounded-xl text-xs bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all"
+                  />
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase tracking-wide text-ink-300 mb-1.5">Professional Title</label>
+                    <input
+                      type="text"
+                      value={formData.title}
+                      onChange={(e) => setFormData(d => ({ ...d, title: e.target.value }))}
+                      placeholder="e.g. Senior Software Engineer"
+                      className="w-full px-3.5 py-2 border border-border rounded-xl text-xs bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase tracking-wide text-ink-300 mb-1.5">Short Bio</label>
+                    <textarea
+                      value={formData.bio}
+                      onChange={(e) => setFormData(d => ({ ...d, bio: e.target.value }))}
+                      rows={3}
+                      placeholder="Write a brief professional summary..."
+                      className="w-full px-3.5 py-2 border border-border rounded-xl text-xs bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all resize-none"
+                    />
+                  </div>
+                </>
+              )}
+
+              <div className="pt-3 flex justify-end gap-2.5">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="px-4 py-2 border border-border text-ink-500 hover:bg-secondary rounded-full text-[11px] font-bold transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={updateProfileMut.isPending}
+                  className="px-5 py-2 bg-primary text-white hover:opacity-90 active:scale-95 rounded-full text-[11px] font-bold shadow-sm transition-all flex items-center gap-1.5 disabled:opacity-50"
+                >
+                  {updateProfileMut.isPending ? <Loader2 size={11} className="animate-spin" /> : "Save Changes"}
+                </button>
+              </div>
+            </form>
+          ) : (
+            <div className="space-y-5 py-2">
+              {/* Theme customizer */}
+              <div>
+                <h3 className="text-xs font-bold text-foreground mb-3 uppercase tracking-wide">Interface Accent Theme</h3>
+                <div className="grid grid-cols-4 gap-2.5">
+                  {[
+                    { key: "lavender", name: "Lavender", bg: "bg-[#7C3B6E]", border: "border-[#7C3B6E]" },
+                    { key: "emerald", name: "Emerald", bg: "bg-[#3DAA7D]", border: "border-[#3DAA7D]" },
+                    { key: "sunset", name: "Sunset", bg: "bg-[#D4A24C]", border: "border-[#D4A24C]" },
+                    { key: "indigo", name: "Indigo", bg: "bg-[#7C3AED]", border: "border-[#7C3AED]" },
+                  ].map(t => (
+                    <button
+                      key={t.key}
+                      onClick={() => applyTheme(t.key)}
+                      className={cn(
+                        "p-3 rounded-2xl border text-center transition-all flex flex-col items-center gap-1.5 hover:shadow-sm",
+                        prefs.theme === t.key ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"
+                      )}
+                    >
+                      <div className={cn("w-6 h-6 rounded-full flex-shrink-0", t.bg)} />
+                      <span className="text-[10px] font-semibold text-foreground">{t.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Notification Toggles */}
+              <div className="border-t border-border pt-4">
+                <h3 className="text-xs font-bold text-foreground mb-3.5 uppercase tracking-wide">Notification Settings</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-[12px] font-bold text-foreground">Email Notifications</div>
+                      <div className="text-[10px] text-muted-foreground mt-0.5">Receive immediate email alerts for status changes or messages</div>
+                    </div>
+                    <button
+                      onClick={() => handlePrefChange("emailAlerts", !prefs.emailAlerts)}
+                      className={cn(
+                        "w-9 h-5 rounded-full p-0.5 transition-all flex items-center",
+                        prefs.emailAlerts ? "bg-primary justify-end" : "bg-border justify-start"
+                      )}
+                    >
+                      <div className="w-4 h-4 bg-white rounded-full shadow-sm" />
+                    </button>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-[12px] font-bold text-foreground">Sound Effects</div>
+                      <div className="text-[10px] text-muted-foreground mt-0.5">Play audio cues upon receiving instant message updates</div>
+                    </div>
+                    <button
+                      onClick={() => handlePrefChange("soundAlerts", !prefs.soundAlerts)}
+                      className={cn(
+                        "w-9 h-5 rounded-full p-0.5 transition-all flex items-center",
+                        prefs.soundAlerts ? "bg-primary justify-end" : "bg-border justify-start"
+                      )}
+                    >
+                      <div className="w-4 h-4 bg-white rounded-full shadow-sm" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }

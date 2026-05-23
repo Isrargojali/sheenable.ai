@@ -10,6 +10,8 @@ const ApplicationSchema = new mongoose.Schema({
   aiMatchScore: { type: Number, min: 0, max: 100, default: 0 },
   employerNotes: String,
   rejectionReason: String,
+  interviewAccepted: { type: Boolean, default: false },
+  offerAccepted: { type: Boolean, default: false },
   appliedAt: { type: Date, default: Date.now, index: true },
 }, { timestamps: true });
 

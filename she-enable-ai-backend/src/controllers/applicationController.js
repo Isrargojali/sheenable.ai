@@ -4,6 +4,7 @@ const AuditLog = require('../models/AuditLog');
 const User = require('../models/User');
 const EmployerProfile = require('../models/EmployerProfile');
 const CandidateProfile = require('../models/CandidateProfile');
+const Notification = require('../models/Notification');
 const { success, error, paginated } = require('../utils/apiResponse');
 const { getPaginationParams, getPaginationData } = require('../utils/paginate');
 const { sendApplicationStatusEmail } = require('../utils/sendEmail');
@@ -63,6 +64,8 @@ const getMyApplications = async (req, res, next) => {
         coverLetter: app.coverLetter,
         resumeUrl: app.resumeUrl,
         aiMatchScore: app.aiMatchScore || 75,
+        interviewAccepted: app.interviewAccepted || false,
+        offerAccepted: app.offerAccepted || false,
         appliedAt: app.appliedAt,
         job: {
           id: job._id.toString(),
@@ -117,6 +120,7 @@ const getJobApplications = async (req, res, next) => {
         stage: app.status,
         coverLetter: app.coverLetter,
         resumeUrl: app.resumeUrl,
+        offerAccepted: app.offerAccepted || false,
         cand: {
           firstName: candUser?.firstName || 'Candidate',
           lastName: candUser?.lastName || '',
@@ -164,11 +168,39 @@ const updateStatus = async (req, res, next) => {
       return error(res, 'Not authorized', 403);
     }
 
+    if (status === 'HIRED' && !application.offerAccepted) {
+      return error(res, 'Cannot hire candidate until they have accepted the job offer', 400);
+    }
+
     application.status = status;
     if (status === 'REJECTED' && rejectionReason) {
       application.rejectionReason = rejectionReason;
     }
     await application.save();
+
+    if (status === 'INTERVIEW') {
+      await Notification.create({
+        userId: application.candidateId,
+        type: 'INTERVIEW',
+        title: 'Selected for Interview!',
+        body: `Congratulations! You have been selected for an interview for the position of "${application.jobId.title}". Please accept the invitation to proceed.`,
+        relatedId: application._id,
+        relatedType: 'Application',
+        isRead: false
+      });
+    }
+
+    if (status === 'OFFER') {
+      await Notification.create({
+        userId: application.candidateId,
+        type: 'APPLICATION_STATUS',
+        title: 'Job Offer Received!',
+        body: `Congratulations! You have received a formal Job Offer for the position of "${application.jobId.title}". Please view your applications to read and accept the offer letter.`,
+        relatedId: application._id,
+        relatedType: 'Application',
+        isRead: false
+      });
+    }
 
     await AuditLog.create({
       userId: req.user.id,
@@ -205,10 +237,47 @@ const bulkUpdateStatus = async (req, res, next) => {
       return error(res, 'Not authorized to update one or more of these applications', 403);
     }
 
+    if (status === 'HIRED') {
+      const pendingAcceptance = applications.some(app => !app.offerAccepted);
+      if (pendingAcceptance) {
+        return error(res, 'One or more candidates have not accepted their job offers yet', 400);
+      }
+    }
+
     await Application.updateMany(
       { _id: { $in: applicationIds } },
       { $set: { status } }
     );
+
+    if (status === 'INTERVIEW') {
+      const notifPromises = applications.map(app => {
+        return Notification.create({
+          userId: app.candidateId,
+          type: 'INTERVIEW',
+          title: 'Selected for Interview!',
+          body: `Congratulations! You have been selected for an interview for the position of "${app.jobId.title}". Please accept the invitation to proceed.`,
+          relatedId: app._id,
+          relatedType: 'Application',
+          isRead: false
+        });
+      });
+      await Promise.all(notifPromises);
+    }
+
+    if (status === 'OFFER') {
+      const notifPromises = applications.map(app => {
+        return Notification.create({
+          userId: app.candidateId,
+          type: 'APPLICATION_STATUS',
+          title: 'Job Offer Received!',
+          body: `Congratulations! You have received a formal Job Offer for the position of "${app.jobId.title}". Please view your applications to read and accept the offer letter.`,
+          relatedId: app._id,
+          relatedType: 'Application',
+          isRead: false
+        });
+      });
+      await Promise.all(notifPromises);
+    }
 
     await AuditLog.create({
       userId: req.user.id,
@@ -221,6 +290,68 @@ const bulkUpdateStatus = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+const acceptInterview = async (req, res, next) => {
+  try {
+    const application = await Application.findById(req.params.id).populate('jobId');
+    if (!application) return error(res, 'Application not found', 404);
+
+    if (application.candidateId.toString() !== req.user.id) {
+      return error(res, 'Not authorized', 403);
+    }
+
+    if (application.status !== 'INTERVIEW') {
+      return error(res, 'Application is not in interview stage', 400);
+    }
+
+    application.interviewAccepted = true;
+    await application.save();
+
+    // Create a notification for the employer
+    await Notification.create({
+      userId: application.jobId.employerId,
+      type: 'INTERVIEW',
+      title: 'Interview Invitation Accepted!',
+      body: `${req.user.firstName} ${req.user.lastName} has accepted your interview invitation for "${application.jobId.title}". You can now schedule the interview.`,
+      relatedId: application._id,
+      relatedType: 'Application',
+      isRead: false
+    });
+
+    return success(res, application, 'Interview invitation accepted successfully');
+  } catch (err) { next(err); }
+};
+
+const acceptJobOffer = async (req, res, next) => {
+  try {
+    const application = await Application.findById(req.params.id).populate('jobId');
+    if (!application) return error(res, 'Application not found', 404);
+
+    if (application.candidateId.toString() !== req.user.id) {
+      return error(res, 'Not authorized', 403);
+    }
+
+    if (application.status !== 'OFFER') {
+      return error(res, 'Application is not in offer stage', 400);
+    }
+
+    application.offerAccepted = true;
+    await application.save();
+
+    // Create a notification for the employer
+    await Notification.create({
+      userId: application.jobId.employerId,
+      type: 'APPLICATION_STATUS',
+      title: 'Job Offer Accepted!',
+      body: `${req.user.firstName} ${req.user.lastName} has accepted your Job Offer for "${application.jobId.title}". You can now proceed to hire them!`,
+      relatedId: application._id,
+      relatedType: 'Application',
+      isRead: false
+    });
+
+    return success(res, application, 'Job offer accepted successfully');
+  } catch (err) { next(err); }
+};
+
 module.exports = {
-  applyForJob, getMyApplications, getJobApplications, getPipeline, updateStatus, bulkUpdateStatus
+  applyForJob, getMyApplications, getJobApplications, getPipeline, updateStatus, bulkUpdateStatus, acceptInterview, acceptJobOffer
 };
