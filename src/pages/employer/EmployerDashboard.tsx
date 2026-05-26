@@ -6,40 +6,76 @@ import { DashboardShell, SectionCard, BtnPrimary } from "@/components/layout/Das
 import { apiProfile, apiJobs, apiAI } from "@/lib/api";
 import { relativeTime } from "@/lib/utils";
 
+// ── Types ────────────────────────────────────────────────────────────────────
+
+interface EmployerStats {
+  activeJobs: number;
+  totalApplicants: number;
+  interviews: number;
+  aiMatches: number;
+}
+
+interface EmployerProfile {
+  companyName?: string;
+}
+
+interface JobListing {
+  id?: string;
+  _id?: string;
+  title: string;
+  location?: string;
+  createdAt: string;
+  status: string;
+  jobType: string;
+  applicationCount?: number;
+}
+
+interface MatchedCandidate {
+  id?: string;
+  _id?: string;
+  firstName?: string;
+  lastName?: string;
+  title?: string;
+  avatarUrl?: string;
+  aiMatchScore: number;
+}
+
+// ── Constants ────────────────────────────────────────────────────────────────
+
 const STATS = [
-  { key: "activeJobs", label: "Active jobs", icon: Briefcase, color: "from-rose-500 to-rose-700" },
-  { key: "totalApplicants", label: "Total applicants", icon: Users, color: "from-violet-500 to-violet-700" },
-  { key: "interviews", label: "Interviews booked", icon: MessageSquare, color: "from-blue-500 to-blue-700" },
-  { key: "aiMatches", label: "AI matches", icon: Sparkles, color: "from-emerald-500 to-emerald-700" },
-] as const;
+  { key: "activeJobs",       label: "Active jobs",        icon: Briefcase,    color: "from-rose-500 to-rose-700"    },
+  { key: "totalApplicants",  label: "Total applicants",   icon: Users,        color: "from-violet-500 to-violet-700"},
+  { key: "interviews",       label: "Interviews booked",  icon: MessageSquare,color: "from-blue-500 to-blue-700"    },
+  { key: "aiMatches",        label: "AI matches",         icon: Sparkles,     color: "from-emerald-500 to-emerald-700"},
+] as const satisfies ReadonlyArray<{ key: keyof EmployerStats; label: string; icon: React.ElementType; color: string }>;
+
+// ── Component ────────────────────────────────────────────────────────────────
 
 export default function EmployerDashboard() {
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["employer-stats"],
-    queryFn: () => apiProfile.getEmployerStats(),
-    refetchInterval: 10000, // Real-time poll every 10s
+    queryFn: () => apiProfile.getEmployerStats() as Promise<EmployerStats>,
+    refetchInterval: 10000,
   });
 
   const { data: profile } = useQuery({
     queryKey: ["employerProfile"],
-    queryFn: () => apiProfile.getMe(),
+    queryFn: () => apiProfile.getMe() as Promise<EmployerProfile>,
   });
 
   const { data: jobs, isLoading: jobsLoading } = useQuery({
     queryKey: ["my-listings"],
-    queryFn: () => apiJobs.getMyListings(),
+    queryFn: () => apiJobs.getMyListings() as Promise<JobListing[]>,
   });
 
   const { data: matchedCandidates, isLoading: matchedLoading } = useQuery({
     queryKey: ["matched-candidates"],
-    queryFn: () => apiAI.getMatchedCandidates(),
+    queryFn: () => apiAI.getMatchedCandidates() as Promise<MatchedCandidate[]>,
   });
 
-  const companyName = (profile as any)?.companyName || "My Company";
-  const activeCount = stats?.activeJobs ?? 0;
-
-  // Take the first 3 listings for dashboard preview
-  const myJobs = Array.isArray(jobs) ? jobs.slice(0, 3) : [];
+  const companyName  = profile?.companyName ?? "My Company";
+  const activeCount  = stats?.activeJobs ?? 0;
+  const myJobs       = Array.isArray(jobs)             ? jobs.slice(0, 3)             : [];
   const topCandidates = Array.isArray(matchedCandidates) ? matchedCandidates.slice(0, 3) : [];
 
   return (
@@ -55,8 +91,8 @@ export default function EmployerDashboard() {
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
         {STATS.map(s => {
-          const Icon = s.icon;
-          const value = stats ? (stats as any)[s.key] : 0;
+          const Icon  = s.icon;
+          const value = stats?.[s.key] ?? 0;
           return (
             <div key={s.key} className="bg-card border border-border rounded-2xl p-4 hover:shadow-sm transition-all">
               <div className="flex items-start justify-between mb-3">
@@ -92,17 +128,18 @@ export default function EmployerDashboard() {
             </div>
           ) : (
             <div className="divide-y divide-border">
-              {myJobs.map((j: any) => (
-                <div key={j.id || j._id} className="p-4 flex justify-between items-start gap-3">
+              {myJobs.map((j) => (
+                <div key={j.id ?? j._id} className="p-4 flex justify-between items-start gap-3">
                   <div className="min-w-0">
                     <div className="text-[13px] font-bold text-foreground truncate">{j.title}</div>
                     <div className="text-[11px] text-muted-foreground mt-0.5 inline-flex items-center gap-1">
                       {j.location ? <><MapPin size={10} />{j.location}</> : "Remote"} · {relativeTime(j.createdAt)}
                     </div>
                     <div className="flex flex-wrap gap-1 mt-2">
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${j.status === 'PUBLISHED' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'
-                        }`}>
-                        {j.status === 'PUBLISHED' ? 'ACTIVE' : j.status}
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                        j.status === "PUBLISHED" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"
+                      }`}>
+                        {j.status === "PUBLISHED" ? "ACTIVE" : j.status}
                       </span>
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">{j.jobType}</span>
                     </div>
@@ -133,14 +170,13 @@ export default function EmployerDashboard() {
             </div>
           ) : (
             <div className="divide-y divide-border">
-              {topCandidates.map((c: any) => (
+              {topCandidates.map((c) => (
                 <Link
-                  key={c.id || c._id}
-                  to={`/employer/candidate/${c.id || c._id}`}
+                  key={c.id ?? c._id}
+                  to={`/employer/candidate/${c.id ?? c._id}`}
                   className="p-4 flex justify-between items-center gap-3 hover:bg-accent/40 transition-colors cursor-pointer group"
                 >
                   <div className="flex gap-2.5 min-w-0">
-                    {/* Avatar: real photo with initials fallback */}
                     <div className="relative w-9 h-9 flex-shrink-0">
                       {c.avatarUrl && (
                         <img
@@ -148,9 +184,9 @@ export default function EmployerDashboard() {
                           alt={`${c.firstName} ${c.lastName}`}
                           className="w-9 h-9 rounded-xl object-cover absolute inset-0"
                           onError={(e) => {
-                            (e.currentTarget as HTMLImageElement).style.display = 'none';
+                            (e.currentTarget as HTMLImageElement).style.display = "none";
                             const sib = e.currentTarget.nextElementSibling as HTMLElement | null;
-                            if (sib) sib.style.display = 'flex';
+                            if (sib) sib.style.display = "flex";
                           }}
                         />
                       )}
@@ -158,15 +194,17 @@ export default function EmployerDashboard() {
                         className="w-9 h-9 rounded-xl flex items-center justify-center text-white text-[11px] font-bold"
                         style={{
                           background: "linear-gradient(135deg,#7C3AED,#C8315A)",
-                          display: c.avatarUrl ? 'none' : 'flex',
+                          display: c.avatarUrl ? "none" : "flex",
                         }}
                       >
-                        {c.firstName ? c.firstName[0].toUpperCase() : 'C'}
-                        {c.lastName ? c.lastName[0].toUpperCase() : ''}
+                        {c.firstName?.[0].toUpperCase() ?? "C"}
+                        {c.lastName?.[0].toUpperCase() ?? ""}
                       </div>
                     </div>
                     <div className="min-w-0">
-                      <div className="text-[12px] font-bold text-foreground truncate group-hover:text-primary transition-colors">{c.firstName} {c.lastName}</div>
+                      <div className="text-[12px] font-bold text-foreground truncate group-hover:text-primary transition-colors">
+                        {c.firstName} {c.lastName}
+                      </div>
                       <div className="text-[11px] text-muted-foreground truncate">{c.title}</div>
                     </div>
                   </div>
@@ -183,4 +221,3 @@ export default function EmployerDashboard() {
     </DashboardShell>
   );
 }
-
