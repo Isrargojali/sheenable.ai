@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { apiJobs } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "sonner";
+import { MOCK_JOBS } from "@/mock/data";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 // Extend JobCardData with `category` — present in the API response but not
@@ -27,12 +28,14 @@ export default function FeaturedJobs() {
   const [applyModalJob, setApplyModalJob] = useState<Job | null>(null); // Fix: Ln 19 — was `any`
 
   // Fetch real-time job listings from employers
-  const { data: realJobs = [], isLoading, error } = useQuery<Job[]>({ // Fix: Ln 32 — typed query
+  const { data: realJobs = [], isLoading, error } = useQuery<Job[]>({
     queryKey: ["landingFeaturedJobs", user?.id || "guest"],
     queryFn: async () => {
       const res = await apiJobs.getJobs();
       return Array.isArray(res) ? (res as Job[]) : [];
     },
+    staleTime: 3 * 60 * 1000, // 3 minutes stale time - prevents multiple fetches on rapid tab shifts
+    placeholderData: MOCK_JOBS as Job[], // High-grade UX: Instantly displays mock jobs, fetches live data silently in background
   });
 
   // Filter real-time jobs based on search query, selected industry, and job type/mode
