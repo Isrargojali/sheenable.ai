@@ -12,7 +12,7 @@ import logo from "@/assets/sheEnableAI-removebg-preview.png";
 import { cn, initials, relativeTime } from "@/lib/utils";
 import { useAuthStore, UserRole } from "@/store/authStore";
 import { useNotifStore } from "@/store/notifStore";
-import { apiNotifications, apiProfile, apiMessages } from "@/lib/api";
+import { apiNotifications, apiProfile, apiMessages, apiApplications } from "@/lib/api";
 import { toast } from "sonner";
 import { MOCK_USERS } from "@/mock/data";
 
@@ -121,6 +121,16 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
     0
   );
 
+  // Dynamic real-time applications badge query
+  const { data: myAppsData } = useQuery<any>({
+    queryKey: ["myAppsBadge", role],
+    queryFn: apiApplications.getApplications,
+    refetchInterval: 10000, // Poll applications count every 10s
+    enabled: role === "CANDIDATE"
+  });
+
+  const appsCount = Array.isArray(myAppsData) ? myAppsData.length : 0;
+
   const displayName = user?.firstName && user?.lastName
     ? `${user.firstName} ${user.lastName}`
     : user?.email?.split("@")[0] ?? "User";
@@ -201,6 +211,8 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
               let badge = item.badge;
               if (item.to.includes("messages")) {
                 badge = unreadMessagesCount > 0 ? String(unreadMessagesCount) : undefined;
+              } else if (item.to.includes("applications") && role === "CANDIDATE") {
+                badge = appsCount > 0 ? String(appsCount) : undefined;
               }
 
               return (
