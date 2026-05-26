@@ -2,11 +2,18 @@
 import { useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Search, ArrowRight, SlidersHorizontal, X, UserPlus, LogIn, Sparkles, AlertCircle } from "lucide-react";
-import { JobCard } from "@/components/ui-kit";
+import { JobCard, type JobCardData } from "@/components/ui-kit";
 import { useQuery } from "@tanstack/react-query";
 import { apiJobs } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
 
+// ── Types ────────────────────────────────────────────────────────────────────
+// Extend JobCardData with `category` — present in the API response but not
+// required by JobCard's props. Intersection keeps JobCard compatibility
+// while allowing the industry filter to safely read the extra field.
+type Job = JobCardData & { category?: string };
+
+// ── Constants ────────────────────────────────────────────────────────────────
 const INDUSTRIES = ["All industries", "IT & Tech", "Finance", "Design & UX", "Healthcare", "Sales & Marketing"];
 const TYPES = ["All types", "Remote", "Hybrid", "Onsite", "Full-time", "Part-time"];
 
@@ -16,39 +23,40 @@ export default function FeaturedJobs() {
   const [q, setQ] = useState("");
   const [industry, setIndustry] = useState(INDUSTRIES[0]);
   const [type, setType] = useState(TYPES[0]);
-  const [applyModalJob, setApplyModalJob] = useState<any | null>(null);
+  const [applyModalJob, setApplyModalJob] = useState<Job | null>(null); // Fix: Ln 19 — was `any`
 
   // Fetch real-time job listings from employers
-  const { data: realJobs = [], isLoading, error } = useQuery({
+  const { data: realJobs = [], isLoading, error } = useQuery<Job[]>({ // Fix: Ln 32 — typed query
     queryKey: ["landingFeaturedJobs"],
     queryFn: async () => {
       const res = await apiJobs.getJobs();
-      return Array.isArray(res) ? res : [];
+      return Array.isArray(res) ? (res as Job[]) : [];
     },
   });
 
   // Filter real-time jobs based on search query, selected industry, and job type/mode
   const filtered = useMemo(() => {
-    return realJobs.filter((j: any) => {
+    return realJobs.filter((j: Job) => { // Fix: Ln 75 — was `any`
       // 1. Search filter (title, company name, skills)
       if (q) {
-        const queryText = `${j.title || ""} ${j.employer?.companyName || ""} ${(j.skills || []).join(" ")}`.toLowerCase();
+        const queryText = `${j.title ?? ""} ${j.employer?.companyName ?? ""} ${(j.skills ?? []).join(" ")}`.toLowerCase();
         if (!queryText.includes(q.toLowerCase())) return false;
       }
-      
+
       // 2. Industry filter (category)
       if (industry && industry !== INDUSTRIES[0]) {
-        const jobCategory = (j.category || "").toLowerCase().trim();
+        const jobCategory = (j.category ?? "").toLowerCase().trim();
         const filterIndustry = industry.toLowerCase().trim();
-        
+
         if (jobCategory !== filterIndustry) {
-          // Robust fuzzy check: "IT & Tech" matching "it & tech" or "it-tech" or "it"
           const cleanJobCategory = jobCategory.replace("&", "and").replace("-", " ").replace("  ", " ");
           const cleanFilterIndustry = filterIndustry.replace("&", "and").replace("-", " ").replace("  ", " ");
-          
-          if (cleanJobCategory !== cleanFilterIndustry && 
-              !cleanJobCategory.includes(cleanFilterIndustry) && 
-              !cleanFilterIndustry.includes(cleanJobCategory)) {
+
+          if (
+            cleanJobCategory !== cleanFilterIndustry &&
+            !cleanJobCategory.includes(cleanFilterIndustry) &&
+            !cleanFilterIndustry.includes(cleanJobCategory)
+          ) {
             return false;
           }
         }
@@ -57,10 +65,9 @@ export default function FeaturedJobs() {
       // 3. Job type or mode filter
       if (type && type !== TYPES[0]) {
         const cleanFilterType = type.toLowerCase().replace("-", "").replace(" ", "").trim();
-        const jobType = (j.type || "").toLowerCase().replace("-", "").replace(" ", "").trim();
-        const jobMode = (j.mode || "").toLowerCase().replace("-", "").replace(" ", "").trim();
-        
-        // Handles "remote" matching jobMode === "remote", or "fulltime" matching jobType === "fulltime"
+        const jobType = (j.type ?? "").toLowerCase().replace("-", "").replace(" ", "").trim();
+        const jobMode = (j.mode ?? "").toLowerCase().replace("-", "").replace(" ", "").trim();
+
         if (jobType !== cleanFilterType && jobMode !== cleanFilterType) {
           return false;
         }
@@ -72,19 +79,16 @@ export default function FeaturedJobs() {
 
   // Handle Apply Now button click
   const handleApplyClick = (jobId: string) => {
-    const selectedJob = realJobs.find((j: any) => j.id === jobId);
+    const selectedJob = realJobs.find((j: Job) => j.id === jobId); // Fix: Ln 195 — was `any`
     if (!selectedJob) return;
 
     if (user) {
-      // If already logged in, redirect directly to candidate browse jobs page with applyJobId parameter
       if (user.role === "CANDIDATE") {
         navigate(`/candidate/jobs?applyJobId=${jobId}`);
       } else {
-        // For non-candidate roles, redirect to candidate home/dashboard
         navigate("/home");
       }
     } else {
-      // Unauthenticated / Guest: show the premium custom authorization gate modal
       setApplyModalJob(selectedJob);
     }
   };
@@ -190,9 +194,9 @@ export default function FeaturedJobs() {
       {!isLoading && !error && filtered.length > 0 && (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map(job => (
-            <JobCard 
-              key={job.id} 
-              job={job as any} 
+            <JobCard
+              key={job.id}
+              job={job}
               onApply={handleApplyClick}
             />
           ))}
@@ -207,7 +211,7 @@ export default function FeaturedJobs() {
             <div className="absolute -top-24 -right-24 w-48 h-48 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
             <div className="absolute -bottom-24 -left-24 w-48 h-48 rounded-full bg-accent/15 blur-3xl pointer-events-none" />
 
-            <button 
+            <button
               onClick={() => setApplyModalJob(null)}
               className="absolute top-4 right-4 p-1.5 rounded-full bg-secondary/80 text-muted-foreground hover:text-foreground hover:bg-secondary transition-all press"
               aria-label="Close modal"
@@ -223,7 +227,8 @@ export default function FeaturedJobs() {
               <h3 className="font-serif text-xl text-foreground font-semibold">
                 Apply for {applyModalJob.title}
               </h3>
-              <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-bold mt-1 text-primary">
+              {/* Fix: Ln 226 cssConflict — removed conflicting text-muted-foreground, kept text-primary */}
+              <p className="text-[11px] text-primary uppercase tracking-wider font-bold mt-1">
                 {applyModalJob.employer?.companyName}
               </p>
 
