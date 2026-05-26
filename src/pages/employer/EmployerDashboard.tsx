@@ -43,10 +43,10 @@ interface MatchedCandidate {
 // ── Constants ────────────────────────────────────────────────────────────────
 
 const STATS = [
-  { key: "activeJobs",       label: "Active jobs",        icon: Briefcase,    color: "from-rose-500 to-rose-700"    },
-  { key: "totalApplicants",  label: "Total applicants",   icon: Users,        color: "from-violet-500 to-violet-700"},
-  { key: "interviews",       label: "Interviews booked",  icon: MessageSquare,color: "from-blue-500 to-blue-700"    },
-  { key: "aiMatches",        label: "AI matches",         icon: Sparkles,     color: "from-emerald-500 to-emerald-700"},
+  { key: "activeJobs", label: "Active jobs", icon: Briefcase, color: "from-rose-500 to-rose-700" },
+  { key: "totalApplicants", label: "Total applicants", icon: Users, color: "from-violet-500 to-violet-700" },
+  { key: "interviews", label: "Interviews booked", icon: MessageSquare, color: "from-blue-500 to-blue-700" },
+  { key: "aiMatches", label: "AI matches", icon: Sparkles, color: "from-emerald-500 to-emerald-700" },
 ] as const satisfies ReadonlyArray<{ key: keyof EmployerStats; label: string; icon: React.ElementType; color: string }>;
 
 // ── Component ────────────────────────────────────────────────────────────────
@@ -73,9 +73,9 @@ export default function EmployerDashboard() {
     queryFn: () => apiAI.getMatchedCandidates() as Promise<MatchedCandidate[]>,
   });
 
-  const companyName  = profile?.companyName ?? "My Company";
-  const activeCount  = stats?.activeJobs ?? 0;
-  const myJobs       = Array.isArray(jobs)             ? jobs.slice(0, 3)             : [];
+  const companyName = profile?.companyName ?? "My Company";
+  const activeCount = stats?.activeJobs ?? 0;
+  const myJobs = Array.isArray(jobs) ? jobs.slice(0, 3) : [];
   const topCandidates = Array.isArray(matchedCandidates) ? matchedCandidates.slice(0, 3) : [];
 
   return (
@@ -91,7 +91,7 @@ export default function EmployerDashboard() {
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
         {STATS.map(s => {
-          const Icon  = s.icon;
+          const Icon = s.icon;
           const value = stats?.[s.key] ?? 0;
           return (
             <div key={s.key} className="bg-card border border-border rounded-2xl p-4 hover:shadow-sm transition-all">
@@ -136,9 +136,8 @@ export default function EmployerDashboard() {
                       {j.location ? <><MapPin size={10} />{j.location}</> : "Remote"} · {relativeTime(j.createdAt)}
                     </div>
                     <div className="flex flex-wrap gap-1 mt-2">
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                        j.status === "PUBLISHED" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"
-                      }`}>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${j.status === "PUBLISHED" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"
+                        }`}>
                         {j.status === "PUBLISHED" ? "ACTIVE" : j.status}
                       </span>
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">{j.jobType}</span>
