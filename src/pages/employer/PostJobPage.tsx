@@ -44,6 +44,7 @@ export default function PostJobPage() {
       salary: {
         min: Number(min) || null,
         max: Number(max) || null,
+        currency: "PKR",
       },
       description: desc,
       skillsRequired: skills,
@@ -83,11 +84,11 @@ export default function PostJobPage() {
                 </Field>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <Field label="Salary min (USD)">
-                  <input className={inp} type="number" value={min} onChange={e => setMin(e.target.value)} placeholder="60000" />
+                <Field label="Salary min (PKR)">
+                  <input className={inp} type="number" value={min} onChange={e => setMin(e.target.value)} placeholder="80000" />
                 </Field>
-                <Field label="Salary max (USD)">
-                  <input className={inp} type="number" value={max} onChange={e => setMax(e.target.value)} placeholder="90000" />
+                <Field label="Salary max (PKR)">
+                  <input className={inp} type="number" value={max} onChange={e => setMax(e.target.value)} placeholder="150000" />
                 </Field>
               </div>
             </div>

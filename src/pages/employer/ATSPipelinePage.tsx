@@ -1,5 +1,6 @@
 // src/pages/employer/ATSPipelinePage.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { apiApplications, apiJobs } from "@/lib/api";
@@ -116,6 +117,9 @@ function ApplicantCard({
 
 export default function ATSPipelinePage() {
   const qc = useQueryClient();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const queryJobId = searchParams.get("jobId");
+  
   const [selectedJobId, setSelectedJobId] = useState<string>("");
   const [filter, setFilter] = useState("ALL");
 
@@ -125,7 +129,28 @@ export default function ATSPipelinePage() {
   });
 
   const myJobs = Array.isArray(listings) ? listings : [];
-  const activeJobId = selectedJobId || myJobs[0]?.id || "";
+  const activeJobId = selectedJobId || queryJobId || myJobs[0]?.id || "";
+
+  // Sync selectedJobId with search parameters when listings are loaded or query param changes
+  useEffect(() => {
+    if (queryJobId) {
+      setSelectedJobId(queryJobId);
+    } else if (myJobs.length > 0 && !selectedJobId) {
+      setSelectedJobId(myJobs[0].id);
+    }
+  }, [queryJobId, myJobs, selectedJobId]);
+
+  // Sync search param when active job changes
+  useEffect(() => {
+    if (activeJobId && activeJobId !== queryJobId) {
+      setSearchParams({ jobId: activeJobId }, { replace: true });
+    }
+  }, [activeJobId, queryJobId, setSearchParams]);
+
+  const handleJobChange = (jobId: string) => {
+    setSelectedJobId(jobId);
+    setSearchParams({ jobId });
+  };
 
   const { data: appData, isLoading: loadingApps } = useQuery({
     queryKey: ["applications", activeJobId],
@@ -169,7 +194,7 @@ export default function ATSPipelinePage() {
           <label className="block text-[11px] font-bold uppercase tracking-wide text-ink-300 mb-1.5">Select Job Listing</label>
           <select
             value={activeJobId}
-            onChange={(e) => setSelectedJobId(e.target.value)}
+            onChange={(e) => handleJobChange(e.target.value)}
             className="w-full md:w-80 px-3.5 py-2 border border-border rounded-xl text-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all"
           >
             {loadingListings ? (

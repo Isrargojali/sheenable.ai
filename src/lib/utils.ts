@@ -8,9 +8,9 @@ export function cn(...inputs: ClassValue[]) {
 
 export function formatSalary(min?: number, max?: number): string {
   if (!min && !max) return "";
-  const k = (n: number) => `$${Math.round(n / 1000)}K`;
-  if (min && max) return `${k(min)}–${k(max)}`;
-  return min ? `From ${k(min)}` : `Up to ${k(max!)}`;
+  const fmt = (n: number) => `PKR ${n.toLocaleString("en-US")}`;
+  if (min && max) return `${fmt(min)} – ${fmt(max)}`;
+  return min ? `From ${fmt(min)}` : `Up to ${fmt(max!)}`;
 }
 
 export function relativeTime(iso: string): string {
