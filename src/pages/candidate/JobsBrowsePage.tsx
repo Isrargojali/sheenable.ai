@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Search, Bookmark, BookmarkCheck, MapPin, Sparkles, AlertCircle, Wand2, X } from "lucide-react";
 import { DashboardShell, SectionCard, BtnPrimary, BtnOutline } from "@/components/layout/DashboardShell";
@@ -39,6 +40,10 @@ const TYPES      = ["All", "FULLTIME", "CONTRACT", "INTERNSHIP", "PARTTIME"];
 const MODES      = ["All", "REMOTE", "HYBRID", "ONSITE"];
 
 export default function JobsBrowsePage() {
+  const [searchParams] = useSearchParams();
+  const applyJobId = searchParams.get("applyJobId");
+  const [hasAutoOpened, setHasAutoOpened] = useState(false);
+
   const qc = useQueryClient();
   const [search,   setSearch]   = useState("");
   const [category, setCategory] = useState("All");
@@ -133,6 +138,29 @@ ${candidateName}`;
 
   const jobs = data?.jobs ?? [];
   const total = data?.pagination.total ?? 0;
+
+  // Auto-open application modal if redirected with applyJobId
+  useEffect(() => {
+    if (applyJobId && !hasAutoOpened) {
+      const jobToApply = jobs.find((j: any) => j.id === applyJobId);
+      if (jobToApply) {
+        if (!jobToApply.hasApplied) {
+          handleOpenApply(jobToApply);
+        }
+        setHasAutoOpened(true);
+      } else if (!isLoading) {
+        apiJobs.getJobById(applyJobId).then((fetchedJob: any) => {
+          if (fetchedJob && !fetchedJob.hasApplied) {
+            handleOpenApply(fetchedJob);
+          }
+        }).catch((err) => {
+          console.error("Error fetching job redirect:", err);
+        }).finally(() => {
+          setHasAutoOpened(true);
+        });
+      }
+    }
+  }, [applyJobId, jobs, isLoading, hasAutoOpened]);
 
   return (
     <DashboardShell

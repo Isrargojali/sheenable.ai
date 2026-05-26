@@ -30,6 +30,7 @@ const mapJobsList = async (jobs, userId = null) => {
       id: job._id.toString(),
       title: job.title,
       description: job.description,
+      category: job.category,
       employer: {
         companyName
       },

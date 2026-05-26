@@ -23,6 +23,7 @@ export default function VerifyOtpPage() {
 
   const userId = params.get("userId") ?? "";
   const email  = params.get("email")  ?? "";
+  const applyJobId = params.get("applyJobId");
 
   const [digits,   setDigits]   = useState(["","","","","",""]);
   const [error,    setError]    = useState("");
@@ -35,9 +36,10 @@ export default function VerifyOtpPage() {
   // Redirect back to signup if userId is missing (stale link after server restart)
   useEffect(() => {
     if (!userId) {
-      navigate("/auth/signup", { replace: true });
+      const signupRedirect = applyJobId ? `/auth/signup?applyJobId=${applyJobId}` : "/auth/signup";
+      navigate(signupRedirect, { replace: true });
     }
-  }, [userId, navigate]);
+  }, [userId, navigate, applyJobId]);
 
   // Countdown timer
   useEffect(() => {
@@ -107,10 +109,14 @@ export default function VerifyOtpPage() {
 
       setNotifs(MOCK_NOTIFICATIONS);
       
-      console.log(`✅ OTP verified for ${payload.user.email}. Redirecting to ${redirectPath}`);
+      console.log(`✅ OTP verified for ${payload.user.email}. Redirecting...`);
       
+      const redirectTarget = (applyJobId && userRole === "CANDIDATE")
+        ? `/candidate/jobs?applyJobId=${applyJobId}`
+        : redirectPath;
+        
       // Hard replace to prevent back button to verify page
-      navigate(redirectPath, { replace: true });
+      navigate(redirectTarget, { replace: true });
     } catch (err: unknown) {
       const axiosErr = err as { response?: { data?: { message?: string } } };
       const message  = axiosErr.response?.data?.message ?? "Invalid OTP";
@@ -119,7 +125,8 @@ export default function VerifyOtpPage() {
 
       // If user session expired, redirect to signup
       if (message.toLowerCase().includes("not found")) {
-        navigate("/auth/signup", {
+        const signupRedirect = applyJobId ? `/auth/signup?applyJobId=${applyJobId}` : "/auth/signup";
+        navigate(signupRedirect, {
           state: { notice: "Your session expired. Please sign up again." },
           replace: true
         });
@@ -148,7 +155,8 @@ export default function VerifyOtpPage() {
       const axiosErr = err as { response?: { data?: { message?: string } } };
       const message  = axiosErr.response?.data?.message ?? "Could not resend code";
       if (message.toLowerCase().includes("not found")) {
-        navigate("/auth/signup", {
+        const signupRedirect = applyJobId ? `/auth/signup?applyJobId=${applyJobId}` : "/auth/signup";
+        navigate(signupRedirect, {
           state: { notice: "Your session expired. Please sign up again." },
         });
         return;

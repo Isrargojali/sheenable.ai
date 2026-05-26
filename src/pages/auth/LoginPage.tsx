@@ -1,7 +1,7 @@
 // src/pages/auth/LoginPage.tsx
 // Premium split-screen login. Brand mission left, form right.
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import logo from "@/assets/sheEnableAI-removebg-preview.png";
 import { Eye, EyeOff, Mail, Lock, Heart, Sparkles, ShieldCheck, ArrowRight } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
@@ -27,6 +27,8 @@ const QUICK_FILL: Record<Role, { email: string; pass: string }> = {
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const applyJobId = searchParams.get("applyJobId");
   const setSession = useAuthStore(s => s.setSession);
   const setNotifs = useNotifStore(s => s.setNotifs);
 
@@ -72,7 +74,11 @@ export default function LoginPage() {
       }, token);
 
       setNotifs(MOCK_NOTIFICATIONS);
-      navigate(ROLE_REDIRECTS[user.role] ?? "/");
+      if (applyJobId && user.role === "CANDIDATE") {
+        navigate(`/candidate/jobs?applyJobId=${applyJobId}`);
+      } else {
+        navigate(ROLE_REDIRECTS[user.role] ?? "/");
+      }
     } catch (err: unknown) {
       const axiosErr = err as { response?: { data?: { message?: string } } };
       let errorMessage = axiosErr.response?.data?.message || "Login failed";
@@ -223,7 +229,12 @@ export default function LoginPage() {
                     setLoading(true);
                     try {
                       const { demoLogin } = await import("@/lib/demoLogin");
-                      navigate(await demoLogin(r));
+                      const redirectUrl = await demoLogin(r);
+                      if (applyJobId && r === "CANDIDATE") {
+                        navigate(`/candidate/jobs?applyJobId=${applyJobId}`);
+                      } else {
+                        navigate(redirectUrl);
+                      }
                     } catch (err: unknown) {
                       if (err instanceof Error) {
                         setError(err.message);

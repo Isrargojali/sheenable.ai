@@ -49,6 +49,7 @@ export default function SignupPage() {
   const location = useLocation();
   const [params] = useSearchParams();
   const initialRole: Role = params.get("role") === "EMPLOYER" ? "EMPLOYER" : "CANDIDATE";
+  const applyJobId = params.get("applyJobId");
 
   // Show notice if redirected back from a stale OTP session
   const notice = (location.state as { notice?: string })?.notice ?? "";
@@ -101,7 +102,8 @@ export default function SignupPage() {
       });
       // Pass devOtp in URL so VerifyOtpPage can show it for easy copy/auto-fill
       const devOtpParam = res.data.devOtp ? `&devOtp=${res.data.devOtp}` : "";
-      navigate(`/auth/verify?userId=${res.data.userId}&email=${encodeURIComponent(email)}${devOtpParam}`);
+      const applyJobParam = applyJobId ? `&applyJobId=${applyJobId}` : "";
+      navigate(`/auth/verify?userId=${res.data.userId}&email=${encodeURIComponent(email)}${devOtpParam}${applyJobParam}`);
     } catch (err: unknown) {
       const axiosErr = err as { response?: { data?: { message?: string; errors?: { msg: string }[] } } };
       console.log("REGISTER ERROR:", axiosErr.response?.data);
