@@ -6,6 +6,7 @@ import { JobCard, type JobCardData } from "@/components/ui-kit";
 import { useQuery } from "@tanstack/react-query";
 import { apiJobs } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
+import { toast } from "sonner";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 // Extend JobCardData with `category` — present in the API response but not
@@ -27,7 +28,7 @@ export default function FeaturedJobs() {
 
   // Fetch real-time job listings from employers
   const { data: realJobs = [], isLoading, error } = useQuery<Job[]>({ // Fix: Ln 32 — typed query
-    queryKey: ["landingFeaturedJobs"],
+    queryKey: ["landingFeaturedJobs", user?.id || "guest"],
     queryFn: async () => {
       const res = await apiJobs.getJobs();
       return Array.isArray(res) ? (res as Job[]) : [];
@@ -82,11 +83,16 @@ export default function FeaturedJobs() {
     const selectedJob = realJobs.find((j: Job) => j.id === jobId); // Fix: Ln 195 — was `any`
     if (!selectedJob) return;
 
+    if (selectedJob.hasApplied) {
+      toast.success("You have already applied to this job listing!");
+      return;
+    }
+
     if (user) {
       if (user.role === "CANDIDATE") {
         navigate(`/candidate/jobs?applyJobId=${jobId}`);
       } else {
-        navigate("/home");
+        toast.error("Only candidates can apply to job listings.");
       }
     } else {
       setApplyModalJob(selectedJob);
