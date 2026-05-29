@@ -106,11 +106,11 @@ export default function FeaturedJobs() {
     <section id="jobs" className="max-w-[1280px] mx-auto px-5 lg:px-8 py-20 lg:py-24 relative">
       <div className="flex items-end justify-between flex-wrap gap-4 mb-8">
         <div>
-          <div className="inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-accent text-accent-foreground mb-3 animate-pulse">
-            Latest live opportunities
+          <div className="inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-accent text-accent-foreground mb-3">
+            Featured Openings
           </div>
           <h2 className="font-serif text-3xl md:text-5xl text-foreground tracking-tight">
-            Roles where you'll <span className="italic text-primary">thrive</span>
+            Curated Opportunities for <span className="italic text-primary">Trajectory Growth</span>
           </h2>
           <p className="text-[13px] text-muted-foreground mt-2 max-w-md">
             Real-time verified openings from inclusive employers, refreshed instantly.

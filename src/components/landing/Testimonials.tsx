@@ -2,21 +2,21 @@ import { Quote, Star } from "lucide-react";
 
 const TESTIMONIALS = [
   {
-    quote: "I landed a senior frontend role in 11 days. Every job in my feed felt hand-picked — the AI match was scarily accurate.",
+    quote: "Within two weeks, I secured a senior staff engineering role. The precision of the match engine bypasses the typical digital noise completely.",
     name: "Aisha Khan",
-    title: "Senior Frontend Engineer",
+    title: "Senior Staff Engineer",
     company: "Techflow",
     avatar: "AK",
   },
   {
-    quote: "As a returning mother, I worried about the gap on my CV. HerCareer's CV builder turned my career break into a strength.",
+    quote: "Returning after a caregiving break is challenging, but SheEnable's ATS toolkit reframed my trajectory as a major strategic asset.",
     name: "Maria Gomez",
     title: "UX Lead",
     company: "Helix Health",
     avatar: "MG",
   },
   {
-    quote: "We cut our time-to-hire from 42 days to 16. The pipeline view alone is worth it — our HR team finally feels in control.",
+    quote: "We reduced our time-to-hire by half while expanding our executive female representation. It is a game-changer for modern teams.",
     name: "Saira Ahmed",
     title: "Head of Talent",
     company: "NorthStar",
@@ -30,10 +30,10 @@ export default function Testimonials() {
       <div className="max-w-[1280px] mx-auto px-5 lg:px-8 py-20 lg:py-24">
         <div className="text-center mb-12">
           <div className="inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-accent text-accent-foreground mb-3">
-            Success stories
+            Voices of the Community
           </div>
           <h2 className="font-serif text-3xl md:text-5xl text-foreground tracking-tight">
-            Real women, <span className="italic text-primary">real results</span>
+            Realizing Potential, <span className="italic text-primary">Redefining Industries</span>
           </h2>
         </div>
 

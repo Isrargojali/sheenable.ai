@@ -19,10 +19,10 @@ const PARTNER_LOGOS = [
 ];
 
 const STATS = [
-  { v: 12400, suffix: "+", label: "Women Hired",          desc: "Across 47 industries since 2022" },
-  { v: 98,    suffix: "%", label: "Employer Satisfaction",desc: "Based on post-hire NPS surveys" },
-  { v: 500,   suffix: "+", label: "Partner Companies",    desc: "Vetted for inclusive hiring" },
-  { v: 47,    suffix: "",  label: "Industries Covered",   desc: "From fintech to healthcare" },
+  { v: 12400, suffix: "+", label: "Careers Accelerated",      desc: "Exceptional women placed in trajectory-defining roles" },
+  { v: 98,    suffix: "%", label: "Retention Rate",           desc: "Securing thriving long-term matches for both parties" },
+  { v: 500,   suffix: "+", label: "Verified Partners",        desc: "Top-tier enterprises committed to equitable workplaces" },
+  { v: 47,    suffix: "",  label: "Sector Specialties",       desc: "From pioneering FinTech to advanced research" },
 ];
 
 export default function LandingPage() {
@@ -61,18 +61,17 @@ export default function LandingPage() {
         <div className="relative max-w-[1280px] mx-auto px-5 lg:px-8 pt-12 lg:pt-20 pb-12 lg:pb-16 flex flex-col items-center text-center">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider mb-7 bg-white/8 border border-white/15">
             <span className="w-1.5 h-1.5 rounded-full bg-mint-400 animate-pulse-ring" />
-            Pakistan's #1 women's career platform
+            Pakistan's Premier Ecosystem for Female Leaders & Professionals
           </div>
 
           <h1 className="font-serif text-[40px] xs:text-[52px] md:text-[68px] lg:text-[88px] leading-[0.98] tracking-[-0.025em] max-w-5xl mb-6">
-            Where Ambitious Women<br />
-            Find <span className="italic text-shimmer">Careers</span> That<br />
-            Match Their <span className="italic">Worth</span>
+            Where Ambition<br />
+            Meets <span className="italic text-shimmer">Opportunity</span>
           </h1>
 
           <p className="text-[14px] md:text-base lg:text-lg text-white/65 leading-relaxed max-w-2xl mb-9">
-            10,000+ women hired. 500+ inclusive employers. Zero compromise.<br className="hidden md:block" />
-            AI-matched roles, ATS-ready CV builder, and a safer hiring space — all in one platform.
+            Empowering Pakistan’s female professionals with hand-vetted, high-impact careers.<br className="hidden md:block" />
+            Powered by AI-precision matching, built for safe hiring.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 mb-10 w-full sm:w-auto">
@@ -135,10 +134,10 @@ export default function LandingPage() {
         <div className="max-w-[1280px] mx-auto px-5 lg:px-8 py-16 lg:py-20">
           <div className="text-center mb-10">
             <div className="inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-accent text-accent-foreground mb-3">
-              By the numbers
+              Quantifying Our Impact
             </div>
             <h2 className="font-serif text-3xl md:text-5xl text-foreground tracking-tight">
-              A community changing <span className="italic text-primary">what work looks like</span>
+              A community defining <span className="italic text-primary">the future of equitable work</span>
             </h2>
           </div>
 

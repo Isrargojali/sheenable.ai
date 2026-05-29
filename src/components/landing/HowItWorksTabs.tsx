@@ -8,31 +8,31 @@ type TabKey = "candidate" | "employer";
 
 const STEPS: Record<TabKey, { icon: LucideIcon; title: string; desc: string; accent: string }[]> = {
   candidate: [
-    { icon: FileEdit, title: "Build your profile", desc: "Sign up free, add skills and experience. Our AI scores completeness in real time.", accent: "border-l-mauve-400" },
-    { icon: Sparkles, title: "Get matched daily", desc: "Receive curated job matches based on skills, location and salary expectations.", accent: "border-l-mint-400" },
-    { icon: Send, title: "Apply with one click", desc: "ATS-ready CV, tailored cover letter — submit a polished application in seconds.", accent: "border-l-amber-400" },
-    { icon: PartyPopper, title: "Land the offer", desc: "Track every application, message HR directly, and accept your next role.", accent: "border-l-rose-400" },
+    { icon: FileEdit, title: "Design Your Profile", desc: "Build an exquisite, AI-optimized digital footprint that highlights your unique expertise.", accent: "border-l-mauve-400" },
+    { icon: Sparkles, title: "High-Precision Matching", desc: "Our AI-engine analyzes verified openings to deliver matches aligned with your career goals and worth.", accent: "border-l-mint-400" },
+    { icon: Send, title: "Frictionless Application", desc: "Deploy a tailored, ATS-optimized dossier with single-click precision directly to hiring decision-makers.", accent: "border-l-amber-400" },
+    { icon: PartyPopper, title: "Secure Onboarding", desc: "Communicate directly through our encrypted portal, negotiate with confidence, and step into your new role.", accent: "border-l-rose-400" },
   ],
   employer: [
-    { icon: ClipboardList, title: "Post your role", desc: "Use our 5-step wizard. Pre-filled templates for 47 industries.", accent: "border-l-mauve-400" },
-    { icon: Search, title: "Discover talent", desc: "AI search filters 50,000+ verified women candidates by skill, role and availability.", accent: "border-l-mint-400" },
-    { icon: Users, title: "Build a shortlist", desc: "Drag-and-drop pipeline keeps your team aligned through every hiring stage.", accent: "border-l-amber-400" },
-    { icon: Handshake, title: "Make the hire", desc: "Message, schedule interviews, send offers — all without leaving the platform.", accent: "border-l-rose-400" },
+    { icon: ClipboardList, title: "Curate Your Opportunity", desc: "Craft high-conversion listings with our intelligent, industry-specific template builder.", accent: "border-l-mauve-400" },
+    { icon: Search, title: "Source Vetted Talent", desc: "Filter through an exclusive network of verified female leaders, researchers, and builders.", accent: "border-l-mint-400" },
+    { icon: Users, title: "Direct ATS Pipeline", desc: "Manage candidates through a fluid, collaborative visual pipeline built for modern HR workflows.", accent: "border-l-amber-400" },
+    { icon: Handshake, title: "Close Exceptional Hires", desc: "Converse, schedule, and extend offers in a unified, safe, and professional communication hub.", accent: "border-l-rose-400" },
   ],
 };
 
 export default function HowItWorksTabs() {
   const [tab, setTab] = useState<TabKey>("candidate");
   const tabs: { key: TabKey; label: string }[] = [
-    { key: "candidate", label: "I'm looking for a job" },
-    { key: "employer", label: "I'm hiring" },
+    { key: "candidate", label: "For Talented Professionals" },
+    { key: "employer", label: "For Progressive Enterprises" },
   ];
 
   return (
     <section id="community" className="max-w-[1280px] mx-auto px-5 lg:px-8 py-20 lg:py-28">
       <div className="text-center mb-10">
         <div className="inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-accent text-accent-foreground mb-3">
-          How it works
+          The SheEnable Pathway
         </div>
         <h2 className="font-serif text-3xl md:text-5xl text-foreground tracking-tight">
           A simple path to your <span className="italic text-primary">next chapter</span>

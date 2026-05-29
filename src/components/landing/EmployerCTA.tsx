@@ -14,13 +14,13 @@ export default function EmployerCTA() {
 
       <div className="relative max-w-[1280px] mx-auto px-5 lg:px-8 py-20 lg:py-24 text-center">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider mb-4 bg-white/10 border border-white/20 text-white/85">
-          For Employers
+          Enterprise Partners
         </div>
         <h2 className="font-serif text-3xl md:text-5xl text-white max-w-3xl mx-auto leading-[1.1] tracking-tight mb-4">
-          Ready to build an <span className="italic text-amber-300">inclusive team</span>?
+          Partner in Leading the <span className="italic text-amber-300">Future of Work</span>
         </h2>
         <p className="text-[14px] md:text-base text-white/70 max-w-xl mx-auto mb-8">
-          Post your first job free and reach 50,000+ qualified women candidates across Pakistan.
+          Integrate top-tier female talent into your engineering, executive, and creative pipelines. Begin with your first placement.
         </p>
 
         <div className="flex flex-wrap justify-center gap-3 mb-8">
