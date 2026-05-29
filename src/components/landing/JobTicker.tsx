@@ -1,6 +1,8 @@
 import { Briefcase, MapPin } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { apiJobs } from "@/lib/api";
 
-const TICKER = [
+const MOCK_TICKER = [
   { title: "Senior Product Manager", company: "Atlas Bank",      mode: "Remote", salary: "PKR 250K" },
   { title: "Frontend Engineer",      company: "Techflow",        mode: "Hybrid", salary: "PKR 180K" },
   { title: "UX Lead",                company: "Helix Health",    mode: "Remote", salary: "PKR 220K" },
@@ -11,8 +13,47 @@ const TICKER = [
   { title: "Brand Designer",         company: "Vertex",          mode: "Hybrid", salary: "PKR 150K" },
 ];
 
+interface TickerItem {
+  title: string;
+  company: string;
+  mode: string;
+  salary: string;
+}
+
 export default function JobTicker() {
-  const items = [...TICKER, ...TICKER];
+  // Fetch real-time job listings from the backend database
+  const { data: realJobs = [] } = useQuery<any[]>({
+    queryKey: ["landingTickerJobs"],
+    queryFn: async () => {
+      const res = await apiJobs.getJobs();
+      return Array.isArray(res) ? res : [];
+    },
+    staleTime: 3 * 60 * 1000,
+  });
+
+  // Map real-time jobs or fallback to mock items
+  const tickerItems: TickerItem[] = realJobs.length > 0 
+    ? realJobs.map((j) => {
+        const salaryVal = j.salaryMax || j.salaryMin || 0;
+        const compactSalary = salaryVal > 0 
+          ? `PKR ${Math.round(salaryVal / 1000)}K` 
+          : "Competitive";
+
+        const rawMode = j.mode || "REMOTE";
+        const formattedMode = rawMode.charAt(0) + rawMode.slice(1).toLowerCase();
+
+        return {
+          title: j.title,
+          company: j.employer?.companyName || "Verified Employer",
+          mode: formattedMode,
+          salary: compactSalary,
+        };
+      })
+    : MOCK_TICKER;
+
+  // Duplicate items to ensure a seamless infinite scrolling animation loop
+  const items = [...tickerItems, ...tickerItems];
+
   return (
     <div className="relative overflow-hidden py-3"
          style={{ maskImage: "linear-gradient(90deg, transparent, black 8%, black 92%, transparent)" }}>

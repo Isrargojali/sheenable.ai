@@ -144,13 +144,14 @@
   /*  Reveal-on-scroll ─ */
   .reveal {
     opacity: 0;
-    transform: translateY(24px);
+    transform: translate3d(0, 24px, 0);
+    will-change: transform, opacity;
     transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
                 transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .reveal.is-visible {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
   }
 
   /*  Patterns ─ */
@@ -205,18 +206,21 @@
 
   /*  Card hover lift  */
   .lift {
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
     transition: transform 0.25s cubic-bezier(0.16,1,0.3,1),
                 box-shadow 0.25s ease,
                 border-color 0.25s ease;
   }
   .lift:hover {
-    transform: translateY(-2px);
+    transform: translate3d(0, -2px, 0);
     box-shadow: var(--shadow-lg);
     border-color: hsl(var(--primary) / 0.35);
   }
 
   /*  Press animation for buttons (briefed: 150ms scale 0.97)  */
   .press {
+    will-change: transform;
     transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1),
                 box-shadow 200ms ease,
                 background-color 200ms ease,
@@ -224,7 +228,14 @@
                 color 200ms ease;
   }
   .press:active:not(:disabled) {
-    transform: scale(0.97);
+    transform: scale3d(0.97, 0.97, 1);
+  }
+
+  /* Ticker hardware compositor layering */
+  .animate-ticker {
+    will-change: transform;
+    backface-visibility: hidden;
+    perspective: 1000px;
   }
 
   /*  Skeleton shimmer ─ */
