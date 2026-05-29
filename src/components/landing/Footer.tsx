@@ -5,20 +5,20 @@ import { useState } from "react";
 import logo from "@/assets/sheEnableAI-removebg-preview.png";
 const COL_CANDIDATES = [
   { label: "Browse Jobs", href: "/jobs" },
-  { label: "CV Builder", href: "/auth/signup" },
-  { label: "Career Advice", href: "#community" },
-  { label: "Salary Guide", href: "#" },
+  { label: "CV Builder", href: "/cv-builder" },
+  { label: "Career Advice", href: "/career-advice" },
+  { label: "Salary Guide", href: "/salary-guide" },
 ];
 const COL_EMPLOYERS = [
-  { label: "Post a Job", href: "/auth/signup?role=EMPLOYER" },
-  { label: "Employer Pricing", href: "#" },
-  { label: "Talent Search", href: "#" },
-  { label: "Inclusion Resources", href: "#" },
+  { label: "Post a Job", href: "/post-job" },
+  { label: "Employer Pricing", href: "/pricing" },
+  { label: "Talent Search", href: "/talent-search" },
+  { label: "Inclusion Resources", href: "/inclusion-resources" },
 ];
 const COL_COMMUNITY = [
-  { label: "Mentorship", href: "#community" },
-  { label: "Events", href: "#" },
-  { label: "Blog", href: "#" },
+  { label: "Mentorship", href: "/mentorship" },
+  { label: "Events", href: "/events" },
+  { label: "Blog", href: "/blog" },
   { label: "Newsletter", href: "#newsletter" },
 ];
 
@@ -84,7 +84,11 @@ export default function Footer() {
             <ul className="space-y-2.5 mb-6">
               {COL_COMMUNITY.map(l => (
                 <li key={l.label}>
-                  <a href={l.href} className="text-[12px] hover:text-white transition-colors">{l.label}</a>
+                  {l.href.startsWith("/") ? (
+                    <Link to={l.href} className="text-[12px] hover:text-white transition-colors">{l.label}</Link>
+                  ) : (
+                    <a href={l.href} className="text-[12px] hover:text-white transition-colors">{l.label}</a>
+                  )}
                 </li>
               ))}
             </ul>

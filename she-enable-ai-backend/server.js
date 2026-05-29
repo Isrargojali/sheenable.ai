@@ -26,6 +26,10 @@ const messageRoutes = require('./src/routes/messages');
 const notificationRoutes = require('./src/routes/notifications');
 const uploadRoutes = require('./src/routes/upload');
 const aiRoutes = require('./src/routes/ai');
+const articleRoutes = require('./src/routes/articles');
+const salaryRoutes = require('./src/routes/salaries');
+const mentorRoutes = require('./src/routes/mentors');
+const eventRoutes = require('./src/routes/events');
 
 // Initialize app
 const app = express();
@@ -95,6 +99,10 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/articles', articleRoutes);
+app.use('/api/salaries', salaryRoutes);
+app.use('/api/mentors', mentorRoutes);
+app.use('/api/events', eventRoutes);
 
 // Error Handling Middleware — must be last
 app.use(errorHandler);

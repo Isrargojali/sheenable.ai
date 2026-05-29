@@ -17,6 +17,16 @@ import VerifyOtpPage from "@/pages/auth/VerifyOtpPage";
 // Landing
 import LandingPage from "@/pages/LandingPage";
 import BrowseJobsPage from "@/pages/BrowseJobsPage";
+import CVBuilderPublicPage from "@/pages/CVBuilderPublicPage";
+import CareerAdvicePage from "@/pages/CareerAdvicePage";
+import SalaryGuidePage from "@/pages/SalaryGuidePage";
+import PostJobPublicPage from "@/pages/PostJobPublicPage";
+import PricingPage from "@/pages/PricingPage";
+import TalentSearchPage from "@/pages/TalentSearchPage";
+import InclusionResourcesPage from "@/pages/InclusionResourcesPage";
+import MentorshipPage from "@/pages/MentorshipPage";
+import EventsPage from "@/pages/EventsPage";
+import BlogPage from "@/pages/BlogPage";
 
 // Candidate
 import CandidateDashboard from "@/pages/candidate/CandidateDashboard";
@@ -91,12 +101,22 @@ const App = () => (
         <PageTransition>
         <Routes>
           {/* Public */}
-          <Route path="/"            element={<LandingPage />} />
-          <Route path="/jobs"        element={<BrowseJobsPage />} />
-          <Route path="/auth/login"  element={<LoginPage />} />
-          <Route path="/auth/signup" element={<SignupPage />} />
-          <Route path="/auth/verify" element={<VerifyOtpPage />} />
-          <Route path="/home"        element={<RoleHome />} />
+          <Route path="/"                      element={<LandingPage />} />
+          <Route path="/jobs"                  element={<BrowseJobsPage />} />
+          <Route path="/cv-builder"            element={<CVBuilderPublicPage />} />
+          <Route path="/career-advice"         element={<CareerAdvicePage />} />
+          <Route path="/salary-guide"          element={<SalaryGuidePage />} />
+          <Route path="/post-job"              element={<PostJobPublicPage />} />
+          <Route path="/pricing"               element={<PricingPage />} />
+          <Route path="/talent-search"         element={<TalentSearchPage />} />
+          <Route path="/inclusion-resources"   element={<InclusionResourcesPage />} />
+          <Route path="/mentorship"            element={<MentorshipPage />} />
+          <Route path="/events"                element={<EventsPage />} />
+          <Route path="/blog"                  element={<BlogPage />} />
+          <Route path="/auth/login"            element={<LoginPage />} />
+          <Route path="/auth/signup"           element={<SignupPage />} />
+          <Route path="/auth/verify"           element={<VerifyOtpPage />} />
+          <Route path="/home"                  element={<RoleHome />} />
 
           {/* Candidate */}
           <Route path="/candidate/dashboard"    element={<Guard roles={["CANDIDATE"]}><CandidateDashboard /></Guard>} />
