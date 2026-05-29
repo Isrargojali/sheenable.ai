@@ -16,6 +16,7 @@ import VerifyOtpPage from "@/pages/auth/VerifyOtpPage";
 
 // Landing
 import LandingPage from "@/pages/LandingPage";
+import BrowseJobsPage from "@/pages/BrowseJobsPage";
 
 // Candidate
 import CandidateDashboard from "@/pages/candidate/CandidateDashboard";
@@ -91,6 +92,7 @@ const App = () => (
         <Routes>
           {/* Public */}
           <Route path="/"            element={<LandingPage />} />
+          <Route path="/jobs"        element={<BrowseJobsPage />} />
           <Route path="/auth/login"  element={<LoginPage />} />
           <Route path="/auth/signup" element={<SignupPage />} />
           <Route path="/auth/verify" element={<VerifyOtpPage />} />

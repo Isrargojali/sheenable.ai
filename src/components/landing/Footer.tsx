@@ -4,7 +4,7 @@ import { Heart, Twitter, Linkedin, Instagram } from "lucide-react";
 import { useState } from "react";
 import logo from "@/assets/sheEnableAI-removebg-preview.png";
 const COL_CANDIDATES = [
-  { label: "Browse Jobs", href: "#jobs" },
+  { label: "Browse Jobs", href: "/jobs" },
   { label: "CV Builder", href: "/auth/signup" },
   { label: "Career Advice", href: "#community" },
   { label: "Salary Guide", href: "#" },
