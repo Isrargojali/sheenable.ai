@@ -4,7 +4,6 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { apiAuth }        from "@/lib/api";
 import { useAuthStore }   from "@/store/authStore";
 import { useNotifStore }  from "@/store/notifStore";
-import { MOCK_NOTIFICATIONS } from "@/mock/data";
 import { cn }             from "@/lib/utils";
 import { UserRole }       from "@/store/authStore";
 
@@ -106,8 +105,6 @@ export default function VerifyOtpPage() {
         },
         payload.token
       );
-
-      setNotifs(MOCK_NOTIFICATIONS);
       
       console.log(`✅ OTP verified for ${payload.user.email}. Redirecting...`);
       

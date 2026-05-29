@@ -8,7 +8,6 @@ import { useAuthStore } from "@/store/authStore";
 import { useNotifStore } from "@/store/notifStore";
 import { apiAuth } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import { MOCK_NOTIFICATIONS } from "@/mock/data";
 
 type Role = "CANDIDATE" | "EMPLOYER" | "ADMIN";
 
@@ -72,8 +71,6 @@ export default function LoginPage() {
         lastName: user.lastName,
         avatarUrl: user.avatarUrl,
       }, token);
-
-      setNotifs(MOCK_NOTIFICATIONS);
       if (applyJobId && user.role === "CANDIDATE") {
         navigate(`/candidate/jobs?applyJobId=${applyJobId}`);
       } else {

@@ -9,7 +9,7 @@ router.post('/verify-otp', otpLimiter, verifyOtp);
 router.post('/login', loginLimiter, login);
 router.post('/refresh-token', refreshToken);
 router.post('/logout', protect, logout);
-router.post('/forgot-password', forgotPassword);
+router.post('/forgot-password', otpLimiter, forgotPassword);
 router.post('/reset-password', resetPassword);
 router.post('/resend-otp', otpLimiter, resendOtp);
 router.get('/me', protect, getMe);

@@ -78,7 +78,11 @@ const verifyOtp = async (req, res, next) => {
     if (user.isVerified) return error(res, 'Account already verified', 400);
 
     const codeHash = crypto.createHash('sha256').update(code).digest('hex');
-    if (user.otp.code !== codeHash) return error(res, 'Invalid verification code', 400);
+    const inputBuffer = Buffer.from(codeHash);
+    const dbBuffer = Buffer.from(user.otp.code);
+    if (inputBuffer.length !== dbBuffer.length || !crypto.timingSafeEqual(inputBuffer, dbBuffer)) {
+      return error(res, 'Invalid verification code', 400);
+    }
     if (user.otp.expiresAt < new Date()) return error(res, 'Verification code expired', 400);
 
     user.isVerified = true;
@@ -108,7 +112,7 @@ const verifyOtp = async (req, res, next) => {
       isVerified: user.isVerified
     };
 
-    return success(res, { token: accessToken, refreshToken, user: safeUserObject });
+    return success(res, { token: accessToken, user: safeUserObject });
   } catch (err) { next(err); }
 };
 
@@ -172,7 +176,7 @@ const login = async (req, res, next) => {
       isVerified: user.isVerified
     };
 
-    return success(res, { token: accessToken, refreshToken, user: safeUserObject });
+    return success(res, { token: accessToken, user: safeUserObject });
   } catch (err) { next(err); }
 };
 
@@ -203,7 +207,7 @@ const refreshToken = async (req, res, next) => {
       maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
-    return success(res, { token: newTokens.accessToken, refreshToken: newTokens.refreshToken });
+    return success(res, { token: newTokens.accessToken });
   } catch (err) {
     return error(res, 'Invalid refresh token', 401);
   }
