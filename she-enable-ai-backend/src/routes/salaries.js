@@ -7,3 +7,4 @@ router.get('/', optionalAuth, getSalaryStats);
 router.post('/', protect, createSalaryReport);
 
 module.exports = router;
+
