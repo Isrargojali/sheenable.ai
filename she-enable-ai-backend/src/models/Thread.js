@@ -17,3 +17,4 @@ const threadSchema = new mongoose.Schema({
 threadSchema.index({ candidateId: 1, employerId: 1 }, { unique: true });
 
 module.exports = mongoose.model('Thread', threadSchema);
+
