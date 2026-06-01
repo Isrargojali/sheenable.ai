@@ -216,6 +216,7 @@ export const apiAI = {
   searchCandidates: (query: string, params?: object) => api.get('/ai/search-candidates', { params: { ...params, q: query } }).then(unwrap),
   getMatchedCandidates: ()                           => api.get('/ai/matched-candidates').then(unwrap),
   analyzeProfile:   (userId: string)                 => api.post('/ai/analyze-profile', { userId }).then(unwrap),
+  improveJob:       (title: string, description: string) => api.post('/ai/improve-job', { title, description }).then(unwrap),
 };
 
 // ─── PIPELINE (legacy alias) ──────────────────────────────────────────────────

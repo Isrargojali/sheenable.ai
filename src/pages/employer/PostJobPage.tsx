@@ -2,10 +2,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
-import { X, Plus, Sparkles } from "lucide-react";
+import { X, Plus, Sparkles, Loader2 } from "lucide-react";
 import { DashboardShell, SectionCard, BtnPrimary, BtnOutline } from "@/components/layout/DashboardShell";
-import { apiJobs } from "@/lib/api";
+import { apiJobs, apiAI } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const inp = "w-full px-3.5 py-2.5 border border-border rounded-xl text-sm bg-card text-foreground placeholder:text-ink-300 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all";
 
@@ -25,6 +26,24 @@ export default function PostJobPage() {
   const create = useMutation({
     mutationFn: apiJobs.postJob,
     onSuccess:  () => navigate("/employer/listings"),
+  });
+
+  const aiAssist = useMutation({
+    mutationFn: async () => {
+      if (!desc.trim()) {
+        throw new Error("Please write some job description first!");
+      }
+      return apiAI.improveJob(title, desc);
+    },
+    onSuccess: (data: any) => {
+      setDesc(data.description);
+      const mergedSkills = [...new Set([...skills, ...data.skills])];
+      setSkills(mergedSkills);
+      toast.success("AI successfully optimized your description for inclusive, high-impact hiring!");
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || err.message || "Failed to run AI assist");
+    }
   });
 
   function addSkill() {
@@ -133,7 +152,24 @@ export default function PostJobPage() {
               <Sparkles size={24} className="mx-auto text-primary mb-2" />
               <div className="text-[12px] font-semibold text-foreground mb-1">Boost your post</div>
               <div className="text-[11px] text-muted-foreground mb-3">AI will rewrite your description for clarity and inclusivity.</div>
-              <BtnOutline className="w-full justify-center" type="button">Run AI assist</BtnOutline>
+              <BtnOutline
+                className="w-full justify-center gap-1.5"
+                type="button"
+                onClick={() => aiAssist.mutate()}
+                disabled={aiAssist.isPending}
+              >
+                {aiAssist.isPending ? (
+                  <>
+                    <Loader2 size={13} className="animate-spin text-primary" />
+                    Optimizing...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles size={13} className="text-primary" />
+                    Run AI assist
+                  </>
+                )}
+              </BtnOutline>
             </div>
           </SectionCard>
 

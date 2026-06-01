@@ -332,4 +332,91 @@ const searchCandidates = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-module.exports = { generateCV, getMatchedCandidates, searchCandidates };
+const improveJob = async (req, res, next) => {
+  try {
+    const { title, description } = req.body;
+    if (!description) {
+      return error(res, 'Description is required for optimization', 400);
+    }
+
+    // Simulate AI processing delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    let enhanced = description;
+
+    // Advanced gender inclusivity & readability replacements
+    const replacements = [
+      { regex: /\b(rockstar|ninja|guru|superhero)\b/gi, replacement: 'highly skilled specialist' },
+      { regex: /\b(aggressive|aggressively)\b/gi, replacement: 'focused and dynamic' },
+      { regex: /\b(dominate|dominating)\b/gi, replacement: 'lead and support success in' },
+      { regex: /\b(master|mastery)\b/gi, replacement: 'expert proficiency' },
+      { regex: /\b(manpower|man-hours)\b/gi, replacement: 'workforce and operational hours' },
+      { regex: /\b(guys|dudes)\b/gi, replacement: 'team members' },
+      { regex: /\b(he\/she|he or she)\b/gi, replacement: 'they' },
+      { regex: /\b(his\/her)\b/gi, replacement: 'their' }
+    ];
+
+    replacements.forEach(({ regex, replacement }) => {
+      enhanced = enhanced.replace(regex, replacement);
+    });
+
+    // Formatting enhancements for professional polish if description is brief
+    if (enhanced.length < 150) {
+      enhanced = `We are seeking a collaborative and driven ${title || 'Professional'} to join our inclusive team. 
+
+Key Responsibilities:
+• ${enhanced || 'Deliver key solutions and collaborate with modern frameworks to achieve core product goals.'}
+• Work in a diverse, high-performance team environment where every voice is valued.
+• Foster shared growth, empathetic leadership, and cross-functional excellence.
+
+Ideal Qualifications:
+• Demonstrated proficiency in matching skillsets and domain requirements.
+• Excellent communication skills and a team-first mindset.`;
+    } else {
+      // Append SheEnableAI inclusion statement if not already present
+      if (!enhanced.toLowerCase().includes('inclusive') && !enhanced.toLowerCase().includes('diversity')) {
+        enhanced = `${enhanced}\n\nOur Commitment to Inclusion:\nWe are proud to foster a diverse, equitable, and inclusive environment. We welcome applicants of all backgrounds, experiences, and identities to apply and help us build the future together.`;
+      }
+    }
+
+    // Category and title based skill recommendations
+    const skillPool = {
+      'it & tech': ['TypeScript', 'React', 'Node.js', 'Collaborative Coding', 'System Architecture', 'API Design'],
+      'design & ux': ['Figma', 'UI/UX Design', 'Empathy Mapping', 'User Research', 'Design Systems', 'Prototyping'],
+      'finance': ['Financial Modeling', 'Data Analysis', 'Risk Management', 'Strategic Planning', 'Forecasting'],
+      'healthcare': ['Patient Care', 'Clinical Operations', 'Empathy', 'Regulatory Compliance', 'Team Collaboration'],
+      'sales & marketing': ['Content Strategy', 'Brand Development', 'Market Research', 'SEO/SEM', 'Public Relations', 'Customer Relationship Management'],
+      'education': ['Curriculum Design', 'Instructional Design', 'Active Listening', 'Mentorship', 'Student Engagement', 'Collaboration']
+    };
+
+    let titleLower = (title || '').toLowerCase();
+    let matchedSkills = ['Collaboration', 'Empathetic Leadership'];
+
+    let categoryKey = 'it & tech';
+    if (titleLower.includes('design') || titleLower.includes('ui') || titleLower.includes('ux') || titleLower.includes('creative')) {
+      categoryKey = 'design & ux';
+    } else if (titleLower.includes('finance') || titleLower.includes('account') || titleLower.includes('audit')) {
+      categoryKey = 'finance';
+    } else if (titleLower.includes('health') || titleLower.includes('nurse') || titleLower.includes('clinical') || titleLower.includes('patient')) {
+      categoryKey = 'healthcare';
+    } else if (titleLower.includes('sale') || titleLower.includes('market') || titleLower.includes('seo') || titleLower.includes('growth')) {
+      categoryKey = 'sales & marketing';
+    } else if (titleLower.includes('teach') || titleLower.includes('educat') || titleLower.includes('mentor') || titleLower.includes('learn')) {
+      categoryKey = 'education';
+    }
+
+    const pool = skillPool[categoryKey];
+    if (pool) {
+      matchedSkills = [...new Set([...matchedSkills, ...pool])];
+    }
+
+    return success(res, {
+      description: enhanced,
+      skills: matchedSkills
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { generateCV, getMatchedCandidates, searchCandidates, improveJob };
