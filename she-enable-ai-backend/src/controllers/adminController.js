@@ -106,8 +106,10 @@ const updateUserRole = async (req, res, next) => {
 
 const updateUserStatus = async (req, res, next) => {
   try {
-    const { isActive } = req.body;
-    if (typeof isActive !== 'boolean') return error(res, 'isActive boolean is required', 400);
+    const { isActive, isVerified } = req.body;
+    if (isActive === undefined && isVerified === undefined) {
+      return error(res, 'isActive or isVerified boolean is required', 400);
+    }
 
     const targetUser = await User.findById(req.params.id);
     if (!targetUser) return error(res, 'User not found', 404);
@@ -115,13 +117,20 @@ const updateUserStatus = async (req, res, next) => {
     if (targetUser._id.toString() === req.user.id) return error(res, 'Cannot change your own status', 400);
 
     if (req.user.role === 'ADMIN' && ['ADMIN', 'SUPER_ADMIN'].includes(targetUser.role)) {
-      return error(res, 'ADMIN cannot suspend other administrators', 403);
+      return error(res, 'ADMIN cannot modify other administrators', 403);
     }
 
-    targetUser.isActive = isActive;
-    await targetUser.save();
+    if (typeof isActive === 'boolean') {
+      targetUser.isActive = isActive;
+      await logAudit(isActive ? 'USER_ACTIVATED' : 'USER_SUSPENDED', 'user', targetUser._id, req);
+    }
 
-    await logAudit(isActive ? 'USER_ACTIVATED' : 'USER_SUSPENDED', 'user', targetUser._id, req);
+    if (typeof isVerified === 'boolean') {
+      targetUser.isVerified = isVerified;
+      await logAudit(isVerified ? 'USER_VERIFIED' : 'USER_UNVERIFIED', 'user', targetUser._id, req);
+    }
+
+    await targetUser.save();
 
     return success(res, targetUser);
   } catch (err) { next(err); }
