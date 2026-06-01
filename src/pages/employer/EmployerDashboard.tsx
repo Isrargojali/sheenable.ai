@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Briefcase, Users, MessageSquare, Sparkles, ArrowRight, MapPin, Loader2 } from "lucide-react";
 import { DashboardShell, SectionCard, BtnPrimary } from "@/components/layout/DashboardShell";
 import { apiProfile, apiJobs, apiAI } from "@/lib/api";
-import { relativeTime } from "@/lib/utils";
+import { relativeTime, cn } from "@/lib/utils";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -78,74 +78,101 @@ export default function EmployerDashboard() {
   const myJobs = Array.isArray(jobs) ? jobs.slice(0, 3) : [];
   const topCandidates = Array.isArray(matchedCandidates) ? matchedCandidates.slice(0, 3) : [];
 
+  // Premium status tag helper for stat cards
+  const getStatBadge = (key: keyof EmployerStats) => {
+    if (key === "activeJobs") return { label: "Live board", style: "bg-rose-50 text-rose-700" };
+    if (key === "totalApplicants") return { label: "Active", style: "bg-violet-50 text-violet-700" };
+    if (key === "interviews") return { label: "Scheduled", style: "bg-blue-50 text-blue-700" };
+    return { label: "98% Match", style: "bg-emerald-50 text-emerald-700" };
+  };
+
   return (
     <DashboardShell
       title="Employer dashboard"
-      subtitle={`${companyName} · ${activeCount} active jobs`}
+      subtitle={`${companyName} · ${activeCount} active opportunities listed`}
       actions={
         <Link to="/employer/post-job">
-          <BtnPrimary>Post a job <ArrowRight size={12} /></BtnPrimary>
+          <BtnPrimary className="px-5 py-2.5 shadow-sm text-xs font-bold flex items-center gap-2">
+            Post a job <ArrowRight size={13} />
+          </BtnPrimary>
         </Link>
       }
     >
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {STATS.map(s => {
           const Icon = s.icon;
           const value = stats?.[s.key] ?? 0;
+          const badge = getStatBadge(s.key);
           return (
-            <div key={s.key} className="bg-card border border-border rounded-2xl p-4 hover:shadow-sm transition-all">
-              <div className="flex items-start justify-between mb-3">
-                <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${s.color} flex items-center justify-center`}>
+            <div
+              key={s.key}
+              className="bg-card border border-border/80 rounded-2xl p-5 hover:shadow-md hover:border-primary/20 hover:-translate-y-0.5 transition-all duration-300 group"
+            >
+              <div className="flex items-start justify-between mb-3.5">
+                <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${s.color} flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-300`}>
                   <Icon size={15} className="text-white" />
                 </div>
+                <span className={cn("text-[9px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider", badge.style)}>
+                  {badge.label}
+                </span>
               </div>
               {statsLoading ? (
                 <div className="h-8 w-16 bg-muted animate-pulse rounded-md" />
               ) : (
-                <div className="font-serif text-3xl text-foreground leading-none">{value}</div>
+                <div className="font-serif text-3.5xl font-extrabold text-foreground leading-none tracking-tight">{value}</div>
               )}
-              <div className="text-[11px] text-muted-foreground mt-1 font-medium">{s.label}</div>
+              <div className="text-[11px] text-muted-foreground mt-1.5 font-semibold uppercase tracking-wider text-ink-300">{s.label}</div>
             </div>
           );
         })}
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-4">
+      <div className="grid lg:grid-cols-2 gap-6">
         {/* Active Listings */}
         <SectionCard
           title="Your active listings"
-          actions={<Link to="/employer/listings" className="text-[11px] text-primary font-semibold hover:underline">Manage all</Link>}
+          actions={<Link to="/employer/listings" className="text-[11px] text-primary font-bold hover:underline transition-all flex items-center gap-0.5">Manage all listings →</Link>}
           noPad
         >
           {jobsLoading ? (
-            <div className="p-8 flex justify-center items-center">
+            <div className="p-12 flex justify-center items-center">
               <Loader2 className="w-6 h-6 animate-spin text-primary" />
             </div>
           ) : myJobs.length === 0 ? (
-            <div className="p-8 text-center text-muted-foreground text-sm">
-              No active job listings. Click "Post a job" to get started.
+            <div className="p-12 text-center text-muted-foreground/60 text-xs border border-dashed border-border/80 rounded-2xl m-4 flex flex-col items-center gap-2">
+              <Briefcase size={20} className="text-muted-foreground/45" />
+              <span>No active job listings. Click "Post a job" to get started.</span>
             </div>
           ) : (
-            <div className="divide-y divide-border">
+            <div className="divide-y divide-border/60">
               {myJobs.map((j) => (
-                <div key={j.id ?? j._id} className="p-4 flex justify-between items-start gap-3">
+                <div
+                  key={j.id ?? j._id}
+                  className="p-5 flex justify-between items-start gap-4 hover:bg-secondary/35 transition-all duration-200 group cursor-pointer"
+                >
                   <div className="min-w-0">
-                    <div className="text-[13px] font-bold text-foreground truncate">{j.title}</div>
-                    <div className="text-[11px] text-muted-foreground mt-0.5 inline-flex items-center gap-1">
-                      {j.location ? <><MapPin size={10} />{j.location}</> : "Remote"} · {relativeTime(j.createdAt)}
+                    <div className="text-[13px] font-extrabold text-foreground truncate group-hover:text-primary transition-colors leading-snug">
+                      {j.title}
                     </div>
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${j.status === "PUBLISHED" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"
-                        }`}>
+                    <div className="text-[11px] text-muted-foreground mt-1 font-medium flex items-center gap-1.5">
+                      <span className="inline-flex items-center gap-0.5"><MapPin size={10} /> {j.location || "Remote"}</span>
+                      <span className="text-muted-foreground/30">·</span>
+                      <span>{relativeTime(j.createdAt)}</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5 mt-3">
+                      <span className={cn(
+                        "text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider",
+                        j.status === "PUBLISHED" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"
+                      )}>
                         {j.status === "PUBLISHED" ? "ACTIVE" : j.status}
                       </span>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">{j.jobType}</span>
+                      <span className="text-[9px] font-black px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 uppercase tracking-wider">{j.jobType}</span>
                     </div>
                   </div>
-                  <div className="text-right flex-shrink-0">
-                    <div className="font-serif text-2xl text-foreground leading-none">{j.applicationCount ?? 0}</div>
-                    <div className="text-[10px] text-muted-foreground">applicants</div>
+                  <div className="text-right flex-shrink-0 bg-secondary/50 rounded-2xl p-3 border border-border/40 text-center min-w-[80px] shadow-sm transition-all group-hover:shadow-md group-hover:border-primary/20">
+                    <div className="font-serif text-2xl font-extrabold text-foreground leading-none">{j.applicationCount ?? 0}</div>
+                    <div className="text-[9px] text-muted-foreground font-semibold uppercase tracking-wider mt-1">applicants</div>
                   </div>
                 </div>
               ))}
@@ -156,32 +183,33 @@ export default function EmployerDashboard() {
         {/* AI-Matched Candidates */}
         <SectionCard
           title="AI-matched candidates"
-          actions={<Link to="/employer/ai-search" className="text-[11px] text-primary font-semibold hover:underline">Explore</Link>}
+          actions={<Link to="/employer/ai-search" className="text-[11px] text-primary font-bold hover:underline transition-all flex items-center gap-0.5">Unlock semantic search →</Link>}
           noPad
         >
           {matchedLoading ? (
-            <div className="p-8 flex justify-center items-center">
+            <div className="p-12 flex justify-center items-center">
               <Loader2 className="w-6 h-6 animate-spin text-primary" />
             </div>
           ) : topCandidates.length === 0 ? (
-            <div className="p-8 text-center text-muted-foreground text-sm">
-              No candidates found matching your job requirements.
+            <div className="p-12 text-center text-muted-foreground/60 text-xs border border-dashed border-border/80 rounded-2xl m-4 flex flex-col items-center gap-2">
+              <Sparkles size={20} className="text-muted-foreground/45" />
+              <span>No candidates found matching your job requirements.</span>
             </div>
           ) : (
-            <div className="divide-y divide-border">
+            <div className="divide-y divide-border/60">
               {topCandidates.map((c) => (
                 <Link
                   key={c.id ?? c._id}
                   to={`/employer/candidate/${c.id ?? c._id}`}
-                  className="p-4 flex justify-between items-center gap-3 hover:bg-accent/40 transition-colors cursor-pointer group"
+                  className="p-5 flex justify-between items-center gap-4 hover:bg-secondary/35 transition-all duration-200 group cursor-pointer"
                 >
-                  <div className="flex gap-2.5 min-w-0">
-                    <div className="relative w-9 h-9 flex-shrink-0">
+                  <div className="flex gap-3 min-w-0">
+                    <div className="relative w-10 h-10 flex-shrink-0 shadow-sm border border-border/60 rounded-xl overflow-hidden group-hover:shadow-md transition-all duration-300">
                       {c.avatarUrl && (
                         <img
                           src={c.avatarUrl}
                           alt={`${c.firstName} ${c.lastName}`}
-                          className="w-9 h-9 rounded-xl object-cover absolute inset-0"
+                          className="w-10 h-10 rounded-xl object-cover absolute inset-0"
                           onError={(e) => {
                             (e.currentTarget as HTMLImageElement).style.display = "none";
                             const sib = e.currentTarget.nextElementSibling as HTMLElement | null;
@@ -190,7 +218,7 @@ export default function EmployerDashboard() {
                         />
                       )}
                       <div
-                        className="w-9 h-9 rounded-xl flex items-center justify-center text-white text-[11px] font-bold"
+                        className="w-10 h-10 rounded-xl flex items-center justify-center text-white text-xs font-black"
                         style={{
                           background: "linear-gradient(135deg,#7C3AED,#C8315A)",
                           display: c.avatarUrl ? "none" : "flex",
@@ -201,15 +229,18 @@ export default function EmployerDashboard() {
                       </div>
                     </div>
                     <div className="min-w-0">
-                      <div className="text-[12px] font-bold text-foreground truncate group-hover:text-primary transition-colors">
+                      <div className="text-[13px] font-extrabold text-foreground truncate group-hover:text-primary transition-colors leading-snug">
                         {c.firstName} {c.lastName}
                       </div>
-                      <div className="text-[11px] text-muted-foreground truncate">{c.title}</div>
+                      <div className="text-[11px] text-muted-foreground truncate mt-0.5 font-medium">{c.title || "Professional Developer"}</div>
                     </div>
                   </div>
-                  <div className="text-right flex-shrink-0">
-                    <div className="text-[12px] font-bold text-emerald-600">{c.aiMatchScore}%</div>
-                    <div className="text-[9px] text-ink-300 uppercase tracking-wide">match</div>
+                  <div className="text-right flex-shrink-0 flex flex-col items-end">
+                    <div className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 mb-1 inline-flex items-center gap-1">
+                      <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
+                      {c.aiMatchScore}%
+                    </div>
+                    <div className="text-[9px] text-muted-foreground/60 font-semibold uppercase tracking-wider">match score</div>
                   </div>
                 </Link>
               ))}
@@ -220,6 +251,3 @@ export default function EmployerDashboard() {
     </DashboardShell>
   );
 }
-
-
-
