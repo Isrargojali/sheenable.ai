@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { toast } from "sonner";
 import { Download, Sparkles, AlertCircle, ArrowRight, ShieldCheck, Heart, FileText, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "@/assets/sheEnableAI-removebg-preview.png";
