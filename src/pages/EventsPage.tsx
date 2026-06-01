@@ -70,7 +70,7 @@ export default function EventsPage() {
   };
 
   const isRegistered = (event: EventItem) => {
-    return user ? event.registrations.includes(user._id) : false;
+    return user ? event.registrations.includes(user.id) : false;
   };
 
   return (
