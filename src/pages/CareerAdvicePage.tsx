@@ -18,6 +18,7 @@ interface Article {
   readTime: number;
   tags: string[];
   createdAt: string;
+  isFeatured?: boolean;
 }
 
 export default function CareerAdvicePage() {
