@@ -25,11 +25,11 @@ const KPIS: Array<{
   bgColor: string;
   textColor: string;
 }> = [
-  { key: "threatLevel",     label: "Threat Level Status",  icon: ShieldCheck,   tone: "good", bgColor: "bg-emerald-50 border-emerald-100", textTextColor: "text-emerald-600", textColor: "text-emerald-600" },
-  { key: "blockedIPs",      label: "Active Blocked IPs",   icon: Lock,          tone: "warn", bgColor: "bg-amber-50 border-amber-100", textTextColor: "text-amber-600", textColor: "text-amber-600" },
-  { key: "failedLogins24h", label: "Failed Logins (24h)",  icon: AlertTriangle, tone: "warn", bgColor: "bg-rose-50 border-rose-100", textTextColor: "text-rose-600", textColor: "text-rose-600" },
-  { key: "activeSessions",  label: "Active Sessions",      icon: Activity,      tone: "info", bgColor: "bg-blue-50 border-blue-100", textTextColor: "text-blue-600", textColor: "text-blue-600" },
-];
+    { key: "threatLevel", label: "Threat Level Status", icon: ShieldCheck, tone: "good", bgColor: "bg-emerald-50 border-emerald-100", textColor: "text-emerald-600" },
+    { key: "blockedIPs", label: "Active Blocked IPs", icon: Lock, tone: "warn", bgColor: "bg-amber-50 border-amber-100", textColor: "text-amber-600" },
+    { key: "failedLogins24h", label: "Failed Logins (24h)", icon: AlertTriangle, tone: "warn", bgColor: "bg-rose-50 border-rose-100", textColor: "text-rose-600" },
+    { key: "activeSessions", label: "Active Sessions", icon: Activity, tone: "info", bgColor: "bg-blue-50 border-blue-100", textColor: "text-blue-600" },
+  ];
 
 const TONE: Record<string, string> = {
   good: "from-emerald-500 to-teal-600 text-emerald-500 shadow-emerald-500/10",
@@ -38,8 +38,8 @@ const TONE: Record<string, string> = {
 };
 
 export default function SecurityCenterPage() {
-  const { data, isLoading } = useQuery<ThreatData>({ 
-    queryKey: ["threats"], 
+  const { data, isLoading } = useQuery<ThreatData>({
+    queryKey: ["threats"],
     queryFn: apiAdmin.getSecurityInfo,
     refetchInterval: 12000 // Refresh security status every 12 seconds
   });
@@ -101,8 +101,8 @@ export default function SecurityCenterPage() {
           const Icon = k.icon;
           const v = safeData[k.key as keyof typeof safeData] ?? "—";
           return (
-            <div 
-              key={k.key} 
+            <div
+              key={k.key}
               className={cn(
                 "relative bg-card border border-border/80 rounded-2xl p-5 hover:shadow-md hover:border-primary/20 transition-all duration-300 group overflow-hidden"
               )}
@@ -160,8 +160,8 @@ export default function SecurityCenterPage() {
               { name: "CSRF Validations", desc: "Signed session authorization" },
               { name: "OTP Authentication", desc: "Multi-factor verification" },
             ].map(p => (
-              <div 
-                key={p.name} 
+              <div
+                key={p.name}
                 className="p-3.5 rounded-xl bg-secondary/20 hover:bg-secondary/40 border border-border/40 hover:border-primary/10 transition-all duration-200 flex flex-col gap-1 group"
               >
                 <div className="flex items-center justify-between">
@@ -188,8 +188,8 @@ function Row({ label, value, good }: { label: string; value: string | number; go
       <span className="text-xs font-medium text-muted-foreground">{label}</span>
       <span className={cn(
         "font-mono text-xs font-bold tracking-tight px-2.5 py-0.5 rounded-lg border",
-        good 
-          ? "bg-emerald-50 border-emerald-100 text-emerald-600" 
+        good
+          ? "bg-emerald-50 border-emerald-100 text-emerald-600"
           : "bg-secondary border-border text-foreground"
       )}>
         {value}
