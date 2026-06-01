@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Search, MapPin, Sparkles, AlertCircle, X, UserPlus, LogIn, ArrowRight } from "lucide-react";
-import GlassNav from "@/components/landing/GlassNav";
+import SubpageNav from "@/components/landing/SubpageNav";
 import Footer from "@/components/landing/Footer";
 import { JobCard, type JobCardData } from "@/components/ui-kit";
 import { apiJobs } from "@/lib/api";
@@ -103,7 +103,7 @@ export default function BrowseJobsPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#1A0D1F] text-white overflow-x-hidden">
-      <GlassNav />
+      <SubpageNav />
 
       {/* Hero Section */}
       <header className="relative py-20 border-b border-white/5 overflow-hidden">

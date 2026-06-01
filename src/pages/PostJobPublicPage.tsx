@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Sparkles, Briefcase, Plus, Heart, Share2, Eye, ShieldCheck, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "@/assets/sheEnableAI-removebg-preview.png";
+import SubpageNav from "@/components/landing/SubpageNav";
 
 export default function PostJobPublicPage() {
   const [job, setJob] = useState({
@@ -19,17 +20,7 @@ export default function PostJobPublicPage() {
   return (
     <div className="min-h-screen bg-[#1A0D1F] text-white flex flex-col">
       {/* Header */}
-      <header className="border-b border-white/5 bg-[#0F0A1A]/80 backdrop-blur-md sticky top-0 z-40 px-6 py-4 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <img src={logo} alt="SheEnableAI logo" className="h-10 object-contain" />
-        </Link>
-        <Link
-          to="/auth/signup?role=EMPLOYER"
-          className="px-5 py-2 bg-[#22C55E] hover:bg-[#1eb053] text-[#0F0A1A] rounded-full text-xs font-black transition-all shadow-lg"
-        >
-          Register as Employer
-        </Link>
-      </header>
+      <SubpageNav />
 
       {/* Main Grid */}
       <div className="flex-1 max-w-[1200px] mx-auto w-full p-6 grid lg:grid-cols-12 gap-8 items-start">

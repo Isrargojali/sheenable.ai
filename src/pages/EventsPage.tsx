@@ -6,6 +6,7 @@ import { useAuthStore } from "@/store/authStore";
 import { toast } from "sonner";
 import axios from "axios";
 import logo from "@/assets/sheEnableAI-removebg-preview.png";
+import SubpageNav from "@/components/landing/SubpageNav";
 
 interface Speaker {
   name: string;
@@ -59,7 +60,7 @@ export default function EventsPage() {
   const getFilteredEvents = () => {
     if (!events) return [];
     const now = new Date();
-    
+
     return events.filter(e => {
       const date = new Date(e.dateTime);
       if (filterMode === "UPCOMING") return date >= now;
@@ -75,17 +76,7 @@ export default function EventsPage() {
   return (
     <div className="min-h-screen bg-[#1A0D1F] text-white flex flex-col">
       {/* Header */}
-      <header className="border-b border-white/5 bg-[#0F0A1A]/80 backdrop-blur-md sticky top-0 z-40 px-6 py-4 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <img src={logo} alt="SheEnableAI logo" className="h-10 object-contain" />
-        </Link>
-        <Link
-          to="/jobs"
-          className="px-4 py-2 bg-[#22C55E]/10 hover:bg-[#22C55E]/20 border border-[#22C55E]/20 rounded-full text-xs font-bold text-[#22C55E] transition-all"
-        >
-          Explore Careers
-        </Link>
-      </header>
+      <SubpageNav />
 
       {/* Main Content */}
       <div className="flex-1 max-w-[1200px] mx-auto w-full p-6 space-y-8">
@@ -109,9 +100,8 @@ export default function EventsPage() {
             <button
               key={tab.id}
               onClick={() => setFilterMode(tab.id as any)}
-              className={`pb-3 text-xs font-bold transition-all relative ${
-                filterMode === tab.id ? "text-[#22C55E]" : "text-white/40 hover:text-white/60"
-              }`}
+              className={`pb-3 text-xs font-bold transition-all relative ${filterMode === tab.id ? "text-[#22C55E]" : "text-white/40 hover:text-white/60"
+                }`}
             >
               {tab.label}
               {filterMode === tab.id && (
@@ -150,11 +140,10 @@ export default function EventsPage() {
                         alt={event.title}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
-                      <span className={`absolute top-4 left-4 text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider ${
-                        isPast
+                      <span className={`absolute top-4 left-4 text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider ${isPast
                           ? "bg-white/10 text-white/70"
                           : "bg-[#22C55E] text-[#0F0A1A]"
-                      }`}>
+                        }`}>
                         {isPast ? "Archived Recording" : "Live Webinar"}
                       </span>
                     </div>

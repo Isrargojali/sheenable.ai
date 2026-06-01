@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import axios from "axios";
 import logo from "@/assets/sheEnableAI-removebg-preview.png";
+import SubpageNav from "@/components/landing/SubpageNav";
 
 interface SalaryStat {
   role: string;
@@ -90,17 +91,16 @@ export default function SalaryGuidePage() {
   return (
     <div className="min-h-screen bg-[#1A0D1F] text-white flex flex-col">
       {/* Header */}
-      <header className="border-b border-white/5 bg-[#0F0A1A]/80 backdrop-blur-md sticky top-0 z-40 px-6 py-4 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <img src={logo} alt="SheEnableAI logo" className="h-10 object-contain" />
-        </Link>
-        <button
-          onClick={() => setShowAddForm(true)}
-          className="px-4 py-2 bg-[#22C55E] hover:bg-[#1eb053] text-[#0F0A1A] rounded-full text-xs font-black transition-all flex items-center gap-1 shadow-lg"
-        >
-          <Plus size={14} /> Contribute Anonymously
-        </button>
-      </header>
+      <SubpageNav
+        actions={
+          <button
+            onClick={() => setShowAddForm(true)}
+            className="px-4 h-9 bg-[#22C55E] hover:bg-[#1eb053] text-[#0F0A1A] rounded-full text-xs font-black transition-all flex items-center gap-1 shadow-lg press"
+          >
+            <Plus size={14} /> Contribute Anonymously
+          </button>
+        }
+      />
 
       {/* Main Content Area */}
       <div className="flex-1 max-w-[1200px] mx-auto w-full p-6 space-y-8">

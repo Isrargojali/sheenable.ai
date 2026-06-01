@@ -6,6 +6,7 @@ import { useAuthStore } from "@/store/authStore";
 import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "@/assets/sheEnableAI-removebg-preview.png";
+import SubpageNav from "@/components/landing/SubpageNav";
 
 interface CVExperience {
   title: string;
@@ -140,27 +141,28 @@ export default function CVBuilderPublicPage() {
       `}</style>
 
       {/* Premium Header */}
-      <header className="border-b border-white/5 bg-[#0F0A1A]/80 backdrop-blur-md sticky top-0 z-40 px-6 py-4 flex items-center justify-between print:hidden">
-        <Link to="/" className="flex items-center gap-2">
-          <img src={logo} alt="SheEnableAI logo" className="h-10 object-contain" />
-        </Link>
-        <div className="flex items-center gap-4">
-          <button
-            onClick={handlePrint}
-            className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-xs font-bold transition-all flex items-center gap-1.5"
-          >
-            <Download size={14} /> Download PDF
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={saveMutation.isPending}
-            className="px-5 py-2 bg-[#22C55E] hover:bg-[#1eb053] text-[#0F0A1A] rounded-full text-xs font-black transition-all shadow-lg flex items-center gap-1.5"
-          >
-            {saveMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
-            {token ? "Save to Profile" : "Save & Create Profile"}
-          </button>
-        </div>
-      </header>
+      <div className="print:hidden">
+        <SubpageNav
+          actions={
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handlePrint}
+                className="px-4 h-9 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 press text-white"
+              >
+                <Download size={14} /> Download PDF
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={saveMutation.isPending}
+                className="px-5 h-9 bg-[#22C55E] hover:bg-[#1eb053] text-[#0F0A1A] rounded-full text-xs font-black transition-all shadow-lg flex items-center gap-1.5 press"
+              >
+                {saveMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+                {token ? "Save to Profile" : "Save & Create Profile"}
+              </button>
+            </div>
+          }
+        />
+      </div>
 
       <div className="flex-1 max-w-[1400px] mx-auto w-full p-6 grid lg:grid-cols-12 gap-8">
         {/* Left Form Panel */}
