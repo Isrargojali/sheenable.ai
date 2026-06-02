@@ -260,12 +260,34 @@ const searchCandidates = async (req, res, next) => {
       // Split the search query into terms of length > 1
       const terms = q.split(/[\s,]+/).filter(t => t.trim().length > 1);
       if (terms.length > 0) {
-        dbFilter.$or = terms.flatMap(term => [
-          { title: { $regex: term, $options: 'i' } },
-          { bio: { $regex: term, $options: 'i' } },
-          { 'skills.name': { $regex: term, $options: 'i' } },
-          { category: { $regex: term, $options: 'i' } }
-        ]);
+        // Find users matching name terms to enable search by candidate name
+        const matchedUsers = await User.find({
+          $or: terms.flatMap(term => [
+            { firstName: { $regex: term, $options: 'i' } },
+            { lastName: { $regex: term, $options: 'i' } },
+            { email: { $regex: term, $options: 'i' } }
+          ])
+        }).select('_id').lean();
+        const matchedUserIds = matchedUsers.map(u => u._id);
+
+        dbFilter.$or = [
+          ...terms.flatMap(term => [
+            { title: { $regex: term, $options: 'i' } },
+            { bio: { $regex: term, $options: 'i' } },
+            { 'skills.name': { $regex: term, $options: 'i' } },
+            { category: { $regex: term, $options: 'i' } },
+            // Deep resume/CV nesting queries (vital for synthesized/uploaded resumes)
+            { 'cv.title': { $regex: term, $options: 'i' } },
+            { 'cv.summary': { $regex: term, $options: 'i' } },
+            { 'cv.skills': { $regex: term, $options: 'i' } },
+            { 'cv.experience.title': { $regex: term, $options: 'i' } },
+            { 'cv.experience.company': { $regex: term, $options: 'i' } },
+            { 'cv.experience.bullets': { $regex: term, $options: 'i' } },
+            { 'cv.education.degree': { $regex: term, $options: 'i' } },
+            { 'cv.education.school': { $regex: term, $options: 'i' } }
+          ]),
+          ...(matchedUserIds.length > 0 ? [{ userId: { $in: matchedUserIds } }] : [])
+        ];
       }
     }
 
@@ -274,15 +296,19 @@ const searchCandidates = async (req, res, next) => {
       .populate('userId', 'firstName lastName avatarUrl email phone')
       .lean();
 
+    // Filter out orphaned candidate profiles (where userId is null)
+    candidates = candidates.filter(c => c.userId);
+
     // Fallback search: if no matching candidates found and we have a query q, try a text search
     if (candidates.length === 0 && q) {
       try {
         const textFilter = { ...dbFilter };
         delete textFilter.$or;
         textFilter.$text = { $search: q };
-        candidates = await CandidateProfile.find(textFilter)
+        const rawCandidates = await CandidateProfile.find(textFilter)
           .populate('userId', 'firstName lastName avatarUrl email phone')
           .lean();
+        candidates = rawCandidates.filter(c => c.userId);
       } catch (err) {
         // If text search throws an error, keep candidates as empty
       }
