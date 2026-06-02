@@ -118,6 +118,8 @@ export const apiAuth = {
   resetPassword:  (token: string, newPassword: string)             => api.post('/auth/reset-password', { token, newPassword }),
   getMe:          ()                                               => api.get('/auth/me').then(unwrap),
   refresh:        ()                                               => api.post('/auth/refresh-token'),
+  googleOAuth:   (token?: string, isSimulation?: boolean, simulationData?: object, role?: string) => api.post('/auth/oauth/google', { token, isSimulation, simulationData, role }),
+  linkedinOAuth: (code?: string, isSimulation?: boolean, simulationData?: object, role?: string) => api.post('/auth/oauth/linkedin', { code, isSimulation, simulationData, role }),
 };
 
 // ─── PROFILE ──────────────────────────────────────────────────────────────────

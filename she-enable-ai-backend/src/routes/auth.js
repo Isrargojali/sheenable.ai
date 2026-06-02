@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { register, verifyOtp, login, refreshToken, logout, forgotPassword, resetPassword, resendOtp, getMe } = require('../controllers/authController');
+const { register, verifyOtp, login, refreshToken, logout, forgotPassword, resetPassword, resendOtp, getMe, googleOAuth, linkedinOAuth } = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
 const { loginLimiter, registerLimiter } = require('../middleware/rateLimiter');
 const otpRateLimiter = require('../middleware/otpRateLimiter');
@@ -14,5 +14,9 @@ router.post('/forgot-password', otpRateLimiter, forgotPassword);
 router.post('/reset-password', resetPassword);
 router.post('/resend-otp', otpRateLimiter, resendOtp);
 router.get('/me', protect, getMe);
+
+// OAuth Endpoints
+router.post('/oauth/google', googleOAuth);
+router.post('/oauth/linkedin', linkedinOAuth);
 
 module.exports = router;

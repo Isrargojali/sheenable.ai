@@ -329,6 +329,219 @@ const getMe = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+const googleOAuth = async (req, res, next) => {
+  try {
+    const { token, isSimulation, simulationData } = req.body;
+    let email, firstName, lastName, avatarUrl;
+
+    if (isSimulation || !process.env.GOOGLE_CLIENT_ID) {
+      if (!simulationData || !simulationData.email || !simulationData.firstName || !simulationData.lastName) {
+        return error(res, 'Simulation data is missing', 400);
+      }
+      email = simulationData.email.toLowerCase().trim();
+      firstName = simulationData.firstName;
+      lastName = simulationData.lastName;
+      avatarUrl = simulationData.avatarUrl || null;
+    } else {
+      if (!token) return error(res, 'ID Token is required', 400);
+      try {
+        const googleRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${token}`);
+        if (!googleRes.ok) {
+          return error(res, 'Invalid Google ID token', 401);
+        }
+        const data = await googleRes.json();
+        email = data.email.toLowerCase().trim();
+        firstName = data.given_name || 'Google';
+        lastName = data.family_name || 'User';
+        avatarUrl = data.picture || null;
+      } catch (err) {
+        return error(res, `Google token verification failed: ${err.message}`, 401);
+      }
+    }
+
+    let user = await User.findOne({ email }).select('+refreshToken');
+    let isNewUser = false;
+
+    if (!user) {
+      const secureRandomPassword = crypto.randomBytes(16).toString('hex') + 'Aa1!';
+      const defaultRole = req.body.role || 'CANDIDATE';
+      user = await User.create({
+        firstName,
+        lastName,
+        email,
+        password: secureRandomPassword,
+        role: defaultRole,
+        gender: defaultRole === 'CANDIDATE' ? 'female' : 'prefer-not-to-say',
+        isVerified: true
+      });
+
+      if (defaultRole === 'CANDIDATE') {
+        await CandidateProfile.create({ userId: user._id });
+      } else {
+        await EmployerProfile.create({ userId: user._id, companyName: `${firstName}'s Company`, industry: 'Other' });
+      }
+      isNewUser = true;
+      await logAudit('USER_REGISTERED_OAUTH', 'user', user._id, user._id);
+    } else {
+      if (!user.isVerified) {
+        user.isVerified = true;
+      }
+    }
+
+    if (!user.isActive) return error(res, 'Account suspended. Contact support.', 403);
+
+    user.lastLoginAt = Date.now();
+    const { accessToken, refreshToken: newRefreshToken } = generateTokens(user._id);
+    user.refreshToken = hashToken(newRefreshToken);
+    await user.save();
+
+    await logAudit('LOGIN_SUCCESS_OAUTH', 'user', user._id, user._id);
+
+    if (isNewUser) {
+      try {
+        await sendWelcomeEmail(user.email, user.firstName, user.role);
+      } catch (emailErr) {
+        console.error('Welcome email failed for OAuth user:', emailErr.message);
+      }
+    }
+
+    res.cookie('refreshToken', newRefreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
+    const safeUserObject = {
+      id: user._id,
+      email: user.email,
+      role: user.role,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      avatarUrl: user.avatarUrl,
+      isVerified: user.isVerified
+    };
+
+    return success(res, { token: accessToken, user: safeUserObject, isNewUser });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const linkedinOAuth = async (req, res, next) => {
+  try {
+    const { code, isSimulation, simulationData } = req.body;
+    let email, firstName, lastName, avatarUrl;
+
+    if (isSimulation || !process.env.LINKEDIN_CLIENT_ID) {
+      if (!simulationData || !simulationData.email || !simulationData.firstName || !simulationData.lastName) {
+        return error(res, 'Simulation data is missing', 400);
+      }
+      email = simulationData.email.toLowerCase().trim();
+      firstName = simulationData.firstName;
+      lastName = simulationData.lastName;
+      avatarUrl = simulationData.avatarUrl || null;
+    } else {
+      if (!code) return error(res, 'Code is required', 400);
+      try {
+        const tokenRes = await fetch('https://www.linkedin.com/oauth/v2/accessToken', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({
+            grant_type: 'authorization_code',
+            code,
+            redirect_uri: `${process.env.FRONTEND_URL}/auth/linkedin/callback`,
+            client_id: process.env.LINKEDIN_CLIENT_ID,
+            client_secret: process.env.LINKEDIN_CLIENT_SECRET
+          })
+        });
+        if (!tokenRes.ok) return error(res, 'Failed to fetch LinkedIn access token', 401);
+        const { access_token } = await tokenRes.json();
+
+        const profileRes = await fetch('https://api.linkedin.com/v2/userinfo', {
+          headers: { Authorization: `Bearer ${access_token}` }
+        });
+        if (!profileRes.ok) return error(res, 'Failed to fetch LinkedIn profile details', 401);
+        const data = await profileRes.json();
+
+        email = data.email.toLowerCase().trim();
+        firstName = data.given_name || 'LinkedIn';
+        lastName = data.family_name || 'User';
+        avatarUrl = data.picture || null;
+      } catch (err) {
+        return error(res, `LinkedIn verification failed: ${err.message}`, 401);
+      }
+    }
+
+    let user = await User.findOne({ email }).select('+refreshToken');
+    let isNewUser = false;
+
+    if (!user) {
+      const secureRandomPassword = crypto.randomBytes(16).toString('hex') + 'Aa1!';
+      const defaultRole = req.body.role || 'CANDIDATE';
+      user = await User.create({
+        firstName,
+        lastName,
+        email,
+        password: secureRandomPassword,
+        role: defaultRole,
+        gender: defaultRole === 'CANDIDATE' ? 'female' : 'prefer-not-to-say',
+        isVerified: true
+      });
+
+      if (defaultRole === 'CANDIDATE') {
+        await CandidateProfile.create({ userId: user._id });
+      } else {
+        await EmployerProfile.create({ userId: user._id, companyName: `${firstName}'s Company`, industry: 'Other' });
+      }
+      isNewUser = true;
+      await logAudit('USER_REGISTERED_OAUTH', 'user', user._id, user._id);
+    } else {
+      if (!user.isVerified) {
+        user.isVerified = true;
+      }
+    }
+
+    if (!user.isActive) return error(res, 'Account suspended. Contact support.', 403);
+
+    user.lastLoginAt = Date.now();
+    const { accessToken, refreshToken: newRefreshToken } = generateTokens(user._id);
+    user.refreshToken = hashToken(newRefreshToken);
+    await user.save();
+
+    await logAudit('LOGIN_SUCCESS_OAUTH', 'user', user._id, user._id);
+
+    if (isNewUser) {
+      try {
+        await sendWelcomeEmail(user.email, user.firstName, user.role);
+      } catch (emailErr) {
+        console.error('Welcome email failed for OAuth user:', emailErr.message);
+      }
+    }
+
+    res.cookie('refreshToken', newRefreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
+    const safeUserObject = {
+      id: user._id,
+      email: user.email,
+      role: user.role,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      avatarUrl: user.avatarUrl,
+      isVerified: user.isVerified
+    };
+
+    return success(res, { token: accessToken, user: safeUserObject, isNewUser });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   register,
   verifyOtp,
@@ -338,5 +551,7 @@ module.exports = {
   forgotPassword,
   resetPassword,
   resendOtp,
-  getMe
+  getMe,
+  googleOAuth,
+  linkedinOAuth
 };
