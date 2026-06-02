@@ -8,6 +8,7 @@ const Notification = require('../models/Notification');
 const { success, error, paginated } = require('../utils/apiResponse');
 const { getPaginationParams, getPaginationData } = require('../utils/paginate');
 const { sendApplicationStatusEmail } = require('../services/emailService');
+const logger = require('../utils/logger');
 
 const applyForJob = async (req, res, next) => {
   try {
@@ -210,9 +211,18 @@ const updateStatus = async (req, res, next) => {
       resourceId: application._id
     });
 
-    const candidate = await User.findById(application.candidateId);
-    if (candidate) {
-      await sendApplicationStatusEmail(candidate.email, candidate.firstName, application.jobId.title, status);
+    try {
+      const candidate = await User.findById(application.candidateId);
+      if (candidate) {
+        await sendApplicationStatusEmail(candidate.email, candidate.firstName, application.jobId.title, status);
+      }
+    } catch (emailErr) {
+      logger.error('Failed to send status update email', {
+        error: emailErr.message,
+        candidateId: application.candidateId,
+        jobTitle: application.jobId?.title,
+        status
+      });
     }
 
     return success(res, application);

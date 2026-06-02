@@ -6,6 +6,7 @@ const AuditLog = require('../models/AuditLog');
 const { success, error, paginated } = require('../utils/apiResponse');
 const { getPaginationParams, getPaginationData } = require('../utils/paginate');
 const { sendInterviewScheduledEmail } = require('../services/emailService');
+const logger = require('../utils/logger');
 
 const scheduleInterview = async (req, res, next) => {
   try {
@@ -41,9 +42,19 @@ const scheduleInterview = async (req, res, next) => {
     application.status = 'INTERVIEW';
     await application.save();
 
-    const candidate = await User.findById(application.candidateId);
-    if (candidate) {
-      await sendInterviewScheduledEmail(candidate.email, candidate.firstName, application.jobId.title, scheduledAt, type, meetingLink);
+    try {
+      const candidate = await User.findById(application.candidateId);
+      if (candidate) {
+        await sendInterviewScheduledEmail(candidate.email, candidate.firstName, application.jobId.title, scheduledAt, type, meetingLink);
+      }
+    } catch (emailErr) {
+      logger.error('Failed to send interview scheduled email', {
+        error: emailErr.message,
+        candidateId: application.candidateId,
+        jobTitle: application.jobId?.title,
+        scheduledAt,
+        type
+      });
     }
 
     await AuditLog.create({

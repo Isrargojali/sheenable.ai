@@ -8,6 +8,7 @@ const { sendOTPEmail, sendWelcomeEmail, sendPasswordResetEmail } = require('../s
 const { success, error } = require('../utils/apiResponse');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const logger = require('../utils/logger');
 
 const logAudit = async (action, resourceType, resourceId, userId = null) => {
   try {
@@ -93,7 +94,15 @@ const verifyOtp = async (req, res, next) => {
     user.refreshToken = hashToken(refreshToken);
     await user.save();
 
-    await sendWelcomeEmail(user.email, user.firstName, user.role);
+    try {
+      await sendWelcomeEmail(user.email, user.firstName, user.role);
+    } catch (emailErr) {
+      logger.error('Failed to send welcome email during verification', {
+        error: emailErr.message,
+        userId: user._id,
+        email: user.email
+      });
+    }
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
@@ -149,7 +158,15 @@ const login = async (req, res, next) => {
       const { otp, hash, expiresAt } = generateOtp();
       user.otp = { code: hash, expiresAt };
       await user.save();
-      await sendOTPEmail(user.email, user.firstName, otp);
+      try {
+        await sendOTPEmail(user.email, user.firstName, otp);
+      } catch (emailErr) {
+        logger.error('Failed to send OTP email during login', {
+          error: emailErr.message,
+          userId: user._id,
+          email: user.email
+        });
+      }
       return error(res, 'Please verify your email first', 403);
     }
 
