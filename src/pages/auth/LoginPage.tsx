@@ -8,6 +8,7 @@ import { useAuthStore } from "@/store/authStore";
 import { useNotifStore } from "@/store/notifStore";
 import { apiAuth } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 type Role = "CANDIDATE" | "EMPLOYER" | "ADMIN";
 
@@ -83,8 +84,22 @@ export default function LoginPage() {
         navigate(ROLE_REDIRECTS[user.role] ?? "/");
       }
     } catch (err: unknown) {
-      const axiosErr = err as { response?: { data?: { message?: string } } };
+      const axiosErr = err as { response?: { status?: number; data?: { message?: string; errors?: { userId?: string; email?: string; devOtp?: string } } } };
       let errorMessage = axiosErr.response?.data?.message || "Login failed";
+
+      if (axiosErr.response?.status === 403 && axiosErr.response?.data?.errors?.userId) {
+        const { userId, email: errEmail, devOtp } = axiosErr.response.data.errors;
+        const devOtpParam = devOtp ? `&devOtp=${devOtp}` : "";
+        const applyJobParam = applyJobId ? `&applyJobId=${applyJobId}` : "";
+        
+        setError("Please verify your email first. Redirecting to verification page...");
+        toast.info("Verification code sent to your email!");
+        
+        setTimeout(() => {
+          navigate(`/auth/verify?userId=${userId}&email=${encodeURIComponent(errEmail || email)}${devOtpParam}${applyJobParam}`);
+        }, 1500);
+        return;
+      }
 
       if (err instanceof Error) {
         if (!axiosErr.response?.data?.message) {

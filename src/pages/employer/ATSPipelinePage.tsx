@@ -38,8 +38,8 @@ interface Applicant {
 }
 
 function ApplicantCard({
-  app, onMove, onReject, isPending,
-}: { app: Applicant; onMove: (id: string, stage: string) => void; onReject: (id: string) => void; isPending: boolean }) {
+  app, onMove, onReject, isPending, isAnyPending,
+}: { app: Applicant; onMove: (id: string, stage: string) => void; onReject: (id: string) => void; isPending: boolean; isAnyPending: boolean }) {
   const nextStage = NEXT_STAGE[app.stage];
   const nextLabel = STAGES.find(s => s.key === nextStage)?.label;
 
@@ -86,7 +86,7 @@ function ApplicantCard({
         {nextStage && (
           <button
             onClick={() => onMove(app.id, nextStage)}
-            disabled={isPending || (app.stage === "OFFER" && !app.offerAccepted)}
+            disabled={isAnyPending || (app.stage === "OFFER" && !app.offerAccepted)}
             className={cn(
               "flex-1 py-1.5 text-[10px] font-bold rounded-full transition-all truncate flex items-center justify-center gap-1 disabled:opacity-60",
               app.stage === "OFFER" && !app.offerAccepted
@@ -105,7 +105,7 @@ function ApplicantCard({
         )}
         <button
           onClick={() => onReject(app.id)}
-          disabled={isPending}
+          disabled={isAnyPending}
           className="px-2 py-1.5 border border-red-200 text-red-400 text-[10px] font-semibold rounded-full hover:bg-red-50 active:scale-95 transition-all flex-shrink-0 disabled:opacity-50"
         >
           ✕
@@ -280,7 +280,8 @@ export default function ATSPipelinePage() {
                       app={app}
                       onMove={moveApp}
                       onReject={rejectApp}
-                      isPending={updateStatusMut.isPending}
+                      isPending={updateStatusMut.isPending && updateStatusMut.variables?.id === app.id}
+                      isAnyPending={updateStatusMut.isPending}
                     />
                   ))}
                 </div>

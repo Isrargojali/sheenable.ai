@@ -167,7 +167,11 @@ const login = async (req, res, next) => {
           email: user.email
         });
       }
-      return error(res, 'Please verify your email first', 403);
+      return error(res, 'Please verify your email first', 403, {
+        userId: user._id,
+        email: user.email,
+        devOtp: process.env.NODE_ENV === 'development' ? otp : undefined
+      });
     }
 
     const { accessToken, refreshToken } = generateTokens(user._id);
