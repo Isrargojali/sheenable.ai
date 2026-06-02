@@ -108,10 +108,52 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background bg-arcs px-4 py-10 relative overflow-hidden">
+      {/* Premium Visual Flourish Animations */}
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes float-blob-1 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          33% { transform: translate(40px, -60px) scale(1.15); }
+          66% { transform: translate(-30px, 30px) scale(0.90); }
+        }
+        @keyframes float-blob-2 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          50% { transform: translate(-50px, 40px) scale(1.10); }
+        }
+        .animate-blob-1 {
+          animation: float-blob-1 18s ease-in-out infinite;
+        }
+        .animate-blob-2 {
+          animation: float-blob-2 22s ease-in-out infinite;
+        }
+        .animate-shimmer-btn {
+          position: relative;
+          overflow: hidden;
+        }
+        .animate-shimmer-btn::after {
+          content: '';
+          position: absolute;
+          top: -50%;
+          left: -60%;
+          width: 200%;
+          height: 200%;
+          background: linear-gradient(
+            to right,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.25) 50%,
+            rgba(255, 255, 255, 0) 100%
+          );
+          transform: rotate(30deg);
+          transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .animate-shimmer-btn:hover::after {
+          transform: translate(65%, 65%) rotate(30deg);
+        }
+      `}} />
+
       {/* Dynamic ambient blur spots */}
-      <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full opacity-[0.08] pointer-events-none blur-3xl"
+      <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full opacity-[0.08] pointer-events-none blur-3xl animate-blob-1"
         style={{ background: "radial-gradient(circle, #C8528C, transparent 70%)" }} />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[55vw] h-[55vw] rounded-full opacity-[0.08] pointer-events-none blur-3xl"
+      <div className="absolute bottom-[-10%] right-[-10%] w-[55vw] h-[55vw] rounded-full opacity-[0.08] pointer-events-none blur-3xl animate-blob-2"
         style={{ background: "radial-gradient(circle, #3DAA7D, transparent 70%)" }} />
 
       <div className="w-full max-w-[460px] relative z-10 bg-card/70 backdrop-blur-xl border border-border/50 rounded-[28px] p-8 md:p-10 shadow-lg animate-fade-in">
@@ -351,7 +393,7 @@ export default function SignupPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full h-12 rounded-full text-[13px] font-bold text-white transition-all duration-300 hover:shadow-lg press disabled:opacity-50 disabled:transform-none mt-3 inline-flex items-center justify-center gap-2"
+            className="w-full h-12 rounded-full text-[13px] font-bold text-white transition-all duration-300 hover:shadow-lg press disabled:opacity-50 disabled:transform-none mt-3 inline-flex items-center justify-center gap-2 animate-shimmer-btn"
             style={{ background: "var(--grad-mauve-rose)" }}
           >
             {loading ? "Creating account…" : <><span>Create account</span> <ArrowRight size={14} /></>}
