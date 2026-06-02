@@ -154,8 +154,8 @@ export default function LoginPage() {
           ))}
         </div>
 
-        <div className="relative z-10 text-[11px] text-white/45 max-w-md">
-          "I landed my dream role in 11 days. The match accuracy was scary good." — Aisha K., Senior Frontend Engineer
+        <div className="relative z-10 text-[11px] text-white/70 max-w-sm px-4 py-3 rounded-2xl border border-white/10 backdrop-blur-md bg-white/5 shadow-soft">
+          <span className="text-shimmer italic font-semibold font-serif">"</span>I landed my dream role in 11 days. The match accuracy was scary good.<span className="text-shimmer italic font-semibold font-serif">"</span> — Aisha K., Senior Frontend Engineer
         </div>
       </aside>
 
@@ -167,17 +167,17 @@ export default function LoginPage() {
         <div className="absolute bottom-1/4 -left-20 w-80 h-80 rounded-full opacity-[0.08] pointer-events-none blur-3xl"
           style={{ background: "radial-gradient(circle, #3DAA7D, transparent 70%)" }} />
 
-        <div className="w-full max-w-[400px] relative z-10 transition-all duration-500">
-          <div className="lg:hidden flex items-center gap-2 mb-7">
+        <div className="w-full max-w-[440px] relative z-10 bg-card/70 backdrop-blur-xl border border-border/50 rounded-[28px] p-8 md:p-10 shadow-lg animate-fade-in">
+          <div className="lg:hidden flex items-center justify-center mb-6">
              <img
               src={logo}
               alt="SheEnableAI logo"
-              className="w-48 h-24 object-contain"
+              className="w-48 h-20 object-contain"
             />
           </div>
 
-          <h1 className="font-serif text-4xl text-foreground mb-1.5 tracking-tight">Welcome back</h1>
-          <p className="text-sm text-muted-foreground mb-7">Sign in to continue your journey.</p>
+          <h1 className="font-serif text-3xl text-foreground text-center mb-1.5 tracking-tight">Welcome back</h1>
+          <p className="text-[13px] text-muted-foreground text-center mb-6">Sign in to continue your journey.</p>
 
           {/* Role tabs */}
           <div className="flex bg-secondary border border-border/40 rounded-full p-1 mb-6">
@@ -206,7 +206,7 @@ export default function LoginPage() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <div className="space-y-1.5">
               <label htmlFor="login-email" className="block text-[11px] font-bold text-foreground/70 uppercase tracking-wider">
                 Email address
@@ -283,7 +283,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="flex items-center gap-3 my-6">
+          <div className="flex items-center gap-3 my-5">
             <div className="flex-1 h-px bg-border/60" />
             <span className="text-[10px] uppercase tracking-wider text-muted-foreground">or continue with</span>
             <div className="flex-1 h-px bg-border/60" />
