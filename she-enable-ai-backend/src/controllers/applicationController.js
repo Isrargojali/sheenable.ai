@@ -7,7 +7,7 @@ const CandidateProfile = require('../models/CandidateProfile');
 const Notification = require('../models/Notification');
 const { success, error, paginated } = require('../utils/apiResponse');
 const { getPaginationParams, getPaginationData } = require('../utils/paginate');
-const { sendApplicationStatusEmail } = require('../utils/sendEmail');
+const { sendApplicationStatusEmail } = require('../services/emailService');
 
 const applyForJob = async (req, res, next) => {
   try {

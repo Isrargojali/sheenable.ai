@@ -5,7 +5,7 @@ const User = require('../models/User');
 const AuditLog = require('../models/AuditLog');
 const { success, error, paginated } = require('../utils/apiResponse');
 const { getPaginationParams, getPaginationData } = require('../utils/paginate');
-const { sendInterviewEmail } = require('../utils/sendEmail');
+const { sendInterviewScheduledEmail } = require('../services/emailService');
 
 const scheduleInterview = async (req, res, next) => {
   try {
@@ -43,7 +43,7 @@ const scheduleInterview = async (req, res, next) => {
 
     const candidate = await User.findById(application.candidateId);
     if (candidate) {
-      await sendInterviewEmail(candidate.email, candidate.firstName, application.jobId.title, scheduledAt, type, meetingLink);
+      await sendInterviewScheduledEmail(candidate.email, candidate.firstName, application.jobId.title, scheduledAt, type, meetingLink);
     }
 
     await AuditLog.create({

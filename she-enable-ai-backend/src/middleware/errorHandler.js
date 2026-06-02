@@ -1,7 +1,8 @@
 const { error } = require('../utils/apiResponse');
+const logger = require('../utils/logger');
 
 const errorHandler = (err, req, res, next) => {
-  let statusCode = res.statusCode && res.statusCode !== 200 ? res.statusCode : 500;
+  let statusCode = err.statusCode || (res.statusCode && res.statusCode !== 200 ? res.statusCode : 500);
   let message = err.message || 'Server error';
 
   // Mongoose CastError (invalid ObjectId)
@@ -33,9 +34,13 @@ const errorHandler = (err, req, res, next) => {
     statusCode = 401;
   }
 
-  if (process.env.NODE_ENV === 'development') {
-    console.error(err.stack);
-  }
+  // Route log stream through winston
+  logger.error(err.message, { 
+    url: req.originalUrl, 
+    method: req.method, 
+    ip: req.ip,
+    stack: err.stack 
+  });
 
   // Don't leak exact error details in production unless it's a controlled message
   if (process.env.NODE_ENV === 'production' && statusCode === 500) {

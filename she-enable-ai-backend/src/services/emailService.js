@@ -1,127 +1,196 @@
-const sgMail = require('@sendgrid/mail');
+// she-enable-ai-backend/src/services/emailService.js
+const fs = require('fs');
+const path = require('path');
+const handlebars = require('handlebars');
+const SendgridProvider = require('./providers/sendgridProvider');
+const SmtpProvider = require('./providers/smtpProvider');
+const EmailLog = require('../models/EmailLog');
+const logger = require('../utils/logger');
+const EmailSendError = require('../errors/EmailSendError');
 
-if (process.env.SENDGRID_API_KEY && process.env.SENDGRID_API_KEY.startsWith('SG.')) {
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+let activeProvider = null;
+let providerName = 'DEVELOPMENT';
+
+// Initialize the active email provider based on environmental variables
+try {
+  if (process.env.SENDGRID_API_KEY) {
+    activeProvider = new SendgridProvider();
+    providerName = 'SENDGRID';
+  } else if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+    activeProvider = new SmtpProvider();
+    providerName = 'SMTP';
+  } else {
+    logger.warn('⚠️ No real email provider configured. Dispatches will log to the console only.');
+  }
+} catch (err) {
+  logger.error('Failed to initialize active email provider. Falling back to development console logger.', { error: err.message });
 }
 
-const HAS_SENDGRID = !!(process.env.SENDGRID_API_KEY && process.env.SENDGRID_API_KEY.startsWith('SG.'));
-
-const sendEmail = async ({ to, subject, html }) => {
-  try {
-    if (!HAS_SENDGRID) {
-      console.log(`[DEV EMAIL] To: ${to} | Subject: ${subject}`);
-      return;
-    }
-    await sgMail.send({
-      to,
-      from: { email: process.env.FROM_EMAIL || 'noreply@sheenableai.com', name: process.env.FROM_NAME || 'SheEnableAI' },
-      subject,
-      html,
-    });
-  } catch (err) {
-    // Never crash the app due to email failure
-    console.warn('[Email Error]', err.message);
+/**
+ * Loads and compiles a Handlebars template
+ * @param {string} templateName 
+ * @param {Object} data 
+ * @returns {string} Compiled HTML
+ */
+const compileTemplate = (templateName, data) => {
+  const filePath = path.join(__dirname, '../templates', `${templateName}.html`);
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`Email template file not found: ${filePath}`);
   }
+  const source = fs.readFileSync(filePath, 'utf-8');
+  const template = handlebars.compile(source);
+  return template(data);
 };
 
-// ─── OTP EMAIL ────────────────────────────────────────────────────────────────
+/**
+ * Core dispatching agent with exponential backoff retry logic and db logs.
+ * @param {Object} options 
+ * @param {string} options.to 
+ * @param {string} options.subject 
+ * @param {string} options.templateType 
+ * @param {Object} options.variables 
+ * @param {number} retries 
+ */
+const sendEmail = async (options, retries = 3) => {
+  const { to, subject, templateType, variables } = options;
+  let html;
+
+  try {
+    html = compileTemplate(templateType, variables);
+  } catch (err) {
+    logger.error('Template compilation failed', { templateType, error: err.message });
+    throw new EmailSendError(`Template compilation failed: ${err.message}`);
+  }
+
+  // Verification: Validate email before sending
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(to)) {
+    logger.error('Email dispatch rejected: Invalid recipient email address', { to });
+    throw new EmailSendError('Invalid recipient email address');
+  }
+
+  // 🚀 FUTURE SCALABILITY QUEUE INTEGRATION POINT:
+  // If integrating BullMQ later, you can push the payload here to the Redis queue instead of executing inline:
+  // await emailQueue.add('send-email', { options, retries });
+  // and move the below execution block into the Queue Worker thread.
+
+  if (!activeProvider) {
+    // Development/Test fallback
+    logger.info(`📧 [DEV CONSOLE LOG] Email would be dispatched to: ${to}`, {
+      subject,
+      templateType,
+      variables
+    });
+    return;
+  }
+
+  let lastError;
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const messageId = await activeProvider.send({ to, subject, html });
+
+      // Create EmailLog database tracking entry
+      await EmailLog.create({
+        email: to,
+        templateType,
+        provider: providerName,
+        status: 'SENT',
+        messageId,
+        metadata: variables,
+        history: [{ status: 'SENT' }]
+      });
+
+      return;
+    } catch (err) {
+      lastError = err;
+      logger.warn(`Email send attempt ${attempt}/${retries} failed for ${to}`, { error: err.message });
+      if (attempt < retries) {
+        // Exponential backoff
+        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+      }
+    }
+  }
+
+  // Create failure Log entry
+  await EmailLog.create({
+    email: to,
+    templateType,
+    provider: providerName,
+    status: 'FAILED',
+    metadata: { ...variables, lastError: lastError.message },
+    history: [{ status: 'FAILED' }]
+  });
+
+  logger.error(`❌ Email delivery permanently failed for ${to} after ${retries} attempts`, { error: lastError.message });
+  throw new EmailSendError(`Email delivery failed: ${lastError.message}`);
+};
+
+// ─── TRANSACTIONAL DISPATCHERS ────────────────────────────────────────────────
+
 const sendOTPEmail = async (email, firstName, otp) => {
-  console.log(`[OTP] ${email} => ${otp}`);
   await sendEmail({
     to: email,
-    subject: 'Your SheEnableAI verification code',
-    html: `
-      <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#f9f9f9;border-radius:12px">
-        <h2 style="color:#534AB7">Welcome to SheEnableAI, ${firstName}!</h2>
-        <p>Use this code to verify your email address:</p>
-        <div style="font-size:40px;font-weight:bold;letter-spacing:10px;color:#534AB7;margin:24px 0;text-align:center">${otp}</div>
-        <p>This code expires in <strong>10 minutes</strong>.</p>
-        <p style="color:#888;font-size:12px">If you didn't request this, please ignore this email.</p>
-      </div>`,
+    subject: 'Your SheEnableAI Verification Code',
+    templateType: 'otp',
+    variables: { firstName, otp }
   });
 };
 
-// ─── WELCOME EMAIL ────────────────────────────────────────────────────────────
 const sendWelcomeEmail = async (email, firstName, role) => {
-  const roleLabel = role === 'CANDIDATE' ? 'job seeker' : 'employer';
+  const roleLabel = role === 'CANDIDATE' ? 'Job Seeker' : 'Employer';
+  const dashboardUrl = role === 'CANDIDATE' 
+    ? `${process.env.FRONTEND_URL}/candidate/dashboard`
+    : `${process.env.FRONTEND_URL}/employer/dashboard`;
+
   await sendEmail({
     to: email,
-    subject: 'Welcome to SheEnableAI 🎉',
-    html: `
-      <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#f9f9f9;border-radius:12px">
-        <h2 style="color:#534AB7">You're in, ${firstName}!</h2>
-        <p>Welcome to SheEnableAI — the AI-powered hiring platform for women.</p>
-        <p>Your account as a <strong>${roleLabel}</strong> is now verified and ready to use.</p>
-        <a href="${process.env.FRONTEND_URL}" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#534AB7;color:#fff;border-radius:8px;text-decoration:none">
-          Get Started
-        </a>
-        <p style="color:#888;font-size:12px;margin-top:24px">SheEnableAI — Empowering women in tech and beyond.</p>
-      </div>`,
+    subject: 'Welcome to SheEnableAI - Your Account is Active!',
+    templateType: 'welcome',
+    variables: { firstName, role: roleLabel, dashboardUrl }
   });
 };
 
-// ─── PASSWORD RESET EMAIL ─────────────────────────────────────────────────────
 const sendPasswordResetEmail = async (email, resetLink) => {
   await sendEmail({
     to: email,
-    subject: 'Reset your SheEnableAI password',
-    html: `
-      <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#f9f9f9;border-radius:12px">
-        <h2 style="color:#534AB7">Password Reset</h2>
-        <p>You requested a password reset for your SheEnableAI account.</p>
-        <p>Click the button below to reset your password. This link expires in <strong>1 hour</strong>.</p>
-        <a href="${resetLink}" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#534AB7;color:#fff;border-radius:8px;text-decoration:none">
-          Reset Password
-        </a>
-        <p style="margin-top:16px;font-size:12px;color:#666">Or copy this link into your browser:<br>${resetLink}</p>
-        <p style="color:#888;font-size:12px;margin-top:24px">If you didn't request a reset, you can safely ignore this email.</p>
-      </div>`,
+    subject: 'SheEnableAI - Reset Your Password',
+    templateType: 'resetPassword',
+    variables: { resetLink }
   });
 };
 
-// ─── APPLICATION STATUS EMAIL ─────────────────────────────────────────────────
 const sendApplicationStatusEmail = async (email, firstName, jobTitle, status, rejectionReason = '') => {
-  const content = {
-    SCREENING: {
-      subject: `Application update: ${jobTitle}`,
-      html: `<p>Hi ${firstName}, your application for <strong>${jobTitle}</strong> is being reviewed. We'll be in touch soon!</p>`,
-    },
-    INTERVIEW: {
-      subject: `Interview invitation: ${jobTitle}`,
-      html: `<p>Hi ${firstName}, great news! You've been shortlisted for an interview for <strong>${jobTitle}</strong>. Check your dashboard for details.</p>`,
-    },
-    OFFERED: {
-      subject: `Job Offer: ${jobTitle} 🎉`,
-      html: `<p>Hi ${firstName}, congratulations! You've received a job offer for <strong>${jobTitle}</strong>. Log into SheEnableAI to view the offer details.</p>`,
-    },
-    REJECTED: {
-      subject: `Application update: ${jobTitle}`,
-      html: `<p>Hi ${firstName}, thank you for applying to <strong>${jobTitle}</strong>. After careful consideration, we won't be moving forward at this time.${rejectionReason ? ` Feedback: ${rejectionReason}` : ''}</p><p>Keep applying — the right opportunity is out there!</p>`,
-    },
+  const statusLabels = {
+    SCREENING: 'Under Screening',
+    INTERVIEW: 'Shortlisted for Interview',
+    OFFERED: 'Job Offered 🎉',
+    REJECTED: 'Application Closed'
   };
-  const c = content[status];
-  if (!c) return;
-  await sendEmail({ to: email, subject: c.subject, html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px">${c.html}</div>` });
+
+  await sendEmail({
+    to: email,
+    subject: `Update on your application for ${jobTitle}`,
+    templateType: 'applicationStatus',
+    variables: { 
+      firstName, 
+      jobTitle, 
+      status: statusLabels[status] || status, 
+      rejectionReason 
+    }
+  });
 };
 
-// ─── INTERVIEW SCHEDULED EMAIL ────────────────────────────────────────────────
 const sendInterviewScheduledEmail = async (email, firstName, jobTitle, scheduledAt, type, meetingLink) => {
   const typeLabel = { PHONE: 'Phone Call', VIDEO: 'Video Interview', IN_PERSON: 'In-Person' }[type] || type;
-  const dateStr = new Date(scheduledAt).toLocaleString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  const dateStr = new Date(scheduledAt).toLocaleString('en-US', { 
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' 
+  });
+
   await sendEmail({
     to: email,
     subject: `Interview scheduled: ${jobTitle}`,
-    html: `
-      <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#f9f9f9;border-radius:12px">
-        <h2 style="color:#534AB7">Interview Scheduled!</h2>
-        <p>Hi ${firstName}, your interview for <strong>${jobTitle}</strong> has been scheduled.</p>
-        <table style="width:100%;border-collapse:collapse;margin:16px 0">
-          <tr><td style="padding:8px;font-weight:bold;width:40%">Date & Time:</td><td style="padding:8px">${dateStr}</td></tr>
-          <tr><td style="padding:8px;font-weight:bold">Type:</td><td style="padding:8px">${typeLabel}</td></tr>
-          ${meetingLink ? `<tr><td style="padding:8px;font-weight:bold">Link:</td><td style="padding:8px"><a href="${meetingLink}">${meetingLink}</a></td></tr>` : ''}
-        </table>
-        <p>Log into your SheEnableAI dashboard for full details.</p>
-      </div>`,
+    templateType: 'interviewScheduled',
+    variables: { firstName, jobTitle, dateStr, typeLabel, meetingLink }
   });
 };
 

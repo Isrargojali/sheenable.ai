@@ -419,4 +419,39 @@ Ideal Qualifications:
   }
 };
 
-module.exports = { generateCV, getMatchedCandidates, searchCandidates, improveJob };
+const handleSendgridWebhook = async (req, res, next) => {
+  try {
+    const events = req.body;
+    if (!Array.isArray(events)) {
+      return res.status(400).json({ success: false, message: 'Invalid webhook payload structure' });
+    }
+
+    const EmailLog = require('../models/EmailLog');
+    const logger = require('../utils/logger');
+
+    for (const e of events) {
+      const { email, event, sg_message_id } = e;
+      if (!email || !event) continue;
+
+      const eventUpper = event.toUpperCase();
+      // Twilio appends worker thread suffixes like msgid.filter.worker. Stripping it:
+      const messageId = sg_message_id ? sg_message_id.split('.')[0] : null;
+
+      logger.info(`SendGrid Webhook delivery update: ${eventUpper} for ${email}`, { messageId });
+
+      await EmailLog.findOneAndUpdate(
+        messageId ? { messageId } : { email },
+        {
+          status: eventUpper,
+          $push: { history: { status: eventUpper, timestamp: new Date() } }
+        }
+      );
+    }
+
+    return res.status(200).json({ success: true });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { generateCV, getMatchedCandidates, searchCandidates, improveJob, handleSendgridWebhook };

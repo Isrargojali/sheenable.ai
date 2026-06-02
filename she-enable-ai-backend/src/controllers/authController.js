@@ -4,7 +4,7 @@ const EmployerProfile = require('../models/EmployerProfile');
 const AuditLog = require('../models/AuditLog');
 const { generateTokens, hashToken } = require('../utils/generateTokens');
 const { generateOtp } = require('../utils/otpGenerator');
-const { sendOtpEmail, sendWelcomeEmail, sendPasswordResetEmail } = require('../utils/sendEmail');
+const { sendOTPEmail, sendWelcomeEmail, sendPasswordResetEmail } = require('../services/emailService');
 const { success, error } = require('../utils/apiResponse');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
@@ -51,7 +51,7 @@ const register = async (req, res, next) => {
     }
 
     try {
-      await sendOtpEmail(user.email, user.firstName, otp);
+      await sendOTPEmail(user.email, user.firstName, otp);
     } catch (emailErr) {
       console.error('⚠️ OTP email failed, but user was created:', emailErr.message);
       // Don't fail signup if email fails - allow manual resend
@@ -149,7 +149,7 @@ const login = async (req, res, next) => {
       const { otp, hash, expiresAt } = generateOtp();
       user.otp = { code: hash, expiresAt };
       await user.save();
-      await sendOtpEmail(user.email, user.firstName, otp);
+      await sendOTPEmail(user.email, user.firstName, otp);
       return error(res, 'Please verify your email first', 403);
     }
 
@@ -293,7 +293,7 @@ const resendOtp = async (req, res, next) => {
     await user.save();
 
     try {
-      await sendOtpEmail(user.email, user.firstName, otp);
+      await sendOTPEmail(user.email, user.firstName, otp);
       console.log(`✅ Resent OTP to ${user.email}`);
     } catch (emailErr) {
       console.error('⚠️ Failed to send OTP email:', emailErr.message);
