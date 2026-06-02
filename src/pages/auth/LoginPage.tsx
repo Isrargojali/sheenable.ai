@@ -18,8 +18,6 @@ const ROLE_REDIRECTS: Record<string, string> = {
   SUPER_ADMIN: "/super-admin/overview",
 };
 
-
-
 export default function LoginPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -33,6 +31,7 @@ export default function LoginPage() {
   const [showPwd, setShowPwd] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [focusedField, setFocusedField] = useState<string | null>(null);
 
   useEffect(() => { document.title = "Sign in · SheEnableAI"; }, []);
 
@@ -97,9 +96,9 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-[1.05fr_1fr]">
+    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-[1.05fr_1fr] bg-background">
 
-      {/* ── Left: Brand & mission ─────────────────────────────────── */}
+      {/* ── Left: Brand & mission (Desktop only) ─────────────────── */}
       <aside
         className="hidden lg:flex flex-col justify-between relative overflow-hidden text-white px-12 py-12"
         style={{ background: "var(--grad-hero)" }}
@@ -120,19 +119,11 @@ export default function LoginPage() {
 
         {/* Logo */}
         <Link to="/" className="relative z-10 flex items-center gap-2.5 group" aria-label="SheEnableAI home">
-          {/* <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105"
-               style={{ background: "linear-gradient(135deg,#C8528C,#7C3B6E)" }}>
-            <Heart size={16} className="text-white" fill="white" />
-          </div> */}
           <img
             src={logo}
             alt="SheEnableAI logo"
             className="w-48 h-24 object-contain transition-transform group-hover:scale-105"
           />
-          {/* <div>
-            <div className="font-serif text-xl text-white leading-none">SheEnableAI</div>
-            <div className="text-[9px] text-white/40 uppercase tracking-[2px] mt-1">Women's platform</div>
-          </div> */}
         </Link>
 
         {/* Hero text */}
@@ -149,7 +140,7 @@ export default function LoginPage() {
             { icon: Heart, title: "Built for women", sub: "Verified inclusive employers only" },
             { icon: ShieldCheck, title: "Bank-grade security", sub: "End-to-end encrypted, never sold" },
           ].map(({ icon: Icon, title, sub }) => (
-            <div key={title} className="flex items-center gap-3 px-4 py-3 rounded-xl border mb-2.5 max-w-md"
+            <div key={title} className="flex items-center gap-3 px-4 py-3 rounded-xl border mb-2.5 max-w-md transition-all duration-300 hover:scale-[1.02]"
               style={{ background: "rgba(255,255,255,.05)", borderColor: "rgba(255,255,255,.08)" }}>
               <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
                 style={{ background: "rgba(200,82,140,.22)" }}>
@@ -169,25 +160,27 @@ export default function LoginPage() {
       </aside>
 
       {/* ── Right: Form ───────────────────────────────────────────── */}
-      <div className="flex items-center justify-center px-5 py-10 lg:py-12 bg-background">
-        <div className="w-full max-w-[400px]">
+      <div className="relative flex items-center justify-center px-6 py-10 lg:py-12 bg-background/40 backdrop-blur-md overflow-hidden">
+        {/* Ambient background glow spots */}
+        <div className="absolute top-1/4 -right-20 w-80 h-80 rounded-full opacity-[0.10] pointer-events-none blur-3xl"
+          style={{ background: "radial-gradient(circle, #C8528C, transparent 70%)" }} />
+        <div className="absolute bottom-1/4 -left-20 w-80 h-80 rounded-full opacity-[0.08] pointer-events-none blur-3xl"
+          style={{ background: "radial-gradient(circle, #3DAA7D, transparent 70%)" }} />
+
+        <div className="w-full max-w-[400px] relative z-10 transition-all duration-500">
           <div className="lg:hidden flex items-center gap-2 mb-7">
-            {/* <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "var(--grad-mauve-rose)" }}>
-              <Heart size={14} className="text-white" fill="white" />
-            </div> */}
              <img
-            src={logo}
-            alt="SheEnableAI logo"
-            className="w-48 h-24 object-contain transition-transform group-hover:scale-105"
-          />
-            {/* <span className="font-serif text-xl">SheEnableAI</span> */}
+              src={logo}
+              alt="SheEnableAI logo"
+              className="w-48 h-24 object-contain"
+            />
           </div>
 
           <h1 className="font-serif text-4xl text-foreground mb-1.5 tracking-tight">Welcome back</h1>
           <p className="text-sm text-muted-foreground mb-7">Sign in to continue your journey.</p>
 
           {/* Role tabs */}
-          <div className="flex bg-secondary rounded-full p-1 mb-5">
+          <div className="flex bg-secondary border border-border/40 rounded-full p-1 mb-6">
             {([
               { key: "CANDIDATE", label: "Candidate" },
               { key: "EMPLOYER", label: "Employer" },
@@ -198,8 +191,8 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => fillRole(r.key)}
                 className={cn(
-                  "flex-1 h-9 rounded-full text-[12px] font-bold press transition-colors",
-                  role === r.key ? "bg-card text-primary shadow-soft" : "text-muted-foreground hover:text-foreground"
+                  "flex-1 h-9 rounded-full text-[12px] font-bold press transition-all duration-300",
+                  role === r.key ? "bg-card text-primary shadow-soft border border-border/20" : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 {r.label}
@@ -207,55 +200,75 @@ export default function LoginPage() {
             ))}
           </div>
 
-
-
           {error && (
-            <div className="bg-rose-50 border border-rose-200 rounded-xl px-4 py-3 mb-4 text-[12px] text-rose-700">
+            <div className="bg-rose-50 border border-rose-200 rounded-xl px-4 py-3 mb-5 text-[12px] text-rose-700 animate-shake">
               ⚠ {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-            <div>
-              <label htmlFor="login-email" className="block text-[11px] font-bold text-foreground/75 uppercase tracking-wide mb-1.5">
+          <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+            <div className="space-y-1.5">
+              <label htmlFor="login-email" className="block text-[11px] font-bold text-foreground/70 uppercase tracking-wider">
                 Email address
               </label>
-              <div className="relative">
-                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={14} />
+              <div className={cn(
+                "relative flex items-center border rounded-xl bg-card transition-all duration-300",
+                focusedField === 'email' 
+                  ? "border-primary ring-4 ring-primary/5 shadow-md scale-[1.01]" 
+                  : "border-border shadow-sm hover:border-primary/30"
+              )}>
+                <Mail className={cn(
+                  "absolute left-4 transition-colors duration-300",
+                  focusedField === 'email' ? "text-primary" : "text-muted-foreground"
+                )} size={15} />
                 <input
                   id="login-email"
                   type="email"
                   value={email}
                   onChange={e => { setEmail(e.target.value); setError(""); }}
+                  onFocus={() => setFocusedField('email')}
+                  onBlur={() => setFocusedField(null)}
                   placeholder="you@example.com"
                   autoComplete="email"
-                  className="w-full h-11 pl-10 pr-4 border border-border rounded-xl text-[13px] bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/15 focus:border-primary transition-all"
+                  className="w-full h-12 pl-11 pr-4 bg-transparent border-none rounded-xl text-[13px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0"
                 />
               </div>
             </div>
 
-            <div>
-              <div className="flex justify-between items-center mb-1.5">
-                <label htmlFor="login-pwd" className="text-[11px] font-bold text-foreground/75 uppercase tracking-wide">Password</label>
-                <Link to="/auth/forgot-password" className="text-[11px] font-semibold text-primary hover:text-mauve-600">
+            <div className="space-y-1.5">
+              <div className="flex justify-between items-center">
+                <label htmlFor="login-pwd" className="text-[11px] font-bold text-foreground/70 uppercase tracking-wider">
+                  Password
+                </label>
+                <Link to="/auth/forgot-password" className="text-[11px] font-semibold text-primary hover:text-mauve-600 transition-colors">
                   Forgot password?
                 </Link>
               </div>
-              <div className="relative">
-                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={14} />
+              <div className={cn(
+                "relative flex items-center border rounded-xl bg-card transition-all duration-300",
+                focusedField === 'password' 
+                  ? "border-primary ring-4 ring-primary/5 shadow-md scale-[1.01]" 
+                  : "border-border shadow-sm hover:border-primary/30"
+              )}>
+                <Lock className={cn(
+                  "absolute left-4 transition-colors duration-300",
+                  focusedField === 'password' ? "text-primary" : "text-muted-foreground"
+                )} size={15} />
                 <input
                   id="login-pwd"
                   type={showPwd ? "text" : "password"}
                   value={password}
                   onChange={e => { setPass(e.target.value); setError(""); }}
+                  onFocus={() => setFocusedField('password')}
+                  onBlur={() => setFocusedField(null)}
                   placeholder="••••••••"
                   autoComplete="current-password"
-                  className="w-full h-11 pl-10 pr-10 border border-border rounded-xl text-[13px] bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/15 focus:border-primary transition-all"
+                  className="w-full h-12 pl-11 pr-11 bg-transparent border-none rounded-xl text-[13px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0"
                 />
                 <button type="button" onClick={() => setShowPwd(v => !v)}
                   aria-label={showPwd ? "Hide password" : "Show password"}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors">
-                  {showPwd ? <EyeOff size={14} /> : <Eye size={14} />}
+                  className="absolute right-4 text-muted-foreground hover:text-primary transition-colors">
+                  {showPwd ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
               </div>
             </div>
@@ -263,22 +276,23 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full h-12 rounded-full text-[13px] font-bold text-primary-foreground bg-primary hover:bg-mauve-600 hover:-translate-y-0.5 hover:shadow-elev2 press disabled:opacity-50 disabled:transform-none mt-2 inline-flex items-center justify-center gap-2"
+              className="relative overflow-hidden w-full h-12 rounded-full text-[13px] font-bold text-white transition-all duration-300 hover:shadow-lg press disabled:opacity-50 disabled:transform-none mt-2 inline-flex items-center justify-center gap-2"
+              style={{ background: "var(--grad-mauve-rose)" }}
             >
-              {loading ? "Signing in…" : <>Sign in securely <ArrowRight size={14} /></>}
+              {loading ? "Signing in securely…" : <>Sign in securely <ArrowRight size={14} /></>}
             </button>
           </form>
 
-          <div className="flex items-center gap-3 my-5">
-            <div className="flex-1 h-px bg-border" />
+          <div className="flex items-center gap-3 my-6">
+            <div className="flex-1 h-px bg-border/60" />
             <span className="text-[10px] uppercase tracking-wider text-muted-foreground">or continue with</span>
-            <div className="flex-1 h-px bg-border" />
+            <div className="flex-1 h-px bg-border/60" />
           </div>
 
           <div className="grid grid-cols-2 gap-3 mb-6">
             {["Google", "LinkedIn"].map(s => (
               <button key={s}
-                className="h-10 border border-border rounded-xl text-[12px] font-semibold text-foreground bg-card hover:bg-secondary hover:border-foreground/20 press">
+                className="h-10 border border-border rounded-xl text-[12px] font-semibold text-foreground bg-card hover:bg-secondary hover:border-foreground/20 transition-all duration-200 press">
                 {s}
               </button>
             ))}
@@ -286,12 +300,12 @@ export default function LoginPage() {
 
           <p className="text-center text-[12px] text-muted-foreground">
             New to SheEnableAI?{" "}
-            <Link to="/auth/signup" className="text-primary font-bold hover:text-mauve-600">
+            <Link to="/auth/signup" className="text-primary font-bold hover:text-mauve-600 transition-colors">
               Join Free →
             </Link>
           </p>
 
-          <div className="text-center text-[10px] text-muted-foreground mt-6">
+          <div className="text-center text-[10px] text-muted-foreground mt-8 opacity-75">
             🔒 SHA-256 encrypted · httpOnly cookies · Rate limited
           </div>
         </div>
