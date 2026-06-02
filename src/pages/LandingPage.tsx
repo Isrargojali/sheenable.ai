@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, Sparkles, ShieldCheck, Heart, BadgeCheck } from "lucide-react";
 import CountUp from "@/components/CountUp";
 import { useReveal } from "@/hooks/useReveal";
-import { demoLogin } from "@/lib/demoLogin";
+
 
 import GlassNav        from "@/components/landing/GlassNav";
 import JobTicker       from "@/components/landing/JobTicker";
@@ -193,22 +193,7 @@ export default function LandingPage() {
             </Link>
           </div>
 
-          {/* Demo logins */}
-          <div className="flex flex-wrap items-center gap-2 mb-8 text-[10px] text-white/50">
-            <span className="uppercase tracking-wider">Or peek as:</span>
-            {(["CANDIDATE", "EMPLOYER", "ADMIN"] as const).map(r => (
-              <button
-                key={r}
-                onClick={async () => {
-                  try { navigate(await demoLogin(r)); }
-                  catch { navigate("/auth/login"); }
-                }}
-                className="px-2.5 py-1 rounded-full border border-white/15 text-white/75 hover:text-white hover:border-white/35 press"
-              >
-                {r === "CANDIDATE" ? "Candidate" : r === "EMPLOYER" ? "Employer" : "Admin"}
-              </button>
-            ))}
-          </div>
+
 
           {/* Job ticker */}
           <div className="w-full max-w-[1100px]">

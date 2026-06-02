@@ -18,11 +18,7 @@ const ROLE_REDIRECTS: Record<string, string> = {
   SUPER_ADMIN: "/super-admin/overview",
 };
 
-const QUICK_FILL: Record<Role, { email: string; pass: string }> = {
-  CANDIDATE: { email: "ayesha@test.com", pass: "Test@1234" },
-  EMPLOYER: { email: "hr@techflow.com", pass: "Test@1234" },
-  ADMIN: { email: "admin@SheEnableAI.pk", pass: "Admin@1234" },
-};
+
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -42,8 +38,8 @@ export default function LoginPage() {
 
   function fillRole(r: Role) {
     setRole(r);
-    setEmail(QUICK_FILL[r].email);
-    setPass(QUICK_FILL[r].pass);
+    setEmail("");
+    setPass("");
     setError("");
   }
 
@@ -211,43 +207,7 @@ export default function LoginPage() {
             ))}
           </div>
 
-          {/* Demo helper */}
-          <div className="bg-mauve-50 border border-mauve-100 rounded-2xl p-3 mb-5">
-            <div className="text-[11px] text-primary font-medium mb-2">
-              <strong>Try it instantly</strong> — no typing required:
-            </div>
-            <div className="grid grid-cols-3 gap-1.5">
-              {(["CANDIDATE", "EMPLOYER", "ADMIN"] as Role[]).map(r => (
-                <button
-                  key={r}
-                  type="button"
-                  disabled={loading}
-                  onClick={async () => {
-                    setLoading(true);
-                    try {
-                      const { demoLogin } = await import("@/lib/demoLogin");
-                      const redirectUrl = await demoLogin(r);
-                      if (applyJobId && r === "CANDIDATE") {
-                        navigate(`/candidate/jobs?applyJobId=${applyJobId}`);
-                      } else {
-                        navigate(redirectUrl);
-                      }
-                    } catch (err: unknown) {
-                      if (err instanceof Error) {
-                        setError(err.message);
-                      } else {
-                        setError("Demo login failed");
-                      }
-                      setLoading(false);
-                    }
-                  }}
-                  className="px-2 h-9 text-[10px] font-bold rounded-lg bg-card border border-mauve-100 text-primary hover:border-primary hover:bg-mauve-50 press disabled:opacity-50"
-                >
-                  Demo {r === "CANDIDATE" ? "Candidate" : r === "EMPLOYER" ? "Employer" : "Admin"}
-                </button>
-              ))}
-            </div>
-          </div>
+
 
           {error && (
             <div className="bg-rose-50 border border-rose-200 rounded-xl px-4 py-3 mb-4 text-[12px] text-rose-700">
