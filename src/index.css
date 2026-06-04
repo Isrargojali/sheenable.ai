@@ -94,7 +94,7 @@
     --grad-mauve-rose:linear-gradient(135deg,#7C3B6E,#C8528C);
     --grad-mint:      linear-gradient(135deg,#3DAA7D,#2C8862);
     --grad-warm:      linear-gradient(160deg,#FAF8F6 0%,#F7F1EA 50%,#F7E9F1 100%);
-    --grad-hero:      linear-gradient(160deg,#1A0E1F 0%,#2A1428 50%,#3F1C37 100%);
+    --grad-hero:      linear-gradient(160deg, #090514 0%, #05040e 50%, #020207 100%);
 
     /*  Shadows (mauve-tinted)  */
     --shadow-sm:      0 1px 2px hsl(264 31% 9% / 0.04);
@@ -268,4 +268,60 @@
     transition-duration: 0.01ms !important;
   }
   html { scroll-behavior: auto; }
+}
+
+/* Premium drifting orbs animations for landing page mesh gradient */
+@keyframes drift-fuchsia {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  33% {
+    transform: translate3d(4vw, -5vh, 0) scale(1.06);
+  }
+  66% {
+    transform: translate3d(-3vw, 3vh, 0) scale(0.96);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes drift-indigo {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-4vw, 5vh, 0) scale(1.1);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes drift-center {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  40% {
+    transform: translate3d(3vw, 3vh, 0) scale(1.04);
+  }
+  70% {
+    transform: translate3d(-3vw, -3vh, 0) scale(0.94);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+.animate-drift-fuchsia {
+  animation: drift-fuchsia 28s cubic-bezier(0.25, 0.1, 0.25, 1) infinite;
+  will-change: transform;
+}
+.animate-drift-indigo {
+  animation: drift-indigo 32s cubic-bezier(0.25, 0.1, 0.25, 1) infinite;
+  will-change: transform;
+}
+.animate-drift-center {
+  animation: drift-center 36s cubic-bezier(0.25, 0.1, 0.25, 1) infinite;
+  will-change: transform;
 }

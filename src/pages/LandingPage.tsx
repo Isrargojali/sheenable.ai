@@ -92,8 +92,33 @@ export default function LandingPage() {
         className="relative overflow-hidden text-white flex flex-col items-center justify-center bg-[#0A0712]"
         style={{ background: "var(--grad-hero)", minHeight: "min(100vh, 880px)" }}
       >
-        {/* Glowing background orbs, matched to the brand's mauve and mint */}
-        <div className="absolute inset-0 bg-gradient-to-br from-mauve-500/[0.08] via-transparent to-mint-400/[0.08] blur-3xl" />
+        {/* Radial Mesh Gradient System with drifting color orbs */}
+        <div 
+          className="absolute inset-0 overflow-hidden pointer-events-none z-0"
+          style={{ transform: "translate3d(0, 0, 0)", backfaceVisibility: "hidden", perspective: 1000 }}
+        >
+          {/* Fuchsia orb at top-right */}
+          <div 
+            className="absolute -top-[10%] -right-[10%] w-[55vw] h-[55vw] max-w-[700px] max-h-[700px] rounded-full blur-[110px] opacity-[0.25] animate-drift-fuchsia"
+            style={{
+              background: "radial-gradient(circle, #d946ef 0%, rgba(217, 70, 239, 0) 70%)"
+            }}
+          />
+          {/* Indigo orb at bottom-left */}
+          <div 
+            className="absolute -bottom-[10%] -left-[10%] w-[55vw] h-[55vw] max-w-[700px] max-h-[700px] rounded-full blur-[110px] opacity-[0.20] animate-drift-indigo"
+            style={{
+              background: "radial-gradient(circle, #6366f1 0%, rgba(99, 102, 241, 0) 70%)"
+            }}
+          />
+          {/* Soft violet center-left orb for depth */}
+          <div 
+            className="absolute top-[30%] left-[15%] w-[40vw] h-[40vw] max-w-[500px] max-h-[500px] rounded-full blur-[90px] opacity-[0.15] animate-drift-center"
+            style={{
+              background: "radial-gradient(circle, #a855f7 0%, rgba(168, 85, 247, 0) 70%)"
+            }}
+          />
+        </div>
 
         {/* Float shapes behind the content */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
