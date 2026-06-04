@@ -26,15 +26,15 @@ export default function EmployerCTA() {
         <div className="flex flex-wrap justify-center gap-3 mb-8">
           <Link
             to="/auth/signup?role=EMPLOYER"
-            className="inline-flex items-center gap-2 px-6 h-12 rounded-full text-[13px] font-bold bg-white text-foreground hover:-translate-y-0.5 hover:shadow-elev3 press"
+            className="btn-primary-premium-white px-6 h-12 text-[13px] font-bold press"
           >
-            Start Hiring Today <ArrowRight size={14} />
+            <span>Start Hiring Today</span> <ArrowRight size={14} className="arrow" />
           </Link>
           <a
             href="#stories"
-            className="inline-flex items-center gap-2 px-6 h-12 rounded-full text-[13px] font-semibold text-white/90 bg-white/8 border border-white/20 hover:bg-white/15 press"
+            className="btn-secondary-premium-light px-6 h-12 text-[13px] font-semibold press"
           >
-            See success stories
+            <span>See success stories</span>
           </a>
         </div>
 

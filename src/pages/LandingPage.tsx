@@ -244,10 +244,10 @@ export default function LandingPage() {
                   <button
                     type="submit"
                     disabled={!prompt.trim()}
-                    className="h-12 px-6 rounded-xl sm:rounded-full bg-white text-foreground hover:bg-primary hover:text-primary-foreground disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-foreground transition-all duration-300 text-[12px] font-bold press flex items-center justify-center gap-1.5"
+                    className="h-12 px-6 rounded-xl sm:rounded-full btn-primary-premium disabled:opacity-40 transition-all text-[12px] font-bold press flex items-center justify-center gap-1.5"
                   >
                     <span>Match Me</span>
-                    <ArrowRight size={13} />
+                    <ArrowRight size={13} className="arrow" />
                   </button>
                 </div>
 
@@ -278,15 +278,15 @@ export default function LandingPage() {
           >
             <Link
               to="/auth/signup"
-              className="inline-flex items-center justify-center gap-2 px-7 h-12 rounded-full text-[13px] font-bold bg-white/8 text-white border border-white/20 backdrop-blur-md hover:bg-white/15 press"
+              className="btn-secondary-premium px-7 h-12 text-[13px] font-bold press"
             >
-              Explore Job Board <ArrowRight size={14} />
+              <span>Explore Job Board</span> <ArrowRight size={14} className="arrow" />
             </Link>
             <Link
               to="/auth/signup?role=EMPLOYER"
-              className="inline-flex items-center justify-center gap-2 px-7 h-12 rounded-full text-[13px] font-bold bg-primary text-white hover:bg-mauve-600 hover:-translate-y-0.5 hover:shadow-elev3 press"
+              className="btn-primary-premium px-7 h-12 text-[13px] font-bold press"
             >
-              Enterprise Integration <ArrowRight size={14} />
+              <span>Enterprise Integration</span> <ArrowRight size={14} className="arrow" />
             </Link>
           </motion.div>
 
