@@ -9,16 +9,16 @@ export type TagVariant =
   | "skill" | "verified" | "hot" | "neutral";
 
 const STYLES: Record<TagVariant, string> = {
-  remote:     "bg-mint-50 text-mint-600 border-mint-100",
-  hybrid:     "bg-amber-50 text-amber-700 border-amber-200",
-  onsite:     "bg-blue-50 text-blue-700 border-blue-100",
-  fulltime:   "bg-mauve-50 text-mauve-600 border-mauve-100",
-  parttime:   "bg-mauve-50 text-mauve-500 border-mauve-100",
-  contract:   "bg-secondary text-foreground/80 border-border",
-  internship: "bg-amber-50 text-amber-700 border-amber-200",
+  remote:     "bg-success/10 text-success border-success/20",
+  hybrid:     "bg-primary/8 text-primary border-primary/15",
+  onsite:     "bg-foreground/5 text-foreground/80 border-foreground/10",
+  fulltime:   "bg-primary/10 text-primary border-primary/20",
+  parttime:   "bg-primary/8 text-primary/90 border-primary/15",
+  contract:   "bg-foreground/5 text-foreground/75 border-foreground/10",
+  internship: "bg-primary/6 text-primary/80 border-primary/10",
   skill:      "bg-secondary text-foreground/75 border-border",
-  verified:   "bg-mint-50 text-mint-600 border-mint-200",
-  hot:        "bg-rose-50 text-rose-700 border-rose-200",
+  verified:   "bg-success/10 text-success border-success/20",
+  hot:        "bg-primary/15 text-primary border-primary/25",
   neutral:    "bg-secondary text-muted-foreground border-border",
 };
 
