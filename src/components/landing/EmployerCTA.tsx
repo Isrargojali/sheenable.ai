@@ -8,9 +8,9 @@ export default function EmployerCTA() {
       <div className="absolute inset-0" style={{ background: "var(--grad-mauve)" }} />
       <div className="absolute inset-0 bg-grid opacity-40 pointer-events-none" />
       <div className="absolute -top-32 -left-32 w-[400px] h-[400px] rounded-full pointer-events-none"
-           style={{ background: "radial-gradient(circle,rgba(212,162,76,.25),transparent 60%)", filter: "blur(80px)" }} />
+        style={{ background: "radial-gradient(circle,rgba(212,162,76,.25),transparent 60%)", filter: "blur(80px)" }} />
       <div className="absolute -bottom-32 -right-32 w-[400px] h-[400px] rounded-full pointer-events-none"
-           style={{ background: "radial-gradient(circle,rgba(61,170,125,.20),transparent 60%)", filter: "blur(80px)" }} />
+        style={{ background: "radial-gradient(circle,rgba(61,170,125,.20),transparent 60%)", filter: "blur(80px)" }} />
 
       <div className="relative max-w-[1280px] mx-auto px-5 lg:px-8 py-20 lg:py-24 text-center">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider mb-4 bg-white/10 border border-white/20 text-white/85">
