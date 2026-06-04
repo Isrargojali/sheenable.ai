@@ -8,5 +8,3 @@ function DemoHeroGeometric() {
 }
 
 export { DemoHeroGeometric }
-
-
