@@ -168,7 +168,7 @@ export default function LandingPage() {
           />
         </div>
 
-        <div className="relative z-10 w-full max-w-[1280px] mx-auto px-5 lg:px-8 pt-20 lg:pt-28 pb-12 lg:pb-16 flex flex-col items-center text-center">
+        <div className="relative z-10 w-full max-w-[1280px] mx-auto px-5 lg:px-8 pt-24 lg:pt-32 pb-24 lg:pb-32 flex flex-col items-center text-center">
           <motion.div
             custom={0}
             variants={fadeUpVariants}
@@ -321,7 +321,7 @@ export default function LandingPage() {
 
       {/*  STATS */}
       <section className="bg-secondary/40 border-b border-border bg-arcs">
-        <div className="max-w-[1280px] mx-auto px-5 lg:px-8 py-16 lg:py-20">
+        <div className="max-w-[1280px] mx-auto px-5 lg:px-8 py-24 lg:py-32">
           <div className="text-center mb-10">
             <div className="inline-block px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] bg-accent text-accent-foreground mb-3 font-sans">
               Quantifying Our Impact
@@ -331,14 +331,14 @@ export default function LandingPage() {
             </h2>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-5">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
             {STATS.map((s, i) => (
               <div
                 key={s.label}
-                className="bg-card border border-border rounded-2xl p-5 lg:p-6 lift animate-fade-in"
+                className="bg-card border border-border rounded-2xl p-6 lg:p-8 lift animate-fade-in"
                 style={{ animationDelay: `${i * 80}ms` }}
               >
-                <div className="font-serif text-4xl lg:text-5xl text-primary leading-none tracking-tight mb-3">
+                <div className="text-[64px] lg:text-[80px] font-black text-primary leading-none tracking-tight mb-4 font-sans">
                   <CountUp end={s.v} suffix={s.suffix} />
                 </div>
                 <div className="text-[13px] font-bold text-foreground">{s.label}</div>
@@ -357,7 +357,7 @@ export default function LandingPage() {
 
       {/*  VALUE STRIP — between jobs and stories  */}
       <section className="border-y border-border bg-card">
-        <div className="max-w-[1280px] mx-auto px-5 lg:px-8 py-10 grid sm:grid-cols-3 gap-6">
+        <div className="max-w-[1280px] mx-auto px-5 lg:px-8 py-16 grid sm:grid-cols-3 gap-6 lg:gap-8">
           {[
             { icon: BadgeCheck,  title: "Verified employers only", desc: "Every company is vetted for inclusive policy." },
             { icon: Sparkles,    title: "AI-matched daily",         desc: "96% match accuracy on every recommendation." },

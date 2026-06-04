@@ -27,7 +27,7 @@ const TESTIMONIALS = [
 export default function Testimonials() {
   return (
     <section id="stories" className="bg-secondary/50 border-y border-border">
-      <div className="max-w-[1280px] mx-auto px-5 lg:px-8 py-20 lg:py-24">
+      <div className="max-w-[1280px] mx-auto px-5 lg:px-8 py-24 lg:py-32">
         <div className="text-center mb-12">
           <div className="inline-block px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] bg-accent text-accent-foreground mb-3 font-sans">
             Voices of the Community
@@ -37,11 +37,11 @@ export default function Testimonials() {
           </h2>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-5">
+        <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
           {TESTIMONIALS.map((t, i) => (
             <figure
               key={t.name}
-              className="bg-card border border-border border-l-[3px] border-l-primary rounded-2xl p-6 lift flex flex-col animate-fade-in"
+              className="bg-card border border-border border-l-[3px] border-l-primary rounded-2xl p-6 lg:p-8 lift flex flex-col animate-fade-in"
               style={{ animationDelay: `${i * 100}ms` }}
             >
               <Quote className="text-primary/25 mb-4" size={28} />

@@ -101,8 +101,8 @@ export default function FeaturedJobs() {
   };
 
   return (
-    <section id="jobs" className="max-w-[1280px] mx-auto px-5 lg:px-8 py-20 lg:py-24 relative">
-      <div className="flex items-end justify-between flex-wrap gap-4 mb-8">
+    <section id="jobs" className="max-w-[1280px] mx-auto px-5 lg:px-8 py-24 lg:py-32 relative">
+      <div className="flex items-end justify-between flex-wrap gap-4 mb-12">
         <div>
           <div className="inline-block px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] bg-accent text-accent-foreground mb-3 font-sans">
             Featured Openings
@@ -123,7 +123,7 @@ export default function FeaturedJobs() {
       </div>
 
       {/* Filter bar */}
-      <div className="bg-card border border-border rounded-2xl p-3 mb-6 flex flex-wrap items-center gap-2 shadow-soft">
+      <div className="bg-card border border-border rounded-2xl p-3 mb-8 flex flex-wrap items-center gap-2 shadow-soft">
         <div className="flex-1 min-w-[220px] flex items-center gap-2 px-3 h-10 rounded-xl bg-secondary/60">
           <Search size={14} className="text-muted-foreground" />
           <input
@@ -199,7 +199,7 @@ export default function FeaturedJobs() {
 
       {/* Jobs Grid */}
       {!isLoading && !error && filtered.length > 0 && (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
           {filtered.map(job => (
             <JobCard
               key={job.id}

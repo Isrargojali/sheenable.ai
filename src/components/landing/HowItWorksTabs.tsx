@@ -29,8 +29,8 @@ export default function HowItWorksTabs() {
   ];
 
   return (
-    <section id="community" className="max-w-[1280px] mx-auto px-5 lg:px-8 py-20 lg:py-28">
-      <div className="text-center mb-10">
+    <section id="community" className="max-w-[1280px] mx-auto px-5 lg:px-8 py-24 lg:py-32">
+      <div className="text-center mb-12">
         <div className="inline-block px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] bg-accent text-accent-foreground mb-3 font-sans">
           The SheEnable Pathway
         </div>
@@ -40,7 +40,7 @@ export default function HowItWorksTabs() {
       </div>
 
       {/* Tab switcher */}
-      <div className="relative flex justify-center mb-10">
+      <div className="relative flex justify-center mb-12">
         <div className="inline-flex items-center bg-card border border-border rounded-full p-1 relative">
           {tabs.map(t => (
             <button
@@ -66,14 +66,14 @@ export default function HowItWorksTabs() {
       </div>
 
       {/* Steps */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
         {STEPS[tab].map((s, i) => {
           const Icon = s.icon;
           return (
             <div
               key={`${tab}-${i}`}
               className={cn(
-                "bg-card border border-border border-l-[3px] rounded-2xl p-5 lift animate-fade-in",
+                "bg-card border border-border border-l-[3px] rounded-2xl p-6 lg:p-8 lift animate-fade-in",
                 s.accent,
               )}
               style={{ animationDelay: `${i * 80}ms` }}
