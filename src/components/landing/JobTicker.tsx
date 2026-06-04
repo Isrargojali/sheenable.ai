@@ -2,23 +2,24 @@ import { Briefcase, MapPin } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { apiJobs } from "@/lib/api";
 
-const MOCK_TICKER = [
-  { title: "Senior Product Manager", company: "Atlas Bank",      mode: "Remote", salary: "PKR 250K" },
-  { title: "Frontend Engineer",      company: "Techflow",        mode: "Hybrid", salary: "PKR 180K" },
-  { title: "UX Lead",                company: "Helix Health",    mode: "Remote", salary: "PKR 220K" },
-  { title: "Data Analyst",           company: "NorthStar",       mode: "Onsite", salary: "PKR 140K" },
-  { title: "Content Strategist",     company: "Cobalt Labs",     mode: "Remote", salary: "PKR 130K" },
-  { title: "HR Business Partner",    company: "Lumen",           mode: "Hybrid", salary: "PKR 200K" },
-  { title: "Backend Engineer",       company: "Orbit",           mode: "Remote", salary: "PKR 240K" },
-  { title: "Brand Designer",         company: "Vertex",          mode: "Hybrid", salary: "PKR 150K" },
-];
-
 interface TickerItem {
   title: string;
   company: string;
   mode: string;
   salary: string;
+  badge: "New" | "Urgent";
 }
+
+const MOCK_TICKER: TickerItem[] = [
+  { title: "Senior Product Manager", company: "Atlas Bank",      mode: "Remote", salary: "PKR 250K", badge: "New" },
+  { title: "Frontend Engineer",      company: "Techflow",        mode: "Hybrid", salary: "PKR 180K", badge: "Urgent" },
+  { title: "UX Lead",                company: "Helix Health",    mode: "Remote", salary: "PKR 220K", badge: "New" },
+  { title: "Data Analyst",           company: "NorthStar",       mode: "Onsite", salary: "PKR 140K", badge: "Urgent" },
+  { title: "Content Strategist",     company: "Cobalt Labs",     mode: "Remote", salary: "PKR 130K", badge: "New" },
+  { title: "HR Business Partner",    company: "Lumen",           mode: "Hybrid", salary: "PKR 200K", badge: "Urgent" },
+  { title: "Backend Engineer",       company: "Orbit",           mode: "Remote", salary: "PKR 240K", badge: "New" },
+  { title: "Brand Designer",         company: "Vertex",          mode: "Hybrid", salary: "PKR 150K", badge: "Urgent" },
+];
 
 export default function JobTicker() {
   // Fetch real-time job listings from the backend database
@@ -33,7 +34,7 @@ export default function JobTicker() {
 
   // Map real-time jobs or fallback to mock items
   const tickerItems: TickerItem[] = realJobs.length > 0 
-    ? realJobs.map((j) => {
+    ? realJobs.map((j, idx) => {
         const salaryVal = j.salaryMax || j.salaryMin || 0;
         const compactSalary = salaryVal > 0 
           ? `PKR ${Math.round(salaryVal / 1000)}K` 
@@ -47,6 +48,7 @@ export default function JobTicker() {
           company: j.employer?.companyName || "Verified Employer",
           mode: formattedMode,
           salary: compactSalary,
+          badge: idx % 2 === 0 ? "New" : "Urgent",
         };
       })
     : MOCK_TICKER;
@@ -55,23 +57,44 @@ export default function JobTicker() {
   const items = [...tickerItems, ...tickerItems];
 
   return (
-    <div className="relative overflow-hidden py-3"
-         style={{ maskImage: "linear-gradient(90deg, transparent, black 8%, black 92%, transparent)" }}>
-      <div className="flex gap-3 w-max animate-ticker">
+    <div 
+      className="relative overflow-hidden py-3 w-full"
+      style={{ 
+        maskImage: "linear-gradient(90deg, transparent, black 40px, black calc(100% - 40px), transparent)",
+        WebkitMaskImage: "linear-gradient(90deg, transparent, black 40px, black calc(100% - 40px), transparent)"
+      }}
+    >
+      <div className="flex gap-4 w-max animate-ticker">
         {items.map((j, i) => (
           <div
             key={i}
-            className="flex items-center gap-3 pl-3 pr-4 py-2 rounded-full bg-white/8 border border-white/10 backdrop-blur-sm whitespace-nowrap"
+            className="flex items-center gap-3.5 pl-4 pr-5 py-2.5 rounded-full bg-white/8 border border-white/10 backdrop-blur-sm whitespace-nowrap"
           >
-            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-mint-400/20 text-mint-300">
-              <Briefcase size={11} />
+            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-mint-400/20 text-mint-300 flex-shrink-0">
+              <Briefcase size={12} />
             </span>
-            <span className="text-[11px] font-bold text-white/90">New</span>
-            <span className="text-[11px] text-white/85">{j.title} at <span className="font-semibold text-white">{j.company}</span></span>
-            <span className="text-[10px] text-white/40 inline-flex items-center gap-1">
-              <MapPin size={9} /> {j.mode}
+            
+            {j.badge === "New" ? (
+              <span className="text-[11px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-primary text-white">
+                New
+              </span>
+            ) : (
+              <span className="text-[11px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-600 text-white">
+                Urgent
+              </span>
+            )}
+            
+            <span className="text-[13px] text-white/90">
+              {j.title} at <span className="font-semibold text-white">{j.company}</span>
             </span>
-            <span className="text-[11px] font-bold text-primary">{j.salary}</span>
+            
+            <span className="text-[12px] text-white/50 inline-flex items-center gap-1">
+              <MapPin size={11} className="text-white/40" /> {j.mode}
+            </span>
+            
+            <span className="text-[13px] font-extrabold text-primary">
+              {j.salary}
+            </span>
           </div>
         ))}
       </div>

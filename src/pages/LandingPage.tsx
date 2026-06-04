@@ -15,10 +15,20 @@ import Testimonials    from "@/components/landing/Testimonials";
 import EmployerCTA     from "@/components/landing/EmployerCTA";
 import Footer          from "@/components/landing/Footer";
 
-const PARTNER_LOGOS = [
-  "Techflow", "NorthStar", "Atlas Bank", "Helix Health", "Cobalt Labs",
-  "Lumen", "Orbit", "Vertex", "Pioneer", "Beacon",
+const PARTNERS = [
+  { name: "Techflow", element: <div className="flex items-center gap-1.5 font-sans font-black tracking-tight text-[18px] uppercase"><span className="w-5 h-5 rounded-md bg-white/20 flex items-center justify-center text-[10px] text-white font-sans font-bold">TF</span>tech<span className="text-white/60">flow</span></div> },
+  { name: "NorthStar", element: <div className="flex items-center gap-1 font-serif italic font-extrabold text-[20px] tracking-tight"><span>✦</span> NorthStar</div> },
+  { name: "Atlas Bank", element: <div className="flex items-center gap-1.5 font-sans font-extrabold tracking-[0.15em] text-[16px] uppercase"><span className="w-1 h-5 bg-white/40 rounded-full" />ATLAS<span className="font-light text-white/60">BANK</span></div> },
+  { name: "Helix Health", element: <div className="flex items-center gap-1 font-sans font-bold tracking-tighter text-[19px] lowercase"><span className="text-white/80 font-black">helix</span><span className="text-[12px] py-0.5 px-1 bg-white/10 rounded-sm font-semibold tracking-normal uppercase">health</span></div> },
+  { name: "Cobalt Labs", element: <div className="flex items-center gap-1 font-mono font-bold tracking-tight text-[17px] uppercase">[COBALT<span className="text-white/60 font-light">labs</span>]</div> },
+  { name: "Lumen", element: <div className="flex items-center gap-1 font-sans font-black tracking-[0.2em] text-[18px] uppercase">◇ LUMEN</div> },
+  { name: "Orbit", element: <div className="flex items-center gap-1.5 font-sans font-medium tracking-tight text-[19px]"><span className="w-4 h-4 rounded-full border-2 border-white/40 flex items-center justify-center"><span className="w-1.5 h-1.5 rounded-full bg-white" /></span>orbit</div> },
+  { name: "Vertex", element: <div className="flex items-center gap-1.5 font-serif font-black tracking-tight text-[20px] uppercase">▲ Vertex</div> },
+  { name: "Pioneer", element: <div className="flex items-center gap-1 font-sans font-black tracking-tighter text-[20px] uppercase italic">PIO<span className="text-white/50">NEER</span></div> },
+  { name: "Beacon", element: <div className="flex items-center gap-1.5 font-sans font-extrabold tracking-widest text-[16px] uppercase"><span>⚲</span> BEACON</div> }
 ];
+
+const MARQUEE_PARTNERS = [...PARTNERS, ...PARTNERS, ...PARTNERS, ...PARTNERS];
 
 const STATS = [
   { v: 12400, suffix: "+", label: "Careers Accelerated",      desc: "Exceptional women placed in trajectory-defining roles" },
@@ -303,46 +313,67 @@ export default function LandingPage() {
         </div>
 
         {/* Trust bar */}
-        <div className="relative w-full border-t border-white/8 py-6 z-20 mt-auto bg-[#0A0712]/40 backdrop-blur-[1px]">
+        <div className="relative w-full border-t border-white/8 py-8 z-20 mt-auto bg-[#0A0712]/40 backdrop-blur-[1px]">
           <div className="max-w-[1280px] mx-auto px-5 lg:px-8">
-            <div className="text-center text-[9px] font-black uppercase tracking-[0.22em] text-white/35 mb-4 font-sans">
-              Trusted by inclusive companies
+            <div className="text-center text-[13px] font-black uppercase tracking-[0.25em] text-white/50 mb-4 font-sans">
+              Backed by leading companies
             </div>
-            <div className="flex flex-wrap justify-center gap-x-8 gap-y-3">
-              {PARTNER_LOGOS.map(p => (
-                <div key={p} className="text-white/45 font-serif text-base tracking-wide">
-                  {p}
-                </div>
-              ))}
+            <div 
+              className="relative overflow-hidden h-24 flex items-center w-full"
+              style={{ maskImage: "linear-gradient(90deg, transparent, black 15%, black 85%, transparent)", WebkitMaskImage: "linear-gradient(90deg, transparent, black 15%, black 85%, transparent)" }}
+            >
+              <div className="flex gap-20 w-max animate-ticker">
+                {MARQUEE_PARTNERS.map((p, idx) => (
+                  <div 
+                    key={idx} 
+                    className="h-9 flex items-center text-white/35 hover:text-white/85 transition-all duration-300 flex-shrink-0 cursor-default select-none"
+                  >
+                    {p.element}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/*  STATS */}
-      <section className="bg-secondary/40 border-b border-border bg-arcs">
-        <div className="max-w-[1280px] mx-auto px-5 lg:px-8 py-24 lg:py-32">
-          <div className="text-center mb-10">
-            <div className="inline-block px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] bg-accent text-accent-foreground mb-3 font-sans">
+      <section className="relative border-b border-border/60 overflow-hidden bg-[#faf5ff]">
+        {/* Subtle decorative grid/arcs background pattern */}
+        <div className="absolute inset-0 bg-arcs opacity-70 pointer-events-none" />
+        <div className="absolute inset-0 bg-dots opacity-40 pointer-events-none" />
+
+        <div className="relative max-w-[1280px] mx-auto px-6 lg:px-8 py-24 lg:py-32 z-10">
+          <div className="text-center mb-16">
+            <div className="inline-block px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] bg-accent text-accent-foreground mb-4 font-sans">
               Quantifying Our Impact
             </div>
-            <h2 className="font-serif text-3xl md:text-5xl text-foreground tracking-tight">
-              A community defining <span className="italic text-primary">the future of equitable work</span>
+            <h2 className="font-serif text-3xl md:text-5xl text-foreground tracking-tight max-w-2xl mx-auto leading-tight">
+              A community defining <span className="italic text-primary font-serif font-medium">the future of equitable work</span>
             </h2>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
             {STATS.map((s, i) => (
               <div
                 key={s.label}
-                className="bg-card border border-border rounded-2xl p-6 lg:p-8 lift animate-fade-in"
+                className="group relative bg-card border border-border/80 border-t-4 border-t-primary/60 rounded-2xl p-6 flex flex-col justify-between min-h-[220px] transition-all duration-300 hover:border-t-primary hover:-translate-y-1.5 hover:shadow-elev2 animate-fade-in"
                 style={{ animationDelay: `${i * 80}ms` }}
               >
-                <div className="text-[64px] lg:text-[80px] font-black text-primary leading-none tracking-tight mb-4 font-sans">
-                  <CountUp end={s.v} suffix={s.suffix} />
+                {/* Subtle card glow background on hover */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl pointer-events-none" />
+
+                <div>
+                  <div className="text-[40px] xs:text-[48px] sm:text-[56px] lg:text-[64px] font-black text-primary leading-none tracking-tighter font-sans whitespace-nowrap">
+                    <CountUp end={s.v} suffix={s.suffix} duration={1200} />
+                  </div>
+                  <div className="text-[13px] font-bold uppercase tracking-[0.2em] text-muted-foreground/80 mt-3 font-sans">
+                    {s.label}
+                  </div>
                 </div>
-                <div className="text-[13px] font-bold text-foreground">{s.label}</div>
-                <div className="text-[11px] text-muted-foreground mt-1">{s.desc}</div>
+                <p className="text-[13px] text-muted-foreground/70 leading-relaxed mt-6 max-w-[260px]">
+                  {s.desc}
+                </p>
               </div>
             ))}
           </div>
