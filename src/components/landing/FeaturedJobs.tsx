@@ -104,7 +104,7 @@ export default function FeaturedJobs() {
     <section id="jobs" className="max-w-[1280px] mx-auto px-5 lg:px-8 py-20 lg:py-24 relative">
       <div className="flex items-end justify-between flex-wrap gap-4 mb-8">
         <div>
-          <div className="inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-accent text-accent-foreground mb-3">
+          <div className="inline-block px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] bg-accent text-accent-foreground mb-3 font-sans">
             Featured Openings
           </div>
           <h2 className="font-serif text-3xl md:text-5xl text-foreground tracking-tight">

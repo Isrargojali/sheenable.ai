@@ -13,7 +13,7 @@ export default function EmployerCTA() {
         style={{ background: "radial-gradient(circle,rgba(61,170,125,.20),transparent 60%)", filter: "blur(80px)" }} />
 
       <div className="relative max-w-[1280px] mx-auto px-5 lg:px-8 py-20 lg:py-24 text-center">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider mb-4 bg-white/10 border border-white/20 text-white/85">
+        <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] mb-4 bg-white/10 border border-white/20 text-white/85 font-sans">
           Enterprise Partners
         </div>
         <h2 className="font-serif text-3xl md:text-5xl text-white max-w-3xl mx-auto leading-[1.1] tracking-tight mb-4">

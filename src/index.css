@@ -1,4 +1,4 @@
-/* @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap'); */
+@import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,700,800,900&f[]=satoshi@300,400,500,700,900&display=swap');
 
 
 
@@ -258,6 +258,29 @@
   }
   .glow-mint {
     box-shadow: 0 20px 40px -16px hsl(159 47% 45% / 0.35);
+  }
+
+  /* 4-level Type Scale & Labels */
+  .text-scale-display {
+    font-family: 'Cabinet Grotesk', 'Satoshi', sans-serif;
+    font-weight: 900;
+  }
+  .text-scale-h2 {
+    font-family: 'Cabinet Grotesk', 'Satoshi', sans-serif;
+    font-weight: 800;
+  }
+  .text-scale-h3 {
+    font-family: 'Satoshi', 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+  }
+  .text-scale-body {
+    font-family: 'Satoshi', 'Plus Jakarta Sans', sans-serif;
+    font-weight: 400;
+  }
+  .label-tracked {
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-weight: 700;
   }
 }
 

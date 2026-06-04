@@ -12,8 +12,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans:  ['Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
-        serif: ['Playfair Display', 'Georgia', 'serif'],
+        sans:  ['Satoshi', 'Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
+        display: ['Cabinet Grotesk', 'Satoshi', 'sans-serif'],
+        serif: ['Cabinet Grotesk', 'Satoshi', 'Playfair Display', 'serif'],
         mono:  ['ui-monospace', 'SF Mono', 'Menlo', 'monospace'],
       },
       screens: {

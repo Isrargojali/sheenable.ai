@@ -174,19 +174,19 @@ export default function LandingPage() {
             variants={fadeUpVariants}
             initial="hidden"
             animate="visible"
-            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider mb-7 bg-white/8 border border-white/15"
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em] mb-7 bg-white/8 border border-white/15 font-sans"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-mint-400 animate-pulse-ring" />
             Pakistan's Premier Ecosystem for Female Leaders & Professionals
           </motion.div>
-
+ 
           <motion.div
             custom={1}
             variants={fadeUpVariants}
             initial="hidden"
             animate="visible"
           >
-            <h1 className="font-serif text-[40px] xs:text-[52px] md:text-[68px] lg:text-[88px] leading-[0.98] tracking-[-0.025em] max-w-5xl mb-6">
+            <h1 className="font-serif font-black text-[48px] xs:text-[62px] md:text-[82px] lg:text-[106px] leading-[0.95] tracking-[-0.03em] max-w-5xl mb-6">
               <span className="bg-clip-text text-transparent bg-gradient-to-b from-white to-white/80">
                 Where Ambition
               </span>
@@ -305,7 +305,7 @@ export default function LandingPage() {
         {/* Trust bar */}
         <div className="relative w-full border-t border-white/8 py-6 z-20 mt-auto bg-[#0A0712]/40 backdrop-blur-[1px]">
           <div className="max-w-[1280px] mx-auto px-5 lg:px-8">
-            <div className="text-center text-[10px] uppercase tracking-[2px] text-white/40 mb-4">
+            <div className="text-center text-[9px] font-black uppercase tracking-[0.22em] text-white/35 mb-4 font-sans">
               Trusted by inclusive companies
             </div>
             <div className="flex flex-wrap justify-center gap-x-8 gap-y-3">
@@ -323,7 +323,7 @@ export default function LandingPage() {
       <section className="bg-secondary/40 border-b border-border bg-arcs">
         <div className="max-w-[1280px] mx-auto px-5 lg:px-8 py-16 lg:py-20">
           <div className="text-center mb-10">
-            <div className="inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-accent text-accent-foreground mb-3">
+            <div className="inline-block px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] bg-accent text-accent-foreground mb-3 font-sans">
               Quantifying Our Impact
             </div>
             <h2 className="font-serif text-3xl md:text-5xl text-foreground tracking-tight">
