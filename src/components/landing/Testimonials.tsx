@@ -48,7 +48,7 @@ export default function Testimonials() {
               <blockquote className="text-[14px] text-foreground leading-relaxed mb-5 flex-1 font-medium">
                 "{t.quote}"
               </blockquote>
-              <div className="flex items-center gap-1 mb-4 text-amber-400">
+              <div className="flex items-center gap-1 mb-4 text-primary">
                 {Array.from({ length: 5 }).map((_, idx) => (
                   <Star key={idx} size={13} fill="currentColor" stroke="none" />
                 ))}

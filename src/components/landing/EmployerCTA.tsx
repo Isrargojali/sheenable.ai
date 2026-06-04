@@ -17,7 +17,7 @@ export default function EmployerCTA() {
           Enterprise Partners
         </div>
         <h2 className="font-serif text-3xl md:text-5xl text-white max-w-3xl mx-auto leading-[1.1] tracking-tight mb-4">
-          Partner in Leading the <span className="italic text-amber-300">Future of Work</span>
+          Partner in Leading the <span className="italic text-white/90">Future of Work</span>
         </h2>
         <p className="text-[14px] md:text-base text-white/70 max-w-xl mx-auto mb-8">
           Integrate top-tier female talent into your engineering, executive, and creative pipelines. Begin with your first placement.

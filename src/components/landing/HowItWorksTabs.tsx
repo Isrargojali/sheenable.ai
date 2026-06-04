@@ -8,16 +8,16 @@ type TabKey = "candidate" | "employer";
 
 const STEPS: Record<TabKey, { icon: LucideIcon; title: string; desc: string; accent: string }[]> = {
   candidate: [
-    { icon: FileEdit, title: "Design Your Profile", desc: "Build an exquisite, AI-optimized digital footprint that highlights your unique expertise.", accent: "border-l-mauve-400" },
-    { icon: Sparkles, title: "High-Precision Matching", desc: "Our AI-engine analyzes verified openings to deliver matches aligned with your career goals and worth.", accent: "border-l-mint-400" },
-    { icon: Send, title: "Frictionless Application", desc: "Deploy a tailored, ATS-optimized dossier with single-click precision directly to hiring decision-makers.", accent: "border-l-amber-400" },
-    { icon: PartyPopper, title: "Secure Onboarding", desc: "Communicate directly through our encrypted portal, negotiate with confidence, and step into your new role.", accent: "border-l-rose-400" },
+    { icon: FileEdit, title: "Design Your Profile", desc: "Build an exquisite, AI-optimized digital footprint that highlights your unique expertise.", accent: "border-l-primary/40" },
+    { icon: Sparkles, title: "High-Precision Matching", desc: "Our AI-engine analyzes verified openings to deliver matches aligned with your career goals and worth.", accent: "border-l-primary/60" },
+    { icon: Send, title: "Frictionless Application", desc: "Deploy a tailored, ATS-optimized dossier with single-click precision directly to hiring decision-makers.", accent: "border-l-primary" },
+    { icon: PartyPopper, title: "Secure Onboarding", desc: "Communicate directly through our encrypted portal, negotiate with confidence, and step into your new role.", accent: "border-l-primary/80" },
   ],
   employer: [
-    { icon: ClipboardList, title: "Curate Your Opportunity", desc: "Craft high-conversion listings with our intelligent, industry-specific template builder.", accent: "border-l-mauve-400" },
-    { icon: Search, title: "Source Vetted Talent", desc: "Filter through an exclusive network of verified female leaders, researchers, and builders.", accent: "border-l-mint-400" },
-    { icon: Users, title: "Direct ATS Pipeline", desc: "Manage candidates through a fluid, collaborative visual pipeline built for modern HR workflows.", accent: "border-l-amber-400" },
-    { icon: Handshake, title: "Close Exceptional Hires", desc: "Converse, schedule, and extend offers in a unified, safe, and professional communication hub.", accent: "border-l-rose-400" },
+    { icon: ClipboardList, title: "Curate Your Opportunity", desc: "Craft high-conversion listings with our intelligent, industry-specific template builder.", accent: "border-l-primary/40" },
+    { icon: Search, title: "Source Vetted Talent", desc: "Filter through an exclusive network of verified female leaders, researchers, and builders.", accent: "border-l-primary/60" },
+    { icon: Users, title: "Direct ATS Pipeline", desc: "Manage candidates through a fluid, collaborative visual pipeline built for modern HR workflows.", accent: "border-l-primary" },
+    { icon: Handshake, title: "Close Exceptional Hires", desc: "Converse, schedule, and extend offers in a unified, safe, and professional communication hub.", accent: "border-l-primary/80" },
   ],
 };
 

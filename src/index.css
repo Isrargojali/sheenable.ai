@@ -10,17 +10,17 @@
 @layer base {
   :root {
     /*  Brand surfaces  */
-    --background:    33 27% 97%;      /* #FAF8F6 warm off-white */
-    --foreground:    264 31% 9%;      /* #14101F deep ink */
+    --background:    330 30% 98.5%;   /* #FCF8FA soft primary blush/white */
+    --foreground:    330 60% 8%;      /* #1F0512 near-black text */
 
     --card:          0 0% 100%;
-    --card-foreground: 264 31% 9%;
+    --card-foreground: 330 60% 8%;
 
     --popover:       0 0% 100%;
-    --popover-foreground: 264 31% 9%;
+    --popover-foreground: 330 60% 8%;
 
-    /*  Brand primary: deep rose-mauve  */
-    --primary:       317 35% 36%;     /* #7C3B6E mauve */
+    /*  Brand primary: vibrant magenta/rose  */
+    --primary:       330 65% 52%;     /* #DC287B vibrant magenta/rose */
     --primary-foreground: 0 0% 100%;
 
     /*  Mint accent for success states  */
@@ -28,21 +28,21 @@
     --success-foreground: 0 0% 100%;
 
     /*  Warm sand / blush secondary ─ */
-    --secondary:     30 40% 95%;      /* #F7F1EA */
-    --secondary-foreground: 264 31% 9%;
+    --secondary:     30 10% 95%;      /* #F6F3F0 warm gray secondary */
+    --secondary-foreground: 330 60% 8%;
 
-    --muted:         30 25% 94%;
-    --muted-foreground: 264 12% 42%;  /* #6B6480 */
+    --muted:         30 8% 90%;       /* #E7E4E1 slightly darker warm gray */
+    --muted-foreground: 330 20% 35%;  /* #6B4B5A muted dark berry gray */
 
-    --accent:        320 50% 95%;     /* #F7E9F1 light mauve */
-    --accent-foreground: 317 45% 28%; /* #66295A */
+    --accent:        330 75% 97%;     /* #FDF1F5 very light primary blush */
+    --accent-foreground: 330 65% 35%; /* #B21F5F accent primary */
 
     --destructive:   0 73% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border:        320 22% 90%;     /* #EAE0E7 */
-    --input:         320 22% 90%;
-    --ring:          317 35% 36%;
+    --border:        30 8% 88%;       /* #E2DFDB warm gray border */
+    --input:         30 8% 88%;
+    --ring:          330 65% 52%;
 
     --radius:        0.75rem;         /* 12px cards · 20px modals via utility */
 
@@ -90,17 +90,17 @@
     --sidebar-ring: 317 35% 36%;
 
     /*  Gradients (named for reuse) ─ */
-    --grad-mauve:     linear-gradient(135deg,#7C3B6E,#3F1C37);
-    --grad-mauve-rose:linear-gradient(135deg,#7C3B6E,#C8528C);
+    --grad-mauve:     linear-gradient(135deg, hsl(330, 65%, 52%), hsl(330, 65%, 25%));
+    --grad-mauve-rose:linear-gradient(135deg, hsl(330, 65%, 52%), hsl(330, 75%, 65%));
     --grad-mint:      linear-gradient(135deg,#3DAA7D,#2C8862);
-    --grad-warm:      linear-gradient(160deg,#FAF8F6 0%,#F7F1EA 50%,#F7E9F1 100%);
+    --grad-warm:      linear-gradient(160deg, hsl(30, 10%, 97%) 0%, hsl(30, 10%, 95%) 50%, hsl(330, 75%, 97%) 100%);
     --grad-hero:      linear-gradient(160deg, #090514 0%, #05040e 50%, #020207 100%);
 
-    /*  Shadows (mauve-tinted)  */
-    --shadow-sm:      0 1px 2px hsl(264 31% 9% / 0.04);
-    --shadow-md:      0 6px 16px -4px hsl(317 35% 36% / 0.08);
-    --shadow-lg:      0 20px 40px -16px hsl(317 35% 36% / 0.18);
-    --shadow-xl:      0 30px 60px -20px hsl(317 35% 36% / 0.25);
+    /*  Shadows (magenta-tinted)  */
+    --shadow-sm:      0 1px 2px hsl(330 60% 8% / 0.04);
+    --shadow-md:      0 6px 16px -4px hsl(330 65% 52% / 0.08);
+    --shadow-lg:      0 20px 40px -16px hsl(330 65% 52% / 0.18);
+    --shadow-xl:      0 30px 60px -20px hsl(330 65% 52% / 0.25);
   }
 }
 
@@ -177,7 +177,7 @@
 
   /*  Gradient text  */
   .text-shimmer {
-    background: linear-gradient(90deg, #D4A24C 0%, #7C3B6E 30%, #C8528C 60%, #D4A24C 100%);
+    background: linear-gradient(90deg, hsl(330, 65%, 52%) 0%, #ffffff 50%, hsl(330, 65%, 52%) 100%);
     background-size: 200% auto;
     -webkit-background-clip: text;
     background-clip: text;

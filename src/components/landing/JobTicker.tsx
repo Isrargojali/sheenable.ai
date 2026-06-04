@@ -71,7 +71,7 @@ export default function JobTicker() {
             <span className="text-[10px] text-white/40 inline-flex items-center gap-1">
               <MapPin size={9} /> {j.mode}
             </span>
-            <span className="text-[11px] font-bold text-amber-300">{j.salary}</span>
+            <span className="text-[11px] font-bold text-primary">{j.salary}</span>
           </div>
         ))}
       </div>
