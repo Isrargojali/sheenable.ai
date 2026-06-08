@@ -55,15 +55,29 @@ const allowedOrigins = [
   ...extraOrigins
 ].filter(Boolean);
 
-app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, curl, etc.)
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
+const corsVerify = (origin, callback) => {
+  // Allow requests with no origin (mobile apps, curl, etc.)
+  if (!origin) {
+    return callback(null, true);
+  }
+
+  // In development, allow any localhost or 127.0.0.1 origin (regardless of port fallback)
+  if (process.env.NODE_ENV !== 'production') {
+    const isLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+    if (isLocalhost) {
+      return callback(null, true);
     }
-  },
+  }
+
+  if (allowedOrigins.includes(origin)) {
+    callback(null, true);
+  } else {
+    callback(new Error('Not allowed by CORS'));
+  }
+};
+
+app.use(cors({
+  origin: corsVerify,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -72,7 +86,7 @@ app.use(cors({
 // Setup Socket.io with strict CORS
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins,
+    origin: corsVerify,
     methods: ['GET', 'POST'],
     credentials: true
   }
