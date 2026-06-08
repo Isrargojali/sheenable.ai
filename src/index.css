@@ -46,6 +46,12 @@
 
     --radius:        0.75rem;         /* 12px cards · 20px modals via utility */
 
+    /*  Radius design tokens — single source of truth  */
+    --radius-sm:    0.375rem;   /*  6px — badges, chips, tags  */
+    --radius-md:    0.625rem;   /* 10px — row items, inputs    */
+    --radius-lg:    0.875rem;   /* 14px — cards, sections      */
+    --radius-xl:    1.25rem;    /* 20px — modals, panels       */
+
     /*  HerCareer raw tokens (for direct CSS use) ─ */
     --hc-mauve:       #7C3B6E;
     --hc-mauve-d:     #5E2A53;
@@ -102,6 +108,61 @@
     --shadow-lg:      0 20px 40px -16px hsl(330 65% 52% / 0.18);
     --shadow-xl:      0 30px 60px -20px hsl(330 65% 52% / 0.25);
   }
+
+  /* ── Dark mode override block ──────────────────────────────── */
+  /* Applied via `document.documentElement.classList.add('dark')` */
+  .dark {
+    --background:      330 22% 8%;         /* near-black berry */
+    --foreground:      330 12% 92%;        /* soft warm white  */
+
+    --card:            330 18% 11%;        /* slightly elevated surface */
+    --card-foreground: 330 12% 92%;
+
+    --popover:         330 18% 11%;
+    --popover-foreground: 330 12% 92%;
+
+    --primary:         330 60% 66%;        /* lighter so contrast passes */
+    --primary-foreground: 330 100% 6%;
+
+    --secondary:       330 16% 16%;
+    --secondary-foreground: 330 12% 85%;
+
+    --muted:           330 14% 15%;
+    --muted-foreground: 330 10% 52%;
+
+    --accent:          330 25% 17%;
+    --accent-foreground: 330 60% 75%;
+
+    --destructive:     0 65% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border:          330 14% 19%;
+    --input:           330 14% 19%;
+    --ring:            330 60% 66%;
+
+    /*  Sidebar dark tokens  */
+    --sidebar-background: 330 20% 9%;
+    --sidebar-foreground: 330 12% 70%;
+    --sidebar-primary:    330 55% 60%;
+    --sidebar-primary-foreground: 330 100% 6%;
+    --sidebar-accent:     330 20% 14%;
+    --sidebar-accent-foreground: 330 55% 72%;
+    --sidebar-border:     330 14% 16%;
+    --sidebar-ring:       330 55% 60%;
+
+    /*  Dark shadows — deeper, more opaque  */
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.45);
+    --shadow-md: 0 6px 16px -4px rgba(0,0,0,0.55);
+    --shadow-lg: 0 20px 40px -16px rgba(0,0,0,0.65);
+    --shadow-xl: 0 30px 60px -20px rgba(0,0,0,0.72);
+
+    /*  Dark raw tokens  */
+    --hc-bg:   #120c17;
+    --hc-bg2:  #1a1020;
+    --hc-bg3:  #211629;
+    --hc-bdr:  #2e1f38;
+    --hc-ink:  #f0e8f4;
+  }
 }
 
 @layer base {
@@ -129,9 +190,10 @@
 
   /* Universal focus ring — visible 2px brand-color ring on keyboard nav */
   :focus-visible {
-    outline: 2px solid hsl(var(--primary));
-    outline-offset: 2px;
-    border-radius: 6px;
+    outline: 2.5px solid hsl(var(--primary));
+    outline-offset: 3px;
+    border-radius: var(--radius-sm);
+    transition: outline-offset 0.1s ease;
   }
 }
 
@@ -238,18 +300,36 @@
     perspective: 1000px;
   }
 
-  /*  Skeleton shimmer ─ */
+  /*  Skeleton shimmer — light + dark variants  */
   .skeleton {
-    background: linear-gradient(90deg,
-      hsl(var(--muted)) 0%,
-      hsl(var(--secondary)) 50%,
-      hsl(var(--muted)) 100%);
-    background-size: 200% 100%;
-    animation: skeleton 1.5s ease-in-out infinite;
+    background: linear-gradient(
+      105deg,
+      hsl(var(--muted))          0%,
+      hsl(var(--muted) / 0.6)   30%,
+      hsl(var(--secondary))     50%,
+      hsl(var(--muted) / 0.6)   70%,
+      hsl(var(--muted))        100%
+    );
+    background-size: 300% 100%;
+    animation: skeleton-wave 1.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
-  @keyframes skeleton {
-    0%   { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
+
+  /* Dark surfaces: shimmer over a slightly lighter base */
+  .dark .skeleton {
+    background: linear-gradient(
+      105deg,
+      hsl(var(--muted))          0%,
+      hsl(var(--secondary))     40%,
+      hsl(var(--muted) / 0.4)   50%,
+      hsl(var(--secondary))     60%,
+      hsl(var(--muted))        100%
+    );
+    background-size: 300% 100%;
+  }
+
+  @keyframes skeleton-wave {
+    0%   { background-position: 150% 0; }
+    100% { background-position: -150% 0; }
   }
 
   /*  Soft brand glow  */

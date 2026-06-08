@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   LayoutDashboard, Briefcase, FileText, User, MessageSquare, FilePlus,
   Search, Users, ShieldCheck, ScrollText, ShieldAlert, UserCog, Activity,
-  Bell, LogOut, Menu, X, Heart, Settings, Loader2,
+  Bell, LogOut, Menu, X, Heart, Settings, Loader2, Moon, Sun,
   type LucideIcon,
 } from "lucide-react";
 import logo from "@/assets/sheEnableAI-removebg-preview.png";
@@ -284,8 +284,8 @@ const NOTIF_ICONS: Record<string, string> = {
 };
 
 function Topbar({
-  title, subtitle, actions, onMenu, onSettingsClick,
-}: { title: string; subtitle?: string; actions?: ReactNode; onMenu: () => void; onSettingsClick?: () => void }) {
+  title, subtitle, actions, onMenu, onSettingsClick, showHamburger = true,
+}: { title: string; subtitle?: string; actions?: ReactNode; onMenu: () => void; onSettingsClick?: () => void; showHamburger?: boolean }) {
   const qc = useQueryClient();
   const [showNotif, setShowNotif] = useState(false);
 
@@ -324,9 +324,13 @@ function Topbar({
   return (
     <header className="bg-card border-b border-border px-5 lg:px-6 py-3 flex items-center justify-between gap-3 flex-wrap">
       <div className="flex items-center gap-3 min-w-0">
-        <button onClick={onMenu} className="lg:hidden p-1.5 rounded-lg hover:bg-secondary">
-          <Menu size={18} />
-        </button>
+        <button
+            onClick={onMenu}
+            aria-label="Open navigation menu"
+            className="lg:hidden p-1.5 rounded-lg hover:bg-secondary"
+          >
+            <Menu size={18} />
+          </button>
         <div className="min-w-0">
           <h1 className="font-serif text-xl text-foreground leading-tight tracking-tight truncate">{title}</h1>
           {subtitle && <p className="text-[12px] text-muted-foreground truncate">{subtitle}</p>}
@@ -340,6 +344,7 @@ function Topbar({
         <div className="relative">
           <button
             onClick={() => setShowNotif(v => !v)}
+            aria-label="Open notifications"
             className="relative w-9 h-9 rounded-xl flex items-center justify-center bg-secondary hover:bg-ink-100 transition-colors"
           >
             <Bell size={15} className="text-foreground" />
@@ -391,7 +396,11 @@ function Topbar({
           )}
         </div>
 
-        <button onClick={onSettingsClick} className="w-9 h-9 rounded-xl flex items-center justify-center bg-secondary hover:bg-ink-100 transition-colors">
+        <button
+          onClick={onSettingsClick}
+          aria-label="Open settings"
+          className="w-9 h-9 rounded-xl flex items-center justify-center bg-secondary hover:bg-ink-100 transition-colors"
+        >
           <Settings size={15} />
         </button>
       </div>
@@ -444,7 +453,7 @@ export function DashboardShell({
         <Sidebar />
       </div>
 
-      {/* Mobile drawer */}
+      {/* Mobile drawer — shown when hamburger pressed */}
       {mobileOpen && (
         <>
           <div className="fixed inset-0 bg-foreground/40 z-40 lg:hidden" onClick={() => setMobileOpen(false)} />
@@ -452,6 +461,7 @@ export function DashboardShell({
             <Sidebar onNav={() => setMobileOpen(false)} />
             <button
               onClick={() => setMobileOpen(false)}
+              aria-label="Close navigation"
               className="absolute top-3 right-3 p-1.5 rounded-lg bg-card hover:bg-secondary"
             >
               <X size={16} />
@@ -485,7 +495,7 @@ export function SectionCard({
 }) {
   const headerActions = actions ?? action;
   return (
-    <section className={cn("bg-card border border-border rounded-2xl overflow-hidden", className)}>
+    <section className={cn("bg-card border border-border rounded-token-lg overflow-hidden", className)}>
       {(title || headerActions) && (
         <header className="px-4 py-3 border-b border-border flex items-center justify-between gap-3 flex-wrap">
           <div className="min-w-0">
@@ -816,6 +826,24 @@ function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
                       <span className="text-[10px] font-semibold text-foreground">{t.name}</span>
                     </button>
                   ))}
+                </div>
+              </div>
+
+              {/* Dark Mode toggle */}
+              <div className="border-t border-border pt-4">
+                <h3 className="text-xs font-bold text-foreground mb-3.5 uppercase tracking-wide">Appearance</h3>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-[12px] font-bold text-foreground flex items-center gap-2">
+                      {typeof window !== 'undefined' && document.documentElement.classList.contains('dark')
+                        ? <Moon size={13} className="text-primary" />
+                        : <Sun size={13} className="text-amber-500" />
+                      }
+                      Dark Mode
+                    </div>
+                    <div className="text-[10px] text-muted-foreground mt-0.5">Switch between light and dark interface</div>
+                  </div>
+                  <DarkModeToggle />
                 </div>
               </div>
 

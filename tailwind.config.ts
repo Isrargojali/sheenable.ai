@@ -108,12 +108,18 @@ export default {
         },
       },
       borderRadius: {
+        // shadcn-compat keys (keep)
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
         xl: "1rem",
         "2xl": "1.25rem",
         "3xl": "1.75rem",
+        // Design token keys — use these in new components
+        "token-sm": "var(--radius-sm)",  /*  6px — badges/chips    */
+        "token-md": "var(--radius-md)",  /* 10px — row items       */
+        "token-lg": "var(--radius-lg)",  /* 14px — cards/sections  */
+        "token-xl": "var(--radius-xl)",  /* 20px — modals/panels   */
       },
       boxShadow: {
         soft:    "0 1px 2px hsl(264 31% 9% / 0.04)",
