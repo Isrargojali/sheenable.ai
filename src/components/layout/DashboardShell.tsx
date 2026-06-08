@@ -230,8 +230,15 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
                   <Icon size={15} className="flex-shrink-0 opacity-80" />
                   <span className="truncate">{item.label}</span>
                   {badge && (
-                    <span className="ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground min-w-[18px] text-center">
-                      {badge}
+                    <span className="ml-auto flex items-center gap-1.5">
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground min-w-[18px] text-center">
+                        {badge}
+                      </span>
+                      {item.to.includes("applications") && role === "CANDIDATE" && unreadMessagesCount > 0 && (
+                        <span className="text-[8px] font-black px-1.5 py-0.5 rounded-full bg-rose-500 text-white animate-pulse shadow-sm">
+                          NEW
+                        </span>
+                      )}
                     </span>
                   )}
                 </NavLink>

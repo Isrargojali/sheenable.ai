@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
+import { useSearchParams } from "react-router-dom";
 import { X, Plus, Check, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { apiProfile, apiUpload } from "@/lib/api";
@@ -201,7 +202,21 @@ function MiniRing({ score }: { score: number }) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function ProfilePage() {
   const { user, setUser } = useAuthStore();
-  const [step, setStep] = useState(0);
+  const [searchParams] = useSearchParams();
+  const paramStep = searchParams.get("step");
+  const initialStep = paramStep ? parseInt(paramStep, 10) : 0;
+  const [step, setStep] = useState(isNaN(initialStep) ? 0 : initialStep);
+
+  useEffect(() => {
+    const s = searchParams.get("step");
+    if (s !== null) {
+      const parsed = parseInt(s, 10);
+      if (!isNaN(parsed) && parsed >= 0 && parsed <= 4) {
+        setStep(parsed);
+      }
+    }
+  }, [searchParams]);
+
   const [saved, setSaved] = useState(false);
   const [avatarError, setAvatarError] = useState("");
 
