@@ -97,28 +97,27 @@ const SERVICES: ServiceInfo[] = [
   },
   { 
     name: "Database Service", 
-    status: "DEGRADED", 
-    uptime: "99.2%", 
-    latency: "350ms", 
+    status: "HEALTHY", 
+    uptime: "99.98%", 
+    latency: "38ms", 
     desc: "Main database cluster storage, indexes & replica partitions.",
-    history: [120, 140, 280, 310, 350, 340, 360, 350],
+    history: [35, 38, 40, 37, 39, 38, 41, 38],
     logs: [
-      "22:13:02 [WARN] Replica lag: secondary-node-1 is 2.4s behind",
-      "22:11:45 [WARN] Slow query detected: select * from applications where status = 'ACTIVE' (340ms)",
-      "22:09:12 [INFO] Connection pool: active connections 72/100"
+      "22:11:45 [INFO] Query optimizer: stats updated for applications index",
+      "22:09:12 [INFO] Connection pool: active connections 24/100"
     ]
   },
   { 
-    name: "Notification Engine", 
-    status: "HEALTHY", 
-    uptime: "100%", 
-    latency: "12ms", 
-    desc: "SMS, email notifications & in-app push alerts router.",
-    history: [10, 12, 11, 14, 12, 13, 11, 12],
+    name: "Mail Relay", 
+    status: "DEGRADED", 
+    uptime: "98.8%", 
+    latency: "420ms", 
+    desc: "SMTP mail relay & transactional email dispatch channels.",
+    history: [110, 140, 290, 330, 420, 410, 430, 420],
     logs: [
-      "22:12:35 [INFO] Dispatch email: interview invitation sent to u_44",
-      "22:11:15 [INFO] Dispatch SMS: OTP verified for u_88",
-      "22:08:04 [INFO] Dispatch push: new unread message alert sent to u_12"
+      "22:12:05 [ERROR] SMTP connection timeout: relay.host.internal (504)",
+      "22:11:15 [WARN] Retrying email dispatch for userId=u_44",
+      "22:08:04 [INFO] Dispatch success: verification code email sent to u_12"
     ]
   }
 ];
@@ -192,7 +191,8 @@ export default function AdminDashboard() {
       icon: Users, 
       badge: "Active", 
       badgeColor: "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-950/30",
-      miniStat: "4 admins active"
+      miniStat: "4 admins active",
+      liveNumber: "4"
     },
     { 
       to: "/admin/security", 
@@ -201,7 +201,8 @@ export default function AdminDashboard() {
       icon: ShieldCheck, 
       badge: "Shield Active", 
       badgeColor: "bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-950/30",
-      miniStat: `${threatData?.recentFailedLogins ?? 0} threats in 24h`
+      miniStat: `${threatData?.recentFailedLogins ?? 0} threats in 24h`,
+      liveNumber: String(threatData?.recentFailedLogins ?? 0)
     },
     { 
       to: "/admin/audit", 
@@ -210,7 +211,8 @@ export default function AdminDashboard() {
       icon: ScrollText, 
       badge: "Compliant", 
       badgeColor: "bg-purple-50 text-purple-600 border-purple-100 dark:bg-purple-950/20 dark:text-purple-400 dark:border-purple-950/30",
-      miniStat: `${allLogs.length} events logged`
+      miniStat: `${allLogs.length} events logged`,
+      liveNumber: String(allLogs.length)
     },
   ];
 
@@ -219,11 +221,11 @@ export default function AdminDashboard() {
       title="Admin overview" 
       subtitle="Real-time control tower of SheEnableAI platform health, user status, and security compliance"
     >
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 animate-fade-in">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in">
         {/* Left Column (Main Governance Panels) */}
-        <div className="xl:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-6">
           {/* Dynamic Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {STATS.map(s => {
               const Icon = s.icon;
               const v = stats?.[s.key as keyof AdminStats]?.toLocaleString() ?? "—";
@@ -265,7 +267,7 @@ export default function AdminDashboard() {
           {/* Control Actions & Navigation Grid */}
           <div>
             <h3 className="text-xs font-bold text-ink-500 uppercase tracking-widest mb-3.5">Platform Governance Modules</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               {quickLinks.map(q => {
                 const Icon = q.icon;
                 return (
@@ -278,9 +280,14 @@ export default function AdminDashboard() {
                           <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center group-hover:bg-primary/10 transition-colors duration-300">
                             <Icon size={17} className="text-primary group-hover:scale-105 transition-transform" />
                           </div>
-                          <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full border uppercase tracking-wider ${q.badgeColor}`}>
-                            {q.badge}
-                          </span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-mono text-xs font-black bg-secondary text-foreground px-2 py-0.5 rounded-lg border border-border/40 group-hover:border-primary/20 transition-all">
+                              {q.liveNumber}
+                            </span>
+                            <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full border uppercase tracking-wider ${q.badgeColor}`}>
+                              {q.badge}
+                            </span>
+                          </div>
                         </div>
                         
                         <div className="flex items-center gap-1.5 text-sm font-bold text-foreground mb-1 group-hover:text-primary transition-colors">
@@ -312,7 +319,7 @@ export default function AdminDashboard() {
                 <Sparkles size={10} className="animate-spin" /> Live Diagnostics
               </span>
             </div>
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(235px,1fr))] gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
               {SERVICES.map(service => {
                 const isDegraded = service.status === "DEGRADED";
                 return (
@@ -320,15 +327,15 @@ export default function AdminDashboard() {
                     key={service.name}
                     onClick={() => setSelectedService(service)}
                     className={cn(
-                      "bg-card border rounded-2xl p-4.5 hover:shadow-md transition-all duration-300 cursor-pointer group flex flex-col justify-between min-h-[145px]",
+                      "bg-card border rounded-2xl p-4 sm:p-5 hover:shadow-md transition-all duration-300 cursor-pointer group flex flex-col justify-between min-h-[145px]",
                       isDegraded
-                        ? "border-amber-400/80 bg-amber-500/5 dark:bg-amber-950/10 dark:border-amber-500/30"
-                        : "border-border/80 hover:border-primary/20"
+                        ? "border-2 border-amber-500 dark:border-amber-450 bg-amber-500/5 dark:bg-amber-950/10 shadow-sm shadow-amber-500/5"
+                        : "border border-border/80 hover:border-primary/20"
                     )}
                   >
                     <div>
                       <div className="flex items-center justify-between mb-2.5">
-                        <span className="text-xs font-extrabold text-foreground group-hover:text-primary transition-colors truncate pr-2">
+                        <span className="text-xs sm:text-[13px] font-extrabold text-foreground group-hover:text-primary transition-colors truncate pr-2">
                           {service.name}
                         </span>
                         {/* Status pulsing dot indicator */}
@@ -349,13 +356,13 @@ export default function AdminDashboard() {
                           </span>
                         </div>
                       </div>
-                      <p className="text-[11px] text-muted-foreground leading-normal line-clamp-2">
+                      <p className="text-[10px] sm:text-[11.5px] text-muted-foreground leading-relaxed line-clamp-2">
                         {service.desc}
                       </p>
                     </div>
 
                     <div className="mt-3.5 border-t border-border/20 pt-2.5 flex items-center justify-between gap-1 flex-wrap">
-                      <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-semibold font-mono">
+                      <div className="flex items-center gap-1.5 text-[9px] sm:text-[10px] text-muted-foreground font-semibold font-mono">
                         <span>L: {service.latency}</span>
                         <span className="text-muted-foreground/30">·</span>
                         <span>U: {service.uptime}</span>
@@ -367,12 +374,12 @@ export default function AdminDashboard() {
                           onClick={(e) => {
                             e.stopPropagation(); // Avoid opening metrics dialog
                           }}
-                          className="text-[10px] font-bold text-amber-700 hover:text-amber-800 dark:text-amber-450 dark:hover:text-amber-300 flex items-center gap-0.5 hover:underline"
+                          className="text-[9px] sm:text-[10px] font-bold text-amber-700 hover:text-amber-800 dark:text-amber-450 dark:hover:text-amber-300 flex items-center gap-0.5 hover:underline"
                         >
                           Investigate &rarr;
                         </Link>
                       ) : (
-                        <span className="text-[10px] font-bold text-primary opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
+                        <span className="text-[9px] sm:text-[10px] font-bold text-primary opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
                           Metrics &rarr;
                         </span>
                       )}
@@ -385,7 +392,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Right Column (Live Session Widget & Audits Stream) */}
-        <div className="xl:col-span-1 space-y-6">
+        <div className="lg:col-span-1 space-y-6 md:grid md:grid-cols-2 md:gap-6 md:space-y-0 lg:flex lg:flex-col lg:space-y-6">
           {/* Active Admin Sessions widget */}
           <SectionCard title="Active Admin Sessions" subtitle="Currently logged-in security principals">
             <div className="space-y-3">
