@@ -8,7 +8,7 @@ import {
   Bell, LogOut, Menu, X, Heart, Settings, Loader2, Moon, Sun,
   type LucideIcon,
 } from "lucide-react";
-import logo from "@/assets/sheEnableAI-removebg-preview.png";
+import logo from "../../assets/sheEnableAI-removebg-preview.png";
 import { cn, initials, relativeTime } from "@/lib/utils";
 import { useAuthStore, UserRole } from "@/store/authStore";
 import { useNotifStore } from "@/store/notifStore";
@@ -108,7 +108,10 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
   const groups = NAV[role];
 
   // Dynamic real-time messages unread badges query
-  const { data: threadsData } = useQuery<any>({
+  type Thread = { unreadCandidate: number; unreadEmployer: number };
+  type ThreadsQueryData = Thread[] | { results: Thread[] };
+
+  const { data: threadsData } = useQuery<ThreadsQueryData>({
     queryKey: ["threadsBadge", role],
     queryFn: apiMessages.getThreads,
     refetchInterval: 10000, // Poll threads every 10s for unread badges
@@ -117,12 +120,12 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
 
   const rawThreads = Array.isArray(threadsData) ? threadsData : (threadsData?.results ?? []);
   const unreadMessagesCount = rawThreads.reduce(
-    (acc: number, t: any) => acc + (role === "CANDIDATE" ? t.unreadCandidate : t.unreadEmployer),
+    (acc: number, t: Thread) => acc + (role === "CANDIDATE" ? t.unreadCandidate : t.unreadEmployer),
     0
   );
 
   // Dynamic real-time applications badge query
-  const { data: myAppsData } = useQuery<any>({
+  const { data: myAppsData } = useQuery<unknown[]>({
     queryKey: ["myAppsBadge", role],
     queryFn: apiApplications.getApplications,
     refetchInterval: 10000, // Poll applications count every 10s
@@ -283,13 +286,23 @@ const NOTIF_ICONS: Record<string, string> = {
   SYSTEM: "⚙️",
 };
 
+type NotificationItem = {
+  _id?: string;
+  id?: string;
+  type: string;
+  title: string;
+  body: string;
+  isRead?: boolean;
+  createdAt: string;
+};
+
 function Topbar({
   title, subtitle, actions, onMenu, onSettingsClick, showHamburger = true,
 }: { title: string; subtitle?: string; actions?: ReactNode; onMenu: () => void; onSettingsClick?: () => void; showHamburger?: boolean }) {
   const qc = useQueryClient();
   const [showNotif, setShowNotif] = useState(false);
 
-  const { data: realNotifs } = useQuery({
+  const { data: realNotifs } = useQuery<NotificationItem[]>({
     queryKey: ["notifications"],
     queryFn: () => apiNotifications.getAll(),
     refetchInterval: 10000, // Real-time poll every 10s
@@ -309,7 +322,7 @@ function Topbar({
     }
   });
 
-  const notifsList = (realNotifs ?? []).map((n: any) => ({
+  const notifsList = (realNotifs ?? []).map((n: NotificationItem) => ({
     id: n._id || n.id,
     type: n.type,
     title: n.title,
@@ -405,6 +418,45 @@ function Topbar({
         </button>
       </div>
     </header>
+  );
+}
+
+function DarkModeToggle() {
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const stored = localStorage.getItem("dashboard-dark-mode");
+    const initial = stored !== null
+      ? stored === "true"
+      : document.documentElement.classList.contains("dark");
+    setDarkMode(initial);
+    document.documentElement.classList.toggle("dark", initial);
+  }, []);
+
+  const toggleMode = () => {
+    setDarkMode((prev) => {
+      const next = !prev;
+      if (typeof window !== "undefined") {
+        localStorage.setItem("dashboard-dark-mode", String(next));
+      }
+      document.documentElement.classList.toggle("dark", next);
+      return next;
+    });
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={toggleMode}
+      aria-label="Toggle dark mode"
+      className={cn(
+        "w-12 h-6 rounded-full p-1 transition-all flex items-center",
+        darkMode ? "bg-primary justify-end" : "bg-border justify-start"
+      )}
+    >
+      <span className="w-4 h-4 rounded-full bg-white shadow-sm" />
+    </button>
   );
 }
 
@@ -578,8 +630,34 @@ function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
     soundAlerts: false,
   });
 
+  type ProfileUser = {
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+  };
+
+  type ProfileQueryData = {
+    userId?: ProfileUser;
+    companyName?: string;
+    title?: string;
+    bio?: string;
+  };
+
+  type UpdateProfileData = {
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+    companyName?: string;
+    title?: string;
+    bio?: string;
+  };
+
+  type UpdateProfileResponse = {
+    user?: Record<string, unknown>;
+  };
+
   // Fetch full profile when modal opens
-  const { data: profile, isLoading } = useQuery({
+  const { data: profile, isLoading } = useQuery<ProfileQueryData>({
     queryKey: ["settingsProfile"],
     queryFn: () => apiProfile.getMe(),
     enabled: isOpen,
@@ -588,14 +666,14 @@ function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
   // Sync profile data to form
   useEffect(() => {
     if (profile) {
-      const pUser = (profile as any).userId || {};
+      const pUser = profile.userId ?? {};
       setFormData({
         firstName: pUser.firstName || "",
         lastName: pUser.lastName || "",
         phone: pUser.phone || "",
-        companyName: (profile as any).companyName || "",
-        title: (profile as any).title || "",
-        bio: (profile as any).bio || "",
+        companyName: profile.companyName || "",
+        title: profile.title || "",
+        bio: profile.bio || "",
       });
     }
   }, [profile]);
@@ -610,9 +688,18 @@ function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
     }
   }, [isOpen]);
 
+  const getMutationErrorMessage = (err: unknown): string | undefined => {
+    if (err instanceof Error) return err.message;
+    if (typeof err === "object" && err !== null && "response" in err) {
+      const apiErr = err as { response?: { data?: { message?: string } } };
+      return apiErr.response?.data?.message;
+    }
+    return undefined;
+  };
+
   const updateProfileMut = useMutation({
-    mutationFn: (data: any) => apiProfile.updateMe(data),
-    onSuccess: (res: any) => {
+    mutationFn: (data: UpdateProfileData) => apiProfile.updateMe(data),
+    onSuccess: (res: UpdateProfileResponse) => {
       qc.invalidateQueries({ queryKey: ["settingsProfile"] });
       qc.invalidateQueries({ queryKey: ["employerProfile"] });
       qc.invalidateQueries({ queryKey: ["candidateStats"] });
@@ -624,8 +711,8 @@ function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
       }
       toast.success("Settings updated successfully!");
     },
-    onError: (err: any) => {
-      toast.error(err?.response?.data?.message || "Failed to update profile settings");
+    onError: (err: unknown) => {
+      toast.error(getMutationErrorMessage(err) || "Failed to update profile settings");
     }
   });
 
