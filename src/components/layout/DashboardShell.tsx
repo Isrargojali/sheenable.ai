@@ -337,13 +337,16 @@ function Topbar({
   return (
     <header className="bg-card border-b border-border px-5 lg:px-6 py-3 flex items-center justify-between gap-3 flex-wrap">
       <div className="flex items-center gap-3 min-w-0">
-        <button
+        {/* Hamburger — hidden when bottom nav handles mobile navigation */}
+        {showHamburger && (
+          <button
             onClick={onMenu}
             aria-label="Open navigation menu"
             className="lg:hidden p-1.5 rounded-lg hover:bg-secondary"
           >
             <Menu size={18} />
           </button>
+        )}
         <div className="min-w-0">
           <h1 className="font-serif text-xl text-foreground leading-tight tracking-tight truncate">{title}</h1>
           {subtitle && <p className="text-[12px] text-muted-foreground truncate">{subtitle}</p>}
@@ -475,7 +478,7 @@ export function DashboardShell({
     setTimeout(() => {}, 0); // noop, kept for clarity
   }
 
-  // Load and apply the theme on mount
+  // Load and apply the theme + dark mode on mount
   useEffect(() => {
     const storedTheme = localStorage.getItem("dashboard-theme") || "lavender";
     const root = document.documentElement;
@@ -496,7 +499,31 @@ export function DashboardShell({
       root.style.setProperty("--ring", "260 70% 55%");
       root.style.setProperty("--hc-mauve", "#7C3AED");
     }
+    // Restore dark mode preference
+    const isDark = localStorage.getItem("dashboard-dark-mode") === "true";
+    document.documentElement.classList.toggle("dark", isDark);
   }, []);
+
+  const { user } = useAuthStore();
+  const role = user?.role ?? "CANDIDATE";
+  const hasBottomNav = role === "CANDIDATE" || role === "EMPLOYER";
+
+  // Bottom nav items per role (max 5)
+  const bottomNavItems: NavItem[] = role === "CANDIDATE"
+    ? [
+        { to: "/candidate/dashboard",    label: "Home",    icon: LayoutDashboard },
+        { to: "/candidate/jobs",          label: "Jobs",    icon: Briefcase },
+        { to: "/candidate/applications",  label: "Applied", icon: FileText },
+        { to: "/candidate/messages",      label: "Messages",icon: MessageSquare },
+        { to: "/candidate/profile",       label: "Profile", icon: User },
+      ]
+    : [
+        { to: "/employer/dashboard",  label: "Home",     icon: LayoutDashboard },
+        { to: "/employer/listings",   label: "Listings", icon: Briefcase },
+        { to: "/employer/post-job",   label: "Post Job", icon: FilePlus },
+        { to: "/employer/pipeline",   label: "Pipeline", icon: FileText },
+        { to: "/employer/messages",   label: "Messages", icon: MessageSquare },
+      ];
 
   return (
     <div className="min-h-screen w-full flex bg-background">
@@ -505,7 +532,7 @@ export function DashboardShell({
         <Sidebar />
       </div>
 
-      {/* Mobile drawer — shown when hamburger pressed */}
+      {/* Mobile drawer — Admin/SuperAdmin only (bottom nav handles Candidate/Employer) */}
       {mobileOpen && (
         <>
           <div className="fixed inset-0 bg-foreground/40 z-40 lg:hidden" onClick={() => setMobileOpen(false)} />
@@ -524,13 +551,81 @@ export function DashboardShell({
 
       {/* Main */}
       <main className="flex-1 min-w-0 flex flex-col h-screen overflow-hidden">
-        <Topbar title={title} subtitle={subtitle} actions={actions} onMenu={() => setMobileOpen(true)} onSettingsClick={() => setShowSettings(true)} />
-        <div className="flex-1 overflow-y-auto px-5 lg:px-6 py-5 scrollbar-thin" key={location.pathname}>
+        <Topbar
+          title={title}
+          subtitle={subtitle}
+          actions={actions}
+          onMenu={() => setMobileOpen(true)}
+          onSettingsClick={() => setShowSettings(true)}
+          showHamburger={!hasBottomNav}
+        />
+        {/* Extra bottom padding on mobile to clear the bottom nav bar */}
+        <div
+          className={cn(
+            "flex-1 overflow-y-auto px-5 lg:px-6 py-5 scrollbar-thin",
+            hasBottomNav && "pb-24 lg:pb-5"
+          )}
+          key={location.pathname}
+        >
           <div className="animate-fade-in">{children}</div>
         </div>
       </main>
 
-      {/* Fully functional settings modal */}
+      {/* Mobile bottom nav — CANDIDATE & EMPLOYER only */}
+      {hasBottomNav && (
+        <nav
+          aria-label="Mobile navigation"
+          className="fixed bottom-0 left-0 right-0 z-40 lg:hidden"
+          style={{
+            background: "hsl(var(--card) / 0.96)",
+            backdropFilter: "saturate(180%) blur(16px)",
+            WebkitBackdropFilter: "saturate(180%) blur(16px)",
+            borderTop: "1px solid hsl(var(--border))",
+          }}
+        >
+          <div className="flex items-stretch justify-around h-16 px-1">
+            {bottomNavItems.map(item => {
+              const Icon = item.icon;
+              return (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  className={({ isActive }) =>
+                    cn(
+                      "flex-1 flex flex-col items-center justify-center gap-0.5 py-2 transition-all duration-200",
+                      "text-[9px] font-bold uppercase tracking-wide rounded-token-md mx-0.5",
+                      isActive
+                        ? "text-primary"
+                        : "text-muted-foreground hover:text-foreground"
+                    )
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      <span
+                        className={cn(
+                          "flex items-center justify-center w-8 h-6 rounded-token-sm transition-all duration-200",
+                          isActive && "bg-primary/10"
+                        )}
+                      >
+                        <Icon
+                          size={16}
+                          className={cn("transition-transform duration-200", isActive && "scale-110")}
+                        />
+                      </span>
+                      <span>{item.label}</span>
+                    </>
+                  )}
+                </NavLink>
+              );
+            })}
+          </div>
+          {/* iOS home indicator safe area */}
+          <div style={{ height: "env(safe-area-inset-bottom, 0px)" }} />
+        </nav>
+      )}
+
+      {/* Settings modal */}
       <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
     </div>
   );
