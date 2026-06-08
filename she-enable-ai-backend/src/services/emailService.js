@@ -163,6 +163,7 @@ const sendApplicationStatusEmail = async (email, firstName, jobTitle, status, re
   const statusLabels = {
     SCREENING: 'Under Screening',
     INTERVIEW: 'Shortlisted for Interview',
+    OFFER: 'Job Offered 🎉',
     OFFERED: 'Job Offered 🎉',
     REJECTED: 'Application Closed'
   };

@@ -111,7 +111,10 @@ const getInterviewById = async (req, res, next) => {
 
     if (!interview) return error(res, 'Interview not found', 404);
 
-    if (interview.candidateId._id.toString() !== req.user.id && interview.interviewerId._id.toString() !== req.user.id) {
+    const candidateIdStr = interview.candidateId?._id?.toString() || interview.candidateId?.toString() || '';
+    const interviewerIdStr = interview.interviewerId?._id?.toString() || interview.interviewerId?.toString() || '';
+
+    if (candidateIdStr !== req.user.id && interviewerIdStr !== req.user.id) {
       return error(res, 'Not authorized to view this interview', 403);
     }
 

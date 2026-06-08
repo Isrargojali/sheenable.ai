@@ -151,8 +151,13 @@ const getPipeline = async (req, res, next) => {
       { $group: { _id: "$status", count: { $sum: 1 } } }
     ]);
 
-    const stats = { APPLIED: 0, SCREENING: 0, INTERVIEW: 0, OFFERED: 0, REJECTED: 0 };
-    pipelineStats.forEach(s => { stats[s._id] = s.count; });
+    const stats = { APPLIED: 0, SCREENING: 0, INTERVIEW: 0, ASSESSMENT: 0, OFFER: 0, OFFERED: 0, HIRED: 0, REJECTED: 0 };
+    pipelineStats.forEach(s => { 
+      stats[s._id] = s.count; 
+      if (s._id === 'OFFER') {
+        stats.OFFERED = s.count;
+      }
+    });
 
     return success(res, stats);
   } catch (err) { next(err); }

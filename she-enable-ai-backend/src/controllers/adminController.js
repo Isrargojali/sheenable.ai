@@ -24,20 +24,53 @@ const getStats = async (req, res, next) => {
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
 
-    const [totalUsers, totalCandidates, totalEmployers, totalJobs, totalApplications, successfulHires, newUsersThisMonth, activeJobs] = await Promise.all([
+    const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+    const [
+      totalUsers,
+      totalCandidates,
+      totalEmployers,
+      totalJobs,
+      totalApplications,
+      successfulHires,
+      newUsersThisMonth,
+      activeJobs,
+      growthUsers,
+      growthEmployers,
+      growthJobs,
+      growthApplications
+    ] = await Promise.all([
       User.countDocuments({ isActive: true }),
       User.countDocuments({ role: 'CANDIDATE', isActive: true }),
       User.countDocuments({ role: 'EMPLOYER', isActive: true }),
       Job.countDocuments({ status: 'PUBLISHED' }),
       Application.countDocuments(),
-      Application.countDocuments({ status: 'OFFERED' }),
+      Application.countDocuments({ status: 'HIRED' }),
       User.countDocuments({ createdAt: { $gte: startOfMonth } }),
       Job.countDocuments({ status: 'PUBLISHED' }),
+      User.countDocuments({ createdAt: { $gte: oneWeekAgo }, isActive: true }),
+      User.countDocuments({ role: 'EMPLOYER', createdAt: { $gte: oneWeekAgo }, isActive: true }),
+      Job.countDocuments({ createdAt: { $gte: oneWeekAgo }, status: 'PUBLISHED' }),
+      Application.countDocuments({ appliedAt: { $gte: oneWeekAgo } }),
     ]);
 
     const data = {
-      totalUsers, totalCandidates, totalEmployers, totalJobs,
-      totalApplications, successfulHires, newUsersThisMonth, activeJobs
+      totalUsers,
+      totalCandidates,
+      totalEmployers,
+      totalJobs,
+      totalApplications,
+      successfulHires,
+      newUsersThisMonth,
+      activeJobs,
+      employers: totalEmployers,
+      applications: totalApplications,
+      weeklyGrowth: {
+        users: growthUsers,
+        jobs: growthJobs,
+        employers: growthEmployers,
+        applications: growthApplications
+      }
     };
 
     return success(res, data);
