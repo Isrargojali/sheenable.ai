@@ -177,7 +177,20 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
           </div>
           <div className="min-w-0 flex-1">
             <div className="text-[13px] font-semibold text-foreground truncate leading-tight">{displayName}</div>
-            <div className="text-[10px] uppercase tracking-wide text-muted-foreground mt-0.5">{ROLE_LABEL[role]}</div>
+            <div className="mt-1">
+              <span className={cn(
+                "inline-block text-[9px] font-extrabold px-2 py-0.5 rounded-full border uppercase tracking-wider leading-none",
+                role === "SUPER_ADMIN"
+                  ? "bg-purple-100 border-purple-200 text-purple-700 dark:bg-purple-950/40 dark:border-purple-900/50 dark:text-purple-400"
+                  : role === "ADMIN"
+                  ? "bg-blue-50 border-blue-100 text-blue-700 dark:bg-blue-950/20 dark:border-blue-900/30 dark:text-blue-400"
+                  : role === "EMPLOYER"
+                  ? "bg-indigo-50 border-indigo-100 text-indigo-700 dark:bg-indigo-950/20 dark:border-indigo-900/30 dark:text-indigo-400"
+                  : "bg-emerald-50 border-emerald-100 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-900/30 dark:text-emerald-400"
+              )}>
+                {ROLE_LABEL[role]}
+              </span>
+            </div>
           </div>
         </div>
 
