@@ -518,38 +518,26 @@ export default function CandidateDashboard() {
                 {computedScore >= 80 ? "Looking great!" : computedScore >= 50 ? "Almost there!" : "Keep building!"}
               </div>
 
-              {/* 5 checklist items below circular donut */}
+              {/* Profile completion checklist below circular donut */}
               <div className="space-y-2 text-left mb-4">
                 {[
                   {
-                    label: "Personal Information",
-                    done: !!(user?.firstName && user?.lastName && profileData?.bio),
+                    label: "Add a portfolio link",
+                    done: !!(profileData as any)?.portfolioUrl,
                     step: 0,
-                    desc: "Name, title, bio, location, links"
+                    desc: "Link to your GitHub, website or LinkedIn"
                   },
                   {
-                    label: "Education Details",
-                    done: !!(profileData?.education && profileData.education.length > 0),
-                    step: 1,
-                    desc: "Degrees, institutions, certs"
+                    label: "Write a bio",
+                    done: !!(profileData as any)?.bio,
+                    step: 0,
+                    desc: "Introduce yourself to employers"
                   },
                   {
-                    label: "Professional Skills",
-                    done: !!(profileData?.skills && profileData.skills.length > 0),
+                    label: "Add skills",
+                    done: !!((profileData as any)?.skills && (profileData as any).skills.length > 0),
                     step: 2,
-                    desc: "Tech stack and job domains"
-                  },
-                  {
-                    label: "Work Experience",
-                    done: !!(profileData?.experience && profileData.experience.length > 0),
-                    step: 3,
-                    desc: "Employment history and roles"
-                  },
-                  {
-                    label: "Preferences & Languages",
-                    done: !!(profileData?.preferredMode || profileData?.expectedSalary?.min),
-                    step: 4,
-                    desc: "Salary, work mode, languages"
+                    desc: "List your technical expertise"
                   }
                 ].map((item, index) => (
                   <Link
@@ -563,8 +551,11 @@ export default function CandidateDashboard() {
                     )}
                   >
                     <div className="min-w-0">
-                      <div className="text-[11px] font-bold text-foreground group-hover/item:text-primary transition-colors leading-tight">
+                      <div className="text-[11px] font-bold text-foreground group-hover/item:text-primary transition-colors leading-tight flex items-center gap-1.5">
                         {item.label}
+                        {!item.done && (
+                          <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                        )}
                       </div>
                       <div className="text-[9px] text-muted-foreground mt-0.5 truncate max-w-[170px]">
                         {item.desc}
@@ -576,7 +567,7 @@ export default function CandidateDashboard() {
                           ✓
                         </span>
                       ) : (
-                        <span className="w-5 h-5 rounded-full border border-dashed border-muted-foreground/45 flex items-center justify-center text-[10px] font-bold text-muted-foreground/60 group-hover/item:border-primary/50 group-hover/item:text-primary">
+                        <span className="w-5 h-5 rounded-full border border-dashed border-rose-400 flex items-center justify-center text-[10px] font-bold text-rose-500 group-hover/item:border-primary/50 group-hover/item:text-primary bg-rose-50 dark:bg-rose-950/20 animate-pulse">
                           +
                         </span>
                       )}
