@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { 
   Briefcase, Users, MessageSquare, Sparkles, ArrowRight, MapPin, Loader2, 
-  Heart, MoreVertical, Eye, Copy, Trash2, Clock, X 
+  Heart, MoreVertical, Eye, Copy, Trash2, Clock, X, Pencil, Pause, Play
 } from "lucide-react";
 import { DashboardShell, SectionCard, BtnPrimary, BtnOutline } from "@/components/layout/DashboardShell";
 import { apiProfile, apiJobs, apiAI, apiMessages } from "@/lib/api";
@@ -94,6 +94,26 @@ export default function EmployerDashboard() {
     setMsgCandidate({ id, name });
     setMsgText("Hi! We saw your profile matched our requirements and would love to chat.");
   };
+
+  const toggleStatusMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => apiJobs.updateJob(id, { status }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["my-listings"] });
+      toast.success("Job listing status updated!");
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || "Failed to update status");
+    }
+  });
+
+  const getTopSkills = (title: string, apiSkills?: string[]) => {
+    if (apiSkills && apiSkills.length > 0) return apiSkills.slice(0, 3);
+    const t = title.toLowerCase();
+    if (t.includes("design") || t.includes("ux") || t.includes("ui")) return ["Figma", "UI/UX Design", "Wireframing"];
+    if (t.includes("developer") || t.includes("engineer") || t.includes("react") || t.includes("frontend")) return ["React", "TypeScript", "Node.js"];
+    if (t.includes("finance") || t.includes("account")) return ["Accounting", "Financial Analysis", "Excel"];
+    return ["Leadership", "Communication", "Management"];
+  };
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["employer-stats"],
     queryFn: () => apiProfile.getEmployerStats() as Promise<EmployerStats>,
@@ -176,9 +196,9 @@ export default function EmployerDashboard() {
         {/* Secondary Stats in tighter row */}
         <div className="lg:col-span-2 grid grid-cols-3 gap-4">
           {[
-            { key: "activeJobs", label: "Active Jobs", icon: Briefcase, color: "from-rose-500 to-rose-600 text-rose-500 bg-rose-50 dark:bg-rose-950/20 dark:text-rose-400 border-rose-100", delta: "Live board" },
-            { key: "totalApplicants", label: "Total Applicants", icon: Users, color: "from-violet-500 to-violet-600 text-violet-500 bg-violet-50 dark:bg-violet-950/20 dark:text-violet-400 border-violet-100", delta: "Active Pool" },
-            { key: "interviews", label: "Interviews Booked", icon: MessageSquare, color: "from-blue-500 to-blue-600 text-blue-500 bg-blue-50 dark:bg-blue-950/20 dark:text-blue-400 border-blue-100", delta: "Scheduled" }
+            { key: "activeJobs", label: "Active Jobs", icon: Briefcase, color: "from-emerald-500 to-emerald-600 text-emerald-700 bg-emerald-50 dark:bg-emerald-950/20 dark:text-emerald-450 border-emerald-100 dark:border-emerald-950/30", delta: "LIVE BOARD" },
+            { key: "totalApplicants", label: "Total Applicants", icon: Users, color: "from-teal-500 to-teal-600 text-teal-700 bg-teal-50 dark:bg-teal-950/20 dark:text-teal-400 border-teal-100 dark:border-teal-950/30", delta: "ACTIVE" },
+            { key: "interviews", label: "Interviews Booked", icon: MessageSquare, color: "from-blue-500 to-blue-600 text-blue-700 bg-blue-50 dark:bg-blue-950/20 dark:text-blue-400 border-blue-100 dark:border-blue-950/30", delta: "SCHEDULED" }
           ].map((s) => {
             const Icon = s.icon;
             const value = stats?.[s.key as keyof EmployerStats] ?? 0;
@@ -191,7 +211,7 @@ export default function EmployerDashboard() {
                   <div className={`w-8.5 h-8.5 rounded-xl bg-gradient-to-br ${s.color.split(' ')[0]} ${s.color.split(' ')[1]} flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-300`}>
                     <Icon size={14} className="text-white" />
                   </div>
-                  <span className={cn("text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider leading-none border", s.color.split(' ').slice(2).join(' '))}>
+                  <span className={cn("text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider leading-none border", s.color.split(' ').slice(2).join(' '))}>
                     {s.delta}
                   </span>
                 </div>
@@ -257,14 +277,23 @@ export default function EmployerDashboard() {
                           </Link>
                           {/* Category Badge - Unified Pill Sizing */}
                           <span className={cn(
-                            "text-[9px] font-black px-2 py-0.5 rounded-full border uppercase tracking-wider leading-none",
+                            "text-[9px] font-extrabold px-2 py-0.5 rounded-full border uppercase tracking-wider leading-none",
                             getCategoryStyles(jobCategory)
                           )}>
                             {jobCategory}
                           </span>
+                          {/* Job Status Badge - ACTIVE is teal */}
+                          <span className={cn(
+                            "text-[9px] font-extrabold px-2 py-0.5 rounded-full border uppercase tracking-wider leading-none",
+                            j.status === "ACTIVE"
+                              ? "bg-teal-50 text-teal-700 border-teal-100 dark:bg-teal-950/20 dark:text-teal-400 dark:border-teal-950/30"
+                              : "bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-950/30"
+                          )}>
+                            {j.status}
+                          </span>
                           {/* Closing Soon Warning Chip */}
                           {isClosingSoon && (
-                            <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-100 dark:bg-rose-950/20 dark:text-rose-400 dark:border-rose-950/30 flex items-center gap-0.5 leading-none animate-pulse">
+                            <span className="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-100 dark:bg-rose-950/20 dark:text-rose-400 dark:border-rose-950/30 flex items-center gap-0.5 leading-none animate-pulse">
                               <Clock size={9} /> Closing Soon
                             </span>
                           )}
@@ -327,7 +356,7 @@ export default function EmployerDashboard() {
                                       deleteMutation.mutate(j.id ?? j._id ?? "");
                                     }
                                   }}
-                                  className="w-full px-4 py-2 text-[11px] font-semibold text-rose-650 hover:bg-rose-50 dark:hover:bg-rose-950/20 flex items-center gap-2 transition-colors text-left"
+                                  className="w-full px-4 py-2 text-[11px] font-semibold text-rose-655 hover:bg-rose-50 dark:hover:bg-rose-950/20 flex items-center gap-2 transition-colors text-left"
                                 >
                                   <Trash2 size={12} className="text-rose-500" /> Delete Listing
                                 </button>
@@ -336,6 +365,46 @@ export default function EmployerDashboard() {
                           )}
                         </div>
                       </div>
+                    </div>
+
+                    {/* Hover inline actions */}
+                    <div className="opacity-0 group-hover:opacity-100 transition-all duration-200 absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5 bg-background/95 dark:bg-card/95 backdrop-blur-sm border border-border/60 rounded-2xl p-1.5 shadow-lg z-20 pointer-events-none group-hover:pointer-events-auto">
+                      <Link
+                        to={`/employer/listings`}
+                        onClick={() => toast.info("Opening listings manager to edit job...")}
+                        className="px-2.5 py-1.5 bg-secondary hover:bg-secondary/80 text-foreground rounded-xl text-[10px] font-bold shadow-sm transition-all active:scale-95 flex items-center gap-1"
+                      >
+                        <Pencil size={11} className="text-muted-foreground" /> Edit
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          toggleStatusMutation.mutate({
+                            id: j.id ?? j._id ?? "",
+                            status: j.status === "ACTIVE" ? "PAUSED" : "ACTIVE"
+                          });
+                        }}
+                        disabled={toggleStatusMutation.isPending}
+                        className="px-2.5 py-1.5 bg-secondary hover:bg-secondary/80 text-foreground rounded-xl text-[10px] font-bold shadow-sm transition-all active:scale-95 flex items-center gap-1"
+                      >
+                        {j.status === "ACTIVE" ? (
+                          <>
+                            <Pause size={11} className="text-muted-foreground" /> Pause
+                          </>
+                        ) : (
+                          <>
+                            <Play size={11} className="text-muted-foreground" /> Activate
+                          </>
+                        )}
+                      </button>
+                      <Link
+                        to={`/employer/pipeline?jobId=${j.id ?? j._id}`}
+                        className="px-2.5 py-1.5 bg-primary hover:bg-primary/95 text-white rounded-xl text-[10px] font-bold shadow-sm transition-all active:scale-95 flex items-center gap-1"
+                      >
+                        <Users size={11} /> Applicants
+                      </Link>
                     </div>
 
                     {/* Applicant Target Bar */}
@@ -439,16 +508,16 @@ export default function EmployerDashboard() {
                           )}>
                             {c.isAvailable !== false ? "Available Now" : "Unavailable"}
                           </span>
-                          {/* Match Score Badge */}
-                          <span className="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-950/30 leading-none">
+                          {/* Match Score Badge - Unified teal badge */}
+                          <span className="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-100 dark:bg-teal-950/20 dark:text-teal-400 dark:border-teal-950/30 leading-none uppercase tracking-wider">
                             {c.aiMatchScore}% Match
                           </span>
                         </div>
                         <div className="text-[11px] text-muted-foreground truncate mt-1 font-medium">{c.title || "Professional Developer"}</div>
                         
-                        {/* Skills Tags */}
-                        <div className="flex flex-wrap gap-1 mt-2.5">
-                          {(c.skills || ["React", "TypeScript", "Node.js"]).slice(0, 3).map((skill: string) => (
+                        {/* Skills Tags - Dynamic 2-3 skills using top-tier density */}
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {getTopSkills(c.title || "", c.skills).map((skill: string) => (
                             <span
                               key={skill}
                               className="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100 dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-950/30 uppercase tracking-wider"
