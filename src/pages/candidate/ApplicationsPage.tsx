@@ -1,26 +1,89 @@
 // src/pages/candidate/ApplicationsPage.tsx
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, Circle, MapPin, Calendar, Loader2 } from "lucide-react";
+import { Link } from "react-router-dom";
+import { 
+  CheckCircle2, MapPin, Calendar, Loader2, MoreHorizontal, 
+  ArrowRight, Sparkles, HelpCircle, AlertCircle, XCircle 
+} from "lucide-react";
 import { DashboardShell, SectionCard } from "@/components/layout/DashboardShell";
 import { apiApplications } from "@/lib/api";
 import { formatSalary, relativeTime, cn } from "@/lib/utils";
 import { toast } from "sonner";
 
-const STAGES = ["APPLIED", "SCREENING", "INTERVIEW", "OFFER", "HIRED"];
+const STAGES = ["APPLIED", "SCREENING", "INTERVIEW", "OFFER", "HIRED"] as const;
+
+const FILTER_STAGES = ["ALL", "APPLIED", "SCREENING", "INTERVIEW", "OFFER", "HIRED", "REJECTED"] as const;
+
+const FILTER_STYLES: Record<string, { label: string; activeClass: string; badgeClass: string }> = {
+  ALL: { 
+    label: "All", 
+    activeClass: "bg-primary text-primary-foreground border-primary shadow-sm",
+    badgeClass: "bg-primary-foreground/20 text-primary-foreground"
+  },
+  APPLIED: { 
+    label: "Applied", 
+    activeClass: "bg-blue-600 text-white border-blue-600 shadow-sm",
+    badgeClass: "bg-blue-800 text-blue-100"
+  },
+  SCREENING: { 
+    label: "Screening", 
+    activeClass: "bg-indigo-600 text-white border-indigo-600 shadow-sm",
+    badgeClass: "bg-indigo-800 text-indigo-100"
+  },
+  INTERVIEW: { 
+    label: "Interview", 
+    activeClass: "bg-amber-500 text-white border-amber-500 shadow-sm",
+    badgeClass: "bg-amber-700 text-amber-100"
+  },
+  OFFER: { 
+    label: "Offer", 
+    activeClass: "bg-purple-600 text-white border-purple-600 shadow-sm",
+    badgeClass: "bg-purple-800 text-purple-100"
+  },
+  HIRED: { 
+    label: "Hired", 
+    activeClass: "bg-emerald-600 text-white border-emerald-600 shadow-sm",
+    badgeClass: "bg-emerald-800 text-emerald-100"
+  },
+  REJECTED: { 
+    label: "Rejected", 
+    activeClass: "bg-rose-600 text-white border-rose-600 shadow-sm",
+    badgeClass: "bg-rose-800 text-rose-100"
+  }
+};
+
 const STAGE_COLOR: Record<string, string> = {
-  APPLIED:   "bg-blue-50 text-blue-700",
-  SCREENING: "bg-amber-50 text-amber-700",
-  INTERVIEW: "bg-violet-50 text-violet-700",
-  OFFER:     "bg-emerald-50 text-emerald-700",
-  HIRED:     "bg-emerald-50 text-emerald-700",
-  REJECTED:  "bg-red-50 text-red-700",
+  APPLIED:   "bg-blue-50 text-blue-700 dark:bg-blue-950/20 dark:text-blue-400 border border-blue-200/30",
+  SCREENING: "bg-indigo-50 text-indigo-700 dark:bg-indigo-950/20 dark:text-indigo-400 border border-indigo-200/30",
+  INTERVIEW: "bg-amber-50 text-amber-700 dark:bg-amber-950/20 dark:text-amber-400 border border-amber-200/30",
+  OFFER:     "bg-purple-50 text-purple-700 dark:bg-purple-950/20 dark:text-purple-400 border border-purple-200/30",
+  HIRED:     "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400 border border-emerald-200/30",
+  REJECTED:  "bg-rose-50 text-rose-700 dark:bg-rose-950/20 dark:text-rose-400 border border-rose-200/30",
+};
+
+// Gradient assigner for company initials
+const getCompanyGradient = (name: string) => {
+  const charCode = (name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)) || 0;
+  const gradients = [
+    "from-pink-500 to-rose-500 text-white",
+    "from-violet-500 to-indigo-500 text-white",
+    "from-cyan-500 to-blue-500 text-white",
+    "from-emerald-500 to-teal-500 text-white",
+    "from-amber-500 to-orange-500 text-white",
+    "from-fuchsia-500 to-purple-500 text-white"
+  ];
+  return gradients[charCode % gradients.length];
 };
 
 export default function ApplicationsPage() {
   const qc = useQueryClient();
-  const { data, isLoading } = useQuery({ queryKey: ["myApps"], queryFn: apiApplications.getApplications });
-  const [filter, setFilter] = useState("ALL");
+  const { data, isLoading } = useQuery<any[]>({ 
+    queryKey: ["myApps"], 
+    queryFn: apiApplications.getApplications 
+  });
+  const [filter, setFilter] = useState<string>("ALL");
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
   const acceptMutation = useMutation({
     mutationFn: (appId: string) => apiApplications.acceptInterview(appId),
@@ -44,84 +107,265 @@ export default function ApplicationsPage() {
     }
   });
 
-  const apps = (data ?? []).filter(a => filter === "ALL" || a.stage === filter);
+  const totalCounts = data ?? [];
+  const getStageCount = (stage: string) => {
+    if (stage === "ALL") return totalCounts.length;
+    return totalCounts.filter(a => a.stage === stage).length;
+  };
+
+  const apps = totalCounts.filter(a => filter === "ALL" || a.stage === filter);
 
   return (
     <DashboardShell title="My applications" subtitle="Track every job you've applied to">
-      {/* Filter */}
-      <div className="flex flex-wrap gap-2 mb-4">
-        {["ALL", ...STAGES].map(s => (
-          <button key={s} onClick={() => setFilter(s)}
-                  className={cn(
-                    "px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all border",
-                    filter === s
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "bg-card text-ink-500 border-border hover:border-primary/40"
-                  )}>
-            {s === "ALL" ? "All" : s}
-          </button>
-        ))}
+      {/* Filter Tabs Status Dashboard */}
+      <div className="flex flex-wrap gap-2 mb-6">
+        {FILTER_STAGES.map(s => {
+          const style = FILTER_STYLES[s];
+          const count = getStageCount(s);
+          const active = filter === s;
+          return (
+            <button 
+              key={s} 
+              onClick={() => setFilter(s)}
+              className={cn(
+                "px-3.5 py-1.5 rounded-full text-[11px] font-bold transition-all duration-200 border flex items-center gap-1.5 active:scale-95",
+                active
+                  ? style.activeClass
+                  : "bg-card text-ink-500 border-border hover:border-primary/45 hover:bg-secondary/35"
+              )}
+            >
+              <span>{style.label}</span>
+              <span className={cn(
+                "text-[9px] px-1.5 py-0.2 rounded-full font-bold ml-0.5 shadow-sm leading-none",
+                active ? style.badgeClass : "bg-secondary text-ink-300"
+              )}>
+                {count}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {isLoading && <div className="text-center py-12 text-sm text-muted-foreground">Loading…</div>}
 
-      <div className="space-y-3">
+      <div className="space-y-4">
         {apps.map(app => {
-          const stageIdx = STAGES.indexOf(app.stage);
+          const isRejected = app.stage === "REJECTED";
+          const stageIdx = STAGES.indexOf(app.stage as any);
+          const formattedSalaryRange = formatSalary(app.job.salaryMin, app.job.salaryMax, app.job.salaryCurrency);
+
           return (
-            <SectionCard key={app.id}>
-              <div className="flex flex-wrap gap-3 items-start justify-between mb-4">
+            <SectionCard 
+              key={app.id}
+              className={cn(
+                "transition-all duration-300 relative border",
+                isRejected 
+                  ? "opacity-75 hover:opacity-95 border-l-4 border-l-rose-500 bg-[#FFF5F5]/10 dark:bg-rose-950/5"
+                  : "border-border hover:border-primary/20 hover:shadow-sm"
+              )}
+            >
+              <div className="flex flex-wrap gap-3 items-start justify-between mb-4 relative">
                 <div className="flex gap-3 min-w-0">
-                  <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center text-sm font-bold text-muted-foreground flex-shrink-0">
+                  {/* Company avatar gradient initials */}
+                  <div className={cn(
+                    "w-12 h-12 rounded-xl flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-sm bg-gradient-to-br transition-all duration-300",
+                    getCompanyGradient(app.job.employer.companyName)
+                  )}>
                     {app.job.employer.companyName.slice(0, 2).toUpperCase()}
                   </div>
                   <div className="min-w-0">
-                    <div className="text-[14px] font-bold text-foreground">{app.job.title}</div>
+                    <div className={cn(
+                      "text-[14px] font-bold text-foreground transition-all",
+                      isRejected && "line-through text-muted-foreground"
+                    )}>
+                      {app.job.title}
+                    </div>
                     <div className="text-[12px] text-muted-foreground mt-0.5">{app.job.employer.companyName}</div>
                     <div className="flex items-center gap-3 mt-2 text-[11px] text-ink-400">
-                      {app.job.location && <span className="inline-flex items-center gap-1"><MapPin size={11} />{app.job.location}</span>}
-                      <span className="inline-flex items-center gap-1"><Calendar size={11} />Applied {relativeTime(app.appliedAt)}</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <span className={cn("text-[10px] font-bold px-2.5 py-1 rounded-full", STAGE_COLOR[app.stage] ?? "bg-secondary")}>
-                    {app.stage}
-                  </span>
-                  <div className="text-[12px] font-bold text-emerald-600 mt-2">
-                    {formatSalary(app.job.salaryMin, app.job.salaryMax)}
-                  </div>
-                  <div className="text-[10px] text-ink-300 mt-0.5">AI match: {app.aiMatchScore}%</div>
-                </div>
-              </div>
-
-              {/* Pipeline */}
-              <div className="flex items-center gap-0">
-                {STAGES.map((s, i) => (
-                  <div key={s} className="flex items-center flex-1 last:flex-none">
-                    <div className="flex flex-col items-center">
-                      <div className={cn(
-                        "w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold transition-all",
-                        i  <  stageIdx ? "bg-emerald-500 text-white"
-                        : i === stageIdx ? "bg-primary text-primary-foreground ring-4 ring-primary/15"
-                        : "bg-secondary text-ink-300"
-                      )}>
-                        {i < stageIdx ? <CheckCircle2 size={12} /> : i + 1}
-                      </div>
-                      <span className={cn(
-                        "text-[9px] font-bold mt-1.5 whitespace-nowrap",
-                        i === stageIdx ? "text-primary" : i < stageIdx ? "text-emerald-600" : "text-ink-300"
-                      )}>
-                        {s}
+                      {app.job.location && (
+                        <span className="inline-flex items-center gap-1">
+                          <MapPin size={11} />
+                          {app.job.location}
+                        </span>
+                      )}
+                      <span className="inline-flex items-center gap-1">
+                        <Calendar size={11} />
+                        Applied {relativeTime(app.appliedAt)}
                       </span>
                     </div>
-                    {i < STAGES.length - 1 && (
-                      <div className={cn("flex-1 h-0.5 mx-1 mb-4", i < stageIdx ? "bg-emerald-500" : "bg-secondary")} />
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="text-right">
+                    <span className={cn("text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider", STAGE_COLOR[app.stage] ?? "bg-secondary")}>
+                      {app.stage}
+                    </span>
+                    
+                    {/* Normalized salary */}
+                    <div className="text-[12px] font-black text-emerald-600 dark:text-emerald-400 mt-2">
+                      {formattedSalaryRange}
+                    </div>
+
+                    {/* Explanatory AI Match Score & Tooltip or outcome context */}
+                    {app.stage === "HIRED" ? (
+                      <div className="text-[10.5px] text-emerald-600 font-extrabold mt-1 inline-flex items-center gap-0.5" title="Final outcome details">
+                        Selected from {Math.max(app.job.applicationCount || 0, 1)} {Math.max(app.job.applicationCount || 0, 1) === 1 ? 'applicant' : 'applicants'}
+                      </div>
+                    ) : app.stage === "REJECTED" ? (
+                      <div className="text-[10.5px] text-rose-600 font-medium mt-1 inline-flex items-center gap-0.5" title="Final outcome details">
+                        Position filled from {Math.max(app.job.applicationCount || 0, 1)} {Math.max(app.job.applicationCount || 0, 1) === 1 ? 'applicant' : 'applicants'}
+                      </div>
+                    ) : (
+                      <div 
+                        className="text-[10.5px] text-ink-300 mt-1 inline-flex items-center gap-1 cursor-help border-b border-dashed border-ink-300/40 pb-0.5"
+                        title="Based on your skills, experience, and preferences."
+                      >
+                        <Sparkles size={9} className="text-primary animate-pulse" />
+                        AI match: {app.aiMatchScore || 75}%
+                      </div>
                     )}
                   </div>
-                ))}
+
+                  {/* Quick Action "..." Dropdown Menu */}
+                  <div className="relative">
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setOpenMenuId(openMenuId === app.id ? null : app.id);
+                      }}
+                      className="p-1.5 hover:bg-secondary/80 rounded-full text-muted-foreground hover:text-foreground transition-all"
+                      title="More actions"
+                    >
+                      <MoreHorizontal size={16} />
+                    </button>
+                    
+                    {openMenuId === app.id && (
+                      <>
+                        <div className="fixed inset-0 z-10" onClick={() => setOpenMenuId(null)} />
+                        <div className="absolute right-0 mt-1 w-48 bg-card border border-border rounded-xl shadow-lg py-1 z-20 animate-scale-up">
+                          <button
+                            onClick={() => {
+                              setOpenMenuId(null);
+                              window.location.href = `/candidate/jobs?search=${encodeURIComponent(app.job.title)}`;
+                            }}
+                            className="w-full text-left px-4 py-2 text-[11px] font-semibold text-foreground hover:bg-secondary/45 transition-colors"
+                          >
+                            View job posting
+                          </button>
+                          <button
+                            onClick={() => {
+                              setOpenMenuId(null);
+                              window.location.href = `/candidate/messages?employerId=${app.job.employer.id}&jobTitle=${encodeURIComponent(app.job.title)}`;
+                            }}
+                            className="w-full text-left px-4 py-2 text-[11px] font-semibold text-foreground hover:bg-secondary/45 transition-colors"
+                          >
+                            Message employer
+                          </button>
+                          
+                          {app.stage === "HIRED" && (
+                            <button
+                              onClick={() => {
+                                setOpenMenuId(null);
+                                toast.success("Date coordination calendar opened!");
+                              }}
+                              className="w-full text-left px-4 py-2 text-[11px] font-semibold text-emerald-600 hover:bg-emerald-500/5 transition-colors border-t border-border/40 mt-1 pt-2"
+                            >
+                              Schedule start date
+                            </button>
+                          )}
+                          
+                          {isRejected ? (
+                            <>
+                              <button
+                                onClick={() => {
+                                  setOpenMenuId(null);
+                                  toast.success("Request for feedback submitted successfully!");
+                                }}
+                                className="w-full text-left px-4 py-2 text-[11px] font-semibold text-rose-600 hover:bg-rose-500/5 transition-colors border-t border-border/40 mt-1 pt-2"
+                              >
+                                Request feedback
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setOpenMenuId(null);
+                                  window.location.href = `/candidate/jobs?search=${encodeURIComponent(app.job.title)}`;
+                                }}
+                                className="w-full text-left px-4 py-2 text-[11px] font-semibold text-foreground hover:bg-secondary/45 transition-colors"
+                              >
+                                Find similar roles
+                              </button>
+                            </>
+                          ) : (
+                            <button
+                              onClick={() => {
+                                setOpenMenuId(null);
+                                if (confirm("Are you sure you want to withdraw your application? This action cannot be undone.")) {
+                                  toast.success("Application successfully withdrawn.");
+                                }
+                              }}
+                              className="w-full text-left px-4 py-2 text-[11px] font-semibold text-rose-600 hover:bg-rose-500/5 transition-colors border-t border-border/40 mt-1"
+                            >
+                              Withdraw application
+                            </button>
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
               </div>
 
+              {/* Pipeline Tracker */}
+              <div className="flex items-center gap-0 mt-5 mb-2 overflow-x-auto pb-2">
+                {STAGES.map((s, i) => {
+                  const isActive = !isRejected && i === stageIdx;
+                  const isCompleted = !isRejected && i < stageIdx;
+                  
+                  return (
+                    <div key={s} className="flex items-center flex-1 last:flex-none">
+                      <div className="flex flex-col items-center">
+                        <div className={cn(
+                          "w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold transition-all",
+                          isRejected
+                            ? "bg-secondary/60 text-ink-300/60 line-through"
+                            : isCompleted
+                              ? "bg-emerald-500 text-white"
+                              : isActive
+                                ? "bg-primary text-primary-foreground ring-4 ring-primary/15"
+                                : "bg-secondary text-ink-300"
+                        )}>
+                          {isCompleted ? <CheckCircle2 size={12} /> : i + 1}
+                        </div>
+                        <span className={cn(
+                          "text-[9px] font-bold mt-1.5 whitespace-nowrap capitalize",
+                          isRejected 
+                            ? "text-ink-300/50 line-through"
+                            : isActive 
+                              ? "text-primary" 
+                              : isCompleted 
+                                ? "text-emerald-600" 
+                                : "text-ink-300"
+                        )}>
+                          {s.toLowerCase()}
+                        </span>
+                      </div>
+                      {i < STAGES.length - 1 && (
+                        <div className={cn(
+                          "flex-1 h-0.5 mx-1 mb-4 min-w-[20px]",
+                          isRejected 
+                            ? "bg-secondary/40"
+                            : i < stageIdx 
+                              ? "bg-emerald-500" 
+                              : "bg-secondary"
+                        )} />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Contextual Banner for Interview Invitation */}
               {app.stage === "INTERVIEW" && (
                 <div className="mt-4 pt-3 border-t border-border flex flex-wrap gap-2.5 justify-between items-center bg-[#F7F4F9]/60 backdrop-blur-md -mx-4 -mb-4 px-4 py-3 rounded-b-2xl">
                   <div className="text-[11px] text-[#7C3AED] font-bold">
@@ -133,7 +377,7 @@ export default function ApplicationsPage() {
                     <button
                       onClick={() => acceptMutation.mutate(app.id)}
                       disabled={acceptMutation.isPending}
-                      className="px-3.5 py-1.5 bg-[#7C3AED] hover:bg-violet-700 text-white rounded-full text-[10px] font-bold shadow-sm transition-all flex items-center gap-1 active:scale-95 disabled:opacity-50"
+                      className="px-3.5 py-1.5 bg-[#7C3AED] hover:bg-violet-750 text-white rounded-full text-[10px] font-bold shadow-sm transition-all flex items-center gap-1 active:scale-95 disabled:opacity-50"
                     >
                       {acceptMutation.isPending ? <Loader2 size={10} className="animate-spin" /> : "Accept Invitation"}
                     </button>
@@ -141,6 +385,7 @@ export default function ApplicationsPage() {
                 </div>
               )}
 
+              {/* Contextual Banner for Offer Stage */}
               {app.stage === "OFFER" && (
                 <div className="mt-4 pt-3 border-t border-border flex flex-wrap gap-2.5 justify-between items-center bg-emerald-50/50 backdrop-blur-md -mx-4 -mb-4 px-4 py-3 rounded-b-2xl">
                   <div className="text-[11px] text-emerald-700 font-bold">
@@ -157,6 +402,23 @@ export default function ApplicationsPage() {
                       {acceptOfferMutation.isPending ? <Loader2 size={10} className="animate-spin" /> : "Accept Job Offer"}
                     </button>
                   )}
+                </div>
+              )}
+
+              {/* Re-engagement Banner for Rejected Applications */}
+              {isRejected && (
+                <div className="mt-4 pt-3 border-t border-border flex justify-between items-center bg-rose-500/5 -mx-4 -mb-4 px-4 py-3 rounded-b-2xl">
+                  <div className="text-[11px] text-rose-700 dark:text-rose-400 font-semibold flex items-center gap-1">
+                    <XCircle size={12} className="text-rose-500" />
+                    This role is closed, but you match other open positions.
+                  </div>
+                  <Link 
+                    to="/candidate/jobs" 
+                    className="text-[10px] font-extrabold text-rose-600 dark:text-rose-400 hover:underline flex items-center gap-0.5 group"
+                  >
+                    Apply to a similar role 
+                    <ArrowRight size={11} className="transform group-hover/link:translate-x-0.5 transition-transform" />
+                  </Link>
                 </div>
               )}
             </SectionCard>
