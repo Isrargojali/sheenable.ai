@@ -747,8 +747,10 @@ function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
     bio?: string;
   };
 
+  type AuthUser = ReturnType<typeof useAuthStore> extends { user: infer U } ? U : unknown;
+
   type UpdateProfileResponse = {
-    user?: Record<string, unknown>;
+    user?: AuthUser;
   };
 
   // Fetch full profile when modal opens
@@ -792,17 +794,17 @@ function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
     return undefined;
   };
 
-  const updateProfileMut = useMutation({
+  const updateProfileMut = useMutation<UpdateProfileResponse, unknown, UpdateProfileData>({
     mutationFn: (data: UpdateProfileData) => apiProfile.updateMe(data),
-    onSuccess: (res: UpdateProfileResponse) => {
+    onSuccess: (res) => {
       qc.invalidateQueries({ queryKey: ["settingsProfile"] });
       qc.invalidateQueries({ queryKey: ["employerProfile"] });
       qc.invalidateQueries({ queryKey: ["candidateStats"] });
       qc.invalidateQueries({ queryKey: ["myApps"] });
       qc.invalidateQueries({ queryKey: ["employerProfile"] });
       // Update auth store user
-      if (res && res.user) {
-        setUser(res.user);
+      if (res?.user && typeof res.user === 'object' && 'id' in res.user && 'email' in res.user) {
+        setUser(res.user as Parameters<typeof setUser>[0]);
       }
       toast.success("Settings updated successfully!");
     },
