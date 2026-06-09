@@ -47,6 +47,8 @@ const mapJobsList = async (jobs, userId = null) => {
       applicationCount: job.applicationCount || 0,
       viewCount: job.viewCount || 0,
       status: job.status,
+      experienceRequired: job.experienceRequired || 0,
+      aiScore: job.aiScore || (job.matchScore !== undefined ? Math.min(Math.round((job.matchScore / Math.max(job.skillsRequired?.length || 1, 1)) * 40 + 55), 99) : undefined),
       createdAt: job.createdAt
     };
   });

@@ -27,6 +27,7 @@ interface Job {
   location?: string;
   createdAt: string;
   aiScore?: number;
+  experienceRequired?: number;
 }
 
 interface JobsResponse {
@@ -376,7 +377,7 @@ ${candidateName}`;
                 >
                   <JobCard 
                     job={job}
-                    candidateSkills={candidateSkills}
+                    profile={profile}
                     appliedDate={appliedDate}
                     onSave={() => save.mutate(job)}
                     onApply={() => handleOpenApply(job)}
@@ -460,7 +461,7 @@ ${candidateName}`;
 
 interface JobCardProps {
   job: Job;
-  candidateSkills: string[];
+  profile?: any;
   appliedDate?: string | null;
   onSave: () => void;
   onApply: () => void;
@@ -514,20 +515,89 @@ const formatJobDescription = (desc: string, skills: string[]) => {
   return cleaned;
 };
 
-function JobCard({ job, candidateSkills, appliedDate, onSave, onApply, isLoading }: JobCardProps) {
+function JobCard({ job, profile, appliedDate, onSave, onApply, isLoading }: JobCardProps) {
   const matchScore = (() => {
     if (job.aiScore) return job.aiScore;
-    
-    if (candidateSkills && candidateSkills.length > 0 && job.skills && job.skills.length > 0) {
-      const jobSkills = job.skills.map(s => s.toLowerCase());
-      const overlap = jobSkills.filter(s => candidateSkills.some(cs => cs.includes(s) || s.includes(cs)));
-      const ratio = overlap.length / jobSkills.length;
-      return Math.round(55 + (ratio * 40) + (job.isFeatured ? 4 : 0));
+
+    // Default baseline
+    let score = 50;
+
+    if (!profile) {
+      // Deterministic fallback based on job.id if profile hasn't loaded yet
+      const seed = job.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      return 60 + (seed % 35);
     }
-    
-    // Deterministic fallback based on job.id
-    const seed = job.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    return 60 + (seed % 35); // 60% to 95%
+
+    // 1. Category Match (Weight: 15%)
+    if (profile.category && job.category && profile.category.toLowerCase() === job.category.toLowerCase()) {
+      score += 15;
+    }
+
+    // 2. Work Mode Match (Weight: 10%)
+    if (profile.preferredMode && job.mode && profile.preferredMode.toUpperCase() === job.mode.toUpperCase()) {
+      score += 10;
+    }
+
+    // 3. Title Keyword Overlap (Weight: 15%)
+    if (profile.title && job.title) {
+      const candidateTitleWords = profile.title.toLowerCase().split(/\s+/).filter((w: string) => w.length > 2);
+      const jobTitleWords = job.title.toLowerCase().split(/\s+/).filter((w: string) => w.length > 2);
+      const titleOverlap = candidateTitleWords.filter((w: string) => jobTitleWords.some((jw: string) => jw.includes(w) || w.includes(jw)));
+      if (titleOverlap.length > 0) {
+        score += 15;
+      }
+    }
+
+    // 4. Skills Match (Weight: 35%)
+    const candidateSkillsList = (profile.skills as any[]) || [];
+    if (candidateSkillsList.length > 0 && job.skills && job.skills.length > 0) {
+      const jobSkillsLower = job.skills.map(s => s.toLowerCase());
+      let skillMatchCount = 0;
+      let skillWeightSum = 0;
+
+      jobSkillsLower.forEach(js => {
+        const candidateSkillObj = candidateSkillsList.find(cs => {
+          const csName = (typeof cs === 'string' ? cs : cs?.name || '').toLowerCase();
+          return csName.includes(js) || js.includes(csName);
+        });
+
+        if (candidateSkillObj) {
+          skillMatchCount++;
+          const level = candidateSkillObj.level || 'intermediate';
+          if (level === 'expert') skillWeightSum += 1.5;
+          else if (level === 'advanced') skillWeightSum += 1.25;
+          else if (level === 'intermediate') skillWeightSum += 1.0;
+          else skillWeightSum += 0.75;
+        }
+      });
+
+      if (jobSkillsLower.length > 0) {
+        const overlapRatio = skillMatchCount / jobSkillsLower.length;
+        score += Math.round(overlapRatio * 35);
+        if (skillMatchCount > 0) {
+          const avgWeight = skillWeightSum / skillMatchCount;
+          if (avgWeight > 1.1) {
+            score += 5; // Extra 5% bonus for high skill levels
+          }
+        }
+      }
+    }
+
+    // 5. Experience Match (Weight: 10%)
+    if (profile.yearsOfExperience !== undefined && job.experienceRequired !== undefined) {
+      if (profile.yearsOfExperience >= job.experienceRequired) {
+        score += 10;
+      } else if (profile.yearsOfExperience + 1 >= job.experienceRequired) {
+        score += 5; // close enough match
+      }
+    }
+
+    // Featured job bonus (Weight: 5%)
+    if (job.isFeatured) {
+      score += 5;
+    }
+
+    return Math.max(45, Math.min(score, 99));
   })();
 
   const isHighMatch = matchScore >= 80;
