@@ -74,6 +74,7 @@ const getMyApplications = async (req, res, next) => {
           location: job.location,
           salaryMin: job.salary?.min || 0,
           salaryMax: job.salary?.max || 0,
+          salaryCurrency: job.salary?.currency || null,
           employer: {
             id: empId,
             companyName

@@ -42,6 +42,7 @@ const mapJobsList = async (jobs, userId = null) => {
       skills: job.skillsRequired || [],
       salaryMin: job.salary?.min || 0,
       salaryMax: job.salary?.max || 0,
+      salaryCurrency: job.salary?.currency || null,
       location: job.location,
       applicationCount: job.applicationCount || 0,
       viewCount: job.viewCount || 0,

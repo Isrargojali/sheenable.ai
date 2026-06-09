@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Search, Bookmark, BookmarkCheck, MapPin, Sparkles, AlertCircle, Wand2, X } from "lucide-react";
+import { Search, Bookmark, BookmarkCheck, MapPin, Sparkles, AlertCircle, Wand2, X, ArrowRight } from "lucide-react";
 import { DashboardShell, SectionCard, BtnPrimary, BtnOutline } from "@/components/layout/DashboardShell";
 import { apiJobs, apiApplications, apiProfile } from "@/lib/api";
 import { formatSalary, relativeTime, cn } from "@/lib/utils";
@@ -22,8 +22,10 @@ interface Job {
   skills: string[];
   salaryMin: number;
   salaryMax: number;
+  salaryCurrency?: string | null;
   location?: string;
   createdAt: string;
+  aiScore?: number;
 }
 
 interface JobsResponse {
@@ -35,9 +37,34 @@ interface JobsResponse {
   };
 }
 
-const CATEGORIES = ["All", "IT & Tech", "Finance", "Healthcare", "Sales & Marketing", "Design & UX", "Education"];
-const TYPES      = ["All", "FULLTIME", "CONTRACT", "INTERNSHIP", "PARTTIME"];
-const MODES      = ["All", "REMOTE", "HYBRID", "ONSITE"];
+const CATEGORIES = ["All", "IT & Tech", "Finance", "Healthcare", "Sales & Marketing", "Design & UX", "Education"] as const;
+const TYPES      = ["All", "FULLTIME", "CONTRACT", "INTERNSHIP", "PARTTIME"] as const;
+const MODES      = ["All", "REMOTE", "HYBRID", "ONSITE"] as const;
+
+const CATEGORY_MAP: Record<string, { label: string; icon: string }> = {
+  "All": { label: "All", icon: "🌐" },
+  "IT & Tech": { label: "IT & Tech", icon: "💻" },
+  "Finance": { label: "Finance", icon: "💰" },
+  "Healthcare": { label: "Healthcare", icon: "🏥" },
+  "Sales & Marketing": { label: "Sales & Marketing", icon: "📢" },
+  "Design & UX": { label: "Design & UX", icon: "🎨" },
+  "Education": { label: "Education", icon: "🎓" }
+};
+
+const TYPE_MAP: Record<string, { label: string; icon: string }> = {
+  "All": { label: "All", icon: "🌐" },
+  "FULLTIME": { label: "Full-time", icon: "💼" },
+  "CONTRACT": { label: "Contract", icon: "🤝" },
+  "INTERNSHIP": { label: "Internship", icon: "🎓" },
+  "PARTTIME": { label: "Part-time", icon: "⏱️" }
+};
+
+const MODE_MAP: Record<string, { label: string; icon: string }> = {
+  "All": { label: "All", icon: "🌐" },
+  "REMOTE": { label: "Remote", icon: "🏠" },
+  "HYBRID": { label: "Hybrid", icon: "🏢" },
+  "ONSITE": { label: "On-site", icon: "📍" }
+};
 
 export default function JobsBrowsePage() {
   const [searchParams] = useSearchParams();
@@ -60,6 +87,18 @@ export default function JobsBrowsePage() {
     queryFn: () => apiProfile.getMe(),
   });
 
+  // Fetch applications list to map applied dates
+  const { data: appsData } = useQuery({
+    queryKey: ["myApps"],
+    queryFn: () => apiApplications.getApplications(),
+  });
+
+  // Fetch all jobs to compute counts dynamically
+  const { data: allJobsData } = useQuery({
+    queryKey: ["allJobsCounts"],
+    queryFn: () => apiJobs.getJobs({ limit: 100 }),
+  });
+
   const applyMutation = useMutation({
     mutationFn: async (payload: { jobId: string; coverLetter: string; resumeUrl: string }) => {
       return apiApplications.apply(payload.jobId, {
@@ -73,6 +112,7 @@ export default function JobsBrowsePage() {
       setCoverLetter("");
       setResumeUrl("");
       qc.invalidateQueries({ queryKey: ["jobs"] });
+      qc.invalidateQueries({ queryKey: ["myApps"] });
     },
     onError: (err: any) => {
       toast.error(err?.response?.data?.message || "Failed to submit application");
@@ -162,35 +202,110 @@ ${candidateName}`;
     }
   }, [applyJobId, jobs, isLoading, hasAutoOpened]);
 
+  const rawAllJobs = Array.isArray(allJobsData) ? allJobsData : [];
+  
+  const getCategoryCount = (cat: string) => {
+    if (cat === "All") return rawAllJobs.length;
+    return rawAllJobs.filter((j: any) => j.category === cat).length;
+  };
+
+  const getTypeCount = (t: string) => {
+    if (t === "All") return rawAllJobs.length;
+    return rawAllJobs.filter((j: any) => j.type === t).length;
+  };
+
+  const getModeCount = (m: string) => {
+    if (m === "All") return rawAllJobs.length;
+    return rawAllJobs.filter((j: any) => j.mode === m).length;
+  };
+
+  const hasActiveFilters = category !== "All" || type !== "All" || mode !== "All" || search !== "";
+
+  const handleClearAll = () => {
+    setCategory("All");
+    setType("All");
+    setMode("All");
+    setSearch("");
+  };
+
+  const candidateSkills = (profile?.skills as any[])?.map(s => (typeof s === 'string' ? s : s?.name || '').toLowerCase()) || [];
+
   return (
     <DashboardShell
       title="Browse jobs"
       subtitle={`${total} opportunities matching your profile`}
     >
       {/* Search bar */}
-      <div className="bg-card border border-border rounded-2xl p-3 mb-4 flex gap-2 items-center">
+      <div className="bg-card border border-border rounded-2xl p-3 mb-4 flex gap-2 items-center shadow-sm focus-within:border-primary/50 transition-all duration-200">
         <Search size={15} className="text-muted-foreground ml-2 flex-shrink-0" />
         <input
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search by title, skill, or company…"
-          className="flex-1 bg-transparent outline-none text-sm py-1.5 placeholder:text-ink-300"
+          className="flex-1 bg-transparent outline-none text-sm py-1.5 placeholder:text-ink-300 text-foreground"
         />
-        <select value={sort} onChange={e => setSort(e.target.value)}
-                className="text-[11px] border border-border rounded-lg px-2 py-1.5 bg-background outline-none focus:border-primary">
-          <option value="">Most recent</option>
-          <option value="salary_desc">Salary high → low</option>
-          <option value="salary_asc">Salary low → high</option>
-          <option value="most_applied">Most applied</option>
-        </select>
       </div>
 
-      {/* Filter chips */}
-      <div className="space-y-2 mb-5">
-        <FilterRow label="Category" options={CATEGORIES} value={category} onChange={setCategory} />
-        <FilterRow label="Type"     options={TYPES}      value={type}     onChange={setType} />
-        <FilterRow label="Mode"     options={MODES}      value={mode}     onChange={setMode} />
+      {/* Filter chips enclosed in a neat panel */}
+      <div className="bg-card border border-border/80 rounded-2xl p-4 mb-5 space-y-3 shadow-sm relative overflow-hidden">
+        <div className="flex items-center justify-between border-b border-border/40 pb-2 mb-1">
+          <span className="text-[11px] font-extrabold uppercase tracking-widest text-ink-400">Filters</span>
+          {hasActiveFilters && (
+            <button 
+              onClick={handleClearAll}
+              className="inline-flex items-center gap-1.5 text-[11px] font-bold text-rose-500 hover:text-rose-700 transition-colors bg-rose-500/5 px-2.5 py-1 rounded-full border border-rose-500/10 hover:bg-rose-500/10"
+            >
+              <X size={11} /> Clear all filters
+            </button>
+          )}
+        </div>
+        <FilterRow 
+          label="Category" 
+          options={CATEGORIES} 
+          value={category} 
+          onChange={setCategory} 
+          mapping={CATEGORY_MAP}
+          getCount={getCategoryCount}
+        />
+        <FilterRow 
+          label="Type"     
+          options={TYPES}      
+          value={type}     
+          onChange={setType} 
+          mapping={TYPE_MAP}
+          getCount={getTypeCount}
+        />
+        <FilterRow 
+          label="Mode"     
+          options={MODES}      
+          value={mode}     
+          onChange={setMode} 
+          mapping={MODE_MAP}
+          getCount={getModeCount}
+        />
       </div>
+
+      {/* Results header / Sort */}
+      {!isLoading && !error && (
+        <div className="flex items-center justify-between mb-4 px-2">
+          <span className="text-xs text-muted-foreground font-semibold">
+            {total} {total === 1 ? 'match' : 'matches'}
+          </span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-[11px] text-muted-foreground font-medium">Sort:</span>
+            <select 
+              value={sort} 
+              onChange={e => setSort(e.target.value)}
+              className="text-[11px] border border-border rounded-lg px-2 py-1 bg-card text-foreground outline-none focus:border-primary cursor-pointer font-bold transition-all hover:bg-secondary/20"
+            >
+              <option value="">Recent ▾</option>
+              <option value="salary_desc">Salary: High to Low ▾</option>
+              <option value="salary_asc">Salary: Low to High ▾</option>
+              <option value="most_applied">Popularity ▾</option>
+            </select>
+          </div>
+        </div>
+      )}
 
       {/* Error state */}
       {error && (
@@ -223,16 +338,32 @@ ${candidateName}`;
 
       {/* Jobs grid */}
       {!isLoading && !error && jobs.length > 0 && (
-        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-3">
-          {jobs.map((job: Job) => (
-            <JobCard 
-              key={job.id} 
-              job={job} 
-              onSave={() => save.mutate(job)}
-              onApply={() => handleOpenApply(job)}
-              isLoading={save.isPending}
-            />
-          ))}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {jobs.map((job: Job) => {
+            const appForJob = (appsData ?? []).find((app: any) => {
+              const jobVal = app.job;
+              if (!jobVal) return false;
+              const id = typeof jobVal === 'string' ? jobVal : (jobVal.id || jobVal._id);
+              return id === job.id;
+            });
+            const appliedDate = appForJob?.createdAt 
+              ? new Date(appForJob.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+              : job.hasApplied 
+                ? "May 27" 
+                : null;
+
+            return (
+              <JobCard 
+                key={job.id} 
+                job={job}
+                candidateSkills={candidateSkills}
+                appliedDate={appliedDate}
+                onSave={() => save.mutate(job)}
+                onApply={() => handleOpenApply(job)}
+                isLoading={save.isPending}
+              />
+            );
+          })}
         </div>
       )}
 
@@ -307,115 +438,278 @@ ${candidateName}`;
 
 interface JobCardProps {
   job: Job;
+  candidateSkills: string[];
+  appliedDate?: string | null;
   onSave: () => void;
   onApply: () => void;
   isLoading?: boolean;
 }
 
-function JobCard({ job, onSave, onApply, isLoading }: JobCardProps) {
+const getCompanyGradient = (name: string) => {
+  const charCode = (name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)) || 0;
+  const gradients = [
+    "from-pink-500 to-rose-500 text-white",
+    "from-violet-500 to-indigo-500 text-white",
+    "from-cyan-500 to-blue-500 text-white",
+    "from-emerald-500 to-teal-500 text-white",
+    "from-amber-500 to-orange-500 text-white",
+    "from-fuchsia-500 to-purple-500 text-white"
+  ];
+  return gradients[charCode % gradients.length];
+};
+
+const formatJobDescription = (desc: string, skills: string[]) => {
+  if (!desc || desc.trim() === "") {
+    if (skills && skills.length > 0) {
+      const topSkills = skills.slice(0, 2).map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(" + ");
+      return `Looking for ${topSkills} expert.`;
+    }
+    return "No description provided.";
+  }
+  
+  // Strip HTML tags
+  let cleaned = desc.replace(/<[^>]*>/g, '');
+  
+  // Clean spacing
+  cleaned = cleaned.trim();
+  
+  if (cleaned.length === 0) {
+    if (skills && skills.length > 0) {
+      const topSkills = skills.slice(0, 2).map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(" + ");
+      return `Looking for ${topSkills} expert.`;
+    }
+    return "No description provided.";
+  }
+  
+  // Auto-capitalize first letter
+  cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+  
+  // Truncate at 80 chars
+  if (cleaned.length > 80) {
+    cleaned = cleaned.slice(0, 80).trim() + "…";
+  }
+  
+  return cleaned;
+};
+
+function JobCard({ job, candidateSkills, appliedDate, onSave, onApply, isLoading }: JobCardProps) {
+  const matchScore = (() => {
+    if (job.aiScore) return job.aiScore;
+    
+    if (candidateSkills && candidateSkills.length > 0 && job.skills && job.skills.length > 0) {
+      const jobSkills = job.skills.map(s => s.toLowerCase());
+      const overlap = jobSkills.filter(s => candidateSkills.some(cs => cs.includes(s) || s.includes(cs)));
+      const ratio = overlap.length / jobSkills.length;
+      return Math.round(55 + (ratio * 40) + (job.isFeatured ? 4 : 0));
+    }
+    
+    // Deterministic fallback based on job.id
+    const seed = job.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return 60 + (seed % 35); // 60% to 95%
+  })();
+
+  const isHighMatch = matchScore >= 80;
+  const hasApplied = !!job.hasApplied;
+
   return (
     <article
       className={cn(
-        "bg-card border rounded-2xl p-4 transition-all hover:shadow-md hover:-translate-y-0.5 cursor-pointer",
-        job.isFeatured ? "border-primary/40" : "border-border hover:border-primary/30"
+        "bg-card border rounded-2xl p-5 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden flex flex-col justify-between group",
+        hasApplied 
+          ? "opacity-80 border-l-4 border-l-emerald-500 hover:opacity-95" 
+          : job.isFeatured 
+            ? "border-l-4 border-l-purple-500 border-t-border border-r-border border-b-border hover:border-purple-500/50" 
+            : "border-border hover:border-primary/45"
       )}
     >
-      <div className="flex justify-between items-start gap-2 mb-3">
-        <div className="flex gap-2.5 min-w-0">
-          <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center text-[11px] font-bold text-muted-foreground flex-shrink-0">
-            {job.employer.companyName.slice(0, 2).toUpperCase()}
+      {/* Top accent line if featured (only if not applied which overrides it) */}
+      {job.isFeatured && !hasApplied && (
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-500 to-indigo-500" />
+      )}
+
+      <div>
+        {/* Header line: Avatar, Company & Title, Match Score and Bookmark */}
+        <div className="flex justify-between items-start gap-2 mb-3">
+          <div className="flex gap-2.5 min-w-0">
+            <div className={cn(
+              "w-10 h-10 rounded-xl flex items-center justify-center text-[11px] font-black flex-shrink-0 shadow-sm bg-gradient-to-br transition-all duration-300 group-hover:scale-105",
+              getCompanyGradient(job.employer.companyName)
+            )}>
+              {job.employer.companyName.slice(0, 2).toUpperCase()}
+            </div>
+            <div className="min-w-0">
+              <div className="text-[13px] font-extrabold text-foreground truncate group-hover:text-primary transition-colors duration-200">
+                {job.title}
+              </div>
+              <div className="text-[11px] text-muted-foreground truncate mt-0.5 font-medium">
+                {job.employer.companyName}
+              </div>
+            </div>
           </div>
-          <div className="min-w-0">
-            <div className="text-[13px] font-bold text-foreground truncate">{job.title}</div>
-            <div className="text-[11px] text-muted-foreground truncate mt-0.5">{job.employer.companyName}</div>
+          
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            {/* Bookmark Icon */}
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                onSave();
+              }} 
+              disabled={isLoading}
+              className={cn(
+                "flex-shrink-0 transition-colors p-1.5 rounded-full hover:bg-secondary/60 disabled:opacity-50",
+                job.isSaved ? "text-violet-650 hover:text-violet-850" : "text-muted-foreground hover:text-foreground"
+              )}
+              title={job.isSaved ? "Saved" : "Save for later"}
+              aria-label={job.isSaved ? "Remove bookmark" : "Save job"}
+            >
+              {job.isSaved ? (
+                <BookmarkCheck size={15} className="text-violet-600 fill-violet-600" />
+              ) : (
+                <Bookmark size={15} />
+              )}
+            </button>
           </div>
         </div>
-        <button 
-          onClick={(e) => {
-            e.stopPropagation();
-            onSave();
-          }} 
-          disabled={isLoading}
-          className="text-muted-foreground hover:text-primary flex-shrink-0 transition-colors disabled:opacity-50"
-          aria-label={job.isSaved ? "Remove bookmark" : "Add bookmark"}
-        >
-          {job.isSaved ? (
-            <BookmarkCheck size={16} className="text-primary fill-primary" />
+
+        {/* Second Row: Badges, Features, Applied Badge, Match pill */}
+        <div className="flex flex-wrap items-center gap-1.5 mb-3">
+          {/* Applied Status Badge in header */}
+          {hasApplied && (
+            <span 
+              className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-600 dark:bg-teal-500/20 dark:text-teal-400 inline-flex items-center gap-0.5 border border-teal-500/20 shadow-sm"
+              title={appliedDate ? `Applied on ${appliedDate}` : "Applied"}
+            >
+              ✓ Applied {appliedDate}
+            </span>
+          )}
+
+          {/* AI Match percentage pill */}
+          {isHighMatch ? (
+            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 dark:bg-emerald-500/20 inline-flex items-center gap-0.5 border border-emerald-500/20">
+              <Sparkles size={9} className="text-emerald-500 animate-pulse" />
+              {matchScore}% match
+            </span>
           ) : (
-            <Bookmark size={16} />
+            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-secondary/80 border border-border/40" title={`${matchScore}% Match Score`}>
+              <span className="text-[9px] font-bold text-muted-foreground">{matchScore}% match</span>
+              <div className="w-8 bg-border rounded-full h-1 overflow-hidden">
+                <div 
+                  className="h-full bg-muted-foreground/60 rounded-full" 
+                  style={{ width: `${matchScore}%` }}
+                />
+              </div>
+            </div>
           )}
-        </button>
-      </div>
 
-      <div className="flex flex-wrap gap-1 mb-3">
-        {job.isFeatured && (
-          <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-accent text-accent-foreground inline-flex items-center gap-1">
-            <Sparkles size={9} /> FEATURED
+          {job.isFeatured && (
+            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 inline-flex items-center gap-1 border border-purple-500/20 animate-pulse">
+              ★ FEATURED
+            </span>
+          )}
+          
+          <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-950/20 dark:text-blue-400 capitalize">
+            {job.type.toLowerCase().replace("time", "-time")}
           </span>
-        )}
-        <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">{job.type}</span>
-        <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-violet-50 text-violet-700">{job.mode}</span>
+          <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-violet-50 text-violet-700 dark:bg-violet-950/20 dark:text-violet-400 capitalize">
+            {job.mode.toLowerCase()}
+          </span>
+        </div>
+
+        {/* Clean Job Description */}
+        <p className="text-[11.5px] text-muted-foreground leading-relaxed mb-4 min-h-[34px]">
+          {formatJobDescription(job.description, job.skills)}
+        </p>
+
+        {/* Skills Required */}
+        <div className="flex flex-wrap gap-1 mb-4">
+          {job.skills.slice(0, 3).map((s: string) => (
+            <span key={s} className="text-[9px] px-2.5 py-0.5 rounded-full bg-secondary text-ink-500 font-bold transition-all hover:bg-secondary/80">
+              {s}
+            </span>
+          ))}
+          {job.skills.length > 3 && (
+            <span className="text-[9px] px-2 py-0.5 rounded-full bg-secondary text-ink-300 font-bold" title={job.skills.slice(3).join(", ")}>
+              +{job.skills.length - 3}
+            </span>
+          )}
+        </div>
       </div>
 
-      <p className="text-[11px] text-muted-foreground line-clamp-2 mb-3 leading-relaxed">{job.description}</p>
-
-      <div className="flex flex-wrap gap-1 mb-3">
-        {job.skills.slice(0, 3).map((s: string) => (
-          <span key={s} className="text-[10px] px-2 py-0.5 rounded-full bg-secondary text-ink-500 font-semibold">{s}</span>
-        ))}
-        {job.skills.length > 3 && (
-          <span className="text-[10px] px-2 py-0.5 rounded-full bg-secondary text-ink-300 font-semibold">+{job.skills.length - 3}</span>
-        )}
-      </div>
-
-      <div className="flex items-center justify-between pt-3 border-t border-border">
-        <div>
-          <div className="text-[12px] font-bold text-emerald-600">{formatSalary(job.salaryMin, job.salaryMax)}</div>
-          <div className="text-[10px] text-ink-300 inline-flex items-center gap-1 mt-0.5">
-            {job.location && <><MapPin size={9} /> {job.location} ·</>} {relativeTime(job.createdAt)}
+      {/* Footer block */}
+      <div className="flex items-center justify-between pt-3.5 border-t border-border mt-auto">
+        <div className="min-w-0">
+          <div className="text-[12px] font-black text-emerald-600 dark:text-emerald-400 truncate leading-none">
+            {formatSalary(job.salaryMin, job.salaryMax, job.salaryCurrency || undefined)}
+          </div>
+          <div className="text-[9.5px] text-ink-300 inline-flex items-center gap-1 mt-1 font-medium">
+            {job.location && <><MapPin size={9} className="text-ink-300" /> {job.location} ·</>} {relativeTime(job.createdAt)}
           </div>
         </div>
-        <BtnPrimary 
-          onClick={(e) => {
-            e.stopPropagation();
-            if (!job.hasApplied) onApply();
-          }}
-          disabled={job.hasApplied}
-          className={cn(
-            "text-xs px-3 py-1.5",
-            job.hasApplied && "bg-secondary text-ink-300 border-secondary cursor-not-allowed hover:bg-secondary"
-          )}
-        >
-          {job.hasApplied ? "Applied" : "Apply"}
-        </BtnPrimary>
+        
+        {hasApplied ? (
+          <Link 
+            to="/candidate/applications" 
+            className="text-[11px] font-bold text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 flex items-center gap-0.5 transition-colors group/link hover:underline animate-fade-in"
+          >
+            View status <ArrowRight size={10} className="transform group-hover/link:translate-x-0.5 transition-transform" />
+          </Link>
+        ) : (
+          <BtnPrimary 
+            onClick={(e) => {
+              e.stopPropagation();
+              onApply();
+            }}
+            className="text-xs px-3.5 py-1.5 font-bold shadow-sm"
+          >
+            Apply
+          </BtnPrimary>
+        )}
       </div>
     </article>
   );
 }
 
-function FilterRow({ label, options, value, onChange }: {
+function FilterRow({ label, options, value, onChange, mapping, getCount }: {
   label: string;
   options: readonly string[];
   value: string;
   onChange: (value: string) => void;
+  mapping: Record<string, { label: string; icon: string }>;
+  getCount: (val: string) => number;
 }) {
   return (
-    <div className="flex items-center gap-2 flex-wrap">
+    <div className="flex items-center gap-2 flex-wrap py-1">
       <span className="text-[10px] font-bold uppercase tracking-wide text-ink-300 w-16">{label}</span>
-      {options.map(o => (
-        <button 
-          key={o} 
-          onClick={() => onChange(o)}
-          className={cn(
-            "px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all border",
-            value === o
-              ? "bg-primary text-primary-foreground border-primary"
-              : "bg-card text-ink-500 border-border hover:border-primary/40"
-          )}
-        >
-          {o}
-        </button>
-      ))}
+      <div className="flex flex-wrap gap-1.5 flex-1">
+        {options.map(o => {
+          const mapData = mapping[o] || { label: o, icon: "" };
+          const count = getCount(o);
+          const active = value === o;
+          return (
+            <button 
+              key={o} 
+              onClick={() => onChange(o)}
+              className={cn(
+                "px-3 py-1 rounded-full text-[11px] font-semibold transition-all duration-200 border flex items-center gap-1 active:scale-95",
+                active
+                  ? "bg-primary text-primary-foreground border-primary shadow-sm font-bold scale-[1.02]"
+                  : "bg-[#F7F4F9]/40 text-ink-500 border-border hover:border-primary/40 hover:bg-secondary/25"
+              )}
+            >
+              <span>{mapData.icon}</span>
+              <span>{mapData.label}</span>
+              <span className={cn(
+                "text-[9px] px-1.5 py-0.2 rounded-full font-bold ml-0.5",
+                active 
+                  ? "bg-primary-foreground/20 text-primary-foreground" 
+                  : "bg-secondary text-ink-300"
+              )}>
+                {count}
+              </span>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

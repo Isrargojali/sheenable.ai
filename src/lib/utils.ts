@@ -6,11 +6,44 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatSalary(min?: number, max?: number): string {
+export function formatSalary(min?: number, max?: number, currency?: string): string {
   if (!min && !max) return "";
-  const fmt = (n: number) => `PKR ${n.toLocaleString("en-US")}`;
-  if (min && max) return `${fmt(min)} – ${fmt(max)}`;
-  return min ? `From ${fmt(min)}` : `Up to ${fmt(max!)}`;
+
+  // Internally flag missing currency unit and fall back to default 'PKR'
+  let activeCurrency = currency;
+  if (!activeCurrency) {
+    console.warn(`[Review Required] Salary currency not specified for min: ${min}, max: ${max}. Defaulting to PKR.`);
+    activeCurrency = "PKR";
+  }
+
+  // Normalize inputs (scale values less than 1000 to thousands, e.g. 200 -> 200000)
+  let normMin = min;
+  let normMax = max;
+
+  if (normMin !== undefined && normMin > 0 && normMin < 1000) {
+    normMin = normMin * 1000;
+  }
+  if (normMax !== undefined && normMax > 0 && normMax < 1000) {
+    normMax = normMax * 1000;
+  }
+
+  const fmt = (n: number) => {
+    if (n >= 1000) {
+      return `${activeCurrency} ${Math.round(n / 1000)}K`;
+    }
+    return `${activeCurrency} ${n}`;
+  };
+
+  let salaryStr = "";
+  if (normMin && normMax) {
+    salaryStr = `${fmt(normMin)} – ${fmt(normMax)}`;
+  } else if (normMin) {
+    salaryStr = `From ${fmt(normMin)}`;
+  } else if (normMax) {
+    salaryStr = `Up to ${fmt(normMax)}`;
+  }
+
+  return salaryStr ? `${salaryStr} per month` : "";
 }
 
 export function relativeTime(iso: string): string {
