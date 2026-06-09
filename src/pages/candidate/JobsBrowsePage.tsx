@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { Search, Bookmark, BookmarkCheck, MapPin, Sparkles, AlertCircle, Wand2, X, ArrowRight } from "lucide-react";
 import { DashboardShell, SectionCard, BtnPrimary, BtnOutline } from "@/components/layout/DashboardShell";
 import { apiJobs, apiApplications, apiProfile } from "@/lib/api";
 import { formatSalary, relativeTime, cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface Job {
   id: string;
@@ -73,6 +74,15 @@ export default function JobsBrowsePage() {
 
   const qc = useQueryClient();
   const [search,   setSearch]   = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 250); // fast 250ms debounce for premium responsiveness
+    return () => clearTimeout(timer);
+  }, [search]);
+
   const [category, setCategory] = useState("All");
   const [type,     setType]     = useState("All");
   const [mode,     setMode]     = useState("All");
@@ -145,10 +155,10 @@ ${candidateName}`;
   };
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["jobs", { search, category, type, mode, sort }],
+    queryKey: ["jobs", { search: debouncedSearch, category, type, mode, sort }],
     queryFn:  async () => {
       const response = await apiJobs.getJobs({
-        search,
+        search: debouncedSearch,
         category: category === "All" ? undefined : category,
         jobType:  type     === "All" ? undefined : type,
         jobMode:  mode     === "All" ? undefined : mode,
@@ -166,6 +176,8 @@ ${candidateName}`;
         },
       } as JobsResponse;
     },
+    placeholderData: keepPreviousData,
+    staleTime: 1000 * 30, // cache results for 30s before considering stale
   });
 
   const save = useMutation({
@@ -338,33 +350,43 @@ ${candidateName}`;
 
       {/* Jobs grid */}
       {!isLoading && !error && jobs.length > 0 && (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {jobs.map((job: Job) => {
-            const appForJob = (appsData ?? []).find((app: any) => {
-              const jobVal = app.job;
-              if (!jobVal) return false;
-              const id = typeof jobVal === 'string' ? jobVal : (jobVal.id || jobVal._id);
-              return id === job.id;
-            });
-            const appliedDate = appForJob?.createdAt 
-              ? new Date(appForJob.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-              : job.hasApplied 
-                ? "May 27" 
-                : null;
+        <motion.div layout className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <AnimatePresence mode="popLayout">
+            {jobs.map((job: Job) => {
+              const appForJob = (appsData ?? []).find((app: any) => {
+                const jobVal = app.job;
+                if (!jobVal) return false;
+                const id = typeof jobVal === 'string' ? jobVal : (jobVal.id || jobVal._id);
+                return id === job.id;
+              });
+              const appliedDate = appForJob?.createdAt 
+                ? new Date(appForJob.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                : job.hasApplied 
+                  ? "May 27" 
+                  : null;
 
-            return (
-              <JobCard 
-                key={job.id} 
-                job={job}
-                candidateSkills={candidateSkills}
-                appliedDate={appliedDate}
-                onSave={() => save.mutate(job)}
-                onApply={() => handleOpenApply(job)}
-                isLoading={save.isPending}
-              />
-            );
-          })}
-        </div>
+              return (
+                <motion.div
+                  layout
+                  key={job.id}
+                  initial={{ opacity: 0, scale: 0.96, y: 10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.96, y: -10 }}
+                  transition={{ duration: 0.22, ease: "easeInOut" }}
+                >
+                  <JobCard 
+                    job={job}
+                    candidateSkills={candidateSkills}
+                    appliedDate={appliedDate}
+                    onSave={() => save.mutate(job)}
+                    onApply={() => handleOpenApply(job)}
+                    isLoading={save.isPending}
+                  />
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+        </motion.div>
       )}
 
       {/* Apply Modal */}
