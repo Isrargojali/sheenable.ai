@@ -11,6 +11,9 @@ import { DashboardShell } from "@/components/layout/DashboardShell";
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "sonner";
 import { useLocation } from "react-router-dom";
+import { io } from "socket.io-client";
+
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 // ── Domain types ────────────────────────────────────────────────────────────
 

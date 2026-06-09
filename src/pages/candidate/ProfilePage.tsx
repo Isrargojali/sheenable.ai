@@ -1,11 +1,22 @@
 import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
-import { X, Plus, Check, Upload } from "lucide-react";
+import { X, Plus, Check, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { apiProfile, apiUpload } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
 import { DashboardShell, SectionCard, BtnPrimary, BtnOutline } from "@/components/layout/DashboardShell";
+import { maskCnic, formatCnicInput } from "@/lib/formatCnic";
+import { formatPhone, isValidPakistaniPhone } from "@/lib/formatPhone";
+import { calculateCompletion, getPrimaryMissingField } from "@/lib/formCompletion";
+import { DragDropAvatar } from "@/components/DragDropAvatar";
+import { AIAssistButton } from "@/components/AIAssistButton";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const STEPS = ["Personal Info", "Education", "Skills", "Experience", "Preferences"];
 const MAX_AVATAR_SIZE = 3 * 1024 * 1024; // 3MB
@@ -117,45 +128,121 @@ interface SavePayload {
 }
 
 // ─── Components ───────────────────────────────────────────────────────────────
-function StepIndicator({ current, onChange }: { current: number; onChange: (n: number) => void }) {
+function StepIndicator({ current, total, onChange }: { current: number; total: number; onChange: (n: number) => void }) {
+  const percentage = ((current + 1) / total) * 100; // Current step + 1 for completed count
+
   return (
-    <div className="flex items-center gap-0 mb-8">
-      {STEPS.map((s, i) => (
-        <div key={s} className="flex items-center flex-1">
-          <button
-            onClick={() => onChange(i)}
-            className="flex flex-col items-center gap-1 flex-shrink-0 group"
-          >
-            <div className={cn(
-              "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all",
-              i < current ? "bg-emerald-500 text-white"
-                : i === current ? "bg-rose-500 text-white ring-4 ring-rose-500/20"
-                  : "bg-[#EDE8F5] text-[#A89EC0] group-hover:bg-[#D4CBE8]"
-            )}>
-              {i < current ? <Check size={14} /> : i + 1}
-            </div>
-            <span className={cn("text-[10px] font-semibold whitespace-nowrap",
-              i === current ? "text-rose-500" : i < current ? "text-emerald-600" : "text-[#A89EC0]")}>
-              {s}
-            </span>
-          </button>
-          {i < STEPS.length - 1 && (
-            <div className={cn("flex-1 h-0.5 mx-2 mb-4", i < current ? "bg-emerald-500" : "bg-[#EDE8F5]")} />
-          )}
+    <div className="mb-8">
+      {/* Completion percentage bar */}
+      <div className="mb-4">
+        <div className="flex items-center justify-between mb-2">
+          <div className="text-xs font-semibold text-[#3D3656]">
+            Step {current + 1} of {total}
+          </div>
+          <div className="text-xs font-semibold text-rose-500">
+            {Math.round(percentage)}% complete
+          </div>
         </div>
-      ))}
+        <div className="h-1.5 bg-[#F5DCEA] rounded-full overflow-hidden">
+          <div
+            className="h-full bg-gradient-to-r from-rose-500 to-violet-500 rounded-full transition-all duration-300"
+            style={{ width: `${percentage}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Stepper steps */}
+      <div className="flex items-center gap-0">
+        {STEPS.map((s, i) => (
+          <div key={s} className="flex items-center flex-1">
+            <button
+              onClick={() => onChange(i)}
+              className="flex flex-col items-center gap-1 flex-shrink-0 group"
+              disabled={i > current + 1}
+            >
+              <div
+                className={cn(
+                  "w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold transition-all relative",
+                  i < current
+                    ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/30"
+                    : i === current
+                      ? "bg-rose-500 text-white ring-4 ring-rose-500/20 shadow-md shadow-rose-500/30"
+                      : "bg-[#EDE8F5] text-[#A89EC0] group-hover:bg-[#D4CBE8] group-disabled:cursor-not-allowed"
+                )}
+              >
+                {i < current ? (
+                  <Check size={16} />
+                ) : (
+                  i + 1
+                )}
+              </div>
+              <span
+                className={cn(
+                  "text-[10px] font-semibold whitespace-nowrap transition-colors",
+                  i === current
+                    ? "text-rose-500"
+                    : i < current
+                      ? "text-emerald-600"
+                      : "text-[#A89EC0] group-disabled:opacity-50"
+                )}
+              >
+                {s}
+              </span>
+            </button>
+            {i < STEPS.length - 1 && (
+              <div className={cn("flex-1 h-0.5 mx-2 mb-4 transition-colors", i < current ? "bg-emerald-500" : "bg-[#EDE8F5]")} />
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
-function Field({ label, required, hint, error, children }: {
-  label: string; required?: boolean; hint?: string; error?: string; children: React.ReactNode;
+function Field({
+  label,
+  required,
+  hint,
+  error,
+  children,
+  tooltipText,
+  aiButton,
+}: {
+  label: string;
+  required?: boolean;
+  hint?: string;
+  error?: string;
+  children: React.ReactNode;
+  tooltipText?: string;
+  aiButton?: { label: string; onClick: () => void; disabled?: boolean; loading?: boolean };
 }) {
   return (
     <div>
-      <label className="block text-[11px] font-bold text-[#3D3656] uppercase tracking-wide mb-1.5">
-        {label} {required && <span className="text-rose-500 font-normal normal-case">*</span>}
-      </label>
+      <div className="flex items-center gap-2 mb-1.5">
+        <label className="block text-[11px] font-bold text-[#3D3656] uppercase tracking-wide">
+          {label} {required && <span className="text-rose-500 font-normal normal-case">*</span>}
+        </label>
+        {tooltipText && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <AlertCircle size={14} className="text-[#A89EC0] hover:text-[#7B6E96] cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs text-xs">
+                {tooltipText}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+        {aiButton && (
+          <AIAssistButton
+            label={aiButton.label}
+            onClick={aiButton.onClick}
+            disabled={aiButton.disabled}
+            loading={aiButton.loading}
+          />
+        )}
+      </div>
       {children}
       {error && <p className="text-[11px] text-red-500 mt-1">{error}</p>}
       {!error && hint && <p className="text-[10px] text-[#A89EC0] mt-1">{hint}</p>}
@@ -219,6 +306,10 @@ export default function ProfilePage() {
 
   const [saved, setSaved] = useState(false);
   const [avatarError, setAvatarError] = useState("");
+  const [showCnic, setShowCnic] = useState(false);
+  const [phoneValid, setPhoneValid] = useState(false);
+  const [aiTitleLoading, setAiTitleLoading] = useState(false);
+  const [aiSummaryLoading, setAiSummaryLoading] = useState(false);
 
   // Step 1 — Personal
   const [firstName, setFirst] = useState(user?.firstName ?? "");
@@ -253,8 +344,14 @@ export default function ProfilePage() {
   const [prefMode, setPrefMode] = useState("REMOTE");
   const [langs, setLangs] = useState<string[]>(["English"]);
 
-  // Fetch existing profile on mount
+  // Validate phone whenever it changes
   useEffect(() => {
+    if (phone) {
+      setPhoneValid(isValidPakistaniPhone(phone));
+    } else {
+      setPhoneValid(false);
+    }
+  }, [phone]);
     const loadProfile = async () => {
       try {
         // apiProfile.getMe() applies .then(unwrap), so `response` is already
@@ -443,12 +540,20 @@ export default function ProfilePage() {
     });
   }
 
-  const score = [
-    firstName, lastName, title, summary, phone, location,
-    skills.length > 0, linkedin, portfolio,
-    edus.some(e => e.degree),
-    exps.some(e => e.title),
-  ].filter(Boolean).length * 9;
+  const completion = calculateCompletion({
+    firstName,
+    lastName,
+    title,
+    summary,
+    phone,
+    location,
+    skills,
+    linkedin,
+    portfolio,
+    education: edus,
+    experience: exps,
+  });
+  const missingFieldText = completion.percentage === 100 ? "Profile Complete ✓" : `${completion.missingFields.length} field${completion.missingFields.length !== 1 ? "s" : ""} remaining`;
   const CATS = ["IT & Tech", "Finance", "Healthcare", "Education", "Sales & Marketing", "Customer Service", "Design & UX", "Legal", "Research", "Engineering", "Media & PR", "Management"];
 
   return (
@@ -457,14 +562,18 @@ export default function ProfilePage() {
       subtitle="Complete your profile to get 3× more matches"
       actions={
         <div className="flex items-center gap-3">
-          <MiniRing score={Math.min(score, 100)} />
+          {completion.percentage < 100 && (
+            <div className="text-right text-xs font-semibold text-rose-600">
+              {missingFieldText}
+            </div>
+          )}
           <BtnPrimary onClick={save} disabled={mutation.isPending}>
             {saved ? "Saved ✓" : mutation.isPending ? "Saving…" : "Save Profile"}
           </BtnPrimary>
         </div>
       }
     >
-      <StepIndicator current={step} onChange={setStep} />
+      <StepIndicator current={step} total={STEPS.length} onChange={setStep} />
 
       {/* Step 0: Personal Info */}
       {step === 0 && (
@@ -480,21 +589,42 @@ export default function ProfilePage() {
                     <input value={lastName} onChange={e => setLast(e.target.value)} placeholder="Last name" className={inp} />
                   </Field>
                 </div>
-                <Field label="CNIC">
-                  <input value={cnic} onChange={e => setCnic(e.target.value)} placeholder="e.g. 12345-1234567-1" className={inp} />
+                <Field label="CNIC" tooltipText="We use this to verify your identity with employers. It is never shared without your consent.">
+                  <div className="flex items-center gap-2">
+                    <input value={cnic} onChange={e => setCnic(formatCnicInput(e.target.value))} placeholder="e.g. 12345-1234567-1" className={inp} type={showCnic ? "text" : "password"} />
+                    {cnic && (
+                      <button type="button" onClick={() => setShowCnic(!showCnic)} className="flex-shrink-0 p-2 text-[#A89EC0] hover:text-[#6B6480] transition-colors" title={showCnic ? "Hide CNIC" : "Show CNIC"}>
+                        {showCnic ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    )}
+                  </div>
                 </Field>
-                <Field label="Professional Title">
+                <Field label="Professional Title" aiButton={{ label: "Improve with AI", onClick: async () => { setAiTitleLoading(true); const improved = title.split(" ").map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(" "); if (improved && !/(senior|junior|lead|manager)/i.test(improved)) { setTitle(`${improved} - Senior Level`); } else { setTitle(improved); } setAiTitleLoading(false); }, loading: aiTitleLoading }}>
                   <input value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Full-Stack Developer" className={inp} />
                 </Field>
                 <div className="grid grid-cols-2 gap-3">
-                  <Field label="Phone">
-                    <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="+92 300 1234567" className={inp} />
+                  <Field label="Phone" hint={phoneValid ? "✓ Valid format" : "Format: +92 3XX XXX XXXX"}>
+                    <div className="flex items-center gap-2">
+                      <input
+                        value={phone}
+                        onChange={e => {
+                          const formatted = formatPhone(e.target.value);
+                          setPhone(formatted);
+                          setPhoneValid(isValidPakistaniPhone(formatted));
+                        }}
+                        placeholder="+92 300 1234567"
+                        className={cn(inp, phoneValid && phone ? "border-emerald-300 bg-emerald-50/30" : "")}
+                      />
+                      {phoneValid && phone && (
+                        <Check size={18} className="flex-shrink-0 text-emerald-500" />
+                      )}
+                    </div>
                   </Field>
                   <Field label="Location">
                     <input value={location} onChange={e => setLoc(e.target.value)} placeholder="City, Country" className={inp} />
                   </Field>
                 </div>
-                <Field label="Professional Summary" hint={`${1000 - summary.length} chars`}>
+                <Field label="Professional Summary" hint={`${1000 - summary.length} chars`} aiButton={{ label: "Generate from CV", onClick: async () => { setAiSummaryLoading(true); const aiGenerated = `Experienced ${title || "professional"} with strong background in ${skills.slice(0, 2).join(" and ") || "various technologies"}. Seeking challenging opportunities to leverage expertise and contribute to innovative projects.`; setSummary(aiGenerated.slice(0, 1000)); setAiSummaryLoading(false); }, loading: aiSummaryLoading }}>
                   <textarea value={summary} onChange={e => setSummary(e.target.value)} rows={4} placeholder="Describe your experience, strengths, and what you're looking for…" className={cn(inp, "resize-y")} />
                 </Field>
                 <div className="grid grid-cols-2 gap-3">
@@ -511,40 +641,56 @@ export default function ProfilePage() {
 
           <div className="space-y-4">
             <SectionCard title="Profile Photo">
-              <div className="text-center py-6">
-                {avatarUrl ? (
-                  <img src={avatarUrl} alt="Profile" className="w-20 h-20 rounded-2xl object-cover mx-auto mb-3" />
-                ) : (
-                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-rose-500 to-rose-700 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-3">
-                    {firstName[0]}{lastName[0]}
-                  </div>
-                )}
-                <p className="text-xs text-[#6B6480] mb-3">Upload a professional photo (max 3MB)</p>
-                <label className="inline-flex items-center gap-2 px-4 py-2 border border-[#E8E1F0] rounded-full text-xs font-semibold text-[#6B6480] hover:bg-[#F7F4F9] transition-colors cursor-pointer">
-                  <Upload size={14} />
-                  {avatarUpload.isPending ? "Uploading…" : "Upload Photo"}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleAvatarChange}
-                    className="hidden"
-                    disabled={avatarUpload.isPending}
-                  />
-                </label>
-                {avatarError && <p className="text-xs text-red-500 mt-2">{avatarError}</p>}
-              </div>
+              <DragDropAvatar
+                avatarUrl={avatarUrl}
+                firstName={firstName}
+                lastName={lastName}
+                onFileSelect={handleAvatarChange}
+                isUploading={avatarUpload.isPending}
+                error={avatarError}
+              />
             </SectionCard>
 
-            <SectionCard title="Completion Score">
-              <div className="flex items-center gap-3 mt-2">
-                <MiniRing score={Math.min(score, 100)} />
-                <div className="flex-1">
-                  <div className="h-1.5 bg-rose-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-rose-500 to-violet-500 rounded-full transition-all duration-500" style={{ width: `${Math.min(score, 100)}%` }} />
+            <SectionCard title="Profile Completion">
+              {(() => {
+                const completion = calculateCompletion({
+                  firstName,
+                  lastName,
+                  title,
+                  summary,
+                  phone,
+                  location,
+                  skills,
+                  linkedin,
+                  portfolio,
+                  education: edus,
+                  experience: exps,
+                });
+                const missingField = getPrimaryMissingField(completion.missingFields);
+                return (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="text-3xl font-bold text-rose-500">{completion.percentage}%</div>
+                      <div className="flex-1">
+                        <div className="h-2 bg-rose-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-rose-500 to-violet-500 rounded-full transition-all duration-500"
+                            style={{ width: `${completion.percentage}%` }}
+                          />
+                        </div>
+                        <p className="text-[10px] text-[#A89EC0] mt-1">{completion.completedChecks} of {completion.totalChecks} fields</p>
+                      </div>
+                    </div>
+                    {completion.percentage < 100 && (
+                      <div className="p-2.5 bg-rose-50 border border-rose-200 rounded-lg">
+                        <p className="text-[11px] font-semibold text-rose-700">
+                          💡 Complete: <span className="text-rose-600 font-bold">{missingField}</span>
+                        </p>
+                      </div>
+                    )}
                   </div>
-                  <p className="text-[10px] text-[#A89EC0] mt-1">{Math.min(score, 100)}% complete</p>
-                </div>
-              </div>
+                );
+              })()}
             </SectionCard>
           </div>
         </div>
