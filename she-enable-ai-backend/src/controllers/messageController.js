@@ -27,7 +27,24 @@ const getMyThreads = async (req, res, next) => {
       MessageThread.countDocuments(filter)
     ]);
 
-    return paginated(res, threads, getPaginationData(total, page, limit));
+    // Fetch employer profiles in batch to get actual companyName
+    const employerIds = threads.map(t => t.employerId?._id || t.employerId).filter(Boolean);
+    const EmployerProfile = require('../models/EmployerProfile');
+    const profiles = await EmployerProfile.find({ userId: { $in: employerIds } }).lean();
+    const profileMap = new Map(profiles.map(p => [p.userId.toString(), p]));
+
+    const mappedThreads = threads.map(t => {
+      if (t.employerId) {
+        const empId = (t.employerId._id || t.employerId).toString();
+        const profile = profileMap.get(empId);
+        if (typeof t.employerId === 'object') {
+          t.employerId.companyName = profile ? profile.companyName : `${t.employerId.firstName || 'Employer'}'s Company`;
+        }
+      }
+      return t;
+    });
+
+    return paginated(res, mappedThreads, getPaginationData(total, page, limit));
   } catch (err) { next(err); }
 };
 
