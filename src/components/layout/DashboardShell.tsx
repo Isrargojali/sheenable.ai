@@ -27,17 +27,17 @@ const NAV: Record<UserRole, NavGroup[]> = {
     {
       label: "Workspace",
       items: [
-        { to: "/candidate/dashboard",    label: "Dashboard",     icon: LayoutDashboard },
-        { to: "/candidate/jobs",         label: "Browse Jobs",   icon: Briefcase },
-        { to: "/candidate/applications", label: "Applications",  icon: FileText, badge: "3" },
-        { to: "/candidate/messages",     label: "Messages",      icon: MessageSquare, badge: "2" },
+        { to: "/candidate/dashboard", label: "Dashboard", icon: LayoutDashboard },
+        { to: "/candidate/jobs", label: "Browse Jobs", icon: Briefcase },
+        { to: "/candidate/applications", label: "Applications", icon: FileText, badge: "3" },
+        { to: "/candidate/messages", label: "Messages", icon: MessageSquare, badge: "2" },
       ],
     },
     {
       label: "Profile",
       items: [
-        { to: "/candidate/profile", label: "My Profile",  icon: User },
-        { to: "/candidate/cv",      label: "CV Builder",  icon: FilePlus },
+        { to: "/candidate/profile", label: "My Profile", icon: User },
+        { to: "/candidate/cv", label: "CV Builder", icon: FilePlus },
       ],
     },
   ],
@@ -45,11 +45,11 @@ const NAV: Record<UserRole, NavGroup[]> = {
     {
       label: "Hiring",
       items: [
-        { to: "/employer/dashboard", label: "Dashboard",     icon: LayoutDashboard },
-        { to: "/employer/listings",  label: "My Listings",   icon: Briefcase },
-        { to: "/employer/post-job",  label: "Post a Job",    icon: FilePlus },
-        { to: "/employer/pipeline",  label: "ATS Pipeline",  icon: FileText },
-        { to: "/employer/messages",  label: "Messages",      icon: MessageSquare, badge: "2" },
+        { to: "/employer/dashboard", label: "Dashboard", icon: LayoutDashboard },
+        { to: "/employer/listings", label: "My Listings", icon: Briefcase },
+        { to: "/employer/post-job", label: "Post a Job", icon: FilePlus },
+        { to: "/employer/pipeline", label: "ATS Pipeline", icon: FileText },
+        { to: "/employer/messages", label: "Messages", icon: MessageSquare, badge: "2" },
       ],
     },
     {
@@ -63,10 +63,10 @@ const NAV: Record<UserRole, NavGroup[]> = {
     {
       label: "Administration",
       items: [
-        { to: "/admin/overview", label: "Overview",        icon: LayoutDashboard },
-        { to: "/admin/users",    label: "Users",           icon: Users },
+        { to: "/admin/overview", label: "Overview", icon: LayoutDashboard },
+        { to: "/admin/users", label: "Users", icon: Users },
         { to: "/admin/security", label: "Security Center", icon: ShieldCheck },
-        { to: "/admin/audit",    label: "Audit Log",       icon: ScrollText },
+        { to: "/admin/audit", label: "Audit Log", icon: ScrollText },
       ],
     },
   ],
@@ -74,27 +74,27 @@ const NAV: Record<UserRole, NavGroup[]> = {
     {
       label: "Administration",
       items: [
-        { to: "/admin/overview", label: "Overview",        icon: LayoutDashboard },
-        { to: "/admin/users",    label: "Users",           icon: Users },
+        { to: "/admin/overview", label: "Overview", icon: LayoutDashboard },
+        { to: "/admin/users", label: "Users", icon: Users },
         { to: "/admin/security", label: "Security Center", icon: ShieldCheck },
-        { to: "/admin/audit",    label: "Audit Log",       icon: ScrollText },
+        { to: "/admin/audit", label: "Audit Log", icon: ScrollText },
       ],
     },
     {
       label: "Super Admin",
       items: [
-        { to: "/super-admin/overview",        label: "Super Overview",   icon: ShieldAlert },
-        { to: "/super-admin/manage-admins",   label: "Manage Admins",    icon: UserCog },
-        { to: "/super-admin/threat-monitor",  label: "Threat Monitor",   icon: Activity },
+        { to: "/super-admin/overview", label: "Super Overview", icon: ShieldAlert },
+        { to: "/super-admin/manage-admins", label: "Manage Admins", icon: UserCog },
+        { to: "/super-admin/threat-monitor", label: "Threat Monitor", icon: Activity },
       ],
     },
   ],
 };
 
 const ROLE_LABEL: Record<UserRole, string> = {
-  CANDIDATE:   "Candidate",
-  EMPLOYER:    "Employer",
-  ADMIN:       "Administrator",
+  CANDIDATE: "Candidate",
+  EMPLOYER: "Employer",
+  ADMIN: "Administrator",
   SUPER_ADMIN: "Super Admin",
 };
 
@@ -151,12 +151,12 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
       {/* Brand */}
       <div className="px-4 py-4 border-b border-border flex items-center gap-2.5">
         <Link to="/" className="relative z-10 flex items-center gap-2.5 group" aria-label="SheEnableAI home">
-         <img
-                                src={logo}
-                                alt="SheEnableAI logo"
-                                className="w-48 h-24 object-contain transition-transform group-hover:scale-105"
-                              />
-                              </Link>
+          <img
+            src={logo}
+            alt="SheEnableAI logo"
+            className="w-48 h-24 object-contain transition-transform group-hover:scale-105"
+          />
+        </Link>
         <div>
         </div>
       </div>
@@ -186,10 +186,10 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
                 role === "SUPER_ADMIN"
                   ? "bg-purple-100 border-purple-200 text-purple-700 dark:bg-purple-950/40 dark:border-purple-900/50 dark:text-purple-400"
                   : role === "ADMIN"
-                  ? "bg-blue-50 border-blue-100 text-blue-700 dark:bg-blue-950/20 dark:border-blue-900/30 dark:text-blue-400"
-                  : role === "EMPLOYER"
-                  ? "bg-indigo-50 border-indigo-100 text-indigo-700 dark:bg-indigo-950/20 dark:border-indigo-900/30 dark:text-indigo-400"
-                  : "bg-emerald-50 border-emerald-100 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-900/30 dark:text-emerald-400"
+                    ? "bg-blue-50 border-blue-100 text-blue-700 dark:bg-blue-950/20 dark:border-blue-900/30 dark:text-blue-400"
+                    : role === "EMPLOYER"
+                      ? "bg-indigo-50 border-indigo-100 text-indigo-700 dark:bg-indigo-950/20 dark:border-indigo-900/30 dark:text-indigo-400"
+                      : "bg-emerald-50 border-emerald-100 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-900/30 dark:text-emerald-400"
               )}>
                 {ROLE_LABEL[role]}
               </span>
@@ -222,7 +222,7 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
             </div>
             {g.items.map(item => {
               const Icon = item.icon;
-              
+
               // Dynamic unread count badge override for messages
               let badge = item.badge;
               if (item.to.includes("messages")) {
@@ -475,7 +475,7 @@ export function DashboardShell({
 
   // Close mobile drawer on route change
   if (mobileOpen) {
-    setTimeout(() => {}, 0); // noop, kept for clarity
+    setTimeout(() => { }, 0); // noop, kept for clarity
   }
 
   // Load and apply the theme + dark mode on mount
@@ -511,19 +511,19 @@ export function DashboardShell({
   // Bottom nav items per role (max 5)
   const bottomNavItems: NavItem[] = role === "CANDIDATE"
     ? [
-        { to: "/candidate/dashboard",    label: "Home",    icon: LayoutDashboard },
-        { to: "/candidate/jobs",          label: "Jobs",    icon: Briefcase },
-        { to: "/candidate/applications",  label: "Applied", icon: FileText },
-        { to: "/candidate/messages",      label: "Messages",icon: MessageSquare },
-        { to: "/candidate/profile",       label: "Profile", icon: User },
-      ]
+      { to: "/candidate/dashboard", label: "Home", icon: LayoutDashboard },
+      { to: "/candidate/jobs", label: "Jobs", icon: Briefcase },
+      { to: "/candidate/applications", label: "Applied", icon: FileText },
+      { to: "/candidate/messages", label: "Messages", icon: MessageSquare },
+      { to: "/candidate/profile", label: "Profile", icon: User },
+    ]
     : [
-        { to: "/employer/dashboard",  label: "Home",     icon: LayoutDashboard },
-        { to: "/employer/listings",   label: "Listings", icon: Briefcase },
-        { to: "/employer/post-job",   label: "Post Job", icon: FilePlus },
-        { to: "/employer/pipeline",   label: "Pipeline", icon: FileText },
-        { to: "/employer/messages",   label: "Messages", icon: MessageSquare },
-      ];
+      { to: "/employer/dashboard", label: "Home", icon: LayoutDashboard },
+      { to: "/employer/listings", label: "Listings", icon: Briefcase },
+      { to: "/employer/post-job", label: "Post Job", icon: FilePlus },
+      { to: "/employer/pipeline", label: "Pipeline", icon: FileText },
+      { to: "/employer/messages", label: "Messages", icon: MessageSquare },
+    ];
 
   return (
     <div className="min-h-screen w-full flex bg-background">
@@ -646,7 +646,7 @@ export function SectionCard({
       {(title || headerActions) && (
         <header className="px-4 py-3 border-b border-border flex items-center justify-between gap-3 flex-wrap">
           <div className="min-w-0">
-            {title    && <h2 className="text-sm font-bold text-foreground">{title}</h2>}
+            {title && <h2 className="text-sm font-bold text-foreground">{title}</h2>}
             {subtitle && <p className="text-[11px] text-muted-foreground mt-0.5">{subtitle}</p>}
           </div>
           {headerActions && <div className="flex items-center gap-2">{headerActions}</div>}
