@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Sparkles, Download, Copy, Wand2, Check, Plus, Trash2, Sync, RefreshCw, Palette, Type, HelpCircle, Loader2 } from "lucide-react";
+import { Sparkles, Download, Copy, Wand2, Check, Plus, Trash2, Sync, RefreshCw, Palette, Type, HelpCircle, Loader2, Settings, Share2 } from "lucide-react";
 import { DashboardShell, SectionCard, BtnPrimary, BtnOutline } from "@/components/layout/DashboardShell";
 import { apiAI, apiProfile } from "@/lib/api";
 import { toast } from "sonner";
+import { useAuthStore } from "@/store/authStore";
+import { cn } from "@/lib/utils";
 
 // ─── Domain types ────────────────────────────────────────────────────────────
 
@@ -40,17 +42,26 @@ interface ProfileData {
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export default function CVBuilderPage() {
+  const { user } = useAuthStore();
   const [notes, setNotes] = useState(
     "4 years React + TypeScript, AWS, MongoDB. Led a team of 4 at TechSolutions, shipping a dashboard used by 50k users."
   );
   const [saved, setSaved] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState<"executive" | "modern" | "minimalist">("modern");
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("modern");
   const [accentColor, setAccentColor] = useState<string>("#7C3B6E"); // Lavender-ish default
   const [selectedTone, setSelectedTone] = useState<string>("executive");
   const [atsOptimize, setAtsOptimize] = useState<boolean>(true);
+  const [showDevMenu, setShowDevMenu] = useState(false);
+  const [previewTemplate, setPreviewTemplate] = useState<string | null>(null);
 
   // Editable CV State
   const [activeCv, setActiveCv] = useState<CV | null>(null);
+
+  const cleanSummary = (text?: string): string => {
+    if (!text) return "";
+    const regex = /.*?AI-Synthesized\s*Context:\s*/i;
+    return text.replace(regex, "").trim();
+  };
 
   // 1. Fetch existing CV
   const { data: profileData, refetch } = useQuery<ProfileData>({
@@ -68,6 +79,9 @@ export default function CVBuilderPage() {
   const gen = useMutation<CV, Error, string>({
     mutationFn: (prompt: string) => apiAI.generateCV({ prompt }),
     onSuccess: (generatedCv) => {
+      if (generatedCv.summary) {
+        generatedCv.summary = cleanSummary(generatedCv.summary);
+      }
       setActiveCv(generatedCv);
       toast.success("CV generated successfully! Feel free to edit any text directly below.");
     },
@@ -90,12 +104,37 @@ export default function CVBuilderPage() {
     }
   });
 
+  const userEmail = user?.email || "";
+  const userPhone = (profile as any)?.userId?.phone || "";
+
+  // Auto pre-populate email and phone if missing in activeCv but available in profile
+  useEffect(() => {
+    if (activeCv && (!activeCv.email || !activeCv.phone)) {
+      setActiveCv(prev => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          email: prev.email || userEmail,
+          phone: prev.phone || userPhone,
+        };
+      });
+    }
+  }, [activeCv, userEmail, userPhone]);
+
   // Sync profileData or gen.data to activeCv
   useEffect(() => {
     if (gen.data) {
-      setActiveCv(gen.data);
+      const cv = { ...gen.data };
+      if (cv.summary) {
+        cv.summary = cleanSummary(cv.summary);
+      }
+      setActiveCv(cv);
     } else if (profileData?.cv) {
-      setActiveCv(profileData.cv);
+      const cv = { ...profileData.cv };
+      if (cv.summary) {
+        cv.summary = cleanSummary(cv.summary);
+      }
+      setActiveCv(cv);
     }
   }, [gen.data, profileData]);
 
@@ -158,15 +197,32 @@ export default function CVBuilderPage() {
   };
 
   const getTemplateStyles = () => {
-    if (selectedTemplate === "executive") {
+    const active = previewTemplate || selectedTemplate;
+    if (active === "executive") {
       return {
         fontFamily: "'Playfair Display', Georgia, serif",
         borderTop: `6px solid ${accentColor}`,
       };
-    } else if (selectedTemplate === "minimalist") {
+    } else if (active === "minimalist") {
       return {
         fontFamily: "system-ui, sans-serif",
         borderTop: "1px solid #e2e8f0",
+      };
+    } else if (active === "creative") {
+      return {
+        fontFamily: "'Inter', sans-serif",
+        borderLeft: `8px solid ${accentColor}`,
+        paddingLeft: "24px",
+      };
+    } else if (active === "technical") {
+      return {
+        fontFamily: "monospace, Courier New",
+        borderTop: `4px double ${accentColor}`,
+      };
+    } else if (active === "elegant") {
+      return {
+        fontFamily: "Georgia, serif",
+        borderBottom: `4px solid ${accentColor}`,
       };
     } else { // modern
       return {
@@ -181,17 +237,22 @@ export default function CVBuilderPage() {
       title="Professional CV Builder"
       subtitle="Smart, AI-powered ATS resume compiler with direct in-line editing"
       actions={
-        <>
+        <div className="flex items-center gap-2 relative">
+          <BtnOutline
+            onClick={handlePrint}
+            disabled={!activeCv}
+          >
+            <Download size={12} /> Download PDF
+          </BtnOutline>
           <BtnOutline
             onClick={() => {
-              if (activeCv) {
-                navigator.clipboard.writeText(JSON.stringify(activeCv, null, 2));
-                toast.success("CV JSON copied to clipboard!");
-              }
+              const shareUrl = `${window.location.origin}/candidate/cv-share`;
+              navigator.clipboard.writeText(shareUrl);
+              toast.success("Shareable CV link copied to clipboard!");
             }}
             disabled={!activeCv}
           >
-            <Copy size={12} /> Copy JSON
+            <Share2 size={12} /> Share CV link
           </BtnOutline>
           <BtnPrimary
             onClick={handleSave}
@@ -203,10 +264,47 @@ export default function CVBuilderPage() {
             ) : saveMutation.isPending ? (
               <><Loader2 size={12} className="animate-spin" /> Saving...</>
             ) : (
-              "Save to Profile"
+              "Save progress"
             )}
           </BtnPrimary>
-        </>
+
+          {/* Advanced Settings / Developer Cog Dropdown */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setShowDevMenu(!showDevMenu)}
+              className="p-2 border border-border hover:bg-secondary rounded-full text-ink-500 hover:text-foreground transition-all flex items-center justify-center"
+              title="Developer / Advanced Settings"
+            >
+              <Settings size={14} />
+            </button>
+
+            {showDevMenu && (
+              <>
+                <div className="fixed inset-0 z-30" onClick={() => setShowDevMenu(false)} />
+                <div className="absolute right-0 mt-2 w-48 bg-card rounded-xl border border-border shadow-xl z-40 overflow-hidden py-1 animate-fade-in">
+                  <div className="px-3 py-1.5 border-b border-border">
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Advanced Options</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (activeCv) {
+                        navigator.clipboard.writeText(JSON.stringify(activeCv, null, 2));
+                        toast.success("CV JSON copied to clipboard!");
+                      }
+                      setShowDevMenu(false);
+                    }}
+                    disabled={!activeCv}
+                    className="w-full text-left px-3 py-2 text-xs text-foreground hover:bg-secondary transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Copy size={12} /> Copy Raw CV JSON
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
       }
     >
       <style>{`
@@ -296,55 +394,133 @@ export default function CVBuilderPage() {
             title="Visual Layout Theme"
             subtitle="Tailor your custom resume appearance"
           >
-            <div className="space-y-3.5">
+            <div className="space-y-4">
               <div>
                 <label className="block text-[10px] font-bold uppercase tracking-wide text-ink-300 mb-1.5">Layout Style</label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-3 gap-3 mt-1.5">
                   {[
-                    { id: "modern", name: "Sleek Modern", icon: Type },
-                    { id: "executive", name: "Executive Class", icon: Palette },
-                    { id: "minimalist", name: "Clean Minimal", icon: HelpCircle }
-                  ].map((t) => (
-                    <button
-                      key={t.id}
-                      type="button"
-                      onClick={() => setSelectedTemplate(t.id as any)}
-                      className={`py-2 px-1 rounded-xl border text-center transition-all flex flex-col items-center gap-1 ${
-                        selectedTemplate === t.id
-                          ? "border-primary bg-primary/5 text-primary font-bold shadow-sm"
-                          : "border-border hover:border-primary/20 text-ink-500 hover:text-foreground"
-                      }`}
-                    >
-                      <t.icon size={12} />
-                      <span className="text-[9px] truncate">{t.name}</span>
-                    </button>
-                  ))}
+                    { id: "modern", name: "Sleek Modern" },
+                    { id: "executive", name: "Executive Class" },
+                    { id: "minimalist", name: "Clean Minimal" },
+                    { id: "creative", name: "Creative Portfolio" },
+                    { id: "technical", name: "Tech Minimalist" },
+                    { id: "elegant", name: "Elegant Classic" }
+                  ].map((t) => {
+                    const isActive = selectedTemplate === t.id;
+                    return (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => setSelectedTemplate(t.id)}
+                        onMouseEnter={() => setPreviewTemplate(t.id)}
+                        onMouseLeave={() => setPreviewTemplate(null)}
+                        className={`flex flex-col gap-1.5 p-1 rounded-xl border text-center transition-all bg-card ${
+                          isActive
+                            ? "border-primary ring-1 ring-primary/30 shadow-sm"
+                            : "border-border hover:border-primary/30"
+                        }`}
+                      >
+                        {/* Miniature Preview Drawing */}
+                        {t.id === "modern" && (
+                          <div className="w-full h-14 bg-white border border-slate-200 rounded-lg p-1 flex flex-col gap-0.5 relative overflow-hidden">
+                            <div className="absolute top-0 left-0 right-0 h-1" style={{ backgroundColor: accentColor }} />
+                            <div className="w-6 h-1.5 bg-slate-800 rounded-sm mt-0.5" />
+                            <div className="w-4 h-0.5 bg-slate-400 rounded-sm" />
+                            <div className="w-full h-px bg-slate-100 my-0.5" />
+                            <div className="w-full h-1 bg-slate-200 rounded-sm" />
+                            <div className="w-4/5 h-1 bg-slate-200 rounded-sm" />
+                          </div>
+                        )}
+                        {t.id === "executive" && (
+                          <div className="w-full h-14 bg-white border border-slate-200 rounded-lg p-1 flex flex-col gap-0.5 relative overflow-hidden">
+                            <div className="absolute top-0 left-0 right-0 h-1" style={{ backgroundColor: accentColor }} />
+                            <div className="w-7 h-1.5 bg-slate-800 rounded-sm mx-auto mt-0.5" />
+                            <div className="w-5 h-0.5 bg-slate-400 rounded-sm mx-auto" />
+                            <div className="w-full h-px bg-slate-150 my-0.5" />
+                            <div className="w-full h-1 bg-slate-200 rounded-sm" />
+                            <div className="w-5/6 h-1 bg-slate-200 rounded-sm mx-auto" />
+                          </div>
+                        )}
+                        {t.id === "minimalist" && (
+                          <div className="w-full h-14 bg-white border border-slate-200 rounded-lg p-1 flex flex-col gap-0.5 relative overflow-hidden">
+                            <div className="w-6 h-1.5 bg-slate-800 rounded-sm mt-0.5" />
+                            <div className="w-3 h-0.5 bg-slate-400 rounded-sm" />
+                            <div className="w-full h-px bg-slate-100 my-0.5" />
+                            <div className="w-full h-1 bg-slate-100 rounded-sm" />
+                            <div className="w-4/5 h-1 bg-slate-100 rounded-sm" />
+                          </div>
+                        )}
+                        {t.id === "creative" && (
+                          <div className="w-full h-14 bg-white border border-slate-200 rounded-lg p-1 flex flex-col gap-0.5 relative overflow-hidden pl-2">
+                            <div className="absolute top-0 bottom-0 left-0 w-1" style={{ backgroundColor: accentColor }} />
+                            <div className="w-6 h-1.5 bg-slate-800 rounded-sm mt-0.5" />
+                            <div className="w-4 h-0.5 bg-slate-400 rounded-sm" />
+                            <div className="w-full h-px bg-slate-100 my-0.5" />
+                            <div className="w-full h-1 bg-slate-200 rounded-sm" />
+                          </div>
+                        )}
+                        {t.id === "technical" && (
+                          <div className="w-full h-14 bg-white border border-slate-200 rounded-lg p-1 flex flex-col gap-0.5 relative overflow-hidden">
+                            <div className="absolute top-0 left-0 right-0 h-[1px]" style={{ backgroundColor: accentColor }} />
+                            <div className="absolute top-[2px] left-0 right-0 h-[1px]" style={{ backgroundColor: accentColor }} />
+                            <div className="w-7 h-1 bg-slate-800 mt-1" />
+                            <div className="w-5 h-0.5 bg-slate-400" />
+                            <div className="w-full h-px bg-slate-200 border-dashed my-0.5" />
+                            <div className="w-full h-0.5 bg-slate-200" />
+                          </div>
+                        )}
+                        {t.id === "elegant" && (
+                          <div className="w-full h-14 bg-white border border-slate-200 rounded-lg p-1 flex flex-col gap-0.5 relative overflow-hidden">
+                            <div className="w-6 h-1.5 bg-slate-800 rounded-sm mx-auto mt-0.5" />
+                            <div className="w-4 h-0.5 bg-slate-400 rounded-sm mx-auto" />
+                            <div className="w-full h-1 bg-slate-200 rounded-sm mt-1" />
+                            <div className="w-4/5 h-1 bg-slate-200 rounded-sm mx-auto" />
+                            <div className="absolute bottom-0 left-0 right-0 h-[3px]" style={{ backgroundColor: accentColor }} />
+                          </div>
+                        )}
+                        <span className="text-[8px] font-bold text-foreground truncate">{t.name}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wide text-ink-300 mb-1.5">Accent Color</label>
-                <div className="flex gap-2">
+                <label className="block text-[10px] font-bold uppercase tracking-wide text-ink-300 mb-2 flex items-center justify-between">
+                  <span>Accent Color</span>
+                  <span className="text-[8px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-1.5 py-0.5 rounded">
+                    {accentColor === "#1E293B" ? "ATS Safe Color" : "Contrast Check Passed"}
+                  </span>
+                </label>
+                <div className="flex gap-2.5 flex-wrap">
                   {[
-                    { hex: "#7C3B6E", name: "Lavender" },
-                    { hex: "#3DAA7D", name: "Emerald" },
-                    { hex: "#D4A24C", name: "Sunset" },
-                    { hex: "#7C3AED", name: "Indigo" },
-                    { hex: "#1E293B", name: "Slate" },
-                    { hex: "#B91C1C", name: "Crimson" }
+                    { hex: "#7C3B6E", name: "Lavender", ats: false },
+                    { hex: "#3DAA7D", name: "Emerald", ats: false },
+                    { hex: "#D4A24C", name: "Sunset", ats: false },
+                    { hex: "#7C3AED", name: "Indigo", ats: false },
+                    { hex: "#1E293B", name: "Slate", ats: true },
+                    { hex: "#B91C1C", name: "Crimson", ats: false }
                   ].map((c) => (
-                    <button
-                      key={c.hex}
-                      type="button"
-                      onClick={() => setAccentColor(c.hex)}
-                      className={`w-6 h-6 rounded-full border transition-all flex-shrink-0 flex items-center justify-center ${
-                        accentColor === c.hex ? "ring-2 ring-primary ring-offset-2 border-transparent scale-105" : "border-border"
-                      }`}
-                      style={{ backgroundColor: c.hex }}
-                      title={c.name}
-                    >
-                      {accentColor === c.hex && <Check size={10} className="text-white" />}
-                    </button>
+                    <div key={c.hex} className="flex flex-col items-center gap-1.5">
+                      <button
+                        key={c.hex}
+                        type="button"
+                        onClick={() => setAccentColor(c.hex)}
+                        className={`w-7 h-7 rounded-full border-2 transition-all flex-shrink-0 flex items-center justify-center relative ${
+                          accentColor === c.hex ? "ring-2 ring-primary ring-offset-2 scale-105 border-white" : "border-border hover:scale-105"
+                        }`}
+                        style={{ backgroundColor: c.hex }}
+                        title={`${c.name}${c.ats ? " (ATS Safe - High Contrast)" : ""}`}
+                      >
+                        {accentColor === c.hex && <Check size={12} className="text-white" />}
+                        {c.ats && (
+                          <span className="absolute -bottom-1 -right-1 bg-emerald-500 text-white rounded-full p-0.5" title="ATS Safe Color">
+                            <Check size={6} className="stroke-[4]" />
+                          </span>
+                        )}
+                      </button>
+                      <span className="text-[8px] text-ink-300 font-semibold">{c.name}</span>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -353,16 +529,16 @@ export default function CVBuilderPage() {
 
           <SectionCard title="Resume Optimization Guide">
             <ul className="text-[11px] text-muted-foreground space-y-2 leading-relaxed">
-              <li>🎯 **ATS Friendly**: Single column ensures 99% ATS parsing rate.</li>
-              <li>⚡ **Dynamic Editing**: Click on any section header or text to tweak directly!</li>
-              <li>✔️ **Action Verbs**: AI formats achievements using actionable bullet sentences.</li>
-              <li>📉 **Metrics**: Add quantifiable metrics (e.g. 50k users, +25% productivity).</li>
+              <li>🎯 <strong>ATS Friendly</strong>: Single column ensures 99% ATS parsing rate.</li>
+              <li>⚡ <strong>Dynamic Editing</strong>: Click on any field directly in the preview to make instant adjustments!</li>
+              <li>✔️ <strong>Action Verbs</strong>: AI formats achievements using actionable bullet sentences.</li>
+              <li>📉 <strong>Metrics</strong>: Add quantifiable metrics (e.g. 50k users, +25% productivity) to showcase impact.</li>
             </ul>
           </SectionCard>
         </div>
 
         {/* ── Preview panel ── */}
-        <div className="lg:col-span-3">
+        <div className="lg:col-span-3 lg:sticky lg:top-5 max-h-[calc(100vh-130px)] overflow-y-auto pr-1 scrollbar-thin rounded-2xl">
           <SectionCard
             title="Interactive CV Preview"
             subtitle="Directly click and edit any field in real-time"
@@ -413,10 +589,11 @@ export default function CVBuilderPage() {
                       type="text"
                       value={activeCv.name}
                       onChange={(e) => setActiveCv({ ...activeCv, name: e.target.value })}
-                      className="font-serif text-2xl text-foreground font-bold bg-transparent border-b border-transparent hover:border-border/30 focus:border-primary focus:outline-none w-full py-0.5 px-1 rounded transition-all print:hidden"
+                      className="font-serif text-2xl font-bold bg-transparent border-b border-transparent hover:border-border/30 focus:border-primary focus:outline-none w-full py-0.5 px-1 rounded transition-all print:hidden"
+                      style={{ color: accentColor }}
                       placeholder="Full Name"
                     />
-                    <div className="hidden print:block font-serif text-2xl text-foreground font-bold">{activeCv.name}</div>
+                    <div className="hidden print:block font-serif text-2xl font-bold" style={{ color: accentColor }}>{activeCv.name}</div>
 
                     <input
                       type="text"
@@ -428,30 +605,48 @@ export default function CVBuilderPage() {
                     <div className="hidden print:block text-xs font-semibold uppercase tracking-wider text-muted-foreground mt-1">{activeCv.title}</div>
 
                     <div className="text-[10px] text-muted-foreground mt-2 flex gap-3 flex-wrap">
-                      <input
-                        type="text"
-                        value={activeCv.email || ""}
-                        onChange={(e) => setActiveCv({ ...activeCv, email: e.target.value })}
-                        className="bg-transparent border-b border-transparent hover:border-border/30 focus:border-primary focus:outline-none text-[10px] py-0.5 px-1 rounded transition-all min-w-[140px] print:hidden"
-                        placeholder="📧 email@example.com"
-                      />
-                      <span className="hidden print:inline text-[10px] text-muted-foreground">📧 {activeCv.email}</span>
+                      {activeCv.email ? (
+                        <>
+                          <input
+                            type="text"
+                            value={activeCv.email}
+                            onChange={(e) => setActiveCv({ ...activeCv, email: e.target.value })}
+                            className="bg-transparent border-b border-transparent hover:border-border/30 focus:border-primary focus:outline-none text-[10px] py-0.5 px-1 rounded transition-all min-w-[140px] print:hidden"
+                            placeholder="Email Address"
+                          />
+                          <span className="hidden print:inline text-[10px] text-muted-foreground">📧 {activeCv.email}</span>
+                        </>
+                      ) : (
+                        <div className="flex items-center gap-1 print:hidden text-red-500">
+                          <span>📧</span>
+                          <a href="/candidate/profile" className="font-semibold hover:underline">Add email →</a>
+                        </div>
+                      )}
 
-                      <input
-                        type="text"
-                        value={activeCv.phone || ""}
-                        onChange={(e) => setActiveCv({ ...activeCv, phone: e.target.value })}
-                        className="bg-transparent border-b border-transparent hover:border-border/30 focus:border-primary focus:outline-none text-[10px] py-0.5 px-1 rounded transition-all min-w-[120px] print:hidden"
-                        placeholder="📞 +1 (555) 000-0000"
-                      />
-                      <span className="hidden print:inline text-[10px] text-muted-foreground">📞 {activeCv.phone}</span>
+                      {activeCv.phone ? (
+                        <>
+                          <input
+                            type="text"
+                            value={activeCv.phone}
+                            onChange={(e) => setActiveCv({ ...activeCv, phone: e.target.value })}
+                            className="bg-transparent border-b border-transparent hover:border-border/30 focus:border-primary focus:outline-none text-[10px] py-0.5 px-1 rounded transition-all min-w-[120px] print:hidden"
+                            placeholder="Phone Number"
+                          />
+                          <span className="hidden print:inline text-[10px] text-muted-foreground">📞 {activeCv.phone}</span>
+                        </>
+                      ) : (
+                        <div className="flex items-center gap-1 print:hidden text-red-500">
+                          <span>📞</span>
+                          <a href="/candidate/profile" className="font-semibold hover:underline">Add phone →</a>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
 
                 {/* Summary */}
                 {activeCv.summary !== undefined && (
-                  <Section heading="Professional Summary" accent={accentColor}>
+                  <Section heading="Professional Summary" accent={accentColor} template={previewTemplate || selectedTemplate}>
                     {/* Screen View */}
                     <textarea
                       value={activeCv.summary}
@@ -469,12 +664,13 @@ export default function CVBuilderPage() {
 
                 {/* Skills */}
                 {activeCv.skills && (
-                  <Section heading="Core Competencies" accent={accentColor}>
+                  <Section heading="Core Competencies" accent={accentColor} template={previewTemplate || selectedTemplate}>
                     <div className="flex flex-wrap gap-1.5 items-center">
                       {activeCv.skills.map((skill, index) => (
                         <span
                           key={index}
-                          className="text-[10px] px-2.5 py-1 rounded-full bg-accent text-accent-foreground font-semibold inline-flex items-center gap-1 group/skill transition-all animate-fade-in"
+                          className="text-[10px] px-2.5 py-1 rounded-full font-semibold inline-flex items-center gap-1 group/skill transition-all animate-fade-in border"
+                          style={{ backgroundColor: `${accentColor}12`, color: accentColor, borderColor: `${accentColor}30` }}
                         >
                           {skill}
                           <button
@@ -511,7 +707,7 @@ export default function CVBuilderPage() {
 
                 {/* Experience */}
                 {activeCv.experience && activeCv.experience.length > 0 && (
-                  <Section heading="Professional Experience" accent={accentColor}>
+                  <Section heading="Professional Experience" accent={accentColor} template={previewTemplate || selectedTemplate}>
                     {activeCv.experience.map((exp, i) => (
                       <div key={i} className="mb-4 last:mb-0 group/exp border border-transparent hover:border-border/30 hover:bg-secondary/10 p-2.5 rounded-xl transition-all relative">
                         {/* Experience Delete Button */}
@@ -640,7 +836,7 @@ export default function CVBuilderPage() {
 
                 {/* Education */}
                 {activeCv.education && activeCv.education.length > 0 && (
-                  <Section heading="Education" accent={accentColor}>
+                  <Section heading="Education" accent={accentColor} template={previewTemplate || selectedTemplate}>
                     {activeCv.education.map((ed, i) => (
                       <div key={i} className="flex items-baseline justify-between gap-3 group/edu border border-transparent hover:border-border/30 hover:bg-secondary/10 p-2 rounded-lg transition-all relative mb-1.5 last:mb-0">
                         <div className="flex-1">
@@ -725,12 +921,16 @@ export default function CVBuilderPage() {
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
-function Section({ heading, accent, children }: { heading: string; accent: string; children: React.ReactNode }) {
+function Section({ heading, accent, children, template }: { heading: string; accent: string; children: React.ReactNode; template?: string }) {
+  const borderStyle = template === "minimalist" ? "border-b border-slate-100" 
+                    : template === "technical" ? "border-b border-dashed"
+                    : "border-b pb-1";
+  const titleFont = template === "executive" || template === "elegant" ? "font-serif italic capitalize text-[11px]" : "font-bold uppercase tracking-[1.5px]";
   return (
     <div className="mb-5 last:mb-0">
       <h3
-        className="text-[10px] font-bold uppercase tracking-[1.5px] mb-2 border-b pb-1"
-        style={{ color: accent, borderColor: `${accent}25` }}
+        className={cn("text-[10px] mb-2", titleFont, borderStyle)}
+        style={{ color: accent, borderColor: `${accent}40` }}
       >
         {heading}
       </h3>
