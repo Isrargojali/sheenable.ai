@@ -758,10 +758,7 @@ function JobCard({ job, profile, appliedDate, onSave, onApply, isLoading }: JobC
           </Link>
         ) : (
           <BtnPrimary 
-            onClick={(e) => {
-              e.stopPropagation();
-              onApply();
-            }}
+            onClick={onApply}
             className="text-xs px-3.5 py-1.5 font-bold shadow-sm"
           >
             Apply
