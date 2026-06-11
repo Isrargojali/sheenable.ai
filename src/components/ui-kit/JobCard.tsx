@@ -2,7 +2,7 @@
 // Universal job listing card — used on landing, jobs browse, and dashboards.
 import { Bookmark, MapPin, Sparkles, BadgeCheck } from "lucide-react";
 import { TagPill, type TagVariant } from "./TagPill";
-import { cn, formatSalary, relativeTime, initials } from "@/lib/utils";
+import { cn, formatSalary, relativeTime, initials, getCompanyGradient } from "@/lib/utils";
 
 export interface JobCardData {
   id: string;
@@ -62,19 +62,22 @@ export function JobCard({ job, onSave, onApply, className }: Props) {
         <header className="relative flex items-start justify-between gap-3 mb-4">
           <div className="flex items-center gap-3 min-w-0">
             {/* Prominent Logo */}
-            <div className="w-10 h-10 rounded-xl overflow-hidden bg-secondary border border-border flex items-center justify-center flex-shrink-0">
-              {job.employer.logoUrl ? (
+            {job.employer.logoUrl ? (
+              <div className="w-10 h-10 rounded-xl overflow-hidden bg-secondary border border-border flex items-center justify-center flex-shrink-0">
                 <img 
                   src={job.employer.logoUrl} 
                   alt={`${job.employer.companyName} logo`} 
                   className="w-full h-full object-cover" 
                 />
-              ) : (
-                <span className="text-[11px] font-black text-primary font-display">
-                  {initials(job.employer.companyName)}
-                </span>
-              )}
-            </div>
+              </div>
+            ) : (
+              <div className={cn(
+                "w-10 h-10 rounded-xl flex items-center justify-center text-[11px] font-black text-white uppercase font-display flex-shrink-0 bg-gradient-to-br shadow-sm",
+                getCompanyGradient(job.employer.companyName)
+              )}>
+                {initials(job.employer.companyName)}
+              </div>
+            )}
             <div className="min-w-0">
               <h3 className="text-[14px] font-bold text-foreground leading-tight truncate">
                 {job.title}

@@ -5,12 +5,12 @@ import {
   Paperclip, Link as LinkIcon, Smile, ChevronDown, ChevronUp, 
   CheckCheck, Building, Calendar 
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, initials, getCompanyGradient } from "@/lib/utils";
 import { apiMessages, apiApplications, apiAI, apiUpload } from "@/lib/api";
-import { DashboardShell } from "@/components/layout/DashboardShell";
+import { DashboardShell, BtnPrimary } from "@/components/layout/DashboardShell";
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "sonner";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { io } from "socket.io-client";
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -87,18 +87,8 @@ export default function MessagesPage() {
       ? new Date(t.lastMessage.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       : "";
 
-    const initials = name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase() || "C";
-
-    const colors = [
-      "from-violet-500 to-violet-700",
-      "from-emerald-500 to-emerald-700",
-      "from-rose-500 to-rose-700",
-      "from-blue-500 to-blue-700",
-      "from-amber-500 to-amber-700",
-      "from-indigo-500 to-indigo-700"
-    ];
-    const nameHash = name.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    const color = colors[nameHash % colors.length];
+    const initialsVal = initials(name) || "C";
+    const color = getCompanyGradient(name);
 
     let mappedJob = undefined;
     if (t.jobId && typeof t.jobId === "object") {
@@ -112,7 +102,7 @@ export default function MessagesPage() {
       id: t._id || t.id,
       with: {
         name,
-        initials,
+        initials: initialsVal,
         color,
         avatarUrl: otherUser?.avatarUrl || null
       },
@@ -163,6 +153,7 @@ export default function MessagesPage() {
       setText("");
       refetchMessages();
       refetchThreads();
+      toast.success("Message sent ✓");
       // Scroll to bottom immediately
       setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
     },
@@ -317,6 +308,13 @@ export default function MessagesPage() {
     <DashboardShell
       title="Messages"
       subtitle={user?.role === "CANDIDATE" ? "Your conversations with employers" : "Your conversations with candidates"}
+      actions={
+        <Link to="/candidate/jobs">
+          <BtnPrimary className="px-5 py-2.5 shadow-sm text-xs font-bold flex items-center gap-1.5">
+            Browse Jobs
+          </BtnPrimary>
+        </Link>
+      }
     >
       <div className="bg-card border border-border rounded-2xl overflow-hidden flex h-[calc(100vh-190px)] min-h-[520px] shadow-sm">
         
@@ -333,14 +331,18 @@ export default function MessagesPage() {
                 <Plus size={16} />
               </button>
             </div>
-            <div className="relative">
+            <div className="relative flex items-center">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-300" size={13} />
               <input
+                id="global-search"
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
                 placeholder="Search conversations…"
-                className="w-full pl-8 pr-3 py-2 text-xs bg-secondary/50 border border-border rounded-xl focus:outline-none focus:border-primary/45 focus:ring-1 focus:ring-primary/20 transition-all text-foreground"
+                className="w-full pl-8 pr-12 py-2 text-xs bg-secondary/50 border border-border rounded-xl focus:outline-none focus:border-primary/45 focus:ring-1 focus:ring-primary/20 transition-all text-foreground"
               />
+              <kbd className="absolute right-3 hidden sm:inline-flex items-center gap-0.5 text-[9px] font-sans font-bold bg-card border border-border/80 px-1 py-0.2 rounded text-muted-foreground shadow-xs select-none">
+                <span>{navigator.userAgent.toLowerCase().includes("mac") ? "⌘" : "Ctrl"}</span><span>K</span>
+              </kbd>
             </div>
           </div>
 

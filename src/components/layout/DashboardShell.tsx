@@ -9,7 +9,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import logo from "../../assets/sheEnableAI-removebg-preview.png";
-import { cn, initials, relativeTime } from "@/lib/utils";
+import { cn, initials, relativeTime, getCompanyGradient } from "@/lib/utils";
 import { useAuthStore, UserRole } from "@/store/authStore";
 import { useNotifStore } from "@/store/notifStore";
 import { apiNotifications, apiProfile, apiMessages, apiApplications } from "@/lib/api";
@@ -193,8 +193,11 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
             />
           ) : null}
           <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
-            style={{ background: "var(--grad-mauve)", display: avatarUrl ? 'none' : 'flex' }}
+            className={cn(
+              "w-10 h-10 rounded-xl flex items-center justify-center text-white text-sm font-bold flex-shrink-0 bg-gradient-to-br shadow-sm",
+              getCompanyGradient(displayName)
+            )}
+            style={{ display: avatarUrl ? 'none' : 'flex' }}
           >
             {initials(displayName)}
           </div>
@@ -506,6 +509,52 @@ export function DashboardShell({
     const isDark = localStorage.getItem("dashboard-dark-mode") === "true";
     document.documentElement.classList.toggle("dark", isDark);
   }, []);
+
+  // Global Keyboard Shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isMac = navigator.userAgent.toLowerCase().includes("mac");
+      const modifier = isMac ? e.metaKey : e.ctrlKey;
+
+      // Global Search Shortcut: Ctrl+K or Cmd+K
+      if (modifier && e.key.toLowerCase() === "k") {
+        const searchInput = document.getElementById("global-search") as HTMLInputElement | null;
+        if (searchInput) {
+          e.preventDefault();
+          searchInput.focus();
+          searchInput.select();
+        }
+      }
+
+      // Global Save Shortcut: Ctrl+S or Cmd+S
+      if (modifier && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        const saveBtn = Array.from(document.querySelectorAll("button")).find((btn) => {
+          const txt = btn.textContent?.toLowerCase() || "";
+          return (txt.includes("save") || txt.includes("publish")) && !btn.disabled;
+        });
+        if (saveBtn) {
+          saveBtn.click();
+        }
+      }
+
+      // Escape key handler: dismiss modals/dialogs
+      if (e.key === "Escape") {
+        if (showSettings) {
+          e.preventDefault();
+          setShowSettings(false);
+        }
+        // Also trigger click on any close buttons matching standard selectors
+        const closeButtons = document.querySelectorAll('button[aria-label="Close"], button[aria-label*="close"], button[title="Close"]');
+        if (closeButtons.length > 0) {
+          (closeButtons[0] as HTMLButtonElement).click();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [showSettings]);
 
   const { user } = useAuthStore();
   const role = user?.role ?? "CANDIDATE";
@@ -855,7 +904,7 @@ function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
             <h2 className="font-serif text-lg text-foreground font-bold">Account Settings</h2>
             <p className="text-[11px] text-muted-foreground mt-0.5">Customize your personal profile and theme preferences</p>
           </div>
-          <button onClick={onClose} className="p-1.5 hover:bg-secondary rounded-full text-ink-400 hover:text-foreground transition-all">
+          <button onClick={onClose} aria-label="Close" className="p-1.5 hover:bg-secondary rounded-full text-ink-400 hover:text-foreground transition-all">
             <X size={16} />
           </button>
         </header>

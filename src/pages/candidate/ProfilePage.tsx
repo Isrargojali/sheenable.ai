@@ -446,10 +446,12 @@ export default function ProfilePage() {
         // Fallback: at minimum sync the local form state
         setUser({ ...user, firstName, lastName, avatarUrl: avatarUrl || user.avatarUrl });
       }
+      toast.success("Profile saved ✓");
       setTimeout(() => setSaved(false), 3000);
     },
     onError: (err: Error) => {
       console.error("Save error:", err);
+      toast.error(err.message || "Failed to save profile");
     }
   });
 
@@ -471,10 +473,12 @@ export default function ProfilePage() {
         if (user) setUser({ ...user, avatarUrl: url });
       }
       setAvatarError("");
+      toast.success("Avatar uploaded ✓");
     },
     onError: (err: Error) => {
       const message = (err as { response?: { data?: { message?: string } } }).response?.data?.message;
       setAvatarError(message || "Upload failed. Please try again.");
+      toast.error(message || "Upload failed. Please try again.");
     }
   });
 

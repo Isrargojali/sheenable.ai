@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import { DashboardShell, SectionCard, BtnPrimary, BtnOutline } from "@/components/layout/DashboardShell";
 import { apiProfile, apiJobs, apiApplications, apiMessages } from "@/lib/api";
-import { formatSalary, relativeTime, cn } from "@/lib/utils";
+import { formatSalary, relativeTime, cn, initials, getCompanyGradient } from "@/lib/utils";
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "sonner";
 
@@ -165,19 +165,7 @@ export default function CandidateDashboard() {
     return Math.min(score, 100);
   })();
 
-  // Premium initial-tag gradient assigner based on company name
-  const getCompanyGradient = (name: string) => {
-    const charCode = (name.charCodeAt(0) || 0) + (name.charCodeAt(1) || 0);
-    const gradients = [
-      "from-pink-500 to-rose-500 text-white",
-      "from-violet-500 to-indigo-500 text-white",
-      "from-cyan-500 to-blue-500 text-white",
-      "from-emerald-500 to-teal-500 text-white",
-      "from-amber-500 to-orange-500 text-white",
-      "from-fuchsia-500 to-purple-500 text-white"
-    ];
-    return gradients[charCode % gradients.length];
-  };
+
 
   // Contextual Urgent Action calculation
   const urgentAction = (() => {
@@ -470,7 +458,7 @@ export default function CandidateDashboard() {
                           "w-11 h-11 rounded-xl flex items-center justify-center text-xs font-black flex-shrink-0 shadow-sm bg-gradient-to-br transition-all duration-300 group-hover:shadow-md",
                           getCompanyGradient(job.employer.companyName)
                         )}>
-                          {job.employer.companyName.slice(0, 2).toUpperCase()}
+                          {initials(job.employer.companyName)}
                         </div>
                         <div className="min-w-0">
                           <div className="text-[13px] font-extrabold text-foreground truncate group-hover:text-primary transition-colors leading-snug">

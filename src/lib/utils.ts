@@ -16,16 +16,17 @@ export function formatSalary(min?: number, max?: number, currency?: string): str
     activeCurrency = "PKR";
   }
 
-  // Normalize inputs (scale values less than 1000 to thousands, e.g. 200 -> 200000)
-  let normMin = min;
-  let normMax = max;
+  // Normalize inputs (scale values less than 5 digits, e.g. 200 -> 200000)
+  const normalize = (val?: number) => {
+    if (val === undefined || val === null || val <= 0) return undefined;
+    if (val < 10000) {
+      return val * 1000;
+    }
+    return val;
+  };
 
-  if (normMin !== undefined && normMin > 0 && normMin < 1000) {
-    normMin = normMin * 1000;
-  }
-  if (normMax !== undefined && normMax > 0 && normMax < 1000) {
-    normMax = normMax * 1000;
-  }
+  const normMin = normalize(min);
+  const normMax = normalize(max);
 
   const fmt = (n: number) => {
     if (n >= 1000) {
@@ -59,7 +60,31 @@ export function relativeTime(iso: string): string {
 }
 
 export function initials(name: string): string {
-  return name.split(" ").filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join("");
+  if (!name) return "";
+  const words = name
+    .split(/\s+/)
+    .map(w => w.replace(/[^a-zA-Z]/g, "")) // Keep only letters
+    .filter(Boolean);
+
+  if (words.length === 0) return name.slice(0, 2).toUpperCase();
+  if (words.length === 1) {
+    return words[0].slice(0, 2).toUpperCase();
+  }
+  return (words[0][0] + words[1][0]).toUpperCase();
+}
+
+export function getCompanyGradient(name: string): string {
+  if (!name) return "from-violet-500 to-violet-700 text-white";
+  const charCode = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) || 0;
+  const gradients = [
+    "from-pink-500 to-rose-500 text-white",
+    "from-violet-500 to-indigo-500 text-white",
+    "from-cyan-500 to-blue-500 text-white",
+    "from-emerald-500 to-teal-500 text-white",
+    "from-amber-500 to-orange-500 text-white",
+    "from-fuchsia-500 to-purple-500 text-white"
+  ];
+  return gradients[charCode % gradients.length];
 }
 
 export function truncate(str: string, max = 60): string {

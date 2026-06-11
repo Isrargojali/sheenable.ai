@@ -54,6 +54,12 @@ export default function PostJobPage() {
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
+    const minNum = Number(min) || 0;
+    const maxNum = Number(max) || 0;
+    if ((min && minNum < 1000) || (max && maxNum < 1000)) {
+      toast.error("Please enter monthly salary in PKR (e.g. 60000)");
+      return;
+    }
     create.mutate({
       title,
       category,
@@ -61,8 +67,8 @@ export default function PostJobPage() {
       jobMode: mode,
       location: location || null,
       salary: {
-        min: Number(min) || null,
-        max: Number(max) || null,
+        min: minNum || null,
+        max: maxNum || null,
         currency: "PKR",
       },
       description: desc,
@@ -103,10 +109,10 @@ export default function PostJobPage() {
                 </Field>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <Field label="Salary min (PKR)">
+                <Field label="Salary min (PKR)" subtitle="e.g. 60000">
                   <input className={inp} type="number" value={min} onChange={e => setMin(e.target.value)} placeholder="80000" />
                 </Field>
-                <Field label="Salary max (PKR)">
+                <Field label="Salary max (PKR)" subtitle="e.g. 150000">
                   <input className={inp} type="number" value={max} onChange={e => setMax(e.target.value)} placeholder="150000" />
                 </Field>
               </div>
@@ -188,13 +194,14 @@ export default function PostJobPage() {
   );
 }
 
-function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
+function Field({ label, required, subtitle, children }: { label: string; required?: boolean; subtitle?: string; children: React.ReactNode }) {
   return (
     <div>
       <label className="block text-[11px] font-bold text-ink-500 uppercase tracking-wide mb-1.5">
         {label} {required && <span className="text-primary normal-case font-normal">*</span>}
       </label>
       {children}
+      {subtitle && <p className="text-[10px] text-muted-foreground mt-1">{subtitle}</p>}
     </div>
   );
 }

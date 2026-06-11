@@ -6,9 +6,9 @@ import {
   CheckCircle2, MapPin, Calendar, Loader2, MoreHorizontal, 
   ArrowRight, Sparkles, HelpCircle, AlertCircle, XCircle 
 } from "lucide-react";
-import { DashboardShell, SectionCard } from "@/components/layout/DashboardShell";
+import { DashboardShell, SectionCard, BtnPrimary } from "@/components/layout/DashboardShell";
 import { apiApplications } from "@/lib/api";
-import { formatSalary, relativeTime, cn } from "@/lib/utils";
+import { formatSalary, relativeTime, cn, initials, getCompanyGradient } from "@/lib/utils";
 import { toast } from "sonner";
 
 const STAGES = ["APPLIED", "SCREENING", "INTERVIEW", "OFFER", "HIRED"] as const;
@@ -62,19 +62,7 @@ const STAGE_COLOR: Record<string, string> = {
   REJECTED:  "bg-rose-50 text-rose-700 dark:bg-rose-950/20 dark:text-rose-400 border border-rose-200/30",
 };
 
-// Gradient assigner for company initials
-const getCompanyGradient = (name: string) => {
-  const charCode = (name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)) || 0;
-  const gradients = [
-    "from-pink-500 to-rose-500 text-white",
-    "from-violet-500 to-indigo-500 text-white",
-    "from-cyan-500 to-blue-500 text-white",
-    "from-emerald-500 to-teal-500 text-white",
-    "from-amber-500 to-orange-500 text-white",
-    "from-fuchsia-500 to-purple-500 text-white"
-  ];
-  return gradients[charCode % gradients.length];
-};
+
 
 export default function ApplicationsPage() {
   const qc = useQueryClient();
@@ -116,7 +104,17 @@ export default function ApplicationsPage() {
   const apps = totalCounts.filter(a => filter === "ALL" || a.stage === filter);
 
   return (
-    <DashboardShell title="My applications" subtitle="Track every job you've applied to">
+    <DashboardShell
+      title="My applications"
+      subtitle="Track every job you've applied to"
+      actions={
+        <Link to="/candidate/jobs">
+          <BtnPrimary className="px-5 py-2.5 shadow-sm text-xs font-bold flex items-center gap-1.5">
+            Find More Jobs
+          </BtnPrimary>
+        </Link>
+      }
+    >
       {/* Filter Tabs Status Dashboard */}
       <div className="flex flex-wrap gap-2 mb-6">
         {FILTER_STAGES.map(s => {
@@ -171,7 +169,7 @@ export default function ApplicationsPage() {
                     "w-12 h-12 rounded-xl flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-sm bg-gradient-to-br transition-all duration-300",
                     getCompanyGradient(app.job.employer.companyName)
                   )}>
-                    {app.job.employer.companyName.slice(0, 2).toUpperCase()}
+                    {initials(app.job.employer.companyName)}
                   </div>
                   <div className="min-w-0">
                     <div className={cn(

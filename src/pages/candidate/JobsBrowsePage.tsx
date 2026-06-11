@@ -118,7 +118,7 @@ export default function JobsBrowsePage() {
       });
     },
     onSuccess: () => {
-      toast.success("Application submitted successfully!");
+      toast.success("Application submitted ✓");
       setApplyingJob(null);
       setCoverLetter("");
       setResumeUrl("");
@@ -247,16 +247,27 @@ ${candidateName}`;
     <DashboardShell
       title="Browse jobs"
       subtitle={`${total} opportunities matching your profile`}
+      actions={
+        <Link to="/candidate/cv">
+          <BtnPrimary className="px-5 py-2.5 shadow-sm text-xs font-bold flex items-center gap-1.5">
+            CV Builder
+          </BtnPrimary>
+        </Link>
+      }
     >
       {/* Search bar */}
       <div className="bg-card border border-border rounded-2xl p-3 mb-4 flex gap-2 items-center shadow-sm focus-within:border-primary/50 transition-all duration-200">
         <Search size={15} className="text-muted-foreground ml-2 flex-shrink-0" />
         <input
+          id="global-search"
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search by title, skill, or company…"
           className="flex-1 bg-transparent outline-none text-sm py-1.5 placeholder:text-ink-300 text-foreground"
         />
+        <kbd className="hidden sm:inline-flex items-center gap-0.5 text-[10px] font-sans font-bold bg-secondary/80 border border-border px-1.5 py-0.5 rounded-md text-muted-foreground shadow-sm select-none">
+          <span className="text-[9px]">{navigator.userAgent.toLowerCase().includes("mac") ? "⌘" : "Ctrl"}</span><span>K</span>
+        </kbd>
       </div>
 
       {/* Filter chips enclosed in a neat panel */}
