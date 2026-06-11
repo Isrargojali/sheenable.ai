@@ -101,13 +101,23 @@ const ROLE_LABEL: Record<UserRole, string> = {
 //
 // SIDEBAR
 //
-function Sidebar({ onNav }: { onNav?: () => void }) {
-  const { user, logout } = useAuthStore();
-  const navigate = useNavigate();
-  const role = user?.role ?? "CANDIDATE";
-  const groups = NAV[role];
+// Theme helper
+export const applyThemeVars = (themeName: string) => {
+  const root = document.documentElement;
+  const themes: Record<string, { primary: string; ring: string; hcMauve: string }> = {
+    lavender: { primary: "317 35% 36%", ring: "317 35% 36%", hcMauve: "#7C3B6E" },
+    emerald: { primary: "159 47% 45%", ring: "159 47% 45%", hcMauve: "#3DAA7D" },
+    sunset: { primary: "30 70% 50%", ring: "30 70% 50%", hcMauve: "#D4A24C" },
+    indigo: { primary: "260 70% 55%", ring: "260 70% 55%", hcMauve: "#7C3AED" },
+  };
+  const cfg = themes[themeName] || themes.lavender;
+  root.style.setProperty("--primary", cfg.primary);
+  root.style.setProperty("--ring", cfg.ring);
+  root.style.setProperty("--hc-mauve", cfg.hcMauve);
+};
 
-  // Dynamic real-time messages unread badges query
+// Hook to fetch notification/message badges
+function useNotificationBadges(role: UserRole) {
   type Thread = { unreadCandidate: number; unreadEmployer: number };
   type ThreadsQueryData = Thread[] | { results: Thread[] };
 
@@ -124,7 +134,6 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
     0
   );
 
-  // Dynamic real-time applications badge query
   const { data: myAppsData } = useQuery<unknown[]>({
     queryKey: ["myAppsBadge", role],
     queryFn: apiApplications.getApplications,
@@ -133,6 +142,17 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
   });
 
   const appsCount = Array.isArray(myAppsData) ? myAppsData.length : 0;
+
+  return { unreadMessagesCount, appsCount };
+}
+
+function Sidebar({ onNav }: { onNav?: () => void }) {
+  const { user, logout } = useAuthStore();
+  const navigate = useNavigate();
+  const role = user?.role ?? "CANDIDATE";
+  const groups = NAV[role];
+
+  const { unreadMessagesCount, appsCount } = useNotificationBadges(role);
 
   const displayName = user?.firstName && user?.lastName
     ? `${user.firstName} ${user.lastName}`
@@ -474,31 +494,14 @@ export function DashboardShell({
   const location = useLocation();
 
   // Close mobile drawer on route change
-  if (mobileOpen) {
-    setTimeout(() => { }, 0); // noop, kept for clarity
-  }
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname]);
 
   // Load and apply the theme + dark mode on mount
   useEffect(() => {
     const storedTheme = localStorage.getItem("dashboard-theme") || "lavender";
-    const root = document.documentElement;
-    if (storedTheme === "lavender") {
-      root.style.setProperty("--primary", "317 35% 36%");
-      root.style.setProperty("--ring", "317 35% 36%");
-      root.style.setProperty("--hc-mauve", "#7C3B6E");
-    } else if (storedTheme === "emerald") {
-      root.style.setProperty("--primary", "159 47% 45%");
-      root.style.setProperty("--ring", "159 47% 45%");
-      root.style.setProperty("--hc-mauve", "#3DAA7D");
-    } else if (storedTheme === "sunset") {
-      root.style.setProperty("--primary", "30 70% 50%");
-      root.style.setProperty("--ring", "30 70% 50%");
-      root.style.setProperty("--hc-mauve", "#D4A24C");
-    } else if (storedTheme === "indigo") {
-      root.style.setProperty("--primary", "260 70% 55%");
-      root.style.setProperty("--ring", "260 70% 55%");
-      root.style.setProperty("--hc-mauve", "#7C3AED");
-    }
+    applyThemeVars(storedTheme);
     // Restore dark mode preference
     const isDark = localStorage.getItem("dashboard-dark-mode") === "true";
     document.documentElement.classList.toggle("dark", isDark);
@@ -507,6 +510,8 @@ export function DashboardShell({
   const { user } = useAuthStore();
   const role = user?.role ?? "CANDIDATE";
   const hasBottomNav = role === "CANDIDATE" || role === "EMPLOYER";
+
+  const { unreadMessagesCount, appsCount } = useNotificationBadges(role);
 
   // Bottom nav items per role (max 5)
   const bottomNavItems: NavItem[] = role === "CANDIDATE"
@@ -600,22 +605,36 @@ export function DashboardShell({
                     )
                   }
                 >
-                  {({ isActive }) => (
-                    <>
-                      <span
-                        className={cn(
-                          "flex items-center justify-center w-8 h-6 rounded-token-sm transition-all duration-200",
-                          isActive && "bg-primary/10"
-                        )}
-                      >
-                        <Icon
-                          size={16}
-                          className={cn("transition-transform duration-200", isActive && "scale-110")}
-                        />
-                      </span>
-                      <span>{item.label}</span>
-                    </>
-                  )}
+                  {({ isActive }) => {
+                    let badgeCount = 0;
+                    if (item.to.includes("messages")) {
+                      badgeCount = unreadMessagesCount;
+                    } else if (item.to.includes("applications") && role === "CANDIDATE") {
+                      badgeCount = appsCount;
+                    }
+
+                    return (
+                      <>
+                        <span
+                          className={cn(
+                            "flex items-center justify-center w-8 h-6 rounded-token-sm transition-all duration-200 relative",
+                            isActive && "bg-primary/10"
+                          )}
+                        >
+                          <Icon
+                            size={16}
+                            className={cn("transition-transform duration-200", isActive && "scale-110")}
+                          />
+                          {badgeCount > 0 && (
+                            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[8px] font-bold text-primary-foreground min-w-[14px]">
+                              {badgeCount}
+                            </span>
+                          )}
+                        </span>
+                        <span>{item.label}</span>
+                      </>
+                    );
+                  }}
                 </NavLink>
               );
             })}
@@ -801,7 +820,6 @@ function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
       qc.invalidateQueries({ queryKey: ["employerProfile"] });
       qc.invalidateQueries({ queryKey: ["candidateStats"] });
       qc.invalidateQueries({ queryKey: ["myApps"] });
-      qc.invalidateQueries({ queryKey: ["employerProfile"] });
       // Update auth store user
       if (res?.user && typeof res.user === 'object' && 'id' in res.user && 'email' in res.user) {
         setUser(res.user as Parameters<typeof setUser>[0]);
@@ -814,24 +832,7 @@ function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
   });
 
   const applyTheme = (themeName: string) => {
-    const root = document.documentElement;
-    if (themeName === "lavender") {
-      root.style.setProperty("--primary", "317 35% 36%");
-      root.style.setProperty("--ring", "317 35% 36%");
-      root.style.setProperty("--hc-mauve", "#7C3B6E");
-    } else if (themeName === "emerald") {
-      root.style.setProperty("--primary", "159 47% 45%");
-      root.style.setProperty("--ring", "159 47% 45%");
-      root.style.setProperty("--hc-mauve", "#3DAA7D");
-    } else if (themeName === "sunset") {
-      root.style.setProperty("--primary", "30 70% 50%");
-      root.style.setProperty("--ring", "30 70% 50%");
-      root.style.setProperty("--hc-mauve", "#D4A24C");
-    } else if (themeName === "indigo") {
-      root.style.setProperty("--primary", "260 70% 55%");
-      root.style.setProperty("--ring", "260 70% 55%");
-      root.style.setProperty("--hc-mauve", "#7C3AED");
-    }
+    applyThemeVars(themeName);
     setPrefs(p => ({ ...p, theme: themeName }));
     localStorage.setItem("dashboard-theme", themeName);
     toast.success(`Theme updated to ${themeName}!`);

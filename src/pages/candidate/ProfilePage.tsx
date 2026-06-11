@@ -352,6 +352,8 @@ export default function ProfilePage() {
       setPhoneValid(false);
     }
   }, [phone]);
+
+  useEffect(() => {
     const loadProfile = async () => {
       try {
         // apiProfile.getMe() applies .then(unwrap), so `response` is already
