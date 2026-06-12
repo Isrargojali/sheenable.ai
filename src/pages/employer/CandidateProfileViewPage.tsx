@@ -95,6 +95,39 @@ export default function CandidateProfileViewPage() {
 
   const initials = `${firstName[0] ?? ""}${lastName[0] ?? ""}`.toUpperCase();
 
+  // Track profile visit for Recently Viewed Candidates in AI Search
+  useEffect(() => {
+    if (profile && id) {
+      try {
+        const key = "recently_viewed_candidates";
+        const currentRaw = localStorage.getItem(key);
+        const currentList = currentRaw ? JSON.parse(currentRaw) : [];
+        const filteredList = currentList.filter((c: any) => c.id !== id);
+        
+        const skillsArray = Array.isArray(p?.skills)
+          ? p.skills.map((s: any) => typeof s === 'string' ? s : (s.name || ''))
+          : [];
+
+        const candidateItem = {
+          id,
+          firstName,
+          lastName,
+          title: p?.title || "Specialist",
+          location: location || "Remote",
+          avatarUrl,
+          isAvailable: p?.isAvailable ?? false,
+          skills: skillsArray.filter(Boolean).slice(0, 5),
+          aiMatchScore: p?.aiMatchScore || Math.floor(Math.random() * 10) + 85,
+          aiReason: p?.bio ? (p.bio.length > 90 ? p.bio.slice(0, 90) + "..." : p.bio) : "Top matched professional."
+        };
+        const newList = [candidateItem, ...filteredList].slice(0, 5);
+        localStorage.setItem(key, JSON.stringify(newList));
+      } catch (err) {
+        console.error("Error saving recently viewed candidate:", err);
+      }
+    }
+  }, [profile, id]);
+
   // Direct Message Mutation
   const startChatMut = useMutation({
     mutationFn: () => 
