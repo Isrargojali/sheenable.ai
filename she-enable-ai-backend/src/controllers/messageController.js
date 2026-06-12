@@ -27,12 +27,22 @@ const getMyThreads = async (req, res, next) => {
       MessageThread.countDocuments(filter)
     ]);
 
-    // Fetch employer profiles in batch to get actual companyName
+    // Fetch employer profiles and candidate applications in batch in parallel to optimize
     const employerIds = threads.map(t => t.employerId?._id || t.employerId).filter(Boolean);
+    const candidateIds = threads.map(t => t.candidateId?._id || t.candidateId).filter(Boolean);
+    const jobIds = threads.map(t => t.jobId?._id || t.jobId).filter(Boolean);
+    
     const EmployerProfile = require('../models/EmployerProfile');
-    const profiles = await EmployerProfile.find({ userId: { $in: employerIds } }).lean();
+    const Application = require('../models/Application');
+    
+    const [profiles, applications] = await Promise.all([
+      EmployerProfile.find({ userId: { $in: employerIds } }).lean(),
+      Application.find({ candidateId: { $in: candidateIds }, jobId: { $in: jobIds } }).lean()
+    ]);
+    
     const profileMap = new Map(profiles.map(p => [p.userId.toString(), p]));
-
+    const appMap = new Map(applications.map(app => [`${app.candidateId.toString()}_${app.jobId.toString()}`, app]));
+ 
     const mappedThreads = threads.map(t => {
       if (t.employerId) {
         const empId = (t.employerId._id || t.employerId).toString();
@@ -41,9 +51,23 @@ const getMyThreads = async (req, res, next) => {
           t.employerId.companyName = profile ? profile.companyName : `${t.employerId.firstName || 'Employer'}'s Company`;
         }
       }
+      
+      if (t.candidateId && t.jobId) {
+        const candId = (t.candidateId._id || t.candidateId).toString();
+        const jobId = (t.jobId._id || t.jobId).toString();
+        const key = `${candId}_${jobId}`;
+        const app = appMap.get(key);
+        if (app) {
+          t.application = {
+            id: app._id.toString(),
+            stage: app.status,
+            appliedAt: app.appliedAt
+          };
+        }
+      }
       return t;
     });
-
+ 
     return paginated(res, mappedThreads, getPaginationData(total, page, limit));
   } catch (err) { next(err); }
 };

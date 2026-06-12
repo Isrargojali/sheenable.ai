@@ -10,12 +10,21 @@ const avatarStorage = new CloudinaryStorage({
   },
 });
 
-const cvStorage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: 'sheenableai/cvs',
-    allowed_formats: ['pdf', 'doc', 'docx'],
+const path = require('path');
+const fs = require('fs');
+
+const cvStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const dir = path.join(__dirname, '../../uploads/cvs');
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    cb(null, dir);
   },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
 });
 
 const uploadAvatar = multer({

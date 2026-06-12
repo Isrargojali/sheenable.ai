@@ -11,7 +11,7 @@ import {
 import { DashboardShell } from "@/components/layout/DashboardShell";
 import { apiProfile, apiMessages } from "@/lib/api";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
+import { cn, getDownloadUrl } from "@/lib/utils";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 const SKILL_LEVEL_COLOR: Record<string, string> = {
@@ -562,7 +562,7 @@ export default function CandidateProfileViewPage() {
                   <p className="text-[11px] text-muted-foreground mt-0.5">Review credentials or download the offline copy for your pipeline.</p>
                 </div>
                 <a
-                  href={p.cvFileUrl}
+                  href={getDownloadUrl(p.cvFileUrl)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-5 py-2.5 bg-primary text-white rounded-xl text-[12px] font-bold hover:opacity-90 transition-all active:scale-95 shadow-sm"

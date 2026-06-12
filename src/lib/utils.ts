@@ -90,3 +90,11 @@ export function getCompanyGradient(name: string): string {
 export function truncate(str: string, max = 60): string {
   return str.length > max ? str.slice(0, max) + "…" : str;
 }
+
+export function getDownloadUrl(url?: string | null): string {
+  if (!url) return "";
+  if (url.includes("cloudinary.com") && url.includes("/upload/")) {
+    return url.replace("/upload/", "/upload/fl_attachment/");
+  }
+  return url;
+}

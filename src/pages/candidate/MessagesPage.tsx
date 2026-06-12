@@ -3,9 +3,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { 
   Send, Search, Plus, X, MessageSquare, Loader2,
   Paperclip, Link as LinkIcon, Smile, ChevronDown, ChevronUp, 
-  CheckCheck, Building, Calendar 
+  CheckCheck, Building, Calendar, Mail
 } from "lucide-react";
-import { cn, initials, getCompanyGradient } from "@/lib/utils";
+import { cn, initials, getCompanyGradient, getDownloadUrl } from "@/lib/utils";
 import { apiMessages, apiApplications, apiAI, apiUpload } from "@/lib/api";
 import { DashboardShell, BtnPrimary } from "@/components/layout/DashboardShell";
 import { useAuthStore } from "@/store/authStore";
@@ -33,6 +33,7 @@ interface Thread {
   otherUserId: string;
   lastSentAt?: string;
   jobId?:      { id: string; title: string };
+  application?: { id: string; stage: string; appliedAt: string } | null;
 }
 
 interface Message {
@@ -46,6 +47,108 @@ interface Message {
 
 // ────────────────────────────────────────────────────────────────────────────
 
+function FileAttachment({ fileName, fileUrl, isMe }: { fileName: string; fileUrl: string; isMe: boolean }) {
+  const hash = fileName.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0) || 0;
+  const fileSize = `${120 + (hash % 180)} KB`;
+  
+  return (
+    <div className={cn(
+      "flex items-center gap-3 p-3 rounded-2xl border max-w-xs sm:max-w-sm my-1.5 shadow-xs transition-all",
+      isMe 
+        ? "bg-primary-foreground/10 border-primary-foreground/15 text-primary-foreground" 
+        : "bg-secondary/40 border-border text-foreground hover:bg-secondary/60"
+    )}>
+      <div className={cn(
+        "w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-sm",
+        isMe ? "bg-primary-foreground/20 text-white" : "bg-primary/10 text-primary"
+      )}>
+        📄
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="text-[11.5px] font-bold truncate" title={fileName}>{fileName}</div>
+        <div className={cn("text-[9px] font-semibold mt-0.5", isMe ? "text-primary-foreground/75" : "text-muted-foreground")}>
+          {fileSize}
+        </div>
+      </div>
+      <a 
+        href={getDownloadUrl(fileUrl)} 
+        target="_blank" 
+        rel="noopener noreferrer"
+        className={cn(
+          "px-3 py-1 rounded-full text-[10px] font-extrabold shadow-sm active:scale-95 transition-all flex items-center gap-0.5 flex-shrink-0",
+          isMe 
+            ? "bg-white text-primary hover:bg-white/95" 
+            : "bg-primary text-white hover:opacity-95"
+        )}
+      >
+        Download
+      </a>
+    </div>
+  );
+}
+
+function MessageContent({ text, isMe }: { text: string; isMe: boolean }) {
+  const linkRegex = /\[(.*?)\]\((.*?)\)/g;
+  const parts = [];
+  let lastIndex = 0;
+  let match;
+
+  while ((match = linkRegex.exec(text)) !== null) {
+    const matchIndex = match.index;
+    if (matchIndex > lastIndex) {
+      parts.push(<span key={`text-${lastIndex}`}>{text.substring(lastIndex, matchIndex)}</span>);
+    }
+
+    const label = match[1];
+    const url = match[2];
+
+    if (label.startsWith("Attached CV:") || label.toLowerCase().endsWith(".pdf") || label.toLowerCase().endsWith(".doc") || label.toLowerCase().endsWith(".docx")) {
+      const cleanName = label.replace("Attached CV:", "").trim();
+      parts.push(
+        <FileAttachment 
+          key={`file-${matchIndex}`} 
+          fileName={cleanName} 
+          fileUrl={url} 
+          isMe={isMe}
+        />
+      );
+    } else {
+      const isInternal = url.startsWith("/") || url.startsWith(window.location.origin);
+      const toPath = isInternal ? url.replace(window.location.origin, "") : url;
+      
+      parts.push(
+        isInternal ? (
+          <Link 
+            key={`link-${matchIndex}`} 
+            to={toPath} 
+            className={cn("underline font-extrabold transition-all hover:opacity-85", isMe ? "text-white" : "text-primary")}
+          >
+            {label}
+          </Link>
+        ) : (
+          <a 
+            key={`link-${matchIndex}`} 
+            href={url} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className={cn("underline font-extrabold transition-all hover:opacity-85", isMe ? "text-white" : "text-primary")}
+          >
+            {label}
+          </a>
+        )
+      );
+    }
+
+    lastIndex = linkRegex.lastIndex;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push(<span key={`text-${lastIndex}`}>{text.substring(lastIndex)}</span>);
+  }
+
+  return parts.length > 0 ? <div className="space-y-1">{parts}</div> : <div>{text}</div>;
+}
+
 export default function MessagesPage() {
   const { user } = useAuthStore();
   const qc = useQueryClient();
@@ -58,6 +161,38 @@ export default function MessagesPage() {
   const fileInputRef               = useRef<HTMLInputElement>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [contextCollapsed, setContextCollapsed] = useState(false);
+  const [showTemplates, setShowTemplates] = useState(false);
+
+  const templates = user?.role === "EMPLOYER" ? [
+    { label: "Request Screening", text: "Hi! Thanks for applying. I would love to schedule a phone screening with you." },
+    { label: "Invite to Assessment", text: "We've reviewed your CV and would like to invite you for a technical assessment." },
+    { label: "Extend Job Offer", text: "We are pleased to extend a formal job offer! Please check your dashboard to review it." }
+  ] : [
+    { label: "Express Interest", text: "Hi! Thank you for reaching out. I am very interested in this role and look forward to speaking." },
+    { label: "Assessment Done", text: "I have completed the required assessment. Looking forward to your feedback!" },
+    { label: "Accept Offer", text: "Thank you so much. I have accepted the job offer and look forward to onboarding." }
+  ];
+
+  const NEXT_STAGE_MAP: Record<string, { nextStage: string; label: string }> = {
+    APPLIED: { nextStage: "SCREENING", label: "Move to Screening →" },
+    SCREENING: { nextStage: "INTERVIEW", label: "Advance to Interview →" },
+    INTERVIEW: { nextStage: "ASSESSMENT", label: "Advance to Assessment →" },
+    ASSESSMENT: { nextStage: "OFFER", label: "Advance to Offer →" },
+    OFFER: { nextStage: "HIRED", label: "Mark as Hired →" }
+  };
+
+  const updateStatusMut = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: string }) =>
+      apiApplications.updateStatus(id, status),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["threads"] });
+      qc.invalidateQueries({ queryKey: ["thread-messages"] });
+      toast.success("Candidate status updated successfully!");
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to update status");
+    }
+  });
 
   // 1. Fetch threads with 5s real-time poll
   const { data: threadsData, refetch: refetchThreads, isLoading: threadsLoading } = useQuery<any>({
@@ -111,7 +246,8 @@ export default function MessagesPage() {
       unread: unread || 0,
       otherUserId: otherUser?._id || otherUser?.id,
       lastSentAt: t.lastMessage?.sentAt || "",
-      jobId: mappedJob
+      jobId: mappedJob,
+      application: t.application || null
     };
   });
 
@@ -208,7 +344,7 @@ export default function MessagesPage() {
   });
 
   const active  = threads.find((t: Thread) => t.id === activeThread);
-  const matchingApp = appsData?.find((app: any) => app.job?.id === active?.jobId?.id);
+  const matchingApp = active?.application || appsData?.find((app: any) => app.job?.id === active?.jobId?.id);
 
   // Timeago helper
   function formatRelativeTime(dateString: string) {
@@ -361,7 +497,11 @@ export default function MessagesPage() {
                   onClick={() => { setActive(t.id); }}
                   className={cn(
                     "w-full flex items-center gap-3 px-4 py-3.5 border-b border-border/40 text-left transition-all",
-                    t.id === activeThread ? "bg-accent/40 border-l-4 border-primary" : "hover:bg-secondary/20"
+                    t.id === activeThread 
+                      ? "bg-accent/50 border-l-4 border-primary" 
+                      : t.unread > 0
+                        ? "bg-primary/[0.04] border-l-4 border-primary/40 hover:bg-primary/[0.08]"
+                        : "bg-card hover:bg-secondary/20"
                   )}
                 >
                   {t.with.avatarUrl ? (
@@ -379,7 +519,7 @@ export default function MessagesPage() {
                     <div className="flex justify-between items-baseline gap-1">
                       <span className={cn(
                         "text-[12px] truncate",
-                        t.unread > 0 ? "font-extrabold text-foreground" : "font-bold text-foreground/80"
+                        t.unread > 0 ? "font-bold text-foreground" : "font-medium text-foreground/80"
                       )}>
                         {t.with.name}
                       </span>
@@ -391,7 +531,10 @@ export default function MessagesPage() {
                       </span>
                     </div>
                     {t.jobId?.title && (
-                      <div className="text-[10px] font-semibold text-primary/80 truncate mt-0.5">
+                      <div className={cn(
+                        "text-[10px] truncate mt-0.5",
+                        t.unread > 0 ? "font-bold text-primary" : "font-semibold text-primary/80"
+                      )}>
                         {t.jobId.title}
                       </div>
                     )}
@@ -519,17 +662,35 @@ export default function MessagesPage() {
                         </div>
                         <div>
                           <div className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider">Application Status</div>
-                          <div className="mt-1 flex items-center gap-2">
+                          <div className="mt-1 flex items-center gap-2 flex-wrap">
                             <span className={cn(
                               "text-[9px] font-extrabold px-2 py-0.5 rounded-full border shadow-sm capitalize",
                               matchingApp?.stage?.toLowerCase() === 'hired' && "bg-emerald-50 text-emerald-700 border-emerald-200/60",
-                              matchingApp?.stage?.toLowerCase() === 'interview' && "bg-amber-50 text-amber-700 border-amber-200/60",
+                              matchingApp?.stage?.toLowerCase() === 'screening' && "bg-amber-50 text-amber-700 border-amber-200/60",
+                              matchingApp?.stage?.toLowerCase() === 'interview' && "bg-rose-50 text-rose-700 border-rose-200/60",
+                              matchingApp?.stage?.toLowerCase() === 'assessment' && "bg-violet-50 text-violet-750 border-violet-200/60",
                               matchingApp?.stage?.toLowerCase() === 'rejected' && "bg-rose-50 text-rose-700 border-rose-200/60",
-                              matchingApp?.stage?.toLowerCase() === 'offer' && "bg-indigo-50 text-indigo-700 border-indigo-200/60",
+                              matchingApp?.stage?.toLowerCase() === 'offer' && "bg-indigo-50 text-indigo-750 border-indigo-200/60",
                               (!matchingApp || matchingApp?.stage?.toLowerCase() === 'applied') && "bg-blue-50 text-blue-700 border-blue-200/60"
                             )}>
                               {matchingApp?.stage || "Chat Open"}
                             </span>
+                            {user?.role === "EMPLOYER" && matchingApp && NEXT_STAGE_MAP[matchingApp.stage] && (
+                              <button
+                                onClick={() => {
+                                  const nextInfo = NEXT_STAGE_MAP[matchingApp.stage];
+                                  updateStatusMut.mutate({ id: matchingApp.id, status: nextInfo.nextStage });
+                                }}
+                                disabled={updateStatusMut.isPending}
+                                className="text-[10px] font-bold text-primary hover:underline transition-all flex items-center gap-1.5 ml-1 disabled:opacity-65"
+                              >
+                                {updateStatusMut.isPending ? (
+                                  <Loader2 size={10} className="animate-spin" />
+                                ) : (
+                                  NEXT_STAGE_MAP[matchingApp.stage].label
+                                )}
+                              </button>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -564,7 +725,7 @@ export default function MessagesPage() {
                           ? "bg-primary text-primary-foreground rounded-br-sm"
                           : "bg-card text-foreground border border-border rounded-bl-sm"
                       )}>
-                        <div>{msg.text}</div>
+                        <MessageContent text={msg.text} isMe={msg.isMe} />
                         <div className="flex items-center justify-end gap-1 mt-1.5">
                           <span className={cn("text-[8px] font-medium", msg.isMe ? "text-primary-foreground/60" : "text-ink-300")}>
                             {msg.sentAt}
@@ -597,11 +758,11 @@ export default function MessagesPage() {
                         <button
                           type="button"
                           onClick={() => fileInputRef.current?.click()}
-                          className="flex items-center gap-1.5 hover:text-primary transition-all py-1 px-2 hover:bg-secondary/60 rounded-lg text-[10px] font-bold"
-                          title="Attach CV / Portfolio"
+                          className="flex items-center gap-1.5 hover:text-primary transition-all py-1 px-1.5 hover:bg-secondary/60 rounded-lg text-[10px] font-bold"
+                          title="Attach file (PDF, DOC, DOCX)"
                         >
                           <Paperclip size={12} className="rotate-45" />
-                          <span>Attach CV</span>
+                          <span>Attach file</span>
                         </button>
                         <input
                           type="file"
@@ -613,25 +774,60 @@ export default function MessagesPage() {
                       </>
                     )}
 
-                    {/* Share Profile */}
+                    {/* Share profile link */}
                     {user?.role === "CANDIDATE" && (
                       <button
                         type="button"
                         onClick={handleShareProfile}
-                        className="flex items-center gap-1.5 hover:text-primary transition-all py-1 px-2 hover:bg-secondary/60 rounded-lg text-[10px] font-bold"
-                        title="Share my profile link"
+                        className="flex items-center gap-1.5 hover:text-primary transition-all py-1 px-1.5 hover:bg-secondary/60 rounded-lg text-[10px] font-bold"
+                        title="Share profile link"
                       >
                         <LinkIcon size={12} />
-                        <span>Share Profile</span>
+                        <span>Share profile link</span>
                       </button>
                     )}
 
-                    {/* Emoji Picker */}
+                    {/* Template replies */}
                     <div className="relative">
                       <button
                         type="button"
-                        onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                        className="flex items-center gap-1.5 hover:text-primary transition-all py-1 px-2 hover:bg-secondary/60 rounded-lg text-[10px] font-bold"
+                        onClick={() => { setShowTemplates(!showTemplates); setShowEmojiPicker(false); }}
+                        className="flex items-center gap-1.5 hover:text-primary transition-all py-1 px-1.5 hover:bg-secondary/60 rounded-lg text-[10px] font-bold"
+                        title="Use a template reply"
+                      >
+                        <Mail size={12} />
+                        <span>Template replies</span>
+                      </button>
+                      
+                      {showTemplates && (
+                        <div className="absolute bottom-8 left-0 z-50 bg-card border border-border rounded-xl p-2 shadow-xl w-64 flex flex-col gap-1 animate-slide-up text-left">
+                          <div className="px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-ink-300 border-b border-border/50 mb-1">
+                            Select Template
+                          </div>
+                          {templates.map((tpl) => (
+                            <button
+                              key={tpl.label}
+                              type="button"
+                              onClick={() => {
+                                setText(tpl.text);
+                                setShowTemplates(false);
+                              }}
+                              className="text-[10.5px] text-foreground font-bold hover:bg-secondary p-2 rounded-lg text-left transition-all truncate"
+                              title={tpl.text}
+                            >
+                              {tpl.label}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Emoji */}
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => { setShowEmojiPicker(!showEmojiPicker); setShowTemplates(false); }}
+                        className="flex items-center gap-1.5 hover:text-primary transition-all py-1 px-1.5 hover:bg-secondary/60 rounded-lg text-[10px] font-bold"
                         title="Insert Emoji"
                       >
                         <Smile size={12} />

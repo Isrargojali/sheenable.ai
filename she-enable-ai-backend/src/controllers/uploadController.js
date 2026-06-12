@@ -23,7 +23,7 @@ const uploadCvDocument = async (req, res, next) => {
     if (req.user.role !== 'CANDIDATE') return error(res, 'Only candidates can upload CVs', 403);
     if (!req.file) return error(res, 'No file uploaded', 400);
     
-    const cvFileUrl = req.file.path;
+    const cvFileUrl = `${req.protocol}://${req.get('host')}/uploads/cvs/${req.file.filename}`;
     const profile = await CandidateProfile.findOneAndUpdate(
       { userId: req.user.id },
       { cvFileUrl },
