@@ -12,6 +12,7 @@ interface Job {
   id: string;
   title: string;
   description: string;
+  category?: string;
   employer: {
     companyName: string;
   };
@@ -93,21 +94,21 @@ export default function JobsBrowsePage() {
   const [coverLetter, setCoverLetter] = useState("");
   const [resumeUrl, setResumeUrl] = useState("");
 
-  const { data: profile } = useQuery({
+  const { data: profile } = useQuery<any>({
     queryKey: ["candidateProfileForApply"],
     queryFn: () => apiProfile.getMe(),
   });
 
   // Fetch applications list to map applied dates
-  const { data: appsData } = useQuery({
+  const { data: appsData } = useQuery<any>({
     queryKey: ["myApps"],
     queryFn: () => apiApplications.getApplications(),
   });
 
   // Fetch all jobs to compute counts dynamically
-  const { data: allJobsData } = useQuery({
+  const { data: allJobsData } = useQuery<any>({
     queryKey: ["allJobsCounts"],
-    queryFn: () => apiJobs.getJobs({ limit: 100 }),
+    queryFn: () => apiJobs.getJobs({ limit: 105 }),
   });
 
   const applyMutation = useMutation({
@@ -182,8 +183,9 @@ ${candidateName}`;
   });
 
   const save = useMutation({
-    mutationFn: (job: Job) =>
-      job.isSaved ? apiJobs.unsaveJob(job.id) : apiJobs.saveJob(job.id),
+    mutationFn: async (job: Job) => {
+      await apiJobs.saveJob(job.id);
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["jobs"] });
     },
@@ -202,15 +204,19 @@ ${candidateName}`;
         }
         setHasAutoOpened(true);
       } else if (!isLoading) {
-        apiJobs.getJobById(applyJobId).then((fetchedJob: any) => {
-          if (fetchedJob && !fetchedJob.hasApplied) {
-            handleOpenApply(fetchedJob);
+        const fetchRedirectJob = async () => {
+          try {
+            const fetchedJob: any = await apiJobs.getJobById(applyJobId);
+            if (fetchedJob && !fetchedJob.hasApplied) {
+              handleOpenApply(fetchedJob);
+            }
+          } catch (err) {
+            console.error("Error fetching job redirect:", err);
+          } finally {
+            setHasAutoOpened(true);
           }
-        }).catch((err) => {
-          console.error("Error fetching job redirect:", err);
-        }).finally(() => {
-          setHasAutoOpened(true);
-        });
+        };
+        fetchRedirectJob();
       }
     }
   }, [applyJobId, jobs, isLoading, hasAutoOpened]);
