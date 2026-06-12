@@ -89,6 +89,7 @@ export default function ListingsPage() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["myListings"] });
       toast.success("Listing duplicated successfully!");
+      setActiveMenuId(null);
     },
     onError: (err: any) => {
       toast.error(err?.response?.data?.message || "Failed to duplicate job listing");
@@ -235,7 +236,7 @@ export default function ListingsPage() {
   const toggleJobStatus = (id: string, currentStatus: string) => {
     toggleJobStatusMutation.mutate({
       id,
-      status: currentStatus === "ACTIVE" ? "PAUSED" : "ACTIVE"
+      status: currentStatus === "ACTIVE" ? "CLOSED" : "PUBLISHED"
     });
   };
 
@@ -291,11 +292,13 @@ export default function ListingsPage() {
 
   const handleBoostListing = (title: string) => {
     toast.success(`AI Boost activated! Job visibility for "${title}" increased by 40% across feeds.`);
+    setActiveMenuId(null);
   };
 
   // Bulk Handlers
   const handleBulkStatus = (status: string) => {
-    bulkUpdateMutation.mutate({ ids: selectedIds, data: { status } });
+    const backendStatus = status === "ACTIVE" ? "PUBLISHED" : "CLOSED";
+    bulkUpdateMutation.mutate({ ids: selectedIds, data: { status: backendStatus } });
   };
 
   const handleBulkExtend = () => {
@@ -315,7 +318,7 @@ export default function ListingsPage() {
     const loc = (j.location || "").toLowerCase();
     const matchesSearch = title.includes(searchTerm.toLowerCase()) || loc.includes(searchTerm.toLowerCase());
     
-    const jobStatus = j.status || "ACTIVE";
+    const jobStatus = (j.status === "PUBLISHED" || j.status === "ACTIVE") ? "ACTIVE" : "PAUSED";
     const matchesStatus = statusFilter === "ALL" || jobStatus === statusFilter;
     
     const jType = j.jobType || j.type || "FULLTIME";
@@ -487,7 +490,7 @@ export default function ListingsPage() {
                   
                   // Expiry Status
                   const daysLeft = getDaysLeft(j.deadline, j.createdAt);
-                  const jobStatus = j.status || "ACTIVE";
+                  const jobStatus = (j.status === "PUBLISHED" || j.status === "ACTIVE") ? "ACTIVE" : "PAUSED";
                   const statusText = jobStatus === "ACTIVE" ? `Active · ${daysLeft} days left` : "Paused";
                   
                   // Freshness
@@ -656,35 +659,50 @@ export default function ListingsPage() {
                               <div className="fixed inset-0 z-30" onClick={(e) => { e.stopPropagation(); setActiveMenuId(null); }} />
                               <div className="absolute right-0 mt-1.5 w-44 bg-card rounded-2xl border border-border shadow-xl z-40 overflow-hidden animate-fade-in text-left">
                                 <button
-                                  onClick={() => navigate(`/employer/pipeline?jobId=${jId}`)}
+                                  onClick={() => {
+                                    navigate(`/employer/pipeline?jobId=${jId}`);
+                                    setActiveMenuId(null);
+                                  }}
                                   className="w-full text-left px-3.5 py-2 text-[11px] font-semibold text-foreground hover:bg-secondary flex items-center gap-2 transition-colors"
                                 >
                                   <Users size={12} className="text-primary" />
                                   <span>View Pipeline ({currentCount})</span>
                                 </button>
                                 <button
-                                  onClick={() => copyLink(jId)}
+                                  onClick={() => {
+                                    copyLink(jId);
+                                    setActiveMenuId(null);
+                                  }}
                                   className="w-full text-left px-3.5 py-2 text-[11px] font-semibold text-foreground hover:bg-secondary flex items-center gap-2 transition-colors"
                                 >
                                   <Share2 size={12} className="text-emerald-500" />
                                   <span>Copy Share Link</span>
                                 </button>
                                 <button
-                                  onClick={() => handleDuplicateListing(j)}
+                                  onClick={() => {
+                                    handleDuplicateListing(j);
+                                    setActiveMenuId(null);
+                                  }}
                                   className="w-full text-left px-3.5 py-2 text-[11px] font-semibold text-foreground hover:bg-secondary flex items-center gap-2 transition-colors"
                                 >
                                   <Copy size={12} className="text-blue-500" />
                                   <span>Duplicate Listing</span>
                                 </button>
                                 <button
-                                  onClick={() => handleBoostListing(titleCap)}
+                                  onClick={() => {
+                                    handleBoostListing(titleCap);
+                                    setActiveMenuId(null);
+                                  }}
                                   className="w-full text-left px-3.5 py-2 text-[11px] font-semibold text-foreground hover:bg-secondary flex items-center gap-2 transition-colors"
                                 >
                                   <Sparkles size={12} className="text-amber-500" />
                                   <span>AI Boost Listing</span>
                                 </button>
                                 <button
-                                  onClick={() => setAnalyticsJob(j)}
+                                  onClick={() => {
+                                    setAnalyticsJob(j);
+                                    setActiveMenuId(null);
+                                  }}
                                   className="w-full text-left px-3.5 py-2 text-[11px] font-semibold text-foreground hover:bg-secondary flex items-center gap-2 transition-colors"
                                 >
                                   <BarChart2 size={12} className="text-purple-500" />
@@ -693,6 +711,7 @@ export default function ListingsPage() {
                                 <div className="h-px bg-border my-1" />
                                 <button
                                   onClick={() => {
+                                    setActiveMenuId(null);
                                     if (confirm("Are you sure you want to archive this job listing? It will no longer be visible to candidates.")) {
                                       archiveMutation.mutate(jId);
                                     }
@@ -874,7 +893,7 @@ export default function ListingsPage() {
                 <div className="bg-secondary/40 border border-border/50 rounded-2xl p-3.5 text-center">
                   <div className="text-[9px] font-extrabold text-muted-foreground uppercase tracking-wider">Shortlisted</div>
                   <div className="text-xl font-serif font-black text-foreground mt-1 font-sans">
-                    {pipelineLoading ? "..." : (Array.isArray(pipelineData) ? pipelineData.filter((a: any) => a.status === "SHORTLISTED").length : 0)}
+                    {pipelineLoading ? "..." : (pipelineData ? (pipelineData.SCREENING || 0) : 0)}
                   </div>
                 </div>
               </div>
@@ -884,18 +903,17 @@ export default function ListingsPage() {
                 <h4 className="text-[10px] font-bold uppercase tracking-wider text-ink-300">Conversion Funnel</h4>
                 <div className="space-y-2.5">
                   {(() => {
-                    const pipelineList = Array.isArray(pipelineData) ? pipelineData : [];
-                    const shortlistedCount = pipelineList.filter((a: any) => a.status === "SHORTLISTED").length;
-                    const interviewingCount = pipelineList.filter((a: any) => a.status === "INTERVIEWING").length;
-                    const offeredCount = pipelineList.filter((a: any) => a.status === "OFFERED" || a.status === "ACCEPTED").length;
+                    const screeningCount = pipelineData ? (pipelineData.SCREENING || 0) : 0;
+                    const interviewingCount = pipelineData ? (pipelineData.INTERVIEW || 0) : 0;
+                    const offeredCount = pipelineData ? ((pipelineData.OFFER || 0) + (pipelineData.OFFERED || 0) + (pipelineData.HIRED || 0)) : 0;
                     const viewCountVal = analyticsJob.viewCount || 0;
                     const appCountVal = analyticsJob.applicationCount || 0;
 
                     return [
                       { label: "Views", val: viewCountVal, pct: 100, color: "bg-muted-foreground/35" },
                       { label: "Applicants", val: appCountVal, pct: viewCountVal ? Math.round((appCountVal / viewCountVal) * 100) : 0, color: "bg-[#7C3AED]" },
-                      { label: "Shortlisted", val: shortlistedCount, pct: appCountVal ? Math.round((shortlistedCount / appCountVal) * 100) : 0, color: "bg-amber-500" },
-                      { label: "Interviewing", val: interviewingCount, pct: shortlistedCount ? Math.round((interviewingCount / shortlistedCount) * 100) : 0, color: "bg-blue-500" },
+                      { label: "Shortlisted", val: screeningCount, pct: appCountVal ? Math.round((screeningCount / appCountVal) * 100) : 0, color: "bg-amber-500" },
+                      { label: "Interviewing", val: interviewingCount, pct: screeningCount ? Math.round((interviewingCount / screeningCount) * 100) : 0, color: "bg-blue-500" },
                       { label: "Offers Extended", val: offeredCount, pct: interviewingCount ? Math.round((offeredCount / interviewingCount) * 100) : 0, color: "bg-[#C8315A]" }
                     ].map(f => (
                       <div key={f.label} className="space-y-1">
