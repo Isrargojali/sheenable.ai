@@ -8,7 +8,7 @@ import {
   Calendar, Clock, ArrowRight, Loader2
 } from "lucide-react";
 import { DashboardShell, SectionCard, BtnPrimary } from "@/components/layout/DashboardShell";
-import { apiJobs } from "@/lib/api";
+import { apiJobs, apiPipeline } from "@/lib/api";
 import { formatSalary, relativeTime, cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -44,6 +44,13 @@ export default function ListingsPage() {
   const { data: jobs = [] } = useQuery({ 
     queryKey: ["myListings"], 
     queryFn: () => apiJobs.getMyListings() as Promise<any[]>,
+  });
+
+  // Fetch pipeline analytics for selected job in modal
+  const { data: pipelineData, isLoading: pipelineLoading } = useQuery<any>({
+    queryKey: ["jobPipelineAnalytics", analyticsJob?.id || analyticsJob?._id],
+    queryFn: () => apiPipeline.getPipeline(analyticsJob?.id || analyticsJob?._id),
+    enabled: !!analyticsJob,
   });
 
   // Handle click-away to close active dropdown menu
@@ -149,46 +156,74 @@ export default function ListingsPage() {
       .join(" ");
   };
 
-  const getSparklinePoints = (id: string) => {
+  const getSparklinePoints = (id: string, viewCount: number = 0) => {
+    if (viewCount === 0) {
+      return "0,22 9,22 18,22 27,22 36,22 45,22 54,22";
+    }
     const hash = id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0) || 0;
     const points = [];
     for (let i = 0; i < 7; i++) {
-      const y = 22 - ((hash * (i + 2) * 7) % 18);
+      const base = ((hash + i * 17) % 12);
+      const height = Math.min(20, Math.max(2, Math.round(viewCount / 4) + base));
+      const y = 22 - height;
       points.push(`${i * 9},${y}`);
     }
     return points.join(" ");
   };
 
-  const getSalaryBenchmark = (minVal?: number, maxVal?: number) => {
+  const getSalaryBenchmark = (title: string, minVal?: number, maxVal?: number) => {
     const min = minVal || 40000;
     const max = maxVal || 120000;
+    
+    let marketMedian = 120000; 
+    const t = title.toLowerCase();
+    if (t.includes("frontend") || t.includes("react") || t.includes("web")) {
+      marketMedian = 180000;
+    } else if (t.includes("backend") || t.includes("node") || t.includes("systems")) {
+      marketMedian = 217500;
+    } else if (t.includes("ux") || t.includes("ui") || t.includes("design")) {
+      marketMedian = 227500;
+    } else if (t.includes("product manager") || t.includes("pm")) {
+      marketMedian = 245000;
+    } else if (t.includes("data analyst") || t.includes("bi") || t.includes("analytics")) {
+      marketMedian = 140000;
+    } else if (t.includes("hr") || t.includes("recruit") || t.includes("talent")) {
+      marketMedian = 200000;
+    } else if (t.includes("content") || t.includes("writer") || t.includes("copy")) {
+      marketMedian = 130000;
+    }
+
     const scaleMin = 30000;
     const scaleMax = 300000;
     const range = scaleMax - scaleMin;
 
     const left = Math.max(0, Math.min(100, ((min - scaleMin) / range) * 100));
     const width = Math.max(8, Math.min(100 - left, ((max - min) / range) * 100));
-
-    const averageMarket = 120000;
-    const avgPos = ((averageMarket - scaleMin) / range) * 100;
+    
+    const avgPos = ((marketMedian - scaleMin) / range) * 100;
 
     const mid = (min + max) / 2;
     let label = "Avg Match";
     let color = "text-muted-foreground";
-    if (mid > 160000) {
+    if (mid > marketMedian * 1.15) {
       label = "Highly Competitive";
-      color = "text-emerald-600 dark:text-emerald-450";
-    } else if (mid < 70000) {
-      label = "Below Average";
-      color = "text-amber-600 dark:text-amber-450";
+      color = "text-emerald-600 dark:text-emerald-450 bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-100 dark:border-emerald-950/30";
+    } else if (mid < marketMedian * 0.85) {
+      label = "Below Market Avg";
+      color = "text-amber-600 dark:text-amber-450 bg-amber-50/50 dark:bg-amber-950/20 border-amber-100 dark:border-amber-950/30";
+    } else {
+      label = "Market Average Match";
+      color = "text-blue-600 dark:text-blue-450 bg-blue-50/50 dark:bg-blue-950/20 border-blue-100 dark:border-blue-950/30";
     }
 
     return { left, width, avgPos, label, color };
   };
 
-  const getDaysLeft = (id: string) => {
-    const hash = id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0) || 0;
-    return (hash % 25) + 3; 
+  const getDaysLeft = (deadlineStr?: string, createdAtStr?: string) => {
+    const deadline = deadlineStr ? new Date(deadlineStr) : new Date(new Date(createdAtStr || Date.now()).getTime() + 30 * 24 * 60 * 60 * 1000);
+    const diffTime = deadline.getTime() - new Date().getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return Math.max(0, diffDays);
   };
 
   const isFresh = (createdAt: string) => {
@@ -445,13 +480,13 @@ export default function ListingsPage() {
                   const titleCap = formatTitle(j.title);
                   
                   // Sparkline points
-                  const sparkPoints = getSparklinePoints(jId);
+                  const sparkPoints = getSparklinePoints(jId, j.viewCount || 0);
                   
                   // Benchmark calculations
-                  const { left, width, avgPos, label: salaryLabel, color: salaryColor } = getSalaryBenchmark(j.salaryMin, j.salaryMax);
+                  const { left, width, avgPos, label: salaryLabel, color: salaryColor } = getSalaryBenchmark(j.title, j.salaryMin, j.salaryMax);
                   
                   // Expiry Status
-                  const daysLeft = getDaysLeft(jId);
+                  const daysLeft = getDaysLeft(j.deadline, j.createdAt);
                   const jobStatus = j.status || "ACTIVE";
                   const statusText = jobStatus === "ACTIVE" ? `Active · ${daysLeft} days left` : "Paused";
                   
@@ -471,8 +506,7 @@ export default function ListingsPage() {
                   }
                   
                   // Views calculation
-                  const hash = jId.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0) || 0;
-                  const viewsCount = (hash % 40) * 10 + 50;
+                  const viewsCount = j.viewCount || 0;
 
                   return (
                     <div 
@@ -830,7 +864,7 @@ export default function ListingsPage() {
                 <div className="bg-secondary/40 border border-border/50 rounded-2xl p-3.5 text-center">
                   <div className="text-[9px] font-extrabold text-muted-foreground uppercase tracking-wider">7d Views</div>
                   <div className="text-xl font-serif font-black text-foreground mt-1">
-                    {(analyticsJob.id?.split("").reduce((acc: number, c: string) => acc + c.charCodeAt(0), 0) % 40) * 10 + 50}
+                    {analyticsJob.viewCount || 0}
                   </div>
                 </div>
                 <div className="bg-secondary/40 border border-border/50 rounded-2xl p-3.5 text-center">
@@ -838,9 +872,9 @@ export default function ListingsPage() {
                   <div className="text-xl font-serif font-black text-foreground mt-1">{analyticsJob.applicationCount || 0}</div>
                 </div>
                 <div className="bg-secondary/40 border border-border/50 rounded-2xl p-3.5 text-center">
-                  <div className="text-[9px] font-extrabold text-muted-foreground uppercase tracking-wider">Match Rate</div>
+                  <div className="text-[9px] font-extrabold text-muted-foreground uppercase tracking-wider">Shortlisted</div>
                   <div className="text-xl font-serif font-black text-foreground mt-1 font-sans">
-                    {((analyticsJob.id?.split("").reduce((acc: number, c: string) => acc + c.charCodeAt(0), 0) % 20) + 75)}%
+                    {pipelineLoading ? "..." : (Array.isArray(pipelineData) ? pipelineData.filter((a: any) => a.status === "SHORTLISTED").length : 0)}
                   </div>
                 </div>
               </div>
@@ -849,21 +883,32 @@ export default function ListingsPage() {
               <div className="space-y-3">
                 <h4 className="text-[10px] font-bold uppercase tracking-wider text-ink-300">Conversion Funnel</h4>
                 <div className="space-y-2.5">
-                  {[
-                    { label: "Views", val: ((analyticsJob.id?.split("").reduce((acc: number, c: string) => acc + c.charCodeAt(0), 0) % 40) * 10 + 50), pct: 100, color: "bg-muted-foreground/35" },
-                    { label: "AI Matches", val: Math.round(((analyticsJob.id?.split("").reduce((acc: number, c: string) => acc + c.charCodeAt(0), 0) % 40) * 10 + 50) * 0.4), pct: 40, color: "bg-[#7C3AED]" },
-                    { label: "Applicants", val: analyticsJob.applicationCount || 0, pct: Math.round(((analyticsJob.applicationCount || 0) / ((analyticsJob.id?.split("").reduce((acc: number, c: string) => acc + c.charCodeAt(0), 0) % 40) * 10 + 50)) * 100), color: "bg-[#C8315A]" }
-                  ].map(f => (
-                    <div key={f.label} className="space-y-1">
-                      <div className="flex items-center justify-between text-[10px] font-semibold text-muted-foreground">
-                        <span>{f.label}</span>
-                        <span>{f.val} ({isNaN(f.pct) ? 0 : f.pct}%)</span>
+                  {(() => {
+                    const pipelineList = Array.isArray(pipelineData) ? pipelineData : [];
+                    const shortlistedCount = pipelineList.filter((a: any) => a.status === "SHORTLISTED").length;
+                    const interviewingCount = pipelineList.filter((a: any) => a.status === "INTERVIEWING").length;
+                    const offeredCount = pipelineList.filter((a: any) => a.status === "OFFERED" || a.status === "ACCEPTED").length;
+                    const viewCountVal = analyticsJob.viewCount || 0;
+                    const appCountVal = analyticsJob.applicationCount || 0;
+
+                    return [
+                      { label: "Views", val: viewCountVal, pct: 100, color: "bg-muted-foreground/35" },
+                      { label: "Applicants", val: appCountVal, pct: viewCountVal ? Math.round((appCountVal / viewCountVal) * 100) : 0, color: "bg-[#7C3AED]" },
+                      { label: "Shortlisted", val: shortlistedCount, pct: appCountVal ? Math.round((shortlistedCount / appCountVal) * 100) : 0, color: "bg-amber-500" },
+                      { label: "Interviewing", val: interviewingCount, pct: shortlistedCount ? Math.round((interviewingCount / shortlistedCount) * 100) : 0, color: "bg-blue-500" },
+                      { label: "Offers Extended", val: offeredCount, pct: interviewingCount ? Math.round((offeredCount / interviewingCount) * 100) : 0, color: "bg-[#C8315A]" }
+                    ].map(f => (
+                      <div key={f.label} className="space-y-1">
+                        <div className="flex items-center justify-between text-[10px] font-semibold text-muted-foreground">
+                          <span>{f.label}</span>
+                          <span>{f.val} ({pipelineLoading ? "..." : (isNaN(f.pct) ? 0 : f.pct)}%)</span>
+                        </div>
+                        <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden">
+                          <div className={cn("h-full rounded-full", f.color)} style={{ width: `${pipelineLoading ? 5 : Math.max(5, isNaN(f.pct) ? 0 : f.pct)}%` }} />
+                        </div>
                       </div>
-                      <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden">
-                        <div className={cn("h-full rounded-full", f.color)} style={{ width: `${Math.max(5, isNaN(f.pct) ? 0 : f.pct)}%` }} />
-                      </div>
-                    </div>
-                  ))}
+                    ));
+                  })()}
                 </div>
               </div>
             </div>

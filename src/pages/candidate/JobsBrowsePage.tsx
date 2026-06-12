@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
-import { Search, Bookmark, BookmarkCheck, MapPin, Sparkles, AlertCircle, Wand2, X, ArrowRight } from "lucide-react";
+import { Search, Bookmark, BookmarkCheck, MapPin, Sparkles, AlertCircle, Wand2, X, ArrowRight, Eye, Clock, Calendar, Briefcase, DollarSign } from "lucide-react";
 import { DashboardShell, SectionCard, BtnPrimary, BtnOutline } from "@/components/layout/DashboardShell";
 import { apiJobs, apiApplications, apiProfile } from "@/lib/api";
 import { formatSalary, relativeTime, cn } from "@/lib/utils";
@@ -93,6 +93,7 @@ export default function JobsBrowsePage() {
   const [applyingJob, setApplyingJob] = useState<Job | null>(null);
   const [coverLetter, setCoverLetter] = useState("");
   const [resumeUrl, setResumeUrl] = useState("");
+  const [viewingJobDetails, setViewingJobDetails] = useState<Job | null>(null);
 
   const { data: profile } = useQuery<any>({
     queryKey: ["candidateProfileForApply"],
@@ -152,8 +153,23 @@ ${candidateName}`;
   };
 
   const handleOpenApply = (job: Job) => {
+    // Fire the background getJobById call to register views count on apply
+    apiJobs.getJobById(job.id).catch(() => {});
     setApplyingJob(job);
     setResumeUrl((profile as any)?.cvFileUrl || "Persisted AI-Generated CV Document");
+  };
+
+  const handleViewDetails = (job: Job) => {
+    // Open immediately with already loaded data
+    setViewingJobDetails(job);
+    // Background fetch to register views count and update detail fields
+    apiJobs.getJobById(job.id).then((detailedJob: any) => {
+      if (detailedJob) {
+        setViewingJobDetails(detailedJob);
+      }
+    }).catch((err) => {
+      console.error("Error fetching job details for view:", err);
+    });
   };
 
   const { data, isLoading, error } = useQuery({
@@ -399,6 +415,7 @@ ${candidateName}`;
                     onSave={() => save.mutate(job)}
                     onApply={() => handleOpenApply(job)}
                     isLoading={save.isPending}
+                    onClick={() => handleViewDetails(job)}
                   />
                 </motion.div>
               );
@@ -472,6 +489,295 @@ ${candidateName}`;
           </div>
         </div>
       )}
+
+      {/* Job Details Modal */}
+      {viewingJobDetails && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm bg-black/40 animate-in fade-in-50 duration-200">
+          <div className="bg-card border border-border w-full max-w-2xl rounded-2xl shadow-xl relative animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh] overflow-hidden">
+            
+            {/* Header section with cover gradient or background */}
+            <div className="relative p-6 border-b border-border/60 bg-gradient-to-r from-secondary/30 to-secondary/10 flex-shrink-0">
+              <button 
+                onClick={() => setViewingJobDetails(null)}
+                className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors p-1.5 rounded-full hover:bg-secondary/80"
+                aria-label="Close details"
+              >
+                <X size={18} />
+              </button>
+              
+              <div className="flex gap-4 items-start pr-8">
+                <div className={cn(
+                  "w-14 h-14 rounded-2xl flex items-center justify-center text-sm font-black flex-shrink-0 shadow-md bg-gradient-to-br transition-all duration-300",
+                  getCompanyGradient(viewingJobDetails.employer.companyName)
+                )}>
+                  {viewingJobDetails.employer.companyName.slice(0, 2).toUpperCase()}
+                </div>
+                <div className="min-w-0">
+                  <h3 className="font-serif text-xl sm:text-2xl text-foreground font-black capitalize leading-snug">
+                    {viewingJobDetails.title}
+                  </h3>
+                  <div className="text-sm font-bold text-primary mt-1">
+                    {viewingJobDetails.employer.companyName}
+                  </div>
+                  <div className="text-[11px] text-muted-foreground inline-flex items-center gap-1 mt-1 font-semibold bg-secondary/80 px-2 py-0.5 rounded-full border border-border/40">
+                    {viewingJobDetails.location && <><MapPin size={10} className="text-ink-300" /> {viewingJobDetails.location} ·</>} 
+                    <Clock size={10} className="text-ink-300" /> Posted {relativeTime(viewingJobDetails.createdAt)}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Content section (Scrollable) */}
+            <div className="p-6 overflow-y-auto space-y-6 flex-1 text-sm leading-relaxed">
+              
+              {/* Top metadata stats row */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="bg-secondary/20 border border-border/50 rounded-xl p-3 text-center">
+                  <div className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground flex items-center justify-center gap-1 mb-1">
+                    <Briefcase size={11} className="text-primary" /> Job Type
+                  </div>
+                  <div className="text-xs font-black text-foreground capitalize">
+                    {viewingJobDetails.type.toLowerCase().replace("time", "-time")}
+                  </div>
+                </div>
+                
+                <div className="bg-secondary/20 border border-border/50 rounded-xl p-3 text-center">
+                  <div className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground flex items-center justify-center gap-1 mb-1">
+                    <MapPin size={11} className="text-primary" /> Mode
+                  </div>
+                  <div className="text-xs font-black text-foreground capitalize">
+                    {viewingJobDetails.mode.toLowerCase()}
+                  </div>
+                </div>
+
+                <div className="bg-secondary/20 border border-border/50 rounded-xl p-3 text-center col-span-2 sm:col-span-2">
+                  <div className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground flex items-center justify-center gap-1 mb-1">
+                    <DollarSign size={11} className="text-emerald-500" /> Compensation
+                  </div>
+                  <div className="text-xs font-black text-emerald-600 dark:text-emerald-400">
+                    {formatSalary(viewingJobDetails.salaryMin, viewingJobDetails.salaryMax, viewingJobDetails.salaryCurrency || undefined)}
+                  </div>
+                </div>
+              </div>
+
+              {/* AI compatibility / Match score section */}
+              {(() => {
+                // Compute matchScore
+                let score = 50;
+                if (viewingJobDetails.aiScore) {
+                  score = viewingJobDetails.aiScore;
+                } else if (profile) {
+                  // Run same calculations
+                  if (profile.category && viewingJobDetails.category && profile.category.toLowerCase() === viewingJobDetails.category.toLowerCase()) {
+                    score += 15;
+                  }
+                  if (profile.preferredMode && viewingJobDetails.mode && profile.preferredMode.toUpperCase() === viewingJobDetails.mode.toUpperCase()) {
+                    score += 10;
+                  }
+                  if (profile.title && viewingJobDetails.title) {
+                    const candidateTitleWords = profile.title.toLowerCase().split(/\s+/).filter((w: string) => w.length > 2);
+                    const jobTitleWords = viewingJobDetails.title.toLowerCase().split(/\s+/).filter((w: string) => w.length > 2);
+                    const titleOverlap = candidateTitleWords.filter((w: string) => jobTitleWords.some((jw: string) => jw.includes(w) || w.includes(jw)));
+                    if (titleOverlap.length > 0) {
+                      score += 15;
+                    }
+                  }
+                  const candidateSkillsList = (profile.skills as any[]) || [];
+                  if (candidateSkillsList.length > 0 && viewingJobDetails.skills && viewingJobDetails.skills.length > 0) {
+                    const jobSkillsLower = viewingJobDetails.skills.map(s => s.toLowerCase());
+                    let skillMatchCount = 0;
+                    let skillWeightSum = 0;
+                    jobSkillsLower.forEach(js => {
+                      const candidateSkillObj = candidateSkillsList.find(cs => {
+                        const csName = (typeof cs === 'string' ? cs : cs?.name || '').toLowerCase();
+                        return csName.includes(js) || js.includes(csName);
+                      });
+                      if (candidateSkillObj) {
+                        skillMatchCount++;
+                        const level = candidateSkillObj.level || 'intermediate';
+                        if (level === 'expert') skillWeightSum += 1.5;
+                        else if (level === 'advanced') skillWeightSum += 1.25;
+                        else if (level === 'intermediate') skillWeightSum += 1.0;
+                        else skillWeightSum += 0.75;
+                      }
+                    });
+                    if (jobSkillsLower.length > 0) {
+                      const overlapRatio = skillMatchCount / jobSkillsLower.length;
+                      score += Math.round(overlapRatio * 35);
+                      if (skillMatchCount > 0) {
+                        const avgWeight = skillWeightSum / skillMatchCount;
+                        if (avgWeight > 1.1) {
+                          score += 5;
+                        }
+                      }
+                    }
+                  }
+                  if (profile.yearsOfExperience !== undefined && viewingJobDetails.experienceRequired !== undefined) {
+                    if (profile.yearsOfExperience >= viewingJobDetails.experienceRequired) {
+                      score += 10;
+                    } else if (profile.yearsOfExperience + 1 >= viewingJobDetails.experienceRequired) {
+                      score += 5;
+                    }
+                  }
+                  if (viewingJobDetails.isFeatured) {
+                    score += 5;
+                  }
+                  score = Math.max(45, Math.min(score, 99));
+                }
+
+                const matchesWell = score >= 80;
+
+                return (
+                  <div className={cn(
+                    "border rounded-2xl p-4 flex flex-col sm:flex-row gap-4 items-center justify-between shadow-sm relative overflow-hidden",
+                    matchesWell 
+                      ? "bg-emerald-500/5 border-emerald-500/20 text-emerald-950 dark:text-emerald-350"
+                      : "bg-secondary/10 border-border/80 text-foreground"
+                  )}>
+                    {matchesWell && (
+                      <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full translate-x-8 -translate-y-8 flex-shrink-0 pointer-events-none" />
+                    )}
+                    
+                    <div className="flex gap-3 items-center min-w-0 text-center sm:text-left">
+                      <div className={cn(
+                        "w-12 h-12 rounded-full flex items-center justify-center font-black text-sm flex-shrink-0 shadow-sm border-2",
+                        matchesWell 
+                          ? "bg-emerald-500 border-emerald-600 text-white" 
+                          : "bg-secondary border-border text-muted-foreground"
+                      )}>
+                        {score}%
+                      </div>
+                      <div>
+                        <div className="font-extrabold text-sm flex items-center justify-center sm:justify-start gap-1">
+                          {matchesWell ? (
+                            <>
+                              <Sparkles size={14} className="text-emerald-500 animate-pulse" />
+                              Excellent Candidate Compatibility Match!
+                            </>
+                          ) : (
+                            "AI Candidate Alignment Score"
+                          )}
+                        </div>
+                        <div className="text-[11px] text-muted-foreground mt-0.5 font-medium leading-normal">
+                          {matchesWell 
+                            ? "Your profile has high keyword, experience, and skill alignment with this job's criteria."
+                            : "Based on your current CV and profile details, you have moderate alignment with this employer's requirements."
+                          }
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="w-full sm:w-auto flex-shrink-0">
+                      <div className="w-full bg-secondary dark:bg-zinc-800 rounded-full h-2 min-w-[120px] overflow-hidden border border-border/20">
+                        <div 
+                          className={cn("h-full rounded-full transition-all duration-500", matchesWell ? "bg-emerald-500" : "bg-muted-foreground/60")} 
+                          style={{ width: `${score}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Job Description */}
+              <div>
+                <h4 className="text-[11px] font-bold uppercase tracking-wider text-ink-300 mb-2.5">
+                  Job Description & Scope
+                </h4>
+                <div 
+                  className="text-xs text-foreground/90 space-y-3 font-sans max-h-[250px] overflow-y-auto pr-2 border-l-2 border-border/40 pl-3 leading-relaxed whitespace-pre-wrap"
+                >
+                  {viewingJobDetails.description || "No description provided by the employer."}
+                </div>
+              </div>
+
+              {/* Skills required */}
+              <div>
+                <h4 className="text-[11px] font-bold uppercase tracking-wider text-ink-300 mb-2.5">
+                  Key Skills & Qualifications
+                </h4>
+                <div className="flex flex-wrap gap-1.5">
+                  {viewingJobDetails.skills && viewingJobDetails.skills.length > 0 ? (
+                    viewingJobDetails.skills.map((s: string) => {
+                      const candidateHasIt = candidateSkills.includes(s.toLowerCase());
+                      return (
+                        <span 
+                          key={s} 
+                          className={cn(
+                            "text-[10px] px-3 py-1 rounded-full font-bold transition-all border",
+                            candidateHasIt 
+                              ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400" 
+                              : "bg-secondary border-border/40 text-ink-500"
+                          )}
+                          title={candidateHasIt ? "Skill present on your profile ✓" : undefined}
+                        >
+                          {s} {candidateHasIt && "✓"}
+                        </span>
+                      );
+                    })
+                  ) : (
+                    <span className="text-xs text-muted-foreground italic">No specific skills listed.</span>
+                  )}
+                </div>
+              </div>
+
+            </div>
+
+            {/* Footer section with CTAs */}
+            <div className="p-4 border-t border-border bg-secondary/10 flex gap-3 items-center justify-end flex-shrink-0">
+              <button
+                onClick={() => {
+                  save.mutate(viewingJobDetails);
+                  setViewingJobDetails(prev => prev ? { ...prev, isSaved: !prev.isSaved } : null);
+                }}
+                disabled={save.isPending}
+                className={cn(
+                  "px-4 py-2 border rounded-full text-xs font-bold transition-all flex items-center gap-1.5 active:scale-95 disabled:opacity-50",
+                  viewingJobDetails.isSaved 
+                    ? "bg-violet-50 border-violet-200 text-violet-700 dark:bg-violet-950/20 dark:border-violet-900 dark:text-violet-400" 
+                    : "bg-background border-border text-foreground hover:bg-secondary"
+                )}
+              >
+                {viewingJobDetails.isSaved ? (
+                  <>
+                    <BookmarkCheck size={13} className="text-violet-600 fill-violet-600" /> Saved
+                  </>
+                ) : (
+                  <>
+                    <Bookmark size={13} /> Save Job
+                  </>
+                )}
+              </button>
+
+              <BtnOutline 
+                onClick={() => setViewingJobDetails(null)}
+                className="px-4 py-2"
+              >
+                Close
+              </BtnOutline>
+
+              {viewingJobDetails.hasApplied ? (
+                <Link to="/candidate/applications" onClick={() => setViewingJobDetails(null)}>
+                  <BtnPrimary className="px-5 py-2">
+                    View Application
+                  </BtnPrimary>
+                </Link>
+              ) : (
+                <BtnPrimary
+                  onClick={() => {
+                    handleOpenApply(viewingJobDetails);
+                    setViewingJobDetails(null);
+                  }}
+                  className="px-5 py-2 shadow-md"
+                >
+                  Apply Now
+                </BtnPrimary>
+              )}
+            </div>
+
+          </div>
+        </div>
+      )}
     </DashboardShell>
   );
 }
@@ -483,6 +789,7 @@ interface JobCardProps {
   onSave: () => void;
   onApply: () => void;
   isLoading?: boolean;
+  onClick?: () => void;
 }
 
 const getCompanyGradient = (name: string) => {
@@ -532,7 +839,7 @@ const formatJobDescription = (desc: string, skills: string[]) => {
   return cleaned;
 };
 
-function JobCard({ job, profile, appliedDate, onSave, onApply, isLoading }: JobCardProps) {
+function JobCard({ job, profile, appliedDate, onSave, onApply, isLoading, onClick }: JobCardProps) {
   const matchScore = (() => {
     if (job.aiScore) return job.aiScore;
 
@@ -622,8 +929,9 @@ function JobCard({ job, profile, appliedDate, onSave, onApply, isLoading }: JobC
 
   return (
     <article
+      onClick={onClick}
       className={cn(
-        "bg-card border rounded-2xl p-5 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden flex flex-col justify-between group",
+        "bg-card border rounded-2xl p-5 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden flex flex-col justify-between group cursor-pointer",
         hasApplied 
           ? "opacity-80 border-l-4 border-l-emerald-500 hover:opacity-95" 
           : job.isFeatured 
@@ -687,6 +995,7 @@ function JobCard({ job, profile, appliedDate, onSave, onApply, isLoading }: JobC
             <span 
               className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-600 dark:bg-teal-500/20 dark:text-teal-400 inline-flex items-center gap-0.5 border border-teal-500/20 shadow-sm"
               title={appliedDate ? `Applied on ${appliedDate}` : "Applied"}
+              onClick={(e) => e.stopPropagation()}
             >
               ✓ Applied {appliedDate}
             </span>
@@ -759,16 +1068,19 @@ function JobCard({ job, profile, appliedDate, onSave, onApply, isLoading }: JobC
           <Link 
             to="/candidate/applications" 
             className="text-[11px] font-bold text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 flex items-center gap-0.5 transition-colors group/link hover:underline animate-fade-in"
+            onClick={(e) => e.stopPropagation()}
           >
             View status <ArrowRight size={10} className="transform group-hover/link:translate-x-0.5 transition-transform" />
           </Link>
         ) : (
-          <BtnPrimary 
-            onClick={onApply}
-            className="text-xs px-3.5 py-1.5 font-bold shadow-sm"
-          >
-            Apply
-          </BtnPrimary>
+          <div onClick={(e) => e.stopPropagation()}>
+            <BtnPrimary 
+              onClick={onApply}
+              className="text-xs px-3.5 py-1.5 font-bold shadow-sm"
+            >
+              Apply
+            </BtnPrimary>
+          </div>
         )}
       </div>
     </article>

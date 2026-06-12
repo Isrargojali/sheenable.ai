@@ -49,6 +49,7 @@ const mapJobsList = async (jobs, userId = null) => {
       status: job.status,
       experienceRequired: job.experienceRequired || 0,
       aiScore: job.aiScore || (job.matchScore !== undefined ? Math.min(Math.round((job.matchScore / Math.max(job.skillsRequired?.length || 1, 1)) * 40 + 55), 99) : undefined),
+      deadline: job.deadline || new Date(new Date(job.createdAt || Date.now()).getTime() + 30 * 24 * 60 * 60 * 1000),
       createdAt: job.createdAt
     };
   });
