@@ -143,16 +143,33 @@ function useNotificationBadges(role: UserRole) {
   });
   const appsCount = Array.isArray(myAppsData) ? myAppsData.length : 0;
 
+  type ApplicationData = {
+    updatedAt?: string;
+    appliedAt?: string;
+    createdAt?: string;
+    stage?: string;
+    status?: string;
+  };
+  type ListingData = {
+    status?: string;
+    expiresAt?: string;
+    deadline?: string;
+  };
+
   // Employer: ATS pipeline — candidates pending action (stuck >3 days in a stage)
-  const { data: pipelineApps } = useQuery<any[]>({
+  const { data: pipelineApps } = useQuery<unknown, unknown, ApplicationData[]>({
     queryKey: ["pipelineBadge", role],
     queryFn: () => apiApplications.getApplications(),
     refetchInterval: 30000,
     enabled: role === "EMPLOYER",
-    select: (data: any) => {
-      const raw = Array.isArray(data) ? data : (data?.results ?? data?.applications ?? []);
+    select: (data: unknown) => {
+      const raw = Array.isArray(data)
+        ? (data as ApplicationData[])
+        : ((data as { results?: ApplicationData[]; applications?: ApplicationData[] })?.results
+            ?? (data as { results?: ApplicationData[]; applications?: ApplicationData[] })?.applications
+            ?? []);
       const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
-      return raw.filter((a: any) => {
+      return raw.filter((a: ApplicationData) => {
         const updatedAt = a.updatedAt || a.appliedAt || a.createdAt;
         if (!updatedAt) return false;
         const isActionable = !["HIRED", "REJECTED", "OFFER"].includes(a.stage || a.status);
@@ -163,15 +180,19 @@ function useNotificationBadges(role: UserRole) {
   const atsPendingCount = Array.isArray(pipelineApps) ? pipelineApps.length : 0;
 
   // Employer: Listings expiring in ≤7 days
-  const { data: listingsData } = useQuery<any[]>({
+  const { data: listingsData } = useQuery<unknown, unknown, ListingData[]>({
     queryKey: ["listingsBadge", role],
     queryFn: () => apiJobs.getMyListings(),
     refetchInterval: 60000,
     enabled: role === "EMPLOYER",
-    select: (data: any) => {
-      const raw = Array.isArray(data) ? data : (data?.results ?? data?.jobs ?? []);
+    select: (data: unknown) => {
+      const raw = Array.isArray(data)
+        ? (data as ListingData[])
+        : ((data as { results?: ListingData[]; jobs?: ListingData[] })?.results
+            ?? (data as { results?: ListingData[]; jobs?: ListingData[] })?.jobs
+            ?? []);
       const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
-      return raw.filter((j: any) => {
+      return raw.filter((j: ListingData) => {
         if (j.status !== "ACTIVE") return false;
         const expiresAt = j.expiresAt || j.deadline;
         if (!expiresAt) return false;
