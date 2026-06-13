@@ -98,3 +98,33 @@ export function getDownloadUrl(url?: string | null): string {
   }
   return url;
 }
+
+/**
+ * Normalizes a job title to Title Case for consistent display across the platform.
+ * Store the raw value; only call this at render time.
+ * 
+ * Examples:
+ *   "full stack developer"  → "Full Stack Developer"
+ *   "FRONTEND DEVELOPER"    → "Frontend Developer"
+ *   "Senior ui/ux designer" → "Senior UI/UX Designer"
+ */
+export function formatJobTitle(title?: string | null): string {
+  if (!title) return "";
+  // Small/connector words that should stay lowercase (unless first word)
+  const LOWER_WORDS = new Set(["a", "an", "and", "as", "at", "but", "by", "for",
+    "in", "nor", "of", "on", "or", "so", "the", "to", "up", "yet"]);
+  // Known abbreviations that should stay all-caps
+  const UPPER_WORDS = new Set(["ui", "ux", "ai", "ml", "hr", "it", "qa", "api",
+    "ios", "sdk", "cms", "crm", "erp", "vp", "cto", "ceo", "cfo"]);
+
+  return title
+    .toLowerCase()
+    .split(/\s+/)
+    .map((word, idx) => {
+      const clean = word.replace(/[^a-z0-9/]/gi, "").toLowerCase();
+      if (UPPER_WORDS.has(clean)) return word.toUpperCase();
+      if (idx > 0 && LOWER_WORDS.has(clean)) return word.toLowerCase();
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    })
+    .join(" ");
+}

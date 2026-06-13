@@ -5,7 +5,8 @@ import {
   Paperclip, Link as LinkIcon, Smile, ChevronDown, ChevronUp, 
   CheckCheck, Building, Calendar, Mail
 } from "lucide-react";
-import { cn, initials, getCompanyGradient, getDownloadUrl } from "@/lib/utils";
+import { cn, initials, getCompanyGradient } from "@/lib/utils";
+import FileAttachment from "@/components/ui/FileAttachment";
 import { apiMessages, apiApplications, apiAI, apiUpload } from "@/lib/api";
 import { DashboardShell, BtnPrimary } from "@/components/layout/DashboardShell";
 import { useAuthStore } from "@/store/authStore";
@@ -47,45 +48,7 @@ interface Message {
 
 // ────────────────────────────────────────────────────────────────────────────
 
-function FileAttachment({ fileName, fileUrl, isMe }: { fileName: string; fileUrl: string; isMe: boolean }) {
-  const hash = fileName.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0) || 0;
-  const fileSize = `${120 + (hash % 180)} KB`;
-  
-  return (
-    <div className={cn(
-      "flex items-center gap-3 p-3 rounded-2xl border max-w-xs sm:max-w-sm my-1.5 shadow-xs transition-all",
-      isMe 
-        ? "bg-primary-foreground/10 border-primary-foreground/15 text-primary-foreground" 
-        : "bg-secondary/40 border-border text-foreground hover:bg-secondary/60"
-    )}>
-      <div className={cn(
-        "w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-sm",
-        isMe ? "bg-primary-foreground/20 text-white" : "bg-primary/10 text-primary"
-      )}>
-        📄
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="text-[11.5px] font-bold truncate" title={fileName}>{fileName}</div>
-        <div className={cn("text-[9px] font-semibold mt-0.5", isMe ? "text-primary-foreground/75" : "text-muted-foreground")}>
-          {fileSize}
-        </div>
-      </div>
-      <a 
-        href={getDownloadUrl(fileUrl)} 
-        target="_blank" 
-        rel="noopener noreferrer"
-        className={cn(
-          "px-3 py-1 rounded-full text-[10px] font-extrabold shadow-sm active:scale-95 transition-all flex items-center gap-0.5 flex-shrink-0",
-          isMe 
-            ? "bg-white text-primary hover:bg-white/95" 
-            : "bg-primary text-white hover:opacity-95"
-        )}
-      >
-        Download
-      </a>
-    </div>
-  );
-}
+// FileAttachment is now imported from @/components/ui/FileAttachment
 
 function MessageContent({ text, isMe }: { text: string; isMe: boolean }) {
   const linkRegex = /\[(.*?)\]\((.*?)\)/g;

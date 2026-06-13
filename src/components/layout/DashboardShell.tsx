@@ -12,7 +12,7 @@ import logo from "../../assets/sheEnableAI-removebg-preview.png";
 import { cn, initials, relativeTime, getCompanyGradient } from "@/lib/utils";
 import { useAuthStore, UserRole } from "@/store/authStore";
 import { useNotifStore } from "@/store/notifStore";
-import { apiNotifications, apiProfile, apiMessages, apiApplications } from "@/lib/api";
+import { apiNotifications, apiProfile, apiMessages, apiApplications, apiJobs } from "@/lib/api";
 import { toast } from "sonner";
 import { MOCK_USERS } from "@/mock/data";
 
@@ -124,7 +124,7 @@ function useNotificationBadges(role: UserRole) {
   const { data: threadsData } = useQuery<ThreadsQueryData>({
     queryKey: ["threadsBadge", role],
     queryFn: apiMessages.getThreads,
-    refetchInterval: 10000, // Poll threads every 10s for unread badges
+    refetchInterval: 10000,
     enabled: role === "CANDIDATE" || role === "EMPLOYER"
   });
 
@@ -134,17 +134,57 @@ function useNotificationBadges(role: UserRole) {
     0
   );
 
+  // Candidate: my applications count
   const { data: myAppsData } = useQuery<unknown[]>({
     queryKey: ["myAppsBadge", role],
     queryFn: apiApplications.getApplications,
-    refetchInterval: 10000, // Poll applications count every 10s
+    refetchInterval: 10000,
     enabled: role === "CANDIDATE"
   });
-
   const appsCount = Array.isArray(myAppsData) ? myAppsData.length : 0;
 
-  return { unreadMessagesCount, appsCount };
+  // Employer: ATS pipeline — candidates pending action (stuck >3 days in a stage)
+  const { data: pipelineApps } = useQuery<any[]>({
+    queryKey: ["pipelineBadge", role],
+    queryFn: () => apiApplications.getApplications(),
+    refetchInterval: 30000,
+    enabled: role === "EMPLOYER",
+    select: (data: any) => {
+      const raw = Array.isArray(data) ? data : (data?.results ?? data?.applications ?? []);
+      const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
+      return raw.filter((a: any) => {
+        const updatedAt = a.updatedAt || a.appliedAt || a.createdAt;
+        if (!updatedAt) return false;
+        const isActionable = !["HIRED", "REJECTED", "OFFER"].includes(a.stage || a.status);
+        return isActionable && (Date.now() - new Date(updatedAt).getTime()) > THREE_DAYS_MS;
+      });
+    }
+  });
+  const atsPendingCount = Array.isArray(pipelineApps) ? pipelineApps.length : 0;
+
+  // Employer: Listings expiring in ≤7 days
+  const { data: listingsData } = useQuery<any[]>({
+    queryKey: ["listingsBadge", role],
+    queryFn: () => apiJobs.getMyListings(),
+    refetchInterval: 60000,
+    enabled: role === "EMPLOYER",
+    select: (data: any) => {
+      const raw = Array.isArray(data) ? data : (data?.results ?? data?.jobs ?? []);
+      const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+      return raw.filter((j: any) => {
+        if (j.status !== "ACTIVE") return false;
+        const expiresAt = j.expiresAt || j.deadline;
+        if (!expiresAt) return false;
+        const diff = new Date(expiresAt).getTime() - Date.now();
+        return diff > 0 && diff <= SEVEN_DAYS_MS;
+      });
+    }
+  });
+  const expiringListingsCount = Array.isArray(listingsData) ? listingsData.length : 0;
+
+  return { unreadMessagesCount, appsCount, atsPendingCount, expiringListingsCount };
 }
+
 
 function Sidebar({ onNav }: { onNav?: () => void }) {
   const { user, logout } = useAuthStore();
@@ -152,12 +192,17 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
   const role = user?.role ?? "CANDIDATE";
   const groups = NAV[role];
 
-  const { unreadMessagesCount, appsCount } = useNotificationBadges(role);
+  const { unreadMessagesCount, appsCount, atsPendingCount, expiringListingsCount } = useNotificationBadges(role);
 
-  const displayName = user?.firstName && user?.lastName
-    ? `${user.firstName} ${user.lastName}`
-    : user?.email?.split("@")[0] ?? "User";
-  const avatarUrl = user?.avatarUrl ?? null;
+  // For EMPLOYER: use companyName for avatar; fall back to firstName+lastName
+  const displayName = role === "EMPLOYER"
+    ? (user as any)?.companyName || (user?.firstName && user?.lastName
+        ? `${user.firstName} ${user.lastName}`
+        : user?.email?.split("@")[0] ?? "Employer")
+    : (user?.firstName && user?.lastName
+        ? `${user.firstName} ${user.lastName}`
+        : user?.email?.split("@")[0] ?? "User");
+  const avatarUrl = (role === "EMPLOYER" ? (user as any)?.companyLogoUrl : null) || user?.avatarUrl || null;
 
   const [available, setAvailable] = useState(true);
 
@@ -246,12 +291,30 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
             {g.items.map(item => {
               const Icon = item.icon;
 
-              // Dynamic unread count badge override for messages
+              // Dynamic badge overrides per nav item
               let badge = item.badge;
+              let badgeVariant: "primary" | "amber" | "rose" = "primary";
+              let showDot = false;
+
               if (item.to.includes("messages")) {
                 badge = unreadMessagesCount > 0 ? String(unreadMessagesCount) : undefined;
               } else if (item.to.includes("applications") && role === "CANDIDATE") {
                 badge = appsCount > 0 ? String(appsCount) : undefined;
+              } else if (item.to.includes("pipeline") && role === "EMPLOYER") {
+                // Amber badge — candidates awaiting action >3 days
+                if (atsPendingCount > 0) {
+                  badge = String(atsPendingCount);
+                  badgeVariant = "amber";
+                }
+              } else if (item.to.includes("listings") && role === "EMPLOYER") {
+                // Rose badge — listings expiring within 7 days
+                if (expiringListingsCount > 0) {
+                  badge = String(expiringListingsCount);
+                  badgeVariant = "rose";
+                }
+              } else if (item.to.includes("dashboard") && role === "EMPLOYER") {
+                // Pulsing dot — ambient "new AI matches available" awareness
+                showDot = true;
               }
 
               return (
@@ -266,18 +329,26 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
                       : "text-muted-foreground hover:bg-secondary hover:text-foreground"
                   )}
                 >
-                  <Icon size={15} className="flex-shrink-0 opacity-80" />
+                  <div className="relative flex-shrink-0">
+                    <Icon size={15} className="opacity-80" />
+                    {/* Ambient dot for Dashboard */}
+                    {showDot && (
+                      <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-500 animate-pulse ring-2 ring-card" />
+                    )}
+                  </div>
                   <span className="truncate">{item.label}</span>
                   {badge && (
                     <span className="ml-auto flex items-center gap-1.5">
-                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground min-w-[18px] text-center">
+                      <span className={cn(
+                        "text-[9px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center",
+                        badgeVariant === "amber"
+                          ? "bg-amber-500 text-white"
+                          : badgeVariant === "rose"
+                            ? "bg-rose-500 text-white animate-pulse"
+                            : "bg-primary text-primary-foreground"
+                      )}>
                         {badge}
                       </span>
-                      {item.to.includes("applications") && role === "CANDIDATE" && unreadMessagesCount > 0 && (
-                        <span className="text-[8px] font-black px-1.5 py-0.5 rounded-full bg-rose-500 text-white animate-pulse shadow-sm">
-                          NEW
-                        </span>
-                      )}
                     </span>
                   )}
                 </NavLink>
