@@ -102,7 +102,7 @@ const ROLE_LABEL: Record<UserRole, string> = {
 // SIDEBAR
 //
 // Theme helper
-export const applyThemeVars = (themeName: string) => {
+const applyThemeVars = (themeName: string) => {
   const root = document.documentElement;
   const themes: Record<string, { primary: string; ring: string; hcMauve: string }> = {
     lavender: { primary: "317 35% 36%", ring: "317 35% 36%", hcMauve: "#7C3B6E" },
