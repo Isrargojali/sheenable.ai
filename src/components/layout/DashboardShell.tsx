@@ -215,15 +215,18 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
 
   const { unreadMessagesCount, appsCount, atsPendingCount, expiringListingsCount } = useNotificationBadges(role);
 
+  type EmployerProfile = { companyName?: string; companyLogoUrl?: string };
+  const employerProfile = user as EmployerProfile;
+
   // For EMPLOYER: use companyName for avatar; fall back to firstName+lastName
   const displayName = role === "EMPLOYER"
-    ? (user as any)?.companyName || (user?.firstName && user?.lastName
+    ? employerProfile.companyName || (user?.firstName && user?.lastName
         ? `${user.firstName} ${user.lastName}`
         : user?.email?.split("@")[0] ?? "Employer")
     : (user?.firstName && user?.lastName
         ? `${user.firstName} ${user.lastName}`
         : user?.email?.split("@")[0] ?? "User");
-  const avatarUrl = (role === "EMPLOYER" ? (user as any)?.companyLogoUrl : null) || user?.avatarUrl || null;
+  const avatarUrl = (role === "EMPLOYER" ? employerProfile.companyLogoUrl : null) || user?.avatarUrl || null;
 
   const [available, setAvailable] = useState(true);
 
