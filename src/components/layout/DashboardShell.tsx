@@ -166,8 +166,8 @@ function useNotificationBadges(role: UserRole) {
       const raw = Array.isArray(data)
         ? (data as ApplicationData[])
         : ((data as { results?: ApplicationData[]; applications?: ApplicationData[] })?.results
-            ?? (data as { results?: ApplicationData[]; applications?: ApplicationData[] })?.applications
-            ?? []);
+          ?? (data as { results?: ApplicationData[]; applications?: ApplicationData[] })?.applications
+          ?? []);
       const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
       return raw.filter((a: ApplicationData) => {
         const updatedAt = a.updatedAt || a.appliedAt || a.createdAt;
@@ -189,8 +189,8 @@ function useNotificationBadges(role: UserRole) {
       const raw = Array.isArray(data)
         ? (data as ListingData[])
         : ((data as { results?: ListingData[]; jobs?: ListingData[] })?.results
-            ?? (data as { results?: ListingData[]; jobs?: ListingData[] })?.jobs
-            ?? []);
+          ?? (data as { results?: ListingData[]; jobs?: ListingData[] })?.jobs
+          ?? []);
       const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
       return raw.filter((j: ListingData) => {
         if (j.status !== "ACTIVE") return false;
@@ -221,11 +221,11 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
   // For EMPLOYER: use companyName for avatar; fall back to firstName+lastName
   const displayName = role === "EMPLOYER"
     ? employerProfile.companyName || (user?.firstName && user?.lastName
-        ? `${user.firstName} ${user.lastName}`
-        : user?.email?.split("@")[0] ?? "Employer")
+      ? `${user.firstName} ${user.lastName}`
+      : user?.email?.split("@")[0] ?? "Employer")
     : (user?.firstName && user?.lastName
-        ? `${user.firstName} ${user.lastName}`
-        : user?.email?.split("@")[0] ?? "User");
+      ? `${user.firstName} ${user.lastName}`
+      : user?.email?.split("@")[0] ?? "User");
   const avatarUrl = (role === "EMPLOYER" ? employerProfile.companyLogoUrl : null) || user?.avatarUrl || null;
 
   const [available, setAvailable] = useState(true);
