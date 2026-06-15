@@ -1220,3 +1220,4 @@ function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
     </div>
   );
 }
+
