@@ -45,6 +45,24 @@ const getLastChange = async (Model, filter = {}, dateField = 'createdAt') => {
   }
 };
 
+const resolveUserId = async (uuid) => {
+  if (!uuid) return { name: 'System Daemon', email: 'system@sheenable.org', role: 'SYSTEM', avatar: '' };
+  try {
+    const user = await User.findById(uuid).lean();
+    if (!user) return { name: 'System Daemon', email: 'system@sheenable.org', role: 'SYSTEM', avatar: '' };
+    return {
+      _id: user._id,
+      name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email || 'System Daemon',
+      email: user.email || '',
+      role: user.role || 'USER',
+      avatar: user.avatarUrl || ''
+    };
+  } catch (err) {
+    return { name: 'System Daemon', email: 'system@sheenable.org', role: 'SYSTEM', avatar: '' };
+  }
+};
+
+
 const getStats = async (req, res, next) => {
   try {
     const startOfMonth = new Date();
@@ -348,11 +366,11 @@ const getAuditLogs = async (req, res, next) => {
       AuditLog.countDocuments(filter)
     ]);
 
-    const resolvedLogs = logs.map(log => {
+    const resolvedLogs = await Promise.all(logs.map(async (log) => {
       let operator = {
         _id: null,
         name: 'System Daemon',
-        email: null,
+        email: 'system@sheenable.org',
         role: 'SYSTEM'
       };
       if (log.userId && typeof log.userId === 'object') {
@@ -363,19 +381,14 @@ const getAuditLogs = async (req, res, next) => {
           role: log.userId.role || 'USER'
         };
       } else if (log.userId) {
-        operator = {
-          _id: String(log.userId),
-          name: String(log.userId),
-          email: null,
-          role: 'USER'
-        };
+        operator = await resolveUserId(log.userId);
       }
       return {
         ...log,
         userId: operator.name, // String username for backward compatibility
         operator
       };
-    });
+    }));
 
     return paginated(res, resolvedLogs, getPaginationData(total, page, limit));
   } catch (err) { next(err); }
@@ -394,9 +407,28 @@ const getSecurityInfo = async (req, res, next) => {
       User.countDocuments({ createdAt: { $gte: twentyFourHoursAgo } })
     ]);
 
+    const resolvedRecentActions = await Promise.all(recentAdminActions.map(async (log) => {
+      let operator;
+      if (log.userId && typeof log.userId === 'object') {
+        operator = {
+          _id: log.userId._id,
+          name: `${log.userId.firstName || ''} ${log.userId.lastName || ''}`.trim() || log.userId.email || 'System Daemon',
+          email: log.userId.email,
+          role: log.userId.role || 'USER'
+        };
+      } else {
+        operator = await resolveUserId(log.userId);
+      }
+      return {
+        ...log,
+        userId: operator.name,
+        operator
+      };
+    }));
+
     return success(res, {
       suspendedUsers, unverifiedAccounts, recentFailedLogins,
-      accountsLockedToday, recentAdminActions, newUsersLast24h
+      accountsLockedToday, recentAdminActions: resolvedRecentActions, newUsersLast24h
     });
   } catch (err) { next(err); }
 };

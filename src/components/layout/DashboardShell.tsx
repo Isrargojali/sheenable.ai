@@ -5,14 +5,14 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   LayoutDashboard, Briefcase, FileText, User, MessageSquare, FilePlus,
   Search, Users, ShieldCheck, ScrollText, ShieldAlert, UserCog, Activity,
-  Bell, LogOut, Menu, X, Heart, Settings, Loader2, Moon, Sun,
+  Bell, LogOut, Menu, X, Heart, Settings, Loader2, Moon, Sun, ArrowUpRight,
   type LucideIcon,
 } from "lucide-react";
 import logo from "../../assets/sheEnableAI-removebg-preview.png";
 import { cn, initials, relativeTime, getCompanyGradient } from "@/lib/utils";
 import { useAuthStore, UserRole } from "@/store/authStore";
 import { useNotifStore } from "@/store/notifStore";
-import { apiNotifications, apiProfile, apiMessages, apiApplications, apiJobs } from "@/lib/api";
+import { apiNotifications, apiProfile, apiMessages, apiApplications, apiJobs, apiAdmin } from "@/lib/api";
 import { toast } from "sonner";
 import { MOCK_USERS } from "@/mock/data";
 
@@ -215,6 +215,32 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
 
   const { unreadMessagesCount, appsCount, atsPendingCount, expiringListingsCount } = useNotificationBadges(role);
 
+  // Admin badges queries
+  const { data: adminLogs = [] } = useQuery<any[]>({
+    queryKey: ["sidebarAuditLogs"],
+    queryFn: () => apiAdmin.getAuditLogs(),
+    enabled: role === "ADMIN" || role === "SUPER_ADMIN",
+  });
+
+  const { data: secInfo } = useQuery<any>({
+    queryKey: ["sidebarSecurityInfo"],
+    queryFn: () => apiAdmin.getSecurityInfo(),
+    enabled: role === "ADMIN" || role === "SUPER_ADMIN",
+    refetchInterval: 15000,
+  });
+
+  const { data: allUsers = [] } = useQuery<any[]>({
+    queryKey: ["sidebarUsers"],
+    queryFn: () => apiAdmin.getUsers(),
+    enabled: role === "ADMIN" || role === "SUPER_ADMIN",
+  });
+
+  const lastVisitAudit = localStorage.getItem("last-visit-audit") || new Date(0).toISOString();
+  const unseenAuditCount = adminLogs.filter((l: any) => l.createdAt > lastVisitAudit).length;
+  const activeThreats = (secInfo?.recentFailedLogins ?? 0) + (secInfo?.accountsLockedToday ?? 0);
+  const usersToReview = (secInfo?.unverifiedAccounts ?? 0) + (secInfo?.suspendedUsers ?? 0);
+  const pendingAdminRequests = parseInt(localStorage.getItem("admin-requests-pending") || "1", 10);
+
   type EmployerProfile = { companyName?: string; companyLogoUrl?: string };
   const employerProfile = user as EmployerProfile;
 
@@ -339,6 +365,24 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
               } else if (item.to.includes("dashboard") && role === "EMPLOYER") {
                 // Pulsing dot — ambient "new AI matches available" awareness
                 showDot = true;
+              } else if (item.to.includes("/admin/audit") && (role === "ADMIN" || role === "SUPER_ADMIN")) {
+                badge = unseenAuditCount > 0 ? String(unseenAuditCount) : undefined;
+                badgeVariant = "primary";
+              } else if (item.to.includes("/super-admin/threat-monitor") && (role === "ADMIN" || role === "SUPER_ADMIN")) {
+                if (activeThreats > 0) {
+                  badge = String(activeThreats);
+                  badgeVariant = "rose";
+                }
+              } else if (item.to.includes("/admin/users") && (role === "ADMIN" || role === "SUPER_ADMIN")) {
+                if (usersToReview > 0) {
+                  badge = String(usersToReview);
+                  badgeVariant = "amber";
+                }
+              } else if (item.to.includes("/super-admin/manage-admins") && (role === "ADMIN" || role === "SUPER_ADMIN")) {
+                if (pendingAdminRequests > 0) {
+                  badge = String(pendingAdminRequests);
+                  badgeVariant = "amber";
+                }
               }
 
               return (
@@ -415,9 +459,11 @@ type NotificationItem = {
 };
 
 function Topbar({
-  title, subtitle, actions, onMenu, onSettingsClick, showHamburger = true,
-}: { title: string; subtitle?: string; actions?: ReactNode; onMenu: () => void; onSettingsClick?: () => void; showHamburger?: boolean }) {
+  title, subtitle, actions, onMenu, onSettingsClick, onSearchClick, showHamburger = true,
+}: { title: string; subtitle?: string; actions?: ReactNode; onMenu: () => void; onSettingsClick?: () => void; onSearchClick?: () => void; showHamburger?: boolean }) {
   const qc = useQueryClient();
+  const { user } = useAuthStore();
+  const role = user?.role ?? "CANDIDATE";
   const [showNotif, setShowNotif] = useState(false);
 
   const { data: realNotifs } = useQuery<NotificationItem[]>({
@@ -474,6 +520,20 @@ function Topbar({
       <div className="flex items-center gap-2 ml-auto">
         {actions}
 
+        {/* Global Command Palette search input/button */}
+        {(role === "ADMIN" || role === "SUPER_ADMIN") && (
+          <button
+            onClick={onSearchClick}
+            className="hidden md:flex items-center gap-2 px-3.5 py-1.5 bg-secondary hover:bg-ink-100 text-muted-foreground hover:text-foreground text-[11px] font-medium rounded-xl border border-border/80 transition-all cursor-pointer mr-1"
+          >
+            <Search size={12} />
+            <span>Search platform...</span>
+            <kbd className="bg-card px-1.5 py-0.2 rounded border border-border text-[9px] font-mono tracking-widest font-black uppercase text-ink-300 select-none ml-2">
+              ⌘K
+            </kbd>
+          </button>
+        )}
+
         {/* Notifications */}
         <div className="relative">
           <button
@@ -529,6 +589,9 @@ function Topbar({
             </>
           )}
         </div>
+
+        {/* Quick Dark Toggle */}
+        <QuickDarkModeToggle />
 
         <button
           onClick={onSettingsClick}
@@ -589,6 +652,7 @@ export function DashboardShell({
 }: { title: string; subtitle?: string; actions?: ReactNode; children: ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
   const location = useLocation();
 
   // Close mobile drawer on route change
@@ -613,12 +677,8 @@ export function DashboardShell({
 
       // Global Search Shortcut: Ctrl+K or Cmd+K
       if (modifier && e.key.toLowerCase() === "k") {
-        const searchInput = document.getElementById("global-search") as HTMLInputElement | null;
-        if (searchInput) {
-          e.preventDefault();
-          searchInput.focus();
-          searchInput.select();
-        }
+        e.preventDefault();
+        setShowSearch(true);
       }
 
       // Global Save Shortcut: Ctrl+S or Cmd+S
@@ -706,6 +766,7 @@ export function DashboardShell({
           actions={actions}
           onMenu={() => setMobileOpen(true)}
           onSettingsClick={() => setShowSettings(true)}
+          onSearchClick={() => setShowSearch(true)}
           showHamburger={!hasBottomNav}
         />
         {/* Extra bottom padding on mobile to clear the bottom nav bar */}
@@ -790,6 +851,9 @@ export function DashboardShell({
 
       {/* Settings modal */}
       <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
+
+      {/* Command Palette search modal */}
+      <CommandPaletteModal isOpen={showSearch} onClose={() => setShowSearch(false)} />
     </div>
   );
 }
@@ -1214,6 +1278,194 @@ function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
                 </div>
               </div>
             </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── COMPACT DARK MODE TOGGLE ──────────────────────────────────────────────
+function QuickDarkModeToggle() {
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const isDark = document.documentElement.classList.contains("dark");
+    setDarkMode(isDark);
+  }, []);
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      const isDark = document.documentElement.classList.contains("dark");
+      setDarkMode(isDark);
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
+
+  const toggleMode = () => {
+    const next = !darkMode;
+    setDarkMode(next);
+    localStorage.setItem("dashboard-dark-mode", String(next));
+    document.documentElement.classList.toggle("dark", next);
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={toggleMode}
+      aria-label="Toggle dark appearance"
+      className="w-9 h-9 rounded-xl flex items-center justify-center bg-secondary hover:bg-ink-100 text-foreground transition-colors cursor-pointer border-0"
+    >
+      {darkMode ? <Sun size={15} className="text-amber-500" /> : <Moon size={15} />}
+    </button>
+  );
+}
+
+// ─── COMMAND PALETTE SEARCH DIALOG ──────────────────────────────────────────
+interface SearchResult {
+  id: string;
+  title: string;
+  subtitle: string;
+  category: "Users" | "Audit Logs" | "Job Listings" | "Administrators";
+  route: string;
+}
+
+function CommandPaletteModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  const [query, setQuery] = useState("");
+  const navigate = useNavigate();
+
+  const { data: users = [] } = useQuery<any[]>({
+    queryKey: ["commandPaletteUsers"],
+    queryFn: () => apiAdmin.getUsers(),
+    enabled: isOpen,
+  });
+
+  const { data: auditLogs = [] } = useQuery<any[]>({
+    queryKey: ["commandPaletteAudits"],
+    queryFn: () => apiAdmin.getAuditLogs(),
+    enabled: isOpen,
+  });
+
+  const { data: jobs = [] } = useQuery<any[]>({
+    queryKey: ["commandPaletteJobs"],
+    queryFn: () => apiAdmin.getJobs(),
+    enabled: isOpen,
+  });
+
+  useEffect(() => {
+    if (isOpen) {
+      setQuery("");
+    }
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  const results: SearchResult[] = [];
+
+  // Index Users
+  users.forEach((u: any) => {
+    const name = `${u.profile?.firstName || ""} ${u.profile?.lastName || ""}`.trim() || u.email;
+    results.push({
+      id: `user-${u.id || u._id}`,
+      title: name,
+      subtitle: `Role: ${u.role} · ${u.email}`,
+      category: u.role === "ADMIN" || u.role === "SUPER_ADMIN" ? "Administrators" : "Users",
+      route: `/admin/users?search=${encodeURIComponent(u.email)}`,
+    });
+  });
+
+  // Index Audit Logs
+  auditLogs.forEach((l: any) => {
+    results.push({
+      id: `audit-${l.id || l._id}`,
+      title: l.action.replace(/_/g, " "),
+      subtitle: `Operator: ${l.userId || "System"} · ${l.detail}`,
+      category: "Audit Logs",
+      route: `/admin/audit?search=${encodeURIComponent(l.action)}`,
+    });
+  });
+
+  // Index Jobs
+  jobs.forEach((j: any) => {
+    results.push({
+      id: `job-${j.id || j._id}`,
+      title: j.title,
+      subtitle: `Company: ${j.companyName || "Employer"} · Status: ${j.status}`,
+      category: "Job Listings",
+      route: `/employer/listings`,
+    });
+  });
+
+  const filteredResults = results.filter((r) => {
+    const text = `${r.title} ${r.subtitle} ${r.category}`.toLowerCase();
+    return text.includes(query.toLowerCase());
+  });
+
+  const categories = ["Users", "Administrators", "Audit Logs", "Job Listings"] as const;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 bg-foreground/45 backdrop-blur-sm animate-fade-in pt-16">
+      <div className="bg-card w-full max-w-lg rounded-3xl border border-border/85 shadow-2xl overflow-hidden flex flex-col max-h-[70vh] animate-scale-in">
+        <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-secondary/15">
+          <Search size={16} className="text-ink-300" />
+          <input
+            type="text"
+            autoFocus
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search users, audit logs, jobs, or admins..."
+            className="w-full bg-transparent border-0 focus:outline-none focus:ring-0 text-foreground text-xs placeholder:text-ink-300"
+          />
+          <button
+            onClick={onClose}
+            className="text-[9px] font-bold text-muted-foreground hover:text-foreground bg-secondary px-2 py-1 rounded-lg border border-border cursor-pointer"
+          >
+            ESC
+          </button>
+        </div>
+
+        <div className="overflow-y-auto scrollbar-thin p-4 flex-1 space-y-4 max-h-[50vh]">
+          {filteredResults.length === 0 ? (
+            <div className="text-center py-8 text-xs text-muted-foreground">
+              No matching records found.
+            </div>
+          ) : (
+            categories.map((cat) => {
+              const catItems = filteredResults.filter((r) => r.category === cat);
+              if (catItems.length === 0) return null;
+
+              return (
+                <div key={cat} className="space-y-1.5 text-left">
+                  <div className="text-[9px] font-bold uppercase tracking-widest text-ink-300 px-2">
+                    {cat}
+                  </div>
+                  <div className="space-y-1">
+                    {catItems.map((item) => (
+                      <div
+                        key={item.id}
+                        onClick={() => {
+                          navigate(item.route);
+                          onClose();
+                        }}
+                        className="px-3 py-2 hover:bg-secondary/40 rounded-xl cursor-pointer transition-all flex items-center justify-between group"
+                      >
+                        <div>
+                          <div className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
+                            {item.title}
+                          </div>
+                          <div className="text-[10px] text-muted-foreground mt-0.5 font-medium truncate max-w-sm">
+                            {item.subtitle}
+                          </div>
+                        </div>
+                        <ArrowUpRight size={13} className="text-muted-foreground opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all animate-fade-in" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })
           )}
         </div>
       </div>
