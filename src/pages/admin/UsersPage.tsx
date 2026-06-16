@@ -2,8 +2,8 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { 
-  Search, UserCheck, Ban, Sparkles, Loader2, ArrowRight, 
-  MoreVertical, Eye, Edit2, KeyRound, UserCog, ScrollText, Filter
+  Search, UserCheck, Ban, Loader2, MoreVertical,
+  Eye, Edit2, KeyRound, UserCog, ScrollText, X, AlertTriangle, RefreshCw
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { apiAdmin } from "@/lib/api";
@@ -37,6 +37,26 @@ export default function UsersPage() {
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
+  // Confirmation modal state
+  const [confirmModal, setConfirmModal] = useState<{
+    show: boolean;
+    userId: string;
+    userName?: string;
+    title: string;
+    message: string;
+    action: () => void;
+  } | null>(null);
+  const [confirmInput, setConfirmInput] = useState("");
+
+  // Role change modal
+  const [roleModal, setRoleModal] = useState<{
+    show: boolean;
+    userId: string;
+    userName: string;
+    currentRole: string;
+    newRole: string;
+  } | null>(null);
+
   // Sorting state
   const [sortBy, setSortBy] = useState<"name" | "role" | "status" | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
@@ -65,9 +85,10 @@ export default function UsersPage() {
     }
   };
 
-  const { data: users = [] as User[], isLoading } = useQuery<User[]>({ 
+  const { data: rawUsers = [], isLoading } = useQuery<User[]>({ 
     queryKey: ["adminUsers"], 
-    queryFn: apiAdmin.getUsers 
+    queryFn: apiAdmin.getUsers,
+    select: (data: any) => Array.isArray(data) ? data : []
   });
 
   const verifyMut = useMutation({
@@ -97,81 +118,41 @@ export default function UsersPage() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["adminUsers"] });
       toast.success("User status restored successfully!");
+      setConfirmModal(null);
+      setConfirmInput("");
     },
     onError: (err: any) => {
       toast.error(err.response?.data?.message || err.message || "Failed to restore user");
     }
   });
 
-  // Combine fetched users with realistic mock users to populate the layout beautifully
-  const allUsers = [
-    ...(users ?? []).map(u => ({
-      id: u.id,
-      email: u.email,
-      role: u.role,
-      isVerified: u.isVerified,
-      isSuspended: u.isSuspended ?? false,
-      profile: u.profile ?? { 
-        firstName: u.profile?.firstName || u.email.split("@")[0], 
-        lastName: u.profile?.lastName || "", 
-        category: u.profile?.category || "Platform Administration",
-        isAvailable: u.profile?.isAvailable ?? true,
-        availabilityStatus: u.profile?.availabilityStatus || "Offline"
-      }
-    })),
-    ...Array.from({ length: 7 }, (_, i) => {
-      const roles = ["CANDIDATE", "CANDIDATE", "EMPLOYER", "EMPLOYER", "ADMIN", "SUPER_ADMIN", "ADMIN"];
-      const role = roles[i];
-      const emails = [
-        "sara.khan@test.com",
-        "fatima.health@test.com",
-        "maria.design@test.com",
-        "zara.tech@test.com",
-        "hira.edu@test.com",
-        "superadmin@sheenableai.com",
-        "sara.abbasi@atlasbank.pk"
-      ];
-      const firstNames = ["Sara", "Fatima", "Maria", "Zara", "Hira", "Super", "Sara"];
-      const lastNames = ["Khan", "Malik", "Ahmed", "Siddiqui", "Jamil", "Admin", "Abbasi"];
-      const categories = [
-        "Finance", 
-        "Healthcare", 
-        "Design & UX", 
-        "IT & Tech", 
-        "Education", 
-        "Platform Administration", 
-        "Platform Administration"
-      ];
-      
-      let availStatus = "Offline";
-      let isAvail = false;
-      if (role === "CANDIDATE") {
-        availStatus = i % 2 === 0 ? "Available" : "Busy";
-        isAvail = i % 2 === 0;
-      } else if (role === "EMPLOYER") {
-        availStatus = i === 3 ? "Inactive" : "Active";
-        isAvail = i !== 3;
-      } else {
-        availStatus = i === 4 ? "Away" : i === 5 ? "Online" : "Offline";
-        isAvail = availStatus !== "Offline";
-      }
+  const roleMut = useMutation({
+    mutationFn: ({ id, role }: { id: string; role: string }) => apiAdmin.updateUserRole(id, role),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["adminUsers"] });
+      toast.success("User role updated successfully!");
+      setRoleModal(null);
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || err.message || "Failed to update role");
+    }
+  });
 
-      return {
-        id: `mock_${i}`,
-        email: emails[i],
-        role: role,
-        isVerified: i % 2 === 0 || role === "SUPER_ADMIN",
-        isSuspended: i === 3,
-        profile: {
-          firstName: firstNames[i],
-          lastName: lastNames[i],
-          category: categories[i],
-          isAvailable: isAvail,
-          availabilityStatus: availStatus
-        }
-      };
-    })
-  ];
+  // Use only real API users — no mock entries
+  const allUsers: User[] = (rawUsers ?? []).map((u: any) => ({
+    id: u.id || u._id,
+    email: u.email,
+    role: u.role,
+    isVerified: u.isVerified,
+    isSuspended: u.isSuspended ?? !u.isActive ?? false,
+    profile: u.profile ?? { 
+      firstName: u.firstName || u.email?.split("@")[0] || "", 
+      lastName: u.lastName || "", 
+      category: u.profile?.category || "Platform Administration",
+      isAvailable: u.profile?.isAvailable ?? true,
+      availabilityStatus: u.profile?.availabilityStatus || "Offline"
+    }
+  }));
 
   const filtered = allUsers.filter((u: User) => {
     const name = `${u.profile?.firstName ?? ""} ${u.profile?.lastName ?? ""} ${u.email}`.toLowerCase();
@@ -502,10 +483,13 @@ export default function UsersPage() {
                                 <button
                                   onClick={() => {
                                     setActiveDropdown(null);
-                                    const newRole = window.prompt("Enter new role (CANDIDATE, EMPLOYER, ADMIN, SUPER_ADMIN):", u.role);
-                                    if (newRole && ["CANDIDATE", "EMPLOYER", "ADMIN", "SUPER_ADMIN"].includes(newRole.toUpperCase())) {
-                                      toast.success(`Role for ${displayName} updated to ${newRole.toUpperCase()}!`);
-                                    }
+                                    setRoleModal({
+                                      show: true,
+                                      userId: u.id,
+                                      userName: displayName,
+                                      currentRole: u.role,
+                                      newRole: u.role
+                                    });
                                   }}
                                   className="w-full px-3.5 py-2 text-xs text-foreground hover:bg-secondary flex items-center gap-2 font-semibold"
                                 >
@@ -529,14 +513,13 @@ export default function UsersPage() {
                                 <button
                                   onClick={() => {
                                     setActiveDropdown(null);
-                                    const actionStr = u.isSuspended ? "restore" : "suspend";
-                                    if (window.confirm(`Are you sure you want to ${actionStr} the account for ${displayName}?`)) {
-                                      if (u.isSuspended) {
-                                        restoreMut.mutate(u.id);
-                                      } else {
-                                        suspendMut.mutate(u.id);
-                                      }
-                                    }
+                                    setConfirmModal({
+                                      show: true,
+                                      userId: u.id,
+                                      title: u.isSuspended ? "Restore account" : "Suspend account",
+                                      message: `Are you sure you want to ${u.isSuspended ? "restore access for" : "suspend the account for"} ${displayName}?`,
+                                      action: u.isSuspended ? () => restoreMut.mutate(u.id) : () => suspendMut.mutate(u.id)
+                                    });
                                   }}
                                   className={cn(
                                     "w-full px-3.5 py-2 text-xs flex items-center gap-2 font-bold",
@@ -597,6 +580,91 @@ export default function UsersPage() {
           </div>
         )}
       </SectionCard>
+
+      {/* Confirmation Modal for Suspend/Restore */}
+      {confirmModal?.show && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-foreground/50 backdrop-blur-sm animate-fade-in">
+          <div className="bg-card w-full max-w-md rounded-3xl border border-border/80 shadow-2xl overflow-hidden">
+            <header className="px-6 py-4 border-b border-border flex items-center justify-between">
+              <h3 className="font-serif text-sm text-foreground font-bold flex items-center gap-2">
+                <AlertTriangle size={15} className="text-amber-500" />
+                {confirmModal.title}
+              </h3>
+              <button onClick={() => { setConfirmModal(null); setConfirmInput(""); }} className="p-1.5 hover:bg-secondary rounded-full">
+                <X size={14} />
+              </button>
+            </header>
+            <div className="p-6 space-y-4">
+              <p className="text-sm text-muted-foreground">{confirmModal.message}</p>
+              <div className="p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/30 rounded-xl text-xs text-amber-800 dark:text-amber-400 font-medium">
+                This action will immediately affect the user's ability to access the platform.
+              </div>
+              <button
+                onClick={() => {
+                  confirmModal.action();
+                  setConfirmModal(null);
+                  setConfirmInput("");
+                }}
+                disabled={suspendMut.isPending || restoreMut.isPending}
+                className="w-full py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition-all disabled:opacity-60 flex items-center justify-center gap-2"
+              >
+                {(suspendMut.isPending || restoreMut.isPending) ? <Loader2 size={13} className="animate-spin" /> : null}
+                Confirm action
+              </button>
+              <button
+                onClick={() => { setConfirmModal(null); setConfirmInput(""); }}
+                className="w-full py-2 text-xs text-muted-foreground hover:text-foreground transition-all"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Role Change Modal */}
+      {roleModal?.show && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-foreground/50 backdrop-blur-sm animate-fade-in">
+          <div className="bg-card w-full max-w-sm rounded-3xl border border-border/80 shadow-2xl overflow-hidden">
+            <header className="px-6 py-4 border-b border-border flex items-center justify-between">
+              <h3 className="font-serif text-sm text-foreground font-bold flex items-center gap-2">
+                <UserCog size={15} className="text-primary" />
+                Change Role: {roleModal.userName}
+              </h3>
+              <button onClick={() => setRoleModal(null)} className="p-1.5 hover:bg-secondary rounded-full">
+                <X size={14} />
+              </button>
+            </header>
+            <div className="p-6 space-y-4">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-ink-400 uppercase tracking-wider block">Current Role</label>
+                <span className="inline-block text-[10px] font-bold px-2.5 py-0.5 rounded-full border bg-secondary text-foreground border-border">{roleModal.currentRole}</span>
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-ink-400 uppercase tracking-wider block">New Role</label>
+                <select
+                  value={roleModal.newRole}
+                  onChange={e => setRoleModal(prev => prev ? { ...prev, newRole: e.target.value } : null)}
+                  className="w-full px-3 py-2.5 bg-card border border-border rounded-xl text-xs font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+                >
+                  {["CANDIDATE", "EMPLOYER", "ADMIN", "SUPER_ADMIN"].map(r => (
+                    <option key={r} value={r}>{r}</option>
+                  ))}
+                </select>
+              </div>
+              <button
+                onClick={() => roleMut.mutate({ id: roleModal.userId, role: roleModal.newRole })}
+                disabled={roleMut.isPending || roleModal.newRole === roleModal.currentRole}
+                className="w-full py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl text-xs font-bold transition-all disabled:opacity-60 flex items-center justify-center gap-2"
+              >
+                {roleMut.isPending ? <Loader2 size={13} className="animate-spin" /> : <RefreshCw size={13} />}
+                Update Role
+              </button>
+              <button onClick={() => setRoleModal(null)} className="w-full py-2 text-xs text-muted-foreground hover:text-foreground transition-all">Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardShell>
   );
 }

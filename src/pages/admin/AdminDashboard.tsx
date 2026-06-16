@@ -224,42 +224,39 @@ export default function AdminDashboard() {
 
   const { data: logsData = [] } = useQuery<any[]>({
     queryKey: ["auditLog"],
-    queryFn: apiAdmin.getAuditLogs
+    queryFn: () => apiAdmin.getAuditLogs({ limit: 50 }),
+    select: (data: any) => Array.isArray(data) ? data : []
   });
 
-  const activeAdmins = [
-    { name: "Ayesha Khan", role: "SUPER_ADMIN", ip: "192.168.1.100", active: "Now", avatarInitials: "AK" },
-    { name: "Sara Ahmed", role: "ADMIN", ip: "192.168.1.105", active: "12m ago", avatarInitials: "SA" },
-    { name: "System Daemon", role: "ADMIN", ip: "127.0.0.1", active: "Now", avatarInitials: "SD" }
-  ];
+  const { data: usersData } = useQuery<any>({
+    queryKey: ["adminUsers"],
+    queryFn: () => apiAdmin.getUsers({ role: 'ADMIN', limit: 20 }),
+    select: (data: any) => Array.isArray(data) ? data : []
+  });
 
-  const humanAdmins = activeAdmins.filter(adm => adm.name !== "System Daemon");
-  const systemProcesses = activeAdmins.filter(adm => adm.name === "System Daemon");
+  // Use only real admin users for active sessions widget
+  const adminUsers: any[] = Array.isArray(usersData) ? usersData : [];
+  const humanAdmins = adminUsers
+    .filter((u: any) => u.role === 'ADMIN' || u.role === 'SUPER_ADMIN')
+    .slice(0, 4)
+    .map((u: any) => ({
+      name: `${u.profile?.firstName || u.firstName || ''} ${u.profile?.lastName || u.lastName || ''}`.trim() || u.email?.split('@')[0] || 'Admin',
+      role: u.role,
+      ip: '—',
+      active: u.profile?.availabilityStatus === 'Online' ? 'Now' : u.profile?.availabilityStatus === 'Away' ? 'Recently' : 'Offline',
+      avatarInitials: ((u.profile?.firstName || u.firstName || u.email || '')[0] || '').toUpperCase() + ((u.profile?.lastName || u.lastName || '')[0] || '').toUpperCase() || 'AD'
+    }));
 
-  // Dynamic audit logs merge for realistic entries list
-  const allLogs = [
-    ...(logsData ?? []).map(l => ({
-      id: l._id || l.id,
-      action: l.action,
-      userId: l.userId,
-      detail: l.detail,
-      createdAt: l.createdAt
-    })),
-    ...Array.from({ length: 6 }, (_, i) => ({
-      id: `ext_${i}`, 
-      action: ["LOGIN_SUCCESS", "ROLE_CHANGED", "JOB_POSTED", "BRUTE_FORCE_BLOCK", "RATE_LIMIT", "USER_SUSPENDED"][i % 6],
-      userId: ["Ayesha Khan", "Sara Ahmed", "TechFlow Inc.", "System Protection Daemon", "Fatima Malik", "Zainab Siddiqui"][i % 6],
-      detail: [
-        "role=candidate ip=127.0.0.1 browser=Chrome",
-        "role_updated target=EMPLOYER supervisor=SUPER_ADMIN",
-        "jobId=job_99a title='Staff React Developer'",
-        "ip=198.51.100.44 count=45 hits/min",
-        "ip=203.0.113.88 attempts=5 threshold_exceeded",
-        "account_status=SUSPENDED reason='violating guidelines'"
-      ][i % 6],
-      createdAt: new Date(Date.now() - (i + 1) * 20 * 60000).toISOString(),
-    }))
-  ];
+  const systemProcesses = [{ name: "System Daemon", role: "ADMIN", ip: "127.0.0.1", active: "Now", avatarInitials: "SD" }];
+
+  // Use only real audit log data
+  const allLogs = (logsData ?? []).map((l: any) => ({
+    id: l.id || l._id,
+    action: l.action,
+    userId: l.operator?.name || l.userId || 'System',
+    detail: l.detail || '',
+    createdAt: l.createdAt
+  }));
 
   // Quicklinks structure with live mini-stats
   const quickLinks = [

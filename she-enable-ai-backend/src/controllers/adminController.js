@@ -7,15 +7,23 @@ const EmployerProfile = require('../models/EmployerProfile');
 const { success, error, paginated } = require('../utils/apiResponse');
 const { getPaginationParams, getPaginationData } = require('../utils/paginate');
 
-const logAudit = async (action, resourceType, resourceId, req) => {
+const logAudit = async (action, resourceType, resourceId, req, extraMeta = {}) => {
   try {
     await AuditLog.create({
       userId: req.user._id,
       action,
       resourceType,
       resourceId,
-      ipAddress: req.ip,
-      userAgent: req.headers['user-agent']
+      ipAddress: req.ip || req.connection?.remoteAddress || '0.0.0.0',
+      userAgent: req.headers['user-agent'] || '',
+      changes: {
+        resourceId: resourceId?.toString(),
+        resourceType,
+        ip: req.ip || req.connection?.remoteAddress || '0.0.0.0',
+        userAgent: req.headers['user-agent'] || '',
+        ...extraMeta
+      },
+      status: 'SUCCESS'
     });
   } catch (err) { console.error('AuditLog error:', err.message); }
 };
@@ -209,6 +217,7 @@ const getUsers = async (req, res, next) => {
     ]);
 
     const enrichedUsers = await Promise.all(users.map(async (u) => {
+      // Normalize _id -> id for frontend
       let professionalField = 'Platform Administration';
       let availabilityStatus = 'Offline';
 
@@ -236,6 +245,8 @@ const getUsers = async (req, res, next) => {
 
       return {
         ...u,
+        id: u._id,
+        isSuspended: !u.isActive,
         profile: {
           firstName: u.firstName,
           lastName: u.lastName,
@@ -281,7 +292,14 @@ const updateUserRole = async (req, res, next) => {
     targetUser.role = role;
     await targetUser.save();
 
-    await logAudit('ROLE_CHANGED', 'user', targetUser._id, req);
+    await logAudit('ROLE_CHANGED', 'user', targetUser._id, req, {
+      targetUserId: targetUser._id.toString(),
+      targetName: `${targetUser.firstName || ''} ${targetUser.lastName || ''}`.trim() || targetUser.email,
+      targetEmail: targetUser.email,
+      from_role: oldRole,
+      to_role: role,
+      supervisor: req.user.role
+    });
 
     return success(res, targetUser);
   } catch (err) { next(err); }
@@ -305,12 +323,23 @@ const updateUserStatus = async (req, res, next) => {
 
     if (typeof isActive === 'boolean') {
       targetUser.isActive = isActive;
-      await logAudit(isActive ? 'USER_ACTIVATED' : 'USER_SUSPENDED', 'user', targetUser._id, req);
+      await logAudit(isActive ? 'USER_ACTIVATED' : 'USER_SUSPENDED', 'user', targetUser._id, req, {
+        targetUserId: targetUser._id.toString(),
+        targetName: `${targetUser.firstName || ''} ${targetUser.lastName || ''}`.trim() || targetUser.email,
+        targetEmail: targetUser.email,
+        targetRole: targetUser.role,
+        action: isActive ? 'ACTIVATED' : 'SUSPENDED'
+      });
     }
 
     if (typeof isVerified === 'boolean') {
       targetUser.isVerified = isVerified;
-      await logAudit(isVerified ? 'USER_VERIFIED' : 'USER_UNVERIFIED', 'user', targetUser._id, req);
+      await logAudit(isVerified ? 'USER_VERIFIED' : 'USER_UNVERIFIED', 'user', targetUser._id, req, {
+        targetUserId: targetUser._id.toString(),
+        targetName: `${targetUser.firstName || ''} ${targetUser.lastName || ''}`.trim() || targetUser.email,
+        targetEmail: targetUser.email,
+        method: 'MANUAL'
+      });
     }
 
     await targetUser.save();
@@ -358,7 +387,7 @@ const getAuditLogs = async (req, res, next) => {
 
     const [logs, total] = await Promise.all([
       AuditLog.find(filter)
-        .populate('userId', 'firstName lastName email role')
+        .populate('userId', 'firstName lastName email role avatarUrl')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
@@ -371,20 +400,55 @@ const getAuditLogs = async (req, res, next) => {
         _id: null,
         name: 'System Daemon',
         email: 'system@sheenable.org',
-        role: 'SYSTEM'
+        role: 'SYSTEM',
+        avatar: ''
       };
       if (log.userId && typeof log.userId === 'object') {
         operator = {
           _id: log.userId._id,
           name: `${log.userId.firstName || ''} ${log.userId.lastName || ''}`.trim() || log.userId.email || 'System Daemon',
-          email: log.userId.email,
-          role: log.userId.role || 'USER'
+          email: log.userId.email || '',
+          role: log.userId.role || 'USER',
+          avatar: log.userId.avatarUrl || ''
         };
       } else if (log.userId) {
         operator = await resolveUserId(log.userId);
       }
+
+      // Build detail string from changes + ipAddress for frontend compatibility
+      const changes = log.changes || {};
+      const ip = log.ipAddress || changes.ip || '';
+      const ua = log.userAgent || changes.userAgent || '';
+      const detailParts = [];
+      if (ip) detailParts.push(`ip=${ip}`);
+      if (ua) {
+        const browserMatch = ua.match(/(Chrome|Firefox|Safari|Edge|curl|python|Postman)[^\/]*/i);
+        if (browserMatch) detailParts.push(`browser=${browserMatch[1]}`);
+      }
+      const extraMeta = { ...changes };
+      delete extraMeta.ip;
+      delete extraMeta.userAgent;
+      delete extraMeta.resourceId;
+      delete extraMeta.resourceType;
+      for (const [k, v] of Object.entries(extraMeta)) {
+        if (v !== undefined && v !== null && v !== '') {
+          detailParts.push(`${k}=${typeof v === 'object' ? JSON.stringify(v) : v}`);
+        }
+      }
+      const detail = detailParts.join(' ');
+
       return {
-        ...log,
+        id: log._id,
+        _id: log._id,
+        action: log.action,
+        resourceType: log.resourceType,
+        resourceId: log.resourceId,
+        ipAddress: ip,
+        detail,
+        changes: log.changes,
+        createdAt: log.createdAt,
+        updatedAt: log.updatedAt,
+        status: log.status || 'SUCCESS',
         userId: operator.name, // String username for backward compatibility
         operator
       };

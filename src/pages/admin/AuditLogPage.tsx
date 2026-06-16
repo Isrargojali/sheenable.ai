@@ -29,13 +29,22 @@ const ACTION_TYPES = [
   "All Actions",
   "LOGIN_SUCCESS",
   "LOGIN_FAILED",
+  "LOGOUT",
   "SIGNUP",
+  "USER_REGISTERED",
   "JOB_POSTED",
+  "JOB_UPDATED",
+  "JOB_STATUS_FORCED",
+  "APPLICATION_SUBMITTED",
+  "APPLICATION_STATUS_UPDATE",
   "BRUTE_FORCE_BLOCK",
   "RATE_LIMIT",
   "EMPLOYER_APPROVED",
   "USER_VERIFIED",
+  "USER_UNVERIFIED",
   "USER_SUSPENDED",
+  "USER_ACTIVATED",
+  "USER_DELETED",
   "ROLE_CHANGED"
 ];
 
@@ -84,30 +93,8 @@ function parseMetadata(detail: string): Record<string, string> {
 }
 
 function enrichMetadata(action: string, parsed: Record<string, string>): Record<string, string> {
+  // Only use actual data from the parsed detail — no fake fallbacks
   const result = { ...parsed };
-  if (action === "LOGIN_SUCCESS" || action === "LOGIN_FAILED") {
-    if (!result.role) result.role = parsed.role || "CANDIDATE";
-    if (!result.ip) result.ip = parsed.ip || "192.168.1.101";
-    if (!result.browser) result.browser = parsed.browser || "Chrome";
-    if (!result.device) result.device = parsed.device || "Windows Desktop";
-  } else if (action === "APPLICATION_STATUS_UPDATE" || action === "APPLICATION_SUBMITTED") {
-    if (!result.candidateId) result.candidateId = parsed.candidateId || "6a0dce7222fc527913";
-    if (!result.jobId) result.jobId = parsed.jobId || "job_99a";
-    if (!result.from_status) result.from_status = parsed.from_status || "SUBMITTED";
-    if (!result.to_status) result.to_status = parsed.to_status || "SHORTLISTED";
-    if (!result.actor) result.actor = parsed.actor || "Ayesha Khan";
-  } else if (action === "JOB_UPDATED" || action === "JOB_POSTED") {
-    if (!result.jobId) result.jobId = parsed.jobId || "job_99a";
-    if (!result.changed_fields) result.changed_fields = parsed.changed_fields || "status (DRAFT → ACTIVE)";
-  } else if (action === "ROLE_CHANGED") {
-    if (!result.targetUserId) result.targetUserId = parsed.targetUserId || "6a0dce7222fc527913";
-    if (!result.target) result.target = parsed.target || "EMPLOYER";
-    if (!result.supervisor) result.supervisor = parsed.supervisor || "SUPER_ADMIN";
-  } else if (action === "USER_SUSPENDED") {
-    if (!result.targetUserId) result.targetUserId = parsed.targetUserId || "6a0dce7222fc527913";
-    if (!result.reason) result.reason = parsed.reason || "guidelines infraction";
-  }
-  
   if (Object.keys(result).length === 0) {
     result["status"] = "RECORDED";
   }
@@ -271,55 +258,34 @@ export default function AuditLogPage() {
     setSearchParams(searchParams);
   };
 
-  const { data: logs = [] } = useQuery<AuditLogEntry[]>({ 
+  const { data: logs = [], isLoading: logsLoading } = useQuery<AuditLogEntry[]>({ 
     queryKey: ["auditLog"], 
-    queryFn: apiAdmin.getAuditLogs 
+    queryFn: () => apiAdmin.getAuditLogs({ limit: 200 }),
+    refetchInterval: 30000,
+    select: (data: any) => {
+      // unwrap returns data field directly from { success, data, pagination }
+      if (Array.isArray(data)) return data;
+      return [];
+    }
   });
 
-  // Expand audit logs with rich detailed mock events for demo completeness
-  const allLogs: AuditLogEntry[] = [
-    ...(logs ?? []).map(l => {
-      const op = (l as any).operator || {
-        _id: "6a0dce7222fc5279132d7b67",
-        name: l.userId || "System Daemon",
-        email: "system@sheenable.org",
-        role: "SYSTEM"
-      };
-      return {
-        id: l.id,
-        action: l.action,
-        userId: op.name,
-        detail: l.detail,
-        createdAt: l.createdAt,
-        operator: op
-      };
-    }),
-    ...[
-      { id: "mock_1", action: "LOGIN_SUCCESS", userId: "Ayesha Khan", role: "CANDIDATE", email: "ayesha@example.com", detail: "role=candidate ip=192.168.1.104 browser=Chrome OS=Windows", createdAt: new Date(Date.now() - 5 * 60000).toISOString() },
-      { id: "mock_2", action: "SIGNUP", userId: "Sara Ahmed", role: "EMPLOYER", email: "sara@example.com", detail: "role=employer ip=192.168.1.105 browser=Safari OS=macOS", createdAt: new Date(Date.now() - 35 * 60000).toISOString() },
-      { id: "mock_3", action: "JOB_POSTED", userId: "TechFlow Inc.", role: "EMPLOYER", email: "jobs@techflow.io", detail: "jobId=job_99a title=\"Staff React Developer\" industry=Tech department=Engineering", createdAt: new Date(Date.now() - 120 * 60000).toISOString() },
-      { id: "mock_4", action: "RATE_LIMIT", userId: "System Protection Daemon", role: "SYSTEM", email: "daemon@sheenable.org", detail: "ip=198.51.100.44 count=45 hits/min route=/api/auth/login", createdAt: new Date(Date.now() - 240 * 60000).toISOString() },
-      { id: "mock_5", action: "BRUTE_FORCE_BLOCK", userId: "System Protection Daemon", role: "SYSTEM", email: "daemon@sheenable.org", detail: "ip=203.0.113.88 attempts=5 username=admin", createdAt: new Date(Date.now() - 360 * 60000).toISOString() },
-      { id: "mock_6", action: "EMPLOYER_APPROVED", userId: "Sara Ahmed", role: "ADMIN", email: "sara@example.com", detail: "employerId=6a0dce7222fc5279132d7b67 status=APPROVED reviewer=Sara", createdAt: new Date(Date.now() - 500 * 60000).toISOString() },
-      { id: "mock_7", action: "ROLE_CHANGED", userId: "Fatima Malik", role: "SUPER_ADMIN", email: "fatima@sheenable.org", detail: "role_updated target=EMPLOYER supervisor=SUPER_ADMIN targetUserId=6a0dce7222fc5279132d7b68", createdAt: new Date(Date.now() - 720 * 60000).toISOString() },
-      { id: "mock_8", action: "USER_SUSPENDED", userId: "Zainab Siddiqui", role: "ADMIN", email: "zainab@sheenable.org", detail: "account_status=SUSPENDED reason=\"violating guidelines\" targetUserId=6a0dce7222fc5279132d7b69", createdAt: new Date(Date.now() - 860 * 60000).toISOString() },
-      { id: "mock_9", action: "USER_VERIFIED", userId: "Sara Ahmed", role: "ADMIN", email: "sara@example.com", detail: "targetUserId=6a0dce7222fc5279132d7b70 status=VERIFIED method=MANUAL", createdAt: new Date(Date.now() - 980 * 60000).toISOString() },
-      { id: "mock_10", action: "LOGIN_FAILED", userId: "Unknown Operator", role: "CANDIDATE", email: "unknown@example.com", detail: "ip=192.168.1.199 reason=\"invalid credentials\" username=hacker", createdAt: new Date(Date.now() - 1100 * 60000).toISOString() },
-      { id: "mock_11", action: "APPLICATION_SUBMITTED", userId: "Ayesha Khan", role: "CANDIDATE", email: "ayesha@example.com", detail: "jobId=job_99a candidateId=6a0dce7222fc5279132d7b71 status=SUBMITTED", createdAt: new Date(Date.now() - 1200 * 60000).toISOString() }
-    ].map(m => ({
-      id: m.id,
-      action: m.action,
-      userId: m.userId,
-      detail: m.detail,
-      createdAt: m.createdAt,
-      operator: {
-        _id: "6a0dce7222fc5279132d7b67",
-        name: m.userId,
-        email: m.email,
-        role: m.role
-      }
-    }))
-  ];
+  // Use only real API data — no mock entries
+  const allLogs: AuditLogEntry[] = (logs ?? []).map((l: any) => {
+    const op = l.operator || {
+      _id: null,
+      name: l.userId || "System Daemon",
+      email: "system@sheenable.org",
+      role: "SYSTEM"
+    };
+    return {
+      id: l.id || l._id,
+      action: l.action,
+      userId: op.name,
+      detail: l.detail || "",
+      createdAt: l.createdAt,
+      operator: op
+    };
+  });
 
   const filtered = allLogs.filter((l: AuditLogEntry) => {
     const meta = parseMetadata(l.detail);
@@ -457,7 +423,7 @@ export default function AuditLogPage() {
           <div className="flex items-center gap-2">
             <ScrollText size={16} className="text-primary animate-pulse" />
             <h3 className="font-serif text-sm text-foreground font-bold">
-              Compliance Ledger Ledger
+              Compliance Ledger
             </h3>
           </div>
           
@@ -499,10 +465,20 @@ export default function AuditLogPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border/60">
-              {filtered.length === 0 ? (
+              {logsLoading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i} className="animate-pulse">
+                    {Array.from({ length: 4 }).map((_, j) => (
+                      <td key={j} className="px-5 py-4">
+                        <div className="h-4 bg-secondary rounded w-24" />
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              ) : filtered.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="px-5 py-12 text-center text-xs text-muted-foreground">
-                    No matching audit entries recorded
+                    {logs.length === 0 ? "No audit entries found in the database yet." : "No matching audit entries for the current filters."}
                   </td>
                 </tr>
               ) : (
