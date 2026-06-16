@@ -2,6 +2,8 @@ const User = require('../models/User');
 const Job = require('../models/Job');
 const Application = require('../models/Application');
 const AuditLog = require('../models/AuditLog');
+const CandidateProfile = require('../models/CandidateProfile');
+const EmployerProfile = require('../models/EmployerProfile');
 const { success, error, paginated } = require('../utils/apiResponse');
 const { getPaginationParams, getPaginationData } = require('../utils/paginate');
 
@@ -188,7 +190,45 @@ const getUsers = async (req, res, next) => {
       User.countDocuments(filter)
     ]);
 
-    return paginated(res, users, getPaginationData(total, page, limit));
+    const enrichedUsers = await Promise.all(users.map(async (u) => {
+      let professionalField = 'Platform Administration';
+      let availabilityStatus = 'Offline';
+
+      if (u.role === 'CANDIDATE') {
+        const profile = await CandidateProfile.findOne({ userId: u._id }).select('category isAvailable').lean();
+        professionalField = profile?.category || 'General Support';
+        availabilityStatus = profile?.isAvailable ? 'Available' : 'Busy';
+      } else if (u.role === 'EMPLOYER') {
+        const profile = await EmployerProfile.findOne({ userId: u._id }).select('industry').lean();
+        professionalField = profile?.industry || 'Services';
+        availabilityStatus = u.isActive ? 'Active' : 'Inactive';
+      } else if (u.role === 'ADMIN' || u.role === 'SUPER_ADMIN') {
+        professionalField = 'Platform Administration';
+        let status = 'Offline';
+        if (u.lastLoginAt) {
+          const diffMins = Math.floor((Date.now() - new Date(u.lastLoginAt).getTime()) / 60000);
+          if (diffMins <= 15) {
+            status = 'Online';
+          } else if (diffMins <= 120) {
+            status = 'Away';
+          }
+        }
+        availabilityStatus = status;
+      }
+
+      return {
+        ...u,
+        profile: {
+          firstName: u.firstName,
+          lastName: u.lastName,
+          category: professionalField,
+          isAvailable: availabilityStatus === 'Available' || availabilityStatus === 'Active' || availabilityStatus === 'Online',
+          availabilityStatus,
+        }
+      };
+    }));
+
+    return paginated(res, enrichedUsers, getPaginationData(total, page, limit));
   } catch (err) { next(err); }
 };
 
