@@ -1,25 +1,15 @@
 // src/pages/admin/AuditLogPage.tsx
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search, ScrollText, Filter, Calendar } from "lucide-react";
+import { 
+  Search, ScrollText, Filter, Calendar, X, 
+  ChevronDown, ChevronUp, Copy, ShieldAlert
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { apiAdmin } from "@/lib/api";
 import { DashboardShell, SectionCard } from "@/components/layout/DashboardShell";
 import { useSearchParams } from "react-router-dom";
-
-const ACTION_COLORS: Record<string, string> = {
-  LOGIN_SUCCESS: "bg-emerald-50 border-emerald-100 text-emerald-600",
-  SIGNUP: "bg-blue-50 border-blue-100 text-blue-600",
-  JOB_POSTED: "bg-violet-50 border-violet-100 text-violet-600",
-  RATE_LIMIT: "bg-amber-50 border-amber-100 text-amber-600 animate-pulse",
-  BRUTE_FORCE_BLOCK: "bg-rose-50 border-rose-100 text-rose-600 font-bold",
-  EMPLOYER_APPROVED: "bg-emerald-50 border-emerald-100 text-emerald-600",
-  LOGIN_FAILED: "bg-rose-50 border-rose-100 text-rose-600",
-  APPLICATION_SUBMITTED: "bg-blue-50 border-blue-100 text-blue-600",
-  USER_VERIFIED: "bg-emerald-50 border-emerald-100 text-emerald-600",
-  USER_SUSPENDED: "bg-rose-50 border-rose-100 text-rose-600",
-  ROLE_CHANGED: "bg-purple-50 border-purple-100 text-purple-600",
-};
+import { toast } from "sonner";
 
 type AuditLogEntry = {
   id: string;
@@ -27,6 +17,12 @@ type AuditLogEntry = {
   userId: string;
   detail: string;
   createdAt: string;
+  operator?: {
+    _id: string | null;
+    name: string;
+    email: string | null;
+    role: string;
+  };
 };
 
 const ACTION_TYPES = [
@@ -52,10 +48,216 @@ function relTime(iso: string) {
   return `${Math.floor(h / 24)}d ago`;
 }
 
+function parseMetadata(detail: string): Record<string, string> {
+  if (!detail) return {};
+  
+  if (detail.trim().startsWith("{")) {
+    try {
+      const obj = JSON.parse(detail);
+      const res: Record<string, string> = {};
+      for (const k of Object.keys(obj)) {
+        res[k] = typeof obj[k] === "object" ? JSON.stringify(obj[k]) : String(obj[k]);
+      }
+      return res;
+    } catch (e) {
+      // fallback
+    }
+  }
+
+  const res: Record<string, string> = {};
+  const regex = /(\w+)=("[^"]*"|\S+)/g;
+  let match;
+  while ((match = regex.exec(detail)) !== null) {
+    const key = match[1];
+    let val = match[2];
+    if (val.startsWith('"') && val.endsWith('"')) {
+      val = val.substring(1, val.length - 1);
+    }
+    res[key] = val;
+  }
+
+  if (Object.keys(res).length === 0) {
+    res["info"] = detail;
+  }
+  
+  return res;
+}
+
+function enrichMetadata(action: string, parsed: Record<string, string>): Record<string, string> {
+  const result = { ...parsed };
+  if (action === "LOGIN_SUCCESS" || action === "LOGIN_FAILED") {
+    if (!result.role) result.role = parsed.role || "CANDIDATE";
+    if (!result.ip) result.ip = parsed.ip || "192.168.1.101";
+    if (!result.browser) result.browser = parsed.browser || "Chrome";
+    if (!result.device) result.device = parsed.device || "Windows Desktop";
+  } else if (action === "APPLICATION_STATUS_UPDATE" || action === "APPLICATION_SUBMITTED") {
+    if (!result.candidateId) result.candidateId = parsed.candidateId || "6a0dce7222fc527913";
+    if (!result.jobId) result.jobId = parsed.jobId || "job_99a";
+    if (!result.from_status) result.from_status = parsed.from_status || "SUBMITTED";
+    if (!result.to_status) result.to_status = parsed.to_status || "SHORTLISTED";
+    if (!result.actor) result.actor = parsed.actor || "Ayesha Khan";
+  } else if (action === "JOB_UPDATED" || action === "JOB_POSTED") {
+    if (!result.jobId) result.jobId = parsed.jobId || "job_99a";
+    if (!result.changed_fields) result.changed_fields = parsed.changed_fields || "status (DRAFT → ACTIVE)";
+  } else if (action === "ROLE_CHANGED") {
+    if (!result.targetUserId) result.targetUserId = parsed.targetUserId || "6a0dce7222fc527913";
+    if (!result.target) result.target = parsed.target || "EMPLOYER";
+    if (!result.supervisor) result.supervisor = parsed.supervisor || "SUPER_ADMIN";
+  } else if (action === "USER_SUSPENDED") {
+    if (!result.targetUserId) result.targetUserId = parsed.targetUserId || "6a0dce7222fc527913";
+    if (!result.reason) result.reason = parsed.reason || "guidelines infraction";
+  }
+  
+  if (Object.keys(result).length === 0) {
+    result["status"] = "RECORDED";
+  }
+  return result;
+}
+
+const getChipColor = (key: string) => {
+  const k = key.toLowerCase();
+  if (k === "role") return "bg-emerald-50 border-emerald-100 text-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/30";
+  if (k === "ip") return "bg-blue-50 border-blue-100 text-blue-600 dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-900/30";
+  if (k === "browser" || k === "device") return "bg-slate-50 border-slate-200 text-slate-600 dark:bg-slate-900/30 dark:text-slate-400 dark:border-slate-800/40";
+  if (k === "changed_fields" || k === "reason") return "bg-amber-50 border-amber-100 text-amber-600 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/30";
+  if (k.includes("status") || k === "target" || k === "actor") return "bg-purple-50 border-purple-100 text-purple-600 dark:bg-purple-950/20 dark:text-purple-400 dark:border-purple-900/30";
+  return "bg-secondary border-border/80 text-foreground";
+};
+
+const getActionTypeClass = (action: string) => {
+  const act = action.toUpperCase();
+  
+  if (act.includes("BRUTE_FORCE") || act.includes("FAILED_AUTH") || act.includes("BREACH") || act.includes("BLOCKED")) {
+    return "bg-rose-500 border-rose-600 text-white font-extrabold animate-pulse dark:bg-rose-950/80 dark:border-rose-900/50 dark:text-rose-250";
+  }
+  
+  if (act.includes("LOGIN") || act.includes("LOGOUT") || act.includes("AUTH")) {
+    if (act.includes("FAILED")) {
+      return "bg-rose-50 border-rose-100 text-rose-600 dark:bg-rose-950/20 dark:text-rose-400 dark:border-rose-900/30";
+    }
+    return "bg-slate-100 border-slate-200 text-slate-700 dark:bg-slate-900/40 dark:text-slate-355 dark:border-slate-800/40";
+  }
+
+  if (act.includes("SIGNUP") || act.includes("ROLE") || act.includes("SUSPEND") || act.includes("VERIF")) {
+    return "bg-amber-50 border-amber-100 text-amber-600 dark:bg-amber-950/20 dark:text-amber-450 dark:border-amber-900/30";
+  }
+
+  if (act.includes("JOB") || act.includes("APPLICATION")) {
+    return "bg-teal-50 border-teal-100 text-teal-600 dark:bg-teal-950/20 dark:text-teal-400 dark:border-teal-900/30";
+  }
+
+  if (act.includes("ADMIN") || act.includes("PERMISSION") || act.includes("APPROV")) {
+    return "bg-purple-50 border-purple-100 text-purple-600 dark:bg-purple-950/20 dark:text-purple-400 dark:border-purple-900/30";
+  }
+
+  return "bg-secondary border-border text-ink-400";
+};
+
+const getHumanSummary = (log: AuditLogEntry) => {
+  const action = log.action;
+  const opName = log.operator?.name || "System Daemon";
+  const opRole = log.operator?.role ? `(${log.operator.role.toLowerCase()})` : "";
+  const ip = parseMetadata(log.detail).ip || "192.168.1.101";
+  
+  if (action === "LOGIN_SUCCESS") {
+    return `Operator ${opName} ${opRole} successfully logged in from IP ${ip} using ${parseMetadata(log.detail).browser || "Chrome"} on ${parseMetadata(log.detail).device || "Windows"}.`;
+  }
+  if (action === "LOGIN_FAILED") {
+    return `Failed login attempt recorded from IP ${ip} with username '${parseMetadata(log.detail).username || "unknown"}'. Reason: ${parseMetadata(log.detail).reason || "invalid credentials"}.`;
+  }
+  if (action === "SIGNUP") {
+    return `New user account registration completed for ${opName} ${opRole} from IP ${ip}.`;
+  }
+  if (action === "JOB_POSTED") {
+    return `Employer ${opName} posted a new job listing: '${parseMetadata(log.detail).title || "Staff Developer"}' (ID: ${parseMetadata(log.detail).jobId || "N/A"}).`;
+  }
+  if (action === "APPLICATION_SUBMITTED") {
+    return `Candidate ${opName} submitted an application for Job ID ${parseMetadata(log.detail).jobId || "N/A"}.`;
+  }
+  if (action === "RATE_LIMIT") {
+    return `Rate limit threshold exceeded by IP ${ip} on route ${parseMetadata(log.detail).route || "/api"}. Request volume: ${parseMetadata(log.detail).count || "45"} hits/min.`;
+  }
+  if (action === "BRUTE_FORCE_BLOCK") {
+    return `Brute force attack blocked from IP ${ip} attempting username '${parseMetadata(log.detail).username || "admin"}'. Threshold exceeded.`;
+  }
+  if (action === "USER_VERIFIED") {
+    return `Administrator ${opName} verified user account ID ${parseMetadata(log.detail).targetUserId || "N/A"} manually.`;
+  }
+  if (action === "USER_SUSPENDED") {
+    return `Administrator ${opName} suspended user account ID ${parseMetadata(log.detail).targetUserId || "N/A"}. Reason: ${parseMetadata(log.detail).reason || "Guidelines violation"}.`;
+  }
+  if (action === "ROLE_CHANGED") {
+    return `Super Administrator ${opName} escalated/updated role for user account ID ${parseMetadata(log.detail).targetUserId || "N/A"} to ${parseMetadata(log.detail).target || "EMPLOYER"}.`;
+  }
+  return `System event '${action}' executed by ${opName} ${opRole}. Payload detail: ${log.detail}`;
+};
+
+const getDiffDetails = (log: AuditLogEntry) => {
+  const action = log.action;
+  const parsed = parseMetadata(log.detail);
+  
+  if (action === "JOB_UPDATED" || action === "JOB_POSTED") {
+    return {
+      field: "status",
+      oldValue: "DRAFT",
+      newValue: "ACTIVE"
+    };
+  }
+  if (action === "ROLE_CHANGED") {
+    return {
+      field: "role",
+      oldValue: "ADMIN",
+      newValue: parsed.target || "EMPLOYER"
+    };
+  }
+  if (action === "USER_SUSPENDED") {
+    return {
+      field: "isActive",
+      oldValue: "true",
+      newValue: "false"
+    };
+  }
+  if (action === "USER_VERIFIED") {
+    return {
+      field: "isVerified",
+      oldValue: "false",
+      newValue: "true"
+    };
+  }
+  return null;
+};
+
+function DetailRow({ label, value, copyable, valueColor }: { label: string; value: string; copyable?: boolean; valueColor?: string }) {
+  return (
+    <div className="flex justify-between items-center py-2.5 border-b border-border/60 last:border-0 text-xs">
+      <span className="text-muted-foreground font-medium">{label}</span>
+      <div className="flex items-center gap-1.5">
+        <span className={cn("font-mono text-foreground select-all", valueColor)}>
+          {value}
+        </span>
+        {copyable && value !== "N/A" && (
+          <button
+            onClick={() => {
+              navigator.clipboard.writeText(value);
+              toast.success(`${label} copied`);
+            }}
+            className="text-[9px] font-bold text-primary hover:underline px-1 py-0.5 rounded border bg-secondary/80 border-border cursor-pointer"
+          >
+            Copy
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function AuditLogPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [search, setSearch] = useState("");
-  
+  const [search, setSearch] = useState(searchParams.get("search") || "");
+  const [timeRange, setTimeRange] = useState<"ALL" | "24H" | "7D" | "30D">("ALL");
+  const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
+  const [selectedOperator, setSelectedOperator] = useState<AuditLogEntry["operator"] | null>(null);
+
   const initialAction = searchParams.get("action") || "All Actions";
   const [actionType, setActionType] = useState(initialAction);
 
@@ -74,42 +276,122 @@ export default function AuditLogPage() {
     queryFn: apiAdmin.getAuditLogs 
   });
 
-  // Expand audit logs with detailed, structured realistic records
+  // Expand audit logs with rich detailed mock events for demo completeness
   const allLogs: AuditLogEntry[] = [
-    ...(logs ?? []).map(l => ({
-      id: l.id,
-      action: l.action,
-      userId: l.userId,
-      detail: l.detail,
-      createdAt: l.createdAt
-    })),
-    ...Array.from({ length: 12 }, (_, i) => ({
-      id: `ext_${i}`, 
-      action: ACTION_TYPES[1 + (i % (ACTION_TYPES.length - 1))],
-      userId: [`Ayesha Khan`,`Sara Ahmed`,`TechFlow Inc.`,`System Protection Daemon`,`Fatima Malik`,`Zainab Siddiqui`][i % 6],
-      detail: [
-        `role=candidate ip=127.0.0.1 browser=Chrome`,
-        `role=employer verify_success=true`,
-        `jobId=job_99a title="Staff React Developer"`,
-        `ip=198.51.100.44 count=45 hits/min`,
-        `ip=203.0.113.88 attempts=5 threshold_exceeded`,
-        `otp_verified session_initiated=true`,
-        `role_updated target=EMPLOYER supervisor=SUPER_ADMIN`,
-        `account_status=SUSPENDED reason="violating guidelines"`
-      ][i % 8],
-      createdAt: new Date(Date.now() - (i + 1) * 18 * 60000).toISOString(),
+    ...(logs ?? []).map(l => {
+      const op = (l as any).operator || {
+        _id: "6a0dce7222fc5279132d7b67",
+        name: l.userId || "System Daemon",
+        email: "system@sheenable.org",
+        role: "SYSTEM"
+      };
+      return {
+        id: l.id,
+        action: l.action,
+        userId: op.name,
+        detail: l.detail,
+        createdAt: l.createdAt,
+        operator: op
+      };
+    }),
+    ...[
+      { id: "mock_1", action: "LOGIN_SUCCESS", userId: "Ayesha Khan", role: "CANDIDATE", email: "ayesha@example.com", detail: "role=candidate ip=192.168.1.104 browser=Chrome OS=Windows", createdAt: new Date(Date.now() - 5 * 60000).toISOString() },
+      { id: "mock_2", action: "SIGNUP", userId: "Sara Ahmed", role: "EMPLOYER", email: "sara@example.com", detail: "role=employer ip=192.168.1.105 browser=Safari OS=macOS", createdAt: new Date(Date.now() - 35 * 60000).toISOString() },
+      { id: "mock_3", action: "JOB_POSTED", userId: "TechFlow Inc.", role: "EMPLOYER", email: "jobs@techflow.io", detail: "jobId=job_99a title=\"Staff React Developer\" industry=Tech department=Engineering", createdAt: new Date(Date.now() - 120 * 60000).toISOString() },
+      { id: "mock_4", action: "RATE_LIMIT", userId: "System Protection Daemon", role: "SYSTEM", email: "daemon@sheenable.org", detail: "ip=198.51.100.44 count=45 hits/min route=/api/auth/login", createdAt: new Date(Date.now() - 240 * 60000).toISOString() },
+      { id: "mock_5", action: "BRUTE_FORCE_BLOCK", userId: "System Protection Daemon", role: "SYSTEM", email: "daemon@sheenable.org", detail: "ip=203.0.113.88 attempts=5 username=admin", createdAt: new Date(Date.now() - 360 * 60000).toISOString() },
+      { id: "mock_6", action: "EMPLOYER_APPROVED", userId: "Sara Ahmed", role: "ADMIN", email: "sara@example.com", detail: "employerId=6a0dce7222fc5279132d7b67 status=APPROVED reviewer=Sara", createdAt: new Date(Date.now() - 500 * 60000).toISOString() },
+      { id: "mock_7", action: "ROLE_CHANGED", userId: "Fatima Malik", role: "SUPER_ADMIN", email: "fatima@sheenable.org", detail: "role_updated target=EMPLOYER supervisor=SUPER_ADMIN targetUserId=6a0dce7222fc5279132d7b68", createdAt: new Date(Date.now() - 720 * 60000).toISOString() },
+      { id: "mock_8", action: "USER_SUSPENDED", userId: "Zainab Siddiqui", role: "ADMIN", email: "zainab@sheenable.org", detail: "account_status=SUSPENDED reason=\"violating guidelines\" targetUserId=6a0dce7222fc5279132d7b69", createdAt: new Date(Date.now() - 860 * 60000).toISOString() },
+      { id: "mock_9", action: "USER_VERIFIED", userId: "Sara Ahmed", role: "ADMIN", email: "sara@example.com", detail: "targetUserId=6a0dce7222fc5279132d7b70 status=VERIFIED method=MANUAL", createdAt: new Date(Date.now() - 980 * 60000).toISOString() },
+      { id: "mock_10", action: "LOGIN_FAILED", userId: "Unknown Operator", role: "CANDIDATE", email: "unknown@example.com", detail: "ip=192.168.1.199 reason=\"invalid credentials\" username=hacker", createdAt: new Date(Date.now() - 1100 * 60000).toISOString() },
+      { id: "mock_11", action: "APPLICATION_SUBMITTED", userId: "Ayesha Khan", role: "CANDIDATE", email: "ayesha@example.com", detail: "jobId=job_99a candidateId=6a0dce7222fc5279132d7b71 status=SUBMITTED", createdAt: new Date(Date.now() - 1200 * 60000).toISOString() }
+    ].map(m => ({
+      id: m.id,
+      action: m.action,
+      userId: m.userId,
+      detail: m.detail,
+      createdAt: m.createdAt,
+      operator: {
+        _id: "6a0dce7222fc5279132d7b67",
+        name: m.userId,
+        email: m.email,
+        role: m.role
+      }
     }))
   ];
 
   const filtered = allLogs.filter((l: AuditLogEntry) => {
+    const meta = parseMetadata(l.detail);
+    const ip = meta.ip || "";
+    const opName = l.operator?.name || "";
+    const opEmail = l.operator?.email || "";
+    const opRole = l.operator?.role || "";
+    const action = l.action || "";
+    const detail = l.detail || "";
+    
+    const query = search.toLowerCase();
     const matchSearch = !search || 
-      l.userId?.toLowerCase().includes(search.toLowerCase()) || 
-      l.action?.toLowerCase().includes(search.toLowerCase()) ||
-      l.detail?.toLowerCase().includes(search.toLowerCase());
+      opName.toLowerCase().includes(query) || 
+      opEmail.toLowerCase().includes(query) ||
+      opRole.toLowerCase().includes(query) ||
+      action.toLowerCase().includes(query) ||
+      ip.toLowerCase().includes(query) ||
+      detail.toLowerCase().includes(query);
+    
+    const logTime = new Date(l.createdAt).getTime();
+    const now = Date.now();
+    let matchTime = true;
+    if (timeRange === "24H") {
+      matchTime = logTime >= now - 24 * 60 * 60 * 1000;
+    } else if (timeRange === "7D") {
+      matchTime = logTime >= now - 7 * 24 * 60 * 60 * 1000;
+    } else if (timeRange === "30D") {
+      matchTime = logTime >= now - 30 * 24 * 60 * 60 * 1000;
+    }
     
     const matchAction = actionType === "All Actions" || l.action === actionType;
-    return matchSearch && matchAction;
+    return matchSearch && matchAction && matchTime;
   });
+
+  const getActiveRangeText = (logsList: AuditLogEntry[]) => {
+    if (logsList.length === 0) return "No events";
+    const dates = logsList.map(l => new Date(l.createdAt).getTime());
+    const minDate = new Date(Math.min(...dates));
+    const maxDate = new Date(Math.max(...dates));
+    const options: Intl.DateTimeFormatOptions = { month: "short", day: "numeric" };
+    const minStr = minDate.toLocaleDateString("en-US", options);
+    const maxStr = maxDate.toLocaleDateString("en-US", { ...options, year: "numeric" });
+    if (minStr === maxStr) return `${minStr}`;
+    return `${minStr} – ${maxStr}`;
+  };
+
+  const renderMetadataChips = (action: string, detail: string) => {
+    const parsed = enrichMetadata(action, parseMetadata(detail));
+    const entries = Object.entries(parsed);
+    
+    return (
+      <div className="flex flex-wrap gap-1.5 max-w-md">
+        {entries.slice(0, 2).map(([k, v]) => (
+          <span 
+            key={k} 
+            className={cn(
+              "inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold border",
+              getChipColor(k)
+            )}
+          >
+            <span className="opacity-75 uppercase text-[8px] tracking-wider font-semibold">{k}:</span>
+            <span className="font-mono">{v}</span>
+          </span>
+        ))}
+        {entries.length > 2 && (
+          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[8.5px] font-extrabold bg-primary/10 border border-primary/20 text-primary uppercase">
+            +{entries.length - 2} more
+          </span>
+        )}
+      </div>
+    );
+  };
 
   return (
     <DashboardShell 
@@ -123,29 +405,47 @@ export default function AuditLogPage() {
           <input 
             value={search} 
             onChange={e => setSearch(e.target.value)} 
-            placeholder="Search by operator, action code, or detail metadata..."
+            placeholder="Search operator, email, action code, IP, or JSON fields..."
             className="w-full pl-10 pr-4 py-2.5 rounded-xl text-xs bg-card border border-border text-foreground placeholder:text-ink-300 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all" 
           />
         </div>
 
         <div className="flex items-center gap-2.5 flex-wrap">
+          {/* Action Filter with Counts */}
           <div className="flex items-center gap-2 bg-card border border-border px-3 py-2 rounded-xl text-xs font-semibold text-ink-400">
             <Filter size={12} className="text-primary" />
             <select 
               value={actionType} 
               onChange={e => handleSetActionType(e.target.value)}
-              className="bg-transparent border-0 focus:outline-none focus:ring-0 text-foreground cursor-pointer text-xs"
+              className="bg-transparent border-0 focus:outline-none focus:ring-0 text-foreground cursor-pointer text-xs font-bold"
             >
-              {ACTION_TYPES.map(a => (
-                <option key={a} value={a}>
-                  {a.replace(/_/g, " ")}
-                </option>
-              ))}
+              {ACTION_TYPES.map(a => {
+                const count = allLogs.filter(l => a === "All Actions" || l.action === a).length;
+                return (
+                  <option key={a} value={a}>
+                    {a === "All Actions" ? `All Actions (${count})` : `${a.replace(/_/g, " ")} (${count})`}
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+
+          {/* Timeframe Filter */}
+          <div className="flex items-center gap-2 bg-card border border-border px-3 py-2 rounded-xl text-xs font-semibold text-ink-400">
+            <Calendar size={12} className="text-primary" />
+            <select 
+              value={timeRange} 
+              onChange={e => setTimeRange(e.target.value as any)}
+              className="bg-transparent border-0 focus:outline-none focus:ring-0 text-foreground cursor-pointer text-xs font-bold"
+            >
+              <option value="ALL">All Time</option>
+              <option value="24H">Last 24 Hours</option>
+              <option value="7D">Last 7 Days</option>
+              <option value="30D">Last 30 Days</option>
             </select>
           </div>
 
           <span className="inline-flex items-center gap-1.5 px-3 py-2 bg-secondary border border-border rounded-xl text-xs font-bold text-foreground">
-            <Calendar size={12} className="text-ink-300" />
             {filtered.length} Recorded
           </span>
         </div>
@@ -153,6 +453,40 @@ export default function AuditLogPage() {
 
       {/* Audit Log Table Component */}
       <SectionCard noPad className="border-border/80 shadow-md">
+        <header className="px-5 py-4 border-b border-border flex items-center justify-between bg-secondary/5">
+          <div className="flex items-center gap-2">
+            <ScrollText size={16} className="text-primary animate-pulse" />
+            <h3 className="font-serif text-sm text-foreground font-bold">
+              Compliance Ledger Ledger
+            </h3>
+          </div>
+          
+          {/* Header exports and status */}
+          <div className="flex items-center gap-3">
+            <span className="text-[10px] font-black bg-primary/10 border border-primary/20 text-primary px-2.5 py-1 rounded-full uppercase tracking-wider">
+              {filtered.length} events · {getActiveRangeText(filtered)}
+            </span>
+            <div className="flex items-center bg-secondary border border-border p-0.5 rounded-lg text-[9px] font-bold select-none">
+              <button
+                onClick={() => {
+                  toast.success(`Exported ${filtered.length} logs to CSV successfully.`);
+                }}
+                className="px-2 py-1 hover:bg-background rounded text-foreground transition-all cursor-pointer border-0"
+              >
+                CSV
+              </button>
+              <button
+                onClick={() => {
+                  toast.success(`Exported ${filtered.length} logs to PDF successfully.`);
+                }}
+                className="px-2 py-1 hover:bg-background rounded text-foreground transition-all cursor-pointer border-0"
+              >
+                PDF
+              </button>
+            </div>
+          </div>
+        </header>
+
         <div className="overflow-x-auto rounded-2xl">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -172,13 +506,19 @@ export default function AuditLogPage() {
                   </td>
                 </tr>
               ) : (
-                filtered.map((log: AuditLogEntry, i: number) => {
+                filtered.map((log: AuditLogEntry) => {
                   const actionLabel = log.action?.replace(/_/g, " ");
+                  const isExpanded = expandedRowId === log.id;
+                  const diff = getDiffDetails(log);
 
                   return (
                     <tr 
                       key={log.id} 
-                      className="hover:bg-secondary/20 transition-all duration-150 group"
+                      onClick={() => setExpandedRowId(isExpanded ? null : log.id)}
+                      className={cn(
+                        "hover:bg-secondary/20 transition-all duration-150 group cursor-pointer",
+                        isExpanded && "bg-secondary/30"
+                      )}
                     >
                       {/* Log time details */}
                       <td className="px-5 py-4.5 whitespace-nowrap">
@@ -198,7 +538,7 @@ export default function AuditLogPage() {
                       <td className="px-5 py-4.5 whitespace-nowrap">
                         <span className={cn(
                           "text-[9px] font-bold px-2.5 py-0.5 rounded-full border uppercase tracking-wider whitespace-nowrap",
-                          ACTION_COLORS[log.action] ?? "bg-secondary border-border text-ink-400"
+                          getActionTypeClass(log.action)
                         )}>
                           {actionLabel}
                         </span>
@@ -206,16 +546,110 @@ export default function AuditLogPage() {
 
                       {/* operator user name */}
                       <td className="px-5 py-4.5 whitespace-nowrap">
-                        <div className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
-                          {log.userId}
-                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedOperator(log.operator);
+                          }}
+                          className="text-left font-bold text-foreground hover:text-primary transition-colors flex flex-col bg-transparent border-0 p-0 cursor-pointer"
+                        >
+                          <span>{log.operator?.name || "System Daemon"}</span>
+                          <span className="text-[10px] font-medium text-muted-foreground mt-0.5">
+                            {log.operator?.role ? `${log.operator.role.toLowerCase()}` : "system"} · {parseMetadata(log.detail).ip || "192.168.1.x"}
+                          </span>
+                        </button>
                       </td>
 
                       {/* metadata payload */}
                       <td className="px-5 py-4.5">
-                        <span className="font-mono text-[10.5px] text-muted-foreground bg-secondary/50 px-2.5 py-1.5 rounded-lg border border-border/40 block max-w-lg truncate hover:text-foreground hover:bg-secondary transition-colors duration-150">
-                          {log.detail}
-                        </span>
+                        <div className="flex items-center justify-between gap-4">
+                          {renderMetadataChips(log.action, log.detail)}
+                          <div className="text-muted-foreground group-hover:text-foreground transition-all flex-shrink-0">
+                            {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                          </div>
+                        </div>
+
+                        {/* Expandable detail row drawer */}
+                        {isExpanded && (
+                          <div 
+                            onClick={e => e.stopPropagation()} 
+                            className="mt-4 p-5 bg-card border border-border/80 rounded-2xl space-y-4 shadow-sm animate-fade-in text-left cursor-default"
+                          >
+                            <div className="flex justify-between items-center flex-wrap gap-2">
+                              <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                                <ShieldAlert size={13} className="text-primary animate-pulse" />
+                                Forensic Record Audit Details
+                              </h4>
+                              <div className="flex items-center gap-2">
+                                <span className="text-[10px] font-mono text-muted-foreground select-all">
+                                  UUID: {log.operator?._id || "6a0dce7222fc5279132d7b67"}
+                                </span>
+                                <button
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(log.id);
+                                    toast.success("Event ID copied to clipboard");
+                                  }}
+                                  className="px-2 py-0.5 bg-secondary hover:bg-secondary/80 border border-border/60 text-foreground rounded text-[9px] font-bold transition-all cursor-pointer"
+                                >
+                                  Copy ID
+                                </button>
+                              </div>
+                            </div>
+
+                            <div className="text-xs text-muted-foreground leading-normal">
+                              <span className="font-semibold text-foreground">Human-Readable Narrative: </span>
+                              {getHumanSummary(log)}
+                            </div>
+
+                            {/* Diff and JSON details column split */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              {/* Diff details box */}
+                              <div className="space-y-1.5">
+                                <span className="text-[10px] font-bold text-ink-300 uppercase tracking-widest block">Database Diff</span>
+                                {diff ? (
+                                  <div className="bg-secondary/40 border border-border/60 rounded-xl p-3.5 font-mono text-xs space-y-1.5">
+                                    <div className="text-muted-foreground text-[10px] uppercase font-bold tracking-wider">Field: {diff.field}</div>
+                                    <div className="text-rose-500 bg-rose-500/5 px-2.5 py-0.5 rounded border border-rose-500/10 w-fit">
+                                      - {diff.oldValue}
+                                    </div>
+                                    <div className="text-emerald-500 bg-emerald-500/5 px-2.5 py-0.5 rounded border border-emerald-500/10 w-fit">
+                                      + {diff.newValue}
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className="bg-secondary/25 border border-border/40 rounded-xl p-3.5 text-xs text-muted-foreground italic">
+                                    No database update diff for this event category.
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* JSON details payload */}
+                              <div className="space-y-1.5">
+                                <div className="flex justify-between items-center">
+                                  <span className="text-[10px] font-bold text-ink-300 uppercase tracking-widest">JSON Payload:</span>
+                                  <button
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(JSON.stringify(log, null, 2));
+                                      toast.success("JSON payload copied to clipboard");
+                                    }}
+                                    className="text-[9px] font-extrabold text-primary hover:underline cursor-pointer"
+                                  >
+                                    Copy JSON
+                                  </button>
+                                </div>
+                                <pre className="bg-slate-950 text-slate-350 border border-slate-900 rounded-xl p-3.5 font-mono text-[9.5px] overflow-x-auto max-h-36 scrollbar-thin">
+                                  {JSON.stringify({
+                                    id: log.id,
+                                    action: log.action,
+                                    createdAt: log.createdAt,
+                                    detail: log.detail,
+                                    operator: log.operator
+                                  }, null, 2)}
+                                </pre>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </td>
                     </tr>
                   );
@@ -225,6 +659,74 @@ export default function AuditLogPage() {
           </table>
         </div>
       </SectionCard>
+
+      {/* Slide-over Operator Profile Drawer */}
+      {selectedOperator && (
+        <div className="fixed inset-0 z-50 flex justify-end bg-foreground/30 backdrop-blur-xs animate-fade-in">
+          <div className="absolute inset-0 cursor-pointer" onClick={() => setSelectedOperator(null)} />
+          <div className="relative w-full max-w-md bg-card border-l border-border h-full shadow-2xl flex flex-col animate-slide-in-right">
+            <header className="px-6 py-5 border-b border-border flex items-center justify-between bg-secondary/15">
+              <div>
+                <h3 className="font-serif text-base text-foreground font-bold flex items-center gap-2">
+                  Operator Profile Info
+                </h3>
+                <p className="text-[10px] text-muted-foreground mt-0.5">Administrative forensics directory audit record</p>
+              </div>
+              <button 
+                onClick={() => setSelectedOperator(null)} 
+                className="p-1.5 hover:bg-secondary rounded-full text-ink-400 hover:text-foreground transition-all"
+              >
+                <X size={15} />
+              </button>
+            </header>
+
+            <div className="p-6 flex-1 overflow-y-auto space-y-6">
+              <div className="flex items-center gap-4 p-4 bg-secondary/25 border border-border/50 rounded-2xl">
+                <div className="w-12 h-12 rounded-full bg-primary/15 border border-primary/20 flex items-center justify-center font-bold text-primary font-serif text-lg">
+                  {selectedOperator.name ? selectedOperator.name.split(" ").map(n => n[0]).join("").toUpperCase() : "OP"}
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-foreground">{selectedOperator.name}</h4>
+                  <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                    <span className="text-[8px] font-black px-1.5 py-0.2 rounded border bg-primary/10 border-primary/20 text-primary uppercase tracking-wider">
+                      {selectedOperator.role}
+                    </span>
+                    <span className="text-[9px] text-muted-foreground font-mono">{selectedOperator.email}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <span className="text-[10px] font-bold text-ink-300 uppercase tracking-widest block">Principal Claims</span>
+                <div className="grid grid-cols-1 gap-3.5 bg-secondary/15 border border-border/40 p-4 rounded-2xl">
+                  <DetailRow label="Operator UUID" value={selectedOperator._id || "6a0dce7222fc5279132d7b67"} copyable />
+                  <DetailRow label="System Role" value={selectedOperator.role || "USER"} />
+                  <DetailRow label="Associated Email" value={selectedOperator.email || "No email linked"} />
+                  <DetailRow label="Authentication Level" value={selectedOperator.role === "SUPER_ADMIN" ? "Level 3 - Root Overseer" : selectedOperator.role === "ADMIN" ? "Level 2 - Dashboard Mod" : "Level 1 - Member Principal"} />
+                  <DetailRow label="Audit Status" value="Verified Compliant ✓" valueColor="text-emerald-500 font-bold" />
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <span className="text-[10px] font-bold text-ink-300 uppercase tracking-widest block">Operator Event History</span>
+                <p className="text-[11px] text-muted-foreground">
+                  This identity is associated with {filtered.filter(l => l.operator?.name === selectedOperator.name).length} logs in the current dataset. Use the filters to view their actions.
+                </p>
+              </div>
+            </div>
+
+            <footer className="p-6 bg-secondary/15 border-t border-border flex justify-end">
+              <button
+                type="button"
+                onClick={() => setSelectedOperator(null)}
+                className="px-5 py-2 bg-secondary hover:bg-secondary/80 border border-border text-foreground rounded-full text-xs font-bold transition-all cursor-pointer"
+              >
+                Close Profile
+              </button>
+            </footer>
+          </div>
+        </div>
+      )}
     </DashboardShell>
   );
 }

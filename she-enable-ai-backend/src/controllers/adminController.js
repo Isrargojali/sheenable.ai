@@ -340,7 +340,7 @@ const getAuditLogs = async (req, res, next) => {
 
     const [logs, total] = await Promise.all([
       AuditLog.find(filter)
-        .populate('userId', 'firstName lastName email')
+        .populate('userId', 'firstName lastName email role')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
@@ -349,17 +349,31 @@ const getAuditLogs = async (req, res, next) => {
     ]);
 
     const resolvedLogs = logs.map(log => {
-      let name = 'System Daemon';
-      if (log.userId) {
-        if (typeof log.userId === 'object') {
-          name = `${log.userId.firstName || ''} ${log.userId.lastName || ''}`.trim() || log.userId.email || 'System Daemon';
-        } else {
-          name = String(log.userId);
-        }
+      let operator = {
+        _id: null,
+        name: 'System Daemon',
+        email: null,
+        role: 'SYSTEM'
+      };
+      if (log.userId && typeof log.userId === 'object') {
+        operator = {
+          _id: log.userId._id,
+          name: `${log.userId.firstName || ''} ${log.userId.lastName || ''}`.trim() || log.userId.email || 'System Daemon',
+          email: log.userId.email,
+          role: log.userId.role || 'USER'
+        };
+      } else if (log.userId) {
+        operator = {
+          _id: String(log.userId),
+          name: String(log.userId),
+          email: null,
+          role: 'USER'
+        };
       }
       return {
         ...log,
-        userId: name // replace UUID with full name
+        userId: operator.name, // String username for backward compatibility
+        operator
       };
     });
 
