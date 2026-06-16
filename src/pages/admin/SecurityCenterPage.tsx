@@ -92,6 +92,15 @@ export default function SecurityCenterPage() {
     refetchInterval: 12000
   });
 
+  // Calculate dynamics based on simulated shield state
+  const mockSessions = [
+    { ip: "192.168.1.100", name: "Ayesha Khan", role: "SUPER_ADMIN", location: "Lahore, PK", device: "Chrome / Windows", flagged: false },
+    { ip: "192.168.1.105", name: "Sara Ahmed", role: "ADMIN", location: "Karachi, PK", device: "Safari / macOS", flagged: false },
+    { ip: "198.51.100.44", name: "Suspicious Operator", role: "CANDIDATE", location: "Frankfurt, DE", device: "Curl / Unknown", flagged: true },
+    { ip: "203.0.113.88", name: "Brute Force Candidate", role: "CANDIDATE", location: "Virginia, US", device: "Python Requests", flagged: true },
+    { ip: "127.0.0.1", name: "System Daemon", role: "ADMIN", location: "Local Loopback", device: "Background Thread", flagged: false }
+  ];
+
   const filteredSessions = mockSessions.filter(s => {
     const isSessionSuspicious = s.flagged && shieldState !== "OPERATIONAL";
     if (sessionsFilter === "SUSPICIOUS") {
