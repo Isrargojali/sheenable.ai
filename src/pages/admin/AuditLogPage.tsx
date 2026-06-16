@@ -5,6 +5,7 @@ import { Search, ScrollText, Filter, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { apiAdmin } from "@/lib/api";
 import { DashboardShell, SectionCard } from "@/components/layout/DashboardShell";
+import { useSearchParams } from "react-router-dom";
 
 const ACTION_COLORS: Record<string, string> = {
   LOGIN_SUCCESS: "bg-emerald-50 border-emerald-100 text-emerald-600",
@@ -52,8 +53,21 @@ function relTime(iso: string) {
 }
 
 export default function AuditLogPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState("");
-  const [actionType, setActionType] = useState("All Actions");
+  
+  const initialAction = searchParams.get("action") || "All Actions";
+  const [actionType, setActionType] = useState(initialAction);
+
+  const handleSetActionType = (action: string) => {
+    setActionType(action);
+    if (action === "All Actions") {
+      searchParams.delete("action");
+    } else {
+      searchParams.set("action", action);
+    }
+    setSearchParams(searchParams);
+  };
 
   const { data: logs = [] } = useQuery<AuditLogEntry[]>({ 
     queryKey: ["auditLog"], 
@@ -119,7 +133,7 @@ export default function AuditLogPage() {
             <Filter size={12} className="text-primary" />
             <select 
               value={actionType} 
-              onChange={e => setActionType(e.target.value)}
+              onChange={e => handleSetActionType(e.target.value)}
               className="bg-transparent border-0 focus:outline-none focus:ring-0 text-foreground cursor-pointer text-xs"
             >
               {ACTION_TYPES.map(a => (

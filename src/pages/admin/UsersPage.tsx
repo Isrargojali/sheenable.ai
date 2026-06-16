@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { apiAdmin } from "@/lib/api";
 import { DashboardShell, SectionCard, BtnPrimary } from "@/components/layout/DashboardShell";
 import { toast } from "sonner";
+import { useSearchParams } from "react-router-dom";
 
 interface User {
   id: string;
@@ -23,8 +24,21 @@ interface User {
 
 export default function UsersPage() {
   const qc = useQueryClient();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState("");
-  const [roleFilter, setRole] = useState("ALL");
+  
+  const initialRole = searchParams.get("role") || "ALL";
+  const [roleFilter, setRole] = useState(initialRole);
+
+  const handleSetRole = (role: string) => {
+    setRole(role);
+    if (role === "ALL") {
+      searchParams.delete("role");
+    } else {
+      searchParams.set("role", role);
+    }
+    setSearchParams(searchParams);
+  };
 
   const { data: users = [] as User[], isLoading } = useQuery<User[]>({ 
     queryKey: ["adminUsers"], 
@@ -122,7 +136,7 @@ export default function UsersPage() {
           {["ALL","CANDIDATE","EMPLOYER","ADMIN"].map(r => (
             <button 
               key={r} 
-              onClick={() => setRole(r)}
+              onClick={() => handleSetRole(r)}
               className={cn(
                 "px-4 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all",
                 roleFilter === r 

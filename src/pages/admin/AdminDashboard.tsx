@@ -5,10 +5,11 @@ import {
   Users, Briefcase, Building2, FileText, ShieldCheck, ScrollText, 
   ArrowUpRight, TrendingUp, Activity, X, Clock, Sparkles
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { DashboardShell, SectionCard } from "@/components/layout/DashboardShell";
 import { apiAdmin } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const STATS = [
   { 
@@ -45,16 +46,31 @@ const STATS = [
   },
 ] as const;
 
+type GrowthData = {
+  users: number;
+  jobs: number;
+  employers: number;
+  applications: number;
+};
+
+type LastChangeItem = {
+  date: string;
+  count: number;
+};
+
 type AdminStats = {
   totalUsers: number;
   activeJobs: number;
   employers: number;
   applications: number;
-  weeklyGrowth: {
-    users: number;
-    jobs: number;
-    employers: number;
-    applications: number;
+  todayGrowth: GrowthData;
+  weeklyGrowth: GrowthData;
+  monthlyGrowth: GrowthData;
+  lastChange: {
+    users: LastChangeItem | null;
+    jobs: LastChangeItem | null;
+    employers: LastChangeItem | null;
+    applications: LastChangeItem | null;
   };
 };
 
@@ -66,6 +82,7 @@ interface ServiceInfo {
   desc: string;
   history: number[];
   logs: string[];
+  affectedLabel?: string;
 }
 
 const SERVICES: ServiceInfo[] = [
@@ -114,6 +131,7 @@ const SERVICES: ServiceInfo[] = [
     latency: "420ms", 
     desc: "SMTP mail relay & transactional email dispatch channels.",
     history: [110, 140, 290, 330, 420, 410, 430, 420],
+    affectedLabel: "Est. 23 emails delayed",
     logs: [
       "22:12:05 [ERROR] SMTP connection timeout: relay.host.internal (504)",
       "22:11:15 [WARN] Retrying email dispatch for userId=u_44",
@@ -131,8 +149,66 @@ function relTime(iso: string) {
   return `${Math.floor(h / 24)}d ago`;
 }
 
+const getAuditStory = (log: any) => {
+  const name = log.userId || "System";
+  const action = log.action;
+  const detail = log.detail || "";
+
+  // Parse detail query string or key-value pairs if present
+  const getParam = (key: string) => {
+    const regex = new RegExp(`(?:^|\\s)${key}=['"]?([^'"\\s]+)['"]?`);
+    const match = detail.match(regex);
+    return match ? match[1].replace(/['"]/g, "") : null;
+  };
+
+  switch (action) {
+    case "LOGIN_SUCCESS":
+    case "LOGIN_SUCCESS_OAUTH":
+      return `${name} signed in`;
+    case "LOGIN_FAILED":
+      return `${name} failed to sign in`;
+    case "LOGOUT":
+      return `${name} signed out`;
+    case "USER_REGISTERED":
+    case "USER_REGISTERED_OAUTH":
+    case "SIGNUP":
+      return `${name} registered an account`;
+    case "JOB_POSTED":
+    case "JOB_CREATED": {
+      const title = getParam("title") || "a job";
+      return `${name} posted job "${title}"`;
+    }
+    case "JOB_UPDATED": {
+      const title = getParam("title") || "a job";
+      return `${name} updated ${title}`;
+    }
+    case "ROLE_CHANGED": {
+      const target = getParam("target") || "user";
+      return `${name} updated ${target} role`;
+    }
+    case "USER_SUSPENDED":
+      return `${name} suspended user account`;
+    case "USER_ACTIVATED":
+      return `${name} activated user account`;
+    case "USER_VERIFIED":
+      return `${name} verified user account`;
+    case "BRUTE_FORCE_BLOCK": {
+      const ip = getParam("ip") || "IP";
+      return `${name} blocked brute force attempt from ${ip}`;
+    }
+    case "RATE_LIMIT": {
+      const ip = getParam("ip") || "IP";
+      return `${name} triggered rate limit protection on ${ip}`;
+    }
+    default:
+      return `${name} performed ${action.toLowerCase().replace(/_/g, " ")}`;
+  }
+};
+
 export default function AdminDashboard() {
+  const navigate = useNavigate();
   const [selectedService, setSelectedService] = useState<ServiceInfo | null>(null);
+  const [timeframe, setTimeframe] = useState<'today' | '7d' | '30d'>('7d');
 
   const { data: stats, isLoading } = useQuery<AdminStats>({ 
     queryKey: ["adminStats"], 
@@ -156,6 +232,9 @@ export default function AdminDashboard() {
     { name: "Sara Ahmed", role: "ADMIN", ip: "192.168.1.105", active: "12m ago", avatarInitials: "SA" },
     { name: "System Daemon", role: "ADMIN", ip: "127.0.0.1", active: "Now", avatarInitials: "SD" }
   ];
+
+  const humanAdmins = activeAdmins.filter(adm => adm.name !== "System Daemon");
+  const systemProcesses = activeAdmins.filter(adm => adm.name === "System Daemon");
 
   // Dynamic audit logs merge for realistic entries list
   const allLogs = [
@@ -186,6 +265,7 @@ export default function AdminDashboard() {
   const quickLinks = [
     { 
       to: "/admin/users", 
+      filterTo: "/admin/users?role=ADMIN",
       label: "User Governance", 
       desc: "Manage profiles, verify accounts, and configure permissions.", 
       icon: Users, 
@@ -196,6 +276,7 @@ export default function AdminDashboard() {
     },
     { 
       to: "/admin/security", 
+      filterTo: "/admin/security?tab=threats",
       label: "Security Center", 
       desc: "Monitor live threat logs, active lockouts, and rate limits.", 
       icon: ShieldCheck, 
@@ -206,6 +287,7 @@ export default function AdminDashboard() {
     },
     { 
       to: "/admin/audit", 
+      filterTo: "/admin/audit",
       label: "Audit Trails", 
       desc: "Inspect granular system actions and compliance histories.", 
       icon: ScrollText, 
@@ -221,44 +303,114 @@ export default function AdminDashboard() {
       title="Admin overview" 
       subtitle="Real-time control tower of SheEnableAI platform health, user status, and security compliance"
     >
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in mb-6">
         {/* Left Column (Main Governance Panels) */}
         <div className="lg:col-span-2 space-y-6">
+          {/* Header Row with Timeframe Selector */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-secondary/20 p-3.5 rounded-2xl border border-border/60">
+            <div>
+              <h3 className="text-xs font-bold text-ink-500 uppercase tracking-widest">Platform Activity Statistics</h3>
+              <p className="text-[11px] text-muted-foreground mt-0.5">Toggle timeframe to analyze signups and submissions</p>
+            </div>
+            <div className="flex bg-secondary border border-border p-0.5 rounded-xl text-[10px] font-bold self-start sm:self-auto">
+              {(["today", "7d", "30d"] as const).map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setTimeframe(t)}
+                  className={cn(
+                    "px-3 py-1.5 rounded-lg uppercase tracking-wider transition-all",
+                    timeframe === t 
+                      ? "bg-card border border-border/60 text-foreground shadow-sm font-black" 
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {t === "today" ? "Today" : t === "7d" ? "7 Days" : "30 Days"}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Dynamic Summary Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {STATS.map(s => {
               const Icon = s.icon;
               const v = stats?.[s.key as keyof AdminStats]?.toLocaleString() ?? "—";
-              const dv = stats?.weeklyGrowth?.[s.deltaKey as keyof AdminStats['weeklyGrowth']] ?? 0;
+              
+              let dv = 0;
+              if (stats) {
+                if (timeframe === "today") {
+                  dv = stats.todayGrowth?.[s.deltaKey as keyof GrowthData] ?? 0;
+                } else if (timeframe === "30d") {
+                  dv = stats.monthlyGrowth?.[s.deltaKey as keyof GrowthData] ?? 0;
+                } else {
+                  dv = stats.weeklyGrowth?.[s.deltaKey as keyof GrowthData] ?? 0;
+                }
+              }
+
+              const timeframeLabel = timeframe === "today" ? "today" : timeframe === "30d" ? "this month" : "this week";
+              const lastChangeData = stats?.lastChange?.[s.deltaKey as keyof typeof stats.lastChange];
+              
+              let lastChangeStr = "";
+              if (lastChangeData && lastChangeData.date) {
+                const diffMs = Date.now() - new Date(lastChangeData.date).getTime();
+                const diffDays = Math.floor(diffMs / (24 * 60 * 60 * 1000));
+                const count = lastChangeData.count || 1;
+                if (diffDays < 1) {
+                  lastChangeStr = `today (+${count})`;
+                } else if (diffDays === 1) {
+                  lastChangeStr = `yesterday (+${count})`;
+                } else {
+                  lastChangeStr = `${diffDays} days ago (+${count})`;
+                }
+              }
 
               return (
                 <div 
                   key={s.key} 
-                  className={`relative bg-card border border-border/80 rounded-2xl p-5 hover:shadow-lg hover:border-primary/20 ${s.glow} transition-all duration-300 group overflow-hidden`}
+                  className={cn(
+                    "relative bg-card border border-border/80 rounded-2xl p-5 hover:shadow-lg hover:border-primary/20 transition-all duration-300 group overflow-hidden flex flex-col justify-between min-h-[145px]",
+                    s.glow
+                  )}
                 >
                   <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-gradient-to-br from-primary/5 to-transparent rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500" />
                   
-                  <div className="flex items-start justify-between mb-4">
-                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${s.color} flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-300`}>
+                  <div className="flex items-start justify-between mb-3">
+                    <div className={cn(
+                      "w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-300",
+                      s.color
+                    )}>
                       <Icon size={16} className="text-white" />
                     </div>
                     {isLoading ? (
                       <div className="h-5 w-12 bg-secondary animate-pulse rounded-full" />
+                    ) : dv > 0 ? (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-200 bg-emerald-50 text-emerald-600 animate-fade-in dark:bg-emerald-950/20 dark:text-emerald-450 dark:border-emerald-900/30">
+                        <TrendingUp size={10} /> +{dv} {timeframeLabel}
+                      </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-100 bg-emerald-50 text-emerald-600 animate-fade-in">
-                        <TrendingUp size={10} /> +{dv} new
+                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-0.5 rounded-full border border-zinc-200 bg-zinc-50 text-zinc-500 animate-fade-in dark:bg-zinc-800/20 dark:text-zinc-400 dark:border-zinc-850/30">
+                        0 {timeframeLabel}
                       </span>
                     )}
                   </div>
 
-                  {isLoading ? (
-                    <div className="h-8 bg-secondary animate-pulse rounded-lg w-20 mb-2" />
-                  ) : (
-                    <div className="font-serif text-3.5xl font-bold text-foreground leading-none tracking-tight mb-1.5 group-hover:text-primary transition-colors duration-300">
-                      {v}
-                    </div>
-                  )}
-                  <div className="text-[11px] font-bold text-ink-300 uppercase tracking-wider">{s.label}</div>
+                  <div>
+                    {isLoading ? (
+                      <div className="h-8 bg-secondary animate-pulse rounded-lg w-20 mb-2" />
+                    ) : (
+                      <>
+                        <div className="font-serif text-3.5xl font-bold text-foreground leading-none tracking-tight mb-1 group-hover:text-primary transition-colors duration-300">
+                          {v}
+                        </div>
+                        {dv === 0 && lastChangeStr && (
+                          <div className="text-[10px] text-muted-foreground mb-1 font-medium animate-fade-in">
+                            Last change: {lastChangeStr}
+                          </div>
+                        )}
+                      </>
+                    )}
+                    <div className="text-[11px] font-bold text-ink-300 uppercase tracking-wider">{s.label}</div>
+                  </div>
                 </div>
               );
             })}
@@ -272,7 +424,7 @@ export default function AdminDashboard() {
                 const Icon = q.icon;
                 return (
                   <Link to={q.to} key={q.to} className="group">
-                    <SectionCard className="h-full relative overflow-hidden border border-border/80 hover:border-primary/20 hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col justify-between min-h-[170px]">
+                    <SectionCard className="h-full relative overflow-hidden border border-border/80 hover:border-primary/20 hover:bg-primary/[0.01] hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col justify-between min-h-[175px]">
                       <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-primary/30 to-transparent transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500" />
                       
                       <div>
@@ -280,12 +432,20 @@ export default function AdminDashboard() {
                           <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center group-hover:bg-primary/10 transition-colors duration-300">
                             <Icon size={17} className="text-primary group-hover:scale-105 transition-transform" />
                           </div>
-                          <div className="flex items-center gap-1.5">
-                            <span className="font-mono text-xs font-black bg-secondary text-foreground px-2 py-0.5 rounded-lg border border-border/40 group-hover:border-primary/20 transition-all">
-                              {q.liveNumber}
-                            </span>
-                            <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full border uppercase tracking-wider ${q.badgeColor}`}>
-                              {q.badge}
+                          <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1.5">
+                              <span className="font-mono text-xs font-black bg-secondary text-foreground px-2 py-0.5 rounded-lg border border-border/40 group-hover:border-primary/20 transition-all">
+                                {q.liveNumber}
+                              </span>
+                              <span className={cn(
+                                "text-[9px] font-extrabold px-2 py-0.5 rounded-full border uppercase tracking-wider",
+                                q.badgeColor
+                              )}>
+                                {q.badge}
+                              </span>
+                            </div>
+                            <span className="text-[10px] font-extrabold text-primary opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5 hover:underline whitespace-nowrap ml-1">
+                              View all &rarr;
                             </span>
                           </div>
                         </div>
@@ -300,91 +460,19 @@ export default function AdminDashboard() {
                       {/* Live Mini Stats Row */}
                       <div className="mt-4 pt-2.5 border-t border-border/40 flex items-center justify-between text-[9.5px] font-extrabold uppercase tracking-widest text-ink-300">
                         <span>Live status</span>
-                        <span className="text-primary font-mono bg-primary/5 px-2 py-0.5 rounded-full border border-primary/10">
+                        <span 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            navigate(q.filterTo);
+                          }}
+                          className="text-primary hover:bg-primary/10 transition-colors font-mono bg-primary/5 px-2.5 py-0.5 rounded-full border border-primary/10 cursor-pointer"
+                        >
                           {q.miniStat}
                         </span>
                       </div>
                     </SectionCard>
                   </Link>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* System Services grid with CSS grid auto-fill */}
-          <div>
-            <div className="flex items-center justify-between mb-3.5">
-              <h3 className="text-xs font-bold text-ink-500 uppercase tracking-widest">Core System Services Health</h3>
-              <span className="text-[10px] font-extrabold text-[#7C3AED] bg-purple-50 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-950/30 px-2 py-0.5 rounded-full flex items-center gap-1 uppercase tracking-wider animate-pulse">
-                <Sparkles size={10} className="animate-spin" /> Live Diagnostics
-              </span>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-              {SERVICES.map(service => {
-                const isDegraded = service.status === "DEGRADED";
-                return (
-                  <div
-                    key={service.name}
-                    onClick={() => setSelectedService(service)}
-                    className={cn(
-                      "bg-card border rounded-2xl p-4 sm:p-5 hover:shadow-md transition-all duration-300 cursor-pointer group flex flex-col justify-between min-h-[145px]",
-                      isDegraded
-                        ? "border-2 border-amber-500 dark:border-amber-450 bg-amber-500/5 dark:bg-amber-950/10 shadow-sm shadow-amber-500/5"
-                        : "border border-border/80 hover:border-primary/20"
-                    )}
-                  >
-                    <div>
-                      <div className="flex items-center justify-between mb-2.5">
-                        <span className="text-xs sm:text-[13px] font-extrabold text-foreground group-hover:text-primary transition-colors truncate pr-2">
-                          {service.name}
-                        </span>
-                        {/* Status pulsing dot indicator */}
-                        <div className="flex items-center gap-1.5 flex-shrink-0">
-                          {isDegraded ? (
-                            <div className="relative flex items-center justify-center w-2.5 h-2.5">
-                              <span className="animate-ping absolute inline-flex h-3.5 w-3.5 rounded-full bg-amber-400 opacity-75" />
-                              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-amber-500" />
-                            </div>
-                          ) : (
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                          )}
-                          <span className={cn(
-                            "text-[8px] font-black uppercase tracking-wider leading-none",
-                            isDegraded ? "text-amber-600 dark:text-amber-400" : "text-emerald-600 dark:text-emerald-450"
-                          )}>
-                            {service.status}
-                          </span>
-                        </div>
-                      </div>
-                      <p className="text-[10px] sm:text-[11.5px] text-muted-foreground leading-relaxed line-clamp-2">
-                        {service.desc}
-                      </p>
-                    </div>
-
-                    <div className="mt-3.5 border-t border-border/20 pt-2.5 flex items-center justify-between gap-1 flex-wrap">
-                      <div className="flex items-center gap-1.5 text-[9px] sm:text-[10px] text-muted-foreground font-semibold font-mono">
-                        <span>L: {service.latency}</span>
-                        <span className="text-muted-foreground/30">·</span>
-                        <span>U: {service.uptime}</span>
-                      </div>
-                      
-                      {isDegraded ? (
-                        <Link
-                          to="/admin/security"
-                          onClick={(e) => {
-                            e.stopPropagation(); // Avoid opening metrics dialog
-                          }}
-                          className="text-[9px] sm:text-[10px] font-bold text-amber-700 hover:text-amber-800 dark:text-amber-450 dark:hover:text-amber-300 flex items-center gap-0.5 hover:underline"
-                        >
-                          Investigate &rarr;
-                        </Link>
-                      ) : (
-                        <span className="text-[9px] sm:text-[10px] font-bold text-primary opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
-                          Metrics &rarr;
-                        </span>
-                      )}
-                    </div>
-                  </div>
                 );
               })}
             </div>
@@ -396,33 +484,66 @@ export default function AdminDashboard() {
           {/* Active Admin Sessions widget */}
           <SectionCard title="Active Admin Sessions" subtitle="Currently logged-in security principals">
             <div className="space-y-3">
-              {activeAdmins.map((adm, i) => (
-                <div key={i} className="flex items-center justify-between p-3 bg-secondary/25 hover:bg-secondary/40 border border-border/45 rounded-xl transition-all duration-205">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-[10px] font-extrabold flex-shrink-0 bg-gradient-to-br from-[#7C3AED] to-[#C8315A]">
-                      {adm.avatarInitials}
+              {/* Human Sessions */}
+              <div className="space-y-2.5">
+                {humanAdmins.map((adm, i) => (
+                  <div key={i} className="flex items-center justify-between p-3 bg-secondary/25 hover:bg-secondary/40 border border-border/45 rounded-xl transition-all duration-200">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-[10px] font-extrabold flex-shrink-0 bg-gradient-to-br from-[#7C3AED] to-[#C8315A]">
+                        {adm.avatarInitials}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-xs font-bold text-foreground truncate">{adm.name}</span>
+                          <span className={cn(
+                            "inline-block text-[8px] font-black px-2 py-0.5 rounded-full border uppercase tracking-widest leading-none",
+                            adm.role === "SUPER_ADMIN"
+                              ? "bg-purple-50 border-purple-100 text-purple-700 dark:bg-purple-950/20 dark:text-purple-400"
+                              : "bg-blue-50 border-blue-100 text-blue-700 dark:bg-blue-950/20 dark:text-blue-400"
+                          )}>
+                            {adm.role === "SUPER_ADMIN" ? "SUPER" : "ADMIN"}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1 text-[8px] text-muted-foreground font-semibold uppercase tracking-wider mt-1">
+                          <span className={cn("w-1 h-1 rounded-full", adm.active === "Now" ? "bg-emerald-500 animate-pulse" : "bg-zinc-400")} />
+                          <span>{adm.active === "Now" ? "Active now" : adm.active}</span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="min-w-0">
-                      <div className="text-xs font-bold text-foreground truncate">{adm.name}</div>
-                      <div className="text-[9px] text-muted-foreground font-mono mt-0.5">{adm.ip}</div>
+                    <div className="text-right flex-shrink-0">
+                      <div className="text-[9px] text-muted-foreground font-mono bg-secondary/50 px-2 py-0.5 rounded border border-border/30">{adm.ip}</div>
                     </div>
                   </div>
-                  <div className="text-right flex-shrink-0">
-                    <span className={cn(
-                      "inline-block text-[9px] font-extrabold px-2 py-0.5 rounded-full border uppercase tracking-wider leading-none mb-1",
-                      adm.role === "SUPER_ADMIN"
-                        ? "bg-purple-50 border-purple-100 text-purple-700 dark:bg-purple-950/20 dark:text-purple-400"
-                        : "bg-blue-50 border-blue-100 text-blue-700 dark:bg-blue-950/20 dark:text-blue-400"
-                    )}>
-                      {adm.role === "SUPER_ADMIN" ? "SUPER" : "ADMIN"}
-                    </span>
-                    <div className="flex items-center justify-end gap-1 text-[8px] text-muted-foreground font-semibold uppercase tracking-wider">
-                      <span className={cn("w-1 h-1 rounded-full", adm.active === "Now" ? "bg-emerald-500 animate-pulse" : "bg-zinc-400")} />
-                      {adm.active}
-                    </div>
-                  </div>
+                ))}
+              </div>
+
+              {/* Active System Processes */}
+              <div className="mt-4 pt-4 border-t border-border/50">
+                <div className="text-[10px] font-extrabold text-ink-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#7C3AED] animate-pulse" />
+                  Active System Processes
                 </div>
-              ))}
+                <div className="space-y-2">
+                  {systemProcesses.map((sys, i) => (
+                    <div key={i} className="flex items-center justify-between p-2.5 bg-purple-500/5 hover:bg-purple-500/10 border border-purple-500/15 rounded-xl transition-all">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-400 flex-shrink-0">
+                          <Activity size={12} className="animate-pulse" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-[11px] font-bold text-foreground">
+                            {sys.name} <span className="text-[9px] text-muted-foreground font-medium block sm:inline">(automated background process)</span>
+                          </div>
+                          <div className="text-[8px] text-purple-600 dark:text-purple-400 font-mono mt-0.5">localhost · loopback</div>
+                        </div>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <div className="text-[9px] text-muted-foreground font-mono bg-secondary/50 px-2 py-0.5 rounded border border-border/30">{sys.ip}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </SectionCard>
 
@@ -434,37 +555,139 @@ export default function AdminDashboard() {
           >
             <div className="space-y-3.5">
               {allLogs.slice(0, 5).map((log) => {
-                const actionLabel = log.action?.replace(/_/g, " ");
                 const relTimeLabel = relTime(log.createdAt);
-
-                const getActionStyles = (act: string) => {
-                  const c = act.toLowerCase();
-                  if (c.includes("success") || c.includes("verified")) return "bg-emerald-50 border-emerald-100 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-950/30";
-                  if (c.includes("fail") || c.includes("block") || c.includes("suspend")) return "bg-rose-50 border-rose-100 text-rose-700 dark:bg-rose-950/20 dark:text-rose-400 dark:border-rose-950/30";
-                  if (c.includes("rate") || c.includes("limit")) return "bg-amber-50 border-amber-100 text-amber-700 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-950/30";
-                  return "bg-blue-50 border-blue-100 text-blue-700 dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-950/30";
-                };
 
                 return (
                   <div key={log.id} className="p-3 bg-secondary/15 hover:bg-secondary/30 border border-border/30 hover:border-primary/10 rounded-xl transition-all duration-200">
-                    <div className="flex items-center justify-between gap-2.5 flex-wrap mb-1.5">
-                      <span className={cn(
-                        "text-[8px] font-extrabold px-2 py-0.5 rounded-full border uppercase tracking-wider leading-none",
-                        getActionStyles(log.action)
-                      )}>
-                        {actionLabel}
-                      </span>
-                      <span className="text-[9px] text-muted-foreground font-mono">{relTimeLabel}</span>
+                    <div className="flex items-start justify-between gap-3 mb-1">
+                      <div className="flex items-start gap-2 min-w-0">
+                        {/* Tiny category dot */}
+                        <span className={cn(
+                          "w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0",
+                          log.action.includes("FAIL") || log.action.includes("BLOCK") || log.action.includes("SUSPEND")
+                            ? "bg-rose-500 animate-pulse"
+                            : log.action.includes("SUCCESS") || log.action.includes("VERIF")
+                            ? "bg-emerald-500"
+                            : "bg-blue-500"
+                        )} />
+                        <span className="text-[11.5px] font-semibold text-foreground leading-normal break-words">
+                          {getAuditStory(log)}
+                        </span>
+                      </div>
+                      <span className="text-[9px] text-muted-foreground font-mono mt-0.5 whitespace-nowrap">{relTimeLabel}</span>
                     </div>
-                    <div className="text-xs font-semibold text-foreground">{log.userId}</div>
-                    <div className="font-mono text-[9.5px] text-muted-foreground bg-secondary/35 px-2 py-1 rounded border border-border/20 truncate mt-1">
-                      {log.detail}
-                    </div>
+                    {log.detail && (
+                      <div className="font-mono text-[9px] text-muted-foreground bg-secondary/35 px-2 py-1 rounded border border-border/20 truncate mt-1">
+                        {log.detail}
+                      </div>
+                    )}
                   </div>
                 );
               })}
             </div>
           </SectionCard>
+        </div>
+      </div>
+
+      {/* Core System Services Health - WIDENED to span full width at bottom */}
+      <div className="mt-8 border-t border-border/40 pt-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="text-xs font-bold text-ink-500 uppercase tracking-widest">Core System Services Health</h3>
+            <p className="text-[11.5px] text-muted-foreground mt-0.5">Real-time status updates and diagnostics logs from service boundaries</p>
+          </div>
+          <span className="text-[10px] font-extrabold text-[#7C3AED] bg-purple-50 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-950/30 px-2 py-0.5 rounded-full flex items-center gap-1 uppercase tracking-wider animate-pulse">
+            <Sparkles size={10} className="animate-spin" /> Live Diagnostics
+          </span>
+        </div>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {SERVICES.map(service => {
+            const isDegraded = service.status === "DEGRADED";
+            return (
+              <div
+                key={service.name}
+                onClick={() => setSelectedService(service)}
+                title={service.name}
+                className={cn(
+                  "bg-card border rounded-2xl p-4 sm:p-5 hover:shadow-md transition-all duration-300 cursor-pointer group flex flex-col justify-between min-h-[150px]",
+                  isDegraded
+                    ? "border-2 border-amber-500/80 dark:border-amber-450 border-l-[4px] border-l-amber-500 bg-amber-500/5 dark:bg-amber-950/10 shadow-sm shadow-amber-500/5"
+                    : "border border-border/80 hover:border-primary/20"
+                )}
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-2.5">
+                    <span className="text-xs sm:text-[13px] font-extrabold text-foreground group-hover:text-primary transition-colors pr-2">
+                      {service.name}
+                    </span>
+                    {/* Status pulsing dot indicator */}
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      {isDegraded ? (
+                        <div className="relative flex items-center justify-center w-2.5 h-2.5">
+                          <span className="animate-ping absolute inline-flex h-3.5 w-3.5 rounded-full bg-amber-455 opacity-75" />
+                          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-amber-500" />
+                        </div>
+                      ) : (
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                      )}
+                      <span className={cn(
+                        "text-[8px] font-black uppercase tracking-wider leading-none",
+                        isDegraded ? "text-amber-600 dark:text-amber-405" : "text-emerald-600 dark:text-emerald-450"
+                      )}>
+                        {service.status}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-[10px] sm:text-[11.5px] text-muted-foreground leading-relaxed line-clamp-2">
+                    {service.desc}
+                  </p>
+                  {isDegraded && service.affectedLabel && (
+                    <div className="text-[10px] text-amber-600 dark:text-amber-400 font-bold mt-1.5 leading-none animate-pulse">
+                      {service.affectedLabel}
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-3.5 border-t border-border/20 pt-2.5 flex items-center justify-between gap-1 flex-wrap">
+                  <div className="flex items-center gap-1.5 text-[9px] sm:text-[10px] text-muted-foreground font-semibold font-mono">
+                    <span>L: {service.latency}</span>
+                    <span className="text-muted-foreground/30">·</span>
+                    <span>U: {service.uptime}</span>
+                  </div>
+                  
+                  {isDegraded ? (
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          toast.success(`Operations team alerted: ${service.name} is currently ${service.status}`);
+                        }}
+                        className="px-2 py-0.5 bg-amber-600 hover:bg-amber-700 text-white rounded-full text-[9px] font-bold transition-all hover:scale-105 active:scale-95 flex-shrink-0"
+                      >
+                        Notify team
+                      </button>
+                      <Link
+                        to="/admin/security"
+                        onClick={(e) => {
+                          e.stopPropagation(); // Avoid opening metrics dialog
+                        }}
+                        className="text-[9px] sm:text-[10px] font-bold text-amber-700 hover:text-amber-800 dark:text-amber-450 dark:hover:text-amber-300 flex items-center gap-0.5 hover:underline whitespace-nowrap"
+                      >
+                        Investigate &rarr;
+                      </Link>
+                    </div>
+                  ) : (
+                    <span className="text-[9px] sm:text-[10px] font-bold text-primary opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
+                      Metrics &rarr;
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 

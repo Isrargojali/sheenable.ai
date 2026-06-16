@@ -18,13 +18,42 @@ const logAudit = async (action, resourceType, resourceId, req) => {
   } catch (err) { console.error('AuditLog error:', err.message); }
 };
 
+const getLastChange = async (Model, filter = {}, dateField = 'createdAt') => {
+  try {
+    const lastItem = await Model.findOne(filter).sort({ [dateField]: -1 }).select(dateField).lean();
+    if (!lastItem) return null;
+    const date = lastItem[dateField];
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const count = await Model.countDocuments({
+      ...filter,
+      [dateField]: { $gte: startOfDay, $lte: endOfDay }
+    });
+
+    return {
+      date: date.toISOString(),
+      count
+    };
+  } catch (err) {
+    console.error('getLastChange error:', err.message);
+    return null;
+  }
+};
+
 const getStats = async (req, res, next) => {
   try {
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
 
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
     const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
     const [
       totalUsers,
@@ -35,10 +64,26 @@ const getStats = async (req, res, next) => {
       successfulHires,
       newUsersThisMonth,
       activeJobs,
+      // Today deltas
+      todayUsers,
+      todayEmployers,
+      todayJobs,
+      todayApplications,
+      // 7d deltas
       growthUsers,
       growthEmployers,
       growthJobs,
-      growthApplications
+      growthApplications,
+      // 30d deltas
+      monthUsers,
+      monthEmployers,
+      monthJobs,
+      monthApplications,
+      // Last meaningful changes
+      lastUserChange,
+      lastJobChange,
+      lastEmployerChange,
+      lastApplicationChange
     ] = await Promise.all([
       User.countDocuments({ isActive: true }),
       User.countDocuments({ role: 'CANDIDATE', isActive: true }),
@@ -48,10 +93,30 @@ const getStats = async (req, res, next) => {
       Application.countDocuments({ status: 'HIRED' }),
       User.countDocuments({ createdAt: { $gte: startOfMonth } }),
       Job.countDocuments({ status: 'PUBLISHED' }),
+
+      // Today
+      User.countDocuments({ createdAt: { $gte: startOfToday }, isActive: true }),
+      User.countDocuments({ role: 'EMPLOYER', createdAt: { $gte: startOfToday }, isActive: true }),
+      Job.countDocuments({ createdAt: { $gte: startOfToday }, status: 'PUBLISHED' }),
+      Application.countDocuments({ appliedAt: { $gte: startOfToday } }),
+
+      // 7d
       User.countDocuments({ createdAt: { $gte: oneWeekAgo }, isActive: true }),
       User.countDocuments({ role: 'EMPLOYER', createdAt: { $gte: oneWeekAgo }, isActive: true }),
       Job.countDocuments({ createdAt: { $gte: oneWeekAgo }, status: 'PUBLISHED' }),
       Application.countDocuments({ appliedAt: { $gte: oneWeekAgo } }),
+
+      // 30d
+      User.countDocuments({ createdAt: { $gte: thirtyDaysAgo }, isActive: true }),
+      User.countDocuments({ role: 'EMPLOYER', createdAt: { $gte: thirtyDaysAgo }, isActive: true }),
+      Job.countDocuments({ createdAt: { $gte: thirtyDaysAgo }, status: 'PUBLISHED' }),
+      Application.countDocuments({ appliedAt: { $gte: thirtyDaysAgo } }),
+
+      // Last changes
+      getLastChange(User, { isActive: true }, 'createdAt'),
+      getLastChange(Job, { status: 'PUBLISHED' }, 'createdAt'),
+      getLastChange(User, { role: 'EMPLOYER', isActive: true }, 'createdAt'),
+      getLastChange(Application, {}, 'appliedAt')
     ]);
 
     const data = {
@@ -65,11 +130,29 @@ const getStats = async (req, res, next) => {
       activeJobs,
       employers: totalEmployers,
       applications: totalApplications,
+      todayGrowth: {
+        users: todayUsers,
+        jobs: todayJobs,
+        employers: todayEmployers,
+        applications: todayApplications
+      },
       weeklyGrowth: {
         users: growthUsers,
         jobs: growthJobs,
         employers: growthEmployers,
         applications: growthApplications
+      },
+      monthlyGrowth: {
+        users: monthUsers,
+        jobs: monthJobs,
+        employers: monthEmployers,
+        applications: monthApplications
+      },
+      lastChange: {
+        users: lastUserChange,
+        jobs: lastJobChange,
+        employers: lastEmployerChange,
+        applications: lastApplicationChange
       }
     };
 
@@ -207,11 +290,31 @@ const getAuditLogs = async (req, res, next) => {
     }
 
     const [logs, total] = await Promise.all([
-      AuditLog.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      AuditLog.find(filter)
+        .populate('userId', 'firstName lastName email')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
       AuditLog.countDocuments(filter)
     ]);
 
-    return paginated(res, logs, getPaginationData(total, page, limit));
+    const resolvedLogs = logs.map(log => {
+      let name = 'System Daemon';
+      if (log.userId) {
+        if (typeof log.userId === 'object') {
+          name = `${log.userId.firstName || ''} ${log.userId.lastName || ''}`.trim() || log.userId.email || 'System Daemon';
+        } else {
+          name = String(log.userId);
+        }
+      }
+      return {
+        ...log,
+        userId: name // replace UUID with full name
+      };
+    });
+
+    return paginated(res, resolvedLogs, getPaginationData(total, page, limit));
   } catch (err) { next(err); }
 };
 
