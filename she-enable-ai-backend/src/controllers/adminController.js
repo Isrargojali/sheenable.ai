@@ -623,11 +623,16 @@ const getSystemHealth = async (req, res, next) => {
     let mailLatency = '85ms';
     let mailAffectedLabel = '';
     const hasSendGrid = !!process.env.SENDGRID_API_KEY;
-    const hasSmtp = !!process.env.EMAIL_HOST;
     if (!hasSendGrid && !hasSmtp) {
-      mailStatus = 'DEGRADED';
-      mailLatency = '999ms';
-      mailAffectedLabel = 'Relay config missing';
+      if (process.env.NODE_ENV !== 'production') {
+        mailStatus = 'HEALTHY';
+        mailLatency = '4ms';
+        mailAffectedLabel = 'Development Console Relay';
+      } else {
+        mailStatus = 'DEGRADED';
+        mailLatency = '999ms';
+        mailAffectedLabel = 'Relay config missing';
+      }
     } else {
       try {
         const EmailLog = require('../models/EmailLog');
