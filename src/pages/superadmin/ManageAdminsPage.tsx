@@ -1,9 +1,10 @@
-// src/pages/superadmin/ManageAdminsPage.tsx
 import { useState }    from "react";
 import { Plus, X, Search, ShieldCheck, AlertTriangle, ShieldAlert, Lock, ArrowRight } from "lucide-react";
 import { cn }          from "@/lib/utils";
 import { DashboardShell, SectionCard } from "@/components/layout/DashboardShell";
 import { toast } from "sonner";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiAdmin } from "@/lib/api";
 
 interface AdminUser {
   id: string;
@@ -15,6 +16,7 @@ interface AdminUser {
   lastActive: string;
   grad: string;
   awayDuration?: number;
+  isVerified?: boolean;
 }
 
 const ALL_PERMS = [
@@ -28,19 +30,12 @@ const ALL_PERMS = [
   { id: "system", name: "System", desc: "Reboot servers and email relays" }
 ];
 
-const INITIAL_ADMINS: AdminUser[] = [
-  { id: "a1", name: "Platform Admin",    email: "admin@hercareer.pk",    role: "Full Admin",  perms: ["users","jobs","employers","security","reports"], status:"Active",  lastActive:"2 min ago",  grad:"from-rose-500 to-rose-700" },
-  { id: "a2", name: "Content Moderator", email: "mod@hercareer.pk",      role: "Moderator",   perms: ["jobs","reports"],                               status:"Active",  lastActive:"1 hour ago", grad:"from-violet-500 to-violet-800" },
-  { id: "a3", name: "Support Admin",     email: "support@hercareer.pk",  role: "Support",     perms: ["users"],                                        status:"Away",    lastActive:"3 hours ago",grad:"from-emerald-500 to-emerald-800", awayDuration: 3 },
-  { id: "a4", name: "Billing Moderator", email: "billing@hercareer.pk",  role: "Support",     perms: ["reports"],                                     status:"Away",    lastActive:"5 hours ago",grad:"from-amber-500 to-amber-800",   awayDuration: 5 }
-];
-
 interface NewAdmin { name: string; email: string; perms: string[]; role: string }
 
 export default function ManageAdminsPage() {
-  const [admins, setAdmins] = useState<AdminUser[]>(INITIAL_ADMINS);
+  const qc = useQueryClient();
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState<NewAdmin>({ name: "", email: "", perms: [], role: "Support" });
+  const [form, setForm] = useState<NewAdmin>({ name: "", email: "", perms: [], role: "ADMIN" });
   
   // Search & Filters
   const [searchQuery, setSearchQuery] = useState("");
@@ -54,19 +49,85 @@ export default function ManageAdminsPage() {
   const [confirmText, setConfirmText] = useState("");
   const [superAdminPassword, setSuperAdminPassword] = useState("");
 
-  // Undo memory
-  const [revocationBackup, setRevocationBackup] = useState<{ admin: AdminUser; index: number } | null>(null);
+  const { data: rawUsers = [], isLoading } = useQuery<any[]>({
+    queryKey: ["adminUsersList"],
+    queryFn: async () => {
+      const response = await apiAdmin.getUsers({ limit: 100 });
+      // Filter only ADMIN and SUPER_ADMIN users
+      const usersArray = Array.isArray(response) ? response : (response as any)?.data || [];
+      return usersArray.filter((u: any) => u.role === 'ADMIN' || u.role === 'SUPER_ADMIN');
+    }
+  });
+
+  const updateRoleMutation = useMutation({
+    mutationFn: async (payload: { id: string; role: string }) => {
+      return apiAdmin.updateUserRole(payload.id, payload.role);
+    },
+    onSuccess: () => {
+      toast.success("Admin role updated successfully ✓");
+      qc.invalidateQueries({ queryKey: ["adminUsersList"] });
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || "Failed to update role");
+    }
+  });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: async (payload: { id: string; isActive: boolean }) => {
+      return apiAdmin.updateUserStatus(payload.id, { isActive: payload.isActive });
+    },
+    onSuccess: () => {
+      toast.success("Admin status updated successfully ✓");
+      qc.invalidateQueries({ queryKey: ["adminUsersList"] });
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || "Failed to update status");
+    }
+  });
+
+  const deleteAdminMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return apiAdmin.deleteUser(id);
+    },
+    onSuccess: () => {
+      toast.success("Admin access credentials revoked successfully ✓");
+      qc.invalidateQueries({ queryKey: ["adminUsersList"] });
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || "Failed to revoke access");
+    }
+  });
 
   const STATUS_COLORS: Record<string,string> = {
     Active: "bg-emerald-50 border-emerald-100 text-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-450",
     Away: "bg-amber-50 border-amber-100 text-amber-600 dark:bg-amber-950/20 dark:text-amber-450",
-    Escalated: "bg-rose-50 border-rose-100 text-rose-600 dark:bg-rose-950/20 dark:text-rose-450 animate-pulse font-bold"
+    Suspended: "bg-rose-50 border-rose-100 text-rose-600 dark:bg-rose-950/20 dark:text-rose-450 font-bold"
   };
+
+  const admins: AdminUser[] = rawUsers.map((u: any) => {
+    const isOnline = u.profile?.availabilityStatus === 'Online';
+    const isAway = u.profile?.availabilityStatus === 'Away';
+    
+    return {
+      id: u._id || u.id,
+      name: `${u.firstName || ''} ${u.lastName || ''}`.trim() || u.email.split('@')[0],
+      email: u.email,
+      role: u.role === 'SUPER_ADMIN' ? 'Full Admin' : 'Moderator',
+      perms: u.role === 'SUPER_ADMIN' ? ["users","jobs","employers","security","reports","audit","system"] : ["users","jobs","reports"],
+      status: !u.isActive ? "Suspended" : isOnline ? "Active" : isAway ? "Away" : "Active",
+      lastActive: u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Never',
+      grad: u.role === 'SUPER_ADMIN' ? "from-rose-500 to-rose-700" : "from-violet-500 to-violet-800",
+      isVerified: u.isVerified
+    };
+  });
 
   const filteredAdmins = admins.filter(a => {
     const matchesSearch = a.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           a.email.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesRole = roleFilter === "All" || a.role === roleFilter;
+    const matchesRole = roleFilter === "All" || 
+                        (roleFilter === "Full Admin" && a.role === "Full Admin") ||
+                        (roleFilter === "Moderator" && a.role === "Moderator") ||
+                        (roleFilter === "Support" && a.role === "Support");
     return matchesSearch && matchesRole;
   });
 
@@ -89,77 +150,29 @@ export default function ManageAdminsPage() {
   const handleConfirmRevoke = () => {
     if (!adminToRevoke) return;
 
-    // Validate confirmation string
     if (confirmText !== "REVOKE") {
       toast.error("Type confirmation string exactly to proceed");
       return;
     }
 
-    // Validate Super Admin auth if Full Admin
     if (adminToRevoke.role === "Full Admin" && superAdminPassword !== "admin123") {
       toast.error("Super Admin authentication failed: Invalid password");
       return;
     }
 
-    // Perform revocation
-    const targetIndex = admins.findIndex(x => x.id === adminToRevoke.id);
-    setRevocationBackup({ admin: adminToRevoke, index: targetIndex });
-    setAdmins(prev => prev.filter(x => x.id !== adminToRevoke.id));
+    deleteAdminMutation.mutate(adminToRevoke.id);
     setAdminToRevoke(null);
-
-    toast.success(`Access credentials for ${adminToRevoke.name} revoked`, {
-      duration: 10000,
-      action: {
-        label: "Undo (10s)",
-        onClick: () => {
-          // Restore action
-          setAdmins(prev => {
-            if (revocationBackup) {
-              const copy = [...prev];
-              copy.splice(targetIndex, 0, adminToRevoke);
-              return copy;
-            }
-            return [...prev, adminToRevoke];
-          });
-          toast.success(`Restored admin access for ${adminToRevoke.name}`);
-        }
-      }
-    });
   };
 
   const handleSavePermissions = () => {
     if (!editingAdmin) return;
-    setAdmins(prev => prev.map(a => a.id === editingAdmin.id ? editingAdmin : a));
-    toast.success(`Updated role and permissions matrix for ${editingAdmin.name}`);
+    const backendRole = editingAdmin.role === "Full Admin" ? "SUPER_ADMIN" : "ADMIN";
+    updateRoleMutation.mutate({ id: editingAdmin.id, role: backendRole });
     setEditingAdmin(null);
   };
 
   const createAdmin = () => {
-    if (!form.name || !form.email) {
-      toast.error("Complete name and email fields first");
-      return;
-    }
-    
-    const newId = `a_${Date.now()}`;
-    const newAdmin: AdminUser = {
-      id: newId,
-      name: form.name,
-      email: form.email,
-      role: form.role,
-      perms: form.perms,
-      status: "Active",
-      lastActive: "Just now",
-      grad: form.role === "Full Admin" 
-        ? "from-rose-500 to-rose-700" 
-        : form.role === "Moderator" 
-        ? "from-violet-500 to-violet-800" 
-        : "from-slate-500 to-slate-800"
-    };
-
-    setAdmins(prev => [...prev, newAdmin]);
-    setForm({ name: "", email: "", perms: [], role: "Support" });
-    setShowForm(false);
-    toast.success(`Created admin account for ${newAdmin.name}`);
+    toast.error("Admins must be registered through the standard registration endpoint with ADMIN role seeds");
   };
 
   return (
@@ -333,6 +346,20 @@ export default function ManageAdminsPage() {
                               className="px-3 py-1.5 border border-[#E8E1F0] dark:border-border/60 rounded-full text-[10px] font-semibold text-[#6B6480] dark:text-muted-foreground hover:bg-[#F7F4F9] dark:hover:bg-secondary transition-colors cursor-pointer"
                             >
                               Edit permissions
+                            </button>
+                            <button 
+                              onClick={() => {
+                                const newActive = a.status === "Suspended";
+                                updateStatusMutation.mutate({ id: a.id, isActive: newActive });
+                              }}
+                              className={cn(
+                                "px-3 py-1.5 border rounded-full text-[10px] font-semibold transition-colors cursor-pointer",
+                                a.status === "Suspended"
+                                  ? "border-emerald-250 text-emerald-500 bg-emerald-50/50 hover:bg-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/30"
+                                  : "border-amber-250 text-amber-500 bg-amber-50/50 hover:bg-amber-100 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/30"
+                              )}
+                            >
+                              {a.status === "Suspended" ? "Activate" : "Suspend"}
                             </button>
                             <button onClick={() => handleOpenRevoke(a)}
                                     className="flex items-center gap-1 px-3 py-1.5 border border-red-200 rounded-full text-[10px] font-semibold text-red-500 bg-red-50 hover:bg-red-100 dark:bg-rose-950/20 dark:text-rose-400 dark:border-rose-900/30 transition-colors cursor-pointer">

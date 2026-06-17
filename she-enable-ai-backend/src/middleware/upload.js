@@ -34,7 +34,16 @@ const uploadAvatar = multer({
 
 const uploadCv = multer({
   storage: cvStorage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
+  limits: { fileSize: 5 * 1024 * 1025 }, // 5MB max
+  fileFilter: (req, file, cb) => {
+    const filetypes = /pdf|doc|docx/;
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = filetypes.test(file.mimetype) || file.mimetype === 'application/msword' || file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+    if (extname && mimetype) {
+      return cb(null, true);
+    }
+    cb(new Error('Only PDF, DOC, and DOCX documents are allowed!'));
+  }
 });
 
 module.exports = {

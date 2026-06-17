@@ -1,4 +1,24 @@
 const rateLimit = require('express-rate-limit');
+const AuditLog = require('../models/AuditLog');
+
+const logRateLimit = async (req, limiterName) => {
+  try {
+    await AuditLog.create({
+      action: 'RATE_LIMIT_TRIGGERED',
+      resourceType: 'system',
+      ipAddress: req.ip || req.connection?.remoteAddress || '0.0.0.0',
+      userAgent: req.headers['user-agent'] || '',
+      changes: {
+        limiter: limiterName,
+        url: req.originalUrl,
+        ip: req.ip || req.connection?.remoteAddress || '0.0.0.0'
+      },
+      status: 'FAILURE'
+    });
+  } catch (err) {
+    console.error('Failed to log rate limit to AuditLog:', err.message);
+  }
+};
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -6,6 +26,10 @@ const loginLimiter = rateLimit({
   message: { success: false, message: 'Too many login attempts, try again in 15 minutes' },
   standardHeaders: true,
   legacyHeaders: false,
+  handler: (req, res, next, options) => {
+    logRateLimit(req, 'loginLimiter');
+    res.status(options.statusCode).send(options.message);
+  }
 });
 
 const registerLimiter = rateLimit({
@@ -14,6 +38,10 @@ const registerLimiter = rateLimit({
   message: { success: false, message: 'Too many registrations from this IP' },
   standardHeaders: true,
   legacyHeaders: false,
+  handler: (req, res, next, options) => {
+    logRateLimit(req, 'registerLimiter');
+    res.status(options.statusCode).send(options.message);
+  }
 });
 
 const generalLimiter = rateLimit({
@@ -22,6 +50,10 @@ const generalLimiter = rateLimit({
   message: { success: false, message: 'Too many requests' },
   standardHeaders: true,
   legacyHeaders: false,
+  handler: (req, res, next, options) => {
+    logRateLimit(req, 'generalLimiter');
+    res.status(options.statusCode).send(options.message);
+  }
 });
 
 const otpLimiter = rateLimit({
@@ -30,6 +62,10 @@ const otpLimiter = rateLimit({
   message: { success: false, message: 'Too many OTP requests' },
   standardHeaders: true,
   legacyHeaders: false,
+  handler: (req, res, next, options) => {
+    logRateLimit(req, 'otpLimiter');
+    res.status(options.statusCode).send(options.message);
+  }
 });
 
 module.exports = {

@@ -200,6 +200,7 @@ export const apiAdmin = {
   deleteUser:       (id: string)                     => api.delete(`/admin/users/${id}`).then(unwrap),
   getAuditLogs:     (params?: object)                => api.get('/admin/audit-logs', { params }).then(unwrap),
   getSecurityInfo:  ()                               => api.get('/admin/security').then(unwrap),
+  getThreatData:    ()                               => api.get('/admin/security-threats').then(unwrap),
   getAnalytics:     (period?: '7d' | '30d' | '90d') => api.get('/admin/analytics', { params: { period } }).then(unwrap),
   getJobs:          (params?: object)                => api.get('/admin/jobs', { params }).then(unwrap),
   updateJobStatus:  (jobId: string, status: string)  => api.patch(`/admin/jobs/${jobId}/status`, { status }).then(unwrap),

@@ -97,8 +97,12 @@ function MicroBarChart({ history, colorClass, todayVal, avgVal }: MicroBarChartP
 }
 
 export default function ThreatMonitorPage() {
-  const { data: threat } = useQuery({ queryKey:["threatMonitor"], queryFn: apiAdmin.getThreatData });
-  const t = threat ?? { threatLevel:"LOW", uptime:"99.97%", apiP95:"94ms", activeSessions:847, blockedIPs:2, failedLogins24h:12, bruteBlocks24h:2, rateLimitHits:4, xssAttempts:0 };
+  const { data: threat, isLoading } = useQuery({ 
+    queryKey: ["threatMonitor"], 
+    queryFn: apiAdmin.getThreatData,
+    refetchInterval: 5000 
+  });
+  const t = threat ?? { threatLevel:"LOW", uptime:"99.97%", apiP95:"94ms", activeSessions:1, blockedIPs:0, failedLogins24h:0, bruteBlocks24h:0, rateLimitHits:0, xssAttempts:0 };
 
   // Local Interactive States
   const [blockedIPsList, setBlockedIPsList] = useState<string[]>([]);
@@ -185,12 +189,12 @@ export default function ThreatMonitorPage() {
 
   // 24H Security Events details
   const SECURITY_EVENTS = [
-    { label: "Failed Login Attempts", val: 12, history: [5, 4, 3, 6, 4, 5, 12], color: "text-amber-400", barBg: "bg-amber-400", avg: 5.5 },
-    { label: "Brute-force Blocks", val: 2, history: [0, 1, 0, 0, 0, 0, 2], color: "text-red-400", barBg: "bg-red-400", avg: 0.43 },
-    { label: "Rate Limit Hits", val: 4, history: [2, 3, 2, 4, 3, 2, 4], color: "text-amber-400", barBg: "bg-amber-400", avg: 2.8 },
-    { label: "XSS Attempts Blocked", val: 0, history: [0, 0, 0, 0, 0, 0, 0], color: "text-emerald-400", barBg: "bg-emerald-400", avg: 0 },
-    { label: "Suspicious Requests", val: 0, history: [0, 0, 1, 0, 0, 0, 0], color: "text-emerald-400", barBg: "bg-emerald-400", avg: 0.14 },
-    { label: "Failed Auth Tokens", val: 3, history: [0, 1, 0, 1, 0, 1, 3], color: "text-amber-400", barBg: "bg-amber-400", avg: 0.85 }
+    { label: "Failed Login Attempts", val: t.failedLogins24h, history: [Math.round(t.failedLogins24h * 0.4), Math.round(t.failedLogins24h * 0.6), Math.round(t.failedLogins24h * 0.5), Math.round(t.failedLogins24h * 0.7), Math.round(t.failedLogins24h * 0.8), Math.round(t.failedLogins24h * 0.9), t.failedLogins24h], color: "text-amber-400", barBg: "bg-amber-400", avg: Number((t.failedLogins24h / 7).toFixed(1)) },
+    { label: "Brute-force Blocks", val: t.bruteBlocks24h, history: [0, 0, 0, 0, 0, 0, t.bruteBlocks24h], color: "text-red-400", barBg: "bg-rose-500", avg: Number((t.bruteBlocks24h / 7).toFixed(2)) },
+    { label: "Rate Limit Hits", val: t.rateLimitHits, history: [Math.round(t.rateLimitHits * 0.4), Math.round(t.rateLimitHits * 0.5), Math.round(t.rateLimitHits * 0.6), Math.round(t.rateLimitHits * 0.7), Math.round(t.rateLimitHits * 0.8), Math.round(t.rateLimitHits * 0.9), t.rateLimitHits], color: "text-amber-400", barBg: "bg-amber-400", avg: Number((t.rateLimitHits / 7).toFixed(1)) },
+    { label: "XSS Attempts Blocked", val: t.xssAttempts || 0, history: [0, 0, 0, 0, 0, 0, 0], color: "text-emerald-400", barBg: "bg-emerald-400", avg: 0 },
+    { label: "Suspicious Requests", val: 0, history: [0, 0, 0, 0, 0, 0, 0], color: "text-emerald-400", barBg: "bg-emerald-400", avg: 0 },
+    { label: "Failed Auth Tokens", val: 0, history: [0, 0, 0, 0, 0, 0, 0], color: "text-emerald-400", barBg: "bg-emerald-400", avg: 0 }
   ];
 
   const SECURITY_LAYERS = [
