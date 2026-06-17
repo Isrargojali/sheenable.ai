@@ -6,7 +6,7 @@ import {
   ShieldAlert, UserCog, Activity, Server, Database, Key, 
   Users, Briefcase, FileText, Sparkles, TrendingUp, AlertTriangle, 
   CheckCircle, ArrowRight, UserPlus, Shield, Cpu, FileDown, Ban,
-  HardDrive, Layers
+  HardDrive, Layers, X, ScrollText
 } from "lucide-react";
 import { DashboardShell, SectionCard } from "@/components/layout/DashboardShell";
 import { apiAdmin } from "@/lib/api";
@@ -157,6 +157,27 @@ export default function SuperAdminDashboard() {
   const { data: logsData = [] } = useQuery<any[]>({
     queryKey: ["auditLog"],
     queryFn: apiAdmin.getAuditLogs
+  });
+
+  // System Health query
+  const { data: healthData } = useQuery<any>({
+    queryKey: ["systemHealth"],
+    queryFn: apiAdmin.getSystemHealth,
+    refetchInterval: 10000
+  });
+
+  const ICON_MAP: Record<string, any> = {
+    Server,
+    Database,
+    Key,
+    Layers
+  };
+
+  const liveServices = (healthData?.services || SERVICES).map((s: any) => {
+    return {
+      ...s,
+      icon: ICON_MAP[s.iconName] || s.icon || Server
+    };
   });
 
   // Pending super admin actions queue
@@ -538,9 +559,9 @@ export default function SuperAdminDashboard() {
           {/* System resource gauges */}
           <SectionCard title="System Resource Overseer" subtitle="Host hardware hypervisor utilization">
             <div className="flex gap-3 justify-between">
-              <CircularGauge value={42} label="CPU Core" colorClass="stroke-primary" />
-              <CircularGauge value={64} label="RAM Allocation" colorClass="stroke-purple-500" />
-              <CircularGauge value={28} label="SSD Vault" colorClass="stroke-emerald-500" />
+              <CircularGauge value={healthData?.gauges?.cpuCore ?? 42} label="CPU Core" colorClass="stroke-primary" />
+              <CircularGauge value={healthData?.gauges?.ramAllocation ?? 64} label="RAM Allocation" colorClass="stroke-purple-500" />
+              <CircularGauge value={healthData?.gauges?.ssdVault ?? 28} label="SSD Vault" colorClass="stroke-emerald-500" />
             </div>
           </SectionCard>
         </div>
@@ -559,8 +580,8 @@ export default function SuperAdminDashboard() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {SERVICES.map(service => {
-            const isDegraded = service.status === "DEGRADED";
+          {liveServices.map(service => {
+            const isDegraded = service.status === "DEGRADED" || service.status === "DOWN";
             const SvgIcon = service.icon;
             return (
               <div
