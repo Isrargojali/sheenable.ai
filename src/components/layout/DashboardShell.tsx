@@ -215,28 +215,38 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
 
   const { unreadMessagesCount, appsCount, atsPendingCount, expiringListingsCount } = useNotificationBadges(role);
 
+  type AuditLogEntry = { createdAt: string; [key: string]: unknown };
+  type SecurityInfo = {
+    recentFailedLogins?: number;
+    accountsLockedToday?: number;
+    unverifiedAccounts?: number;
+    suspendedUsers?: number;
+    [key: string]: unknown;
+  };
+  type AdminUser = { id?: string; email?: string; role?: string; name?: string; [key: string]: unknown };
+
   // Admin badges queries
-  const { data: adminLogs = [] } = useQuery<any[]>({
+  const { data: adminLogs = [] } = useQuery<AuditLogEntry[]>({
     queryKey: ["sidebarAuditLogs"],
     queryFn: () => apiAdmin.getAuditLogs(),
     enabled: role === "ADMIN" || role === "SUPER_ADMIN",
   });
 
-  const { data: secInfo } = useQuery<any>({
+  const { data: secInfo } = useQuery<SecurityInfo>({
     queryKey: ["sidebarSecurityInfo"],
     queryFn: () => apiAdmin.getSecurityInfo(),
     enabled: role === "ADMIN" || role === "SUPER_ADMIN",
     refetchInterval: 15000,
   });
 
-  const { data: allUsers = [] } = useQuery<any[]>({
+  const { data: allUsers = [] } = useQuery<AdminUser[]>({
     queryKey: ["sidebarUsers"],
     queryFn: () => apiAdmin.getUsers(),
     enabled: role === "ADMIN" || role === "SUPER_ADMIN",
   });
 
   const lastVisitAudit = localStorage.getItem("last-visit-audit") || new Date(0).toISOString();
-  const unseenAuditCount = adminLogs.filter((l: any) => l.createdAt > lastVisitAudit).length;
+  const unseenAuditCount = adminLogs.filter((l: AuditLogEntry) => l.createdAt > lastVisitAudit).length;
   const activeThreats = (secInfo?.recentFailedLogins ?? 0) + (secInfo?.accountsLockedToday ?? 0);
   const usersToReview = (secInfo?.unverifiedAccounts ?? 0) + (secInfo?.suspendedUsers ?? 0);
   const pendingAdminRequests = parseInt(localStorage.getItem("admin-requests-pending") || "1", 10);
@@ -1336,19 +1346,19 @@ function CommandPaletteModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
 
-  const { data: users = [] } = useQuery<any[]>({
+  const { data: users = [] } = useQuery<{ id?: string; _id?: string; email: string; role: string; profile?: { firstName?: string; lastName?: string } }[]>({
     queryKey: ["commandPaletteUsers"],
     queryFn: () => apiAdmin.getUsers(),
     enabled: isOpen,
   });
 
-  const { data: auditLogs = [] } = useQuery<any[]>({
+  const { data: auditLogs = [] } = useQuery<{ id?: string; _id?: string; action: string; userId?: string; detail: string }[]>({
     queryKey: ["commandPaletteAudits"],
     queryFn: () => apiAdmin.getAuditLogs(),
     enabled: isOpen,
   });
 
-  const { data: jobs = [] } = useQuery<any[]>({
+  const { data: jobs = [] } = useQuery<{ id?: string; _id?: string; title: string; companyName?: string; status: string }[]>({
     queryKey: ["commandPaletteJobs"],
     queryFn: () => apiAdmin.getJobs(),
     enabled: isOpen,
@@ -1365,7 +1375,7 @@ function CommandPaletteModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
   const results: SearchResult[] = [];
 
   // Index Users
-  users.forEach((u: any) => {
+  users.forEach((u) => {
     const name = `${u.profile?.firstName || ""} ${u.profile?.lastName || ""}`.trim() || u.email;
     results.push({
       id: `user-${u.id || u._id}`,
@@ -1377,7 +1387,7 @@ function CommandPaletteModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
   });
 
   // Index Audit Logs
-  auditLogs.forEach((l: any) => {
+  auditLogs.forEach((l) => {
     results.push({
       id: `audit-${l.id || l._id}`,
       title: l.action.replace(/_/g, " "),
@@ -1388,7 +1398,7 @@ function CommandPaletteModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
   });
 
   // Index Jobs
-  jobs.forEach((j: any) => {
+  jobs.forEach((j) => {
     results.push({
       id: `job-${j.id || j._id}`,
       title: j.title,
