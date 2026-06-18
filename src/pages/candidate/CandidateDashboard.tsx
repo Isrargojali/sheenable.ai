@@ -464,11 +464,11 @@ export default function CandidateDashboard() {
                           <div className="text-[13px] font-extrabold text-foreground truncate group-hover:text-primary transition-colors leading-snug">
                             {job.title}
                           </div>
-                          <div className="text-[11px] text-muted-foreground mt-1 font-medium flex items-center gap-1.5">
+                          <div className="text-[11px] text-muted-foreground mt-1 font-medium flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-1.5">
                             <span>{job.employer.companyName}</span>
                             {job.location && (
                               <>
-                                <span className="text-muted-foreground/30">·</span>
+                                <span className="hidden sm:inline text-muted-foreground/30">·</span>
                                 <span className="inline-flex items-center gap-0.5"><MapPin size={10} /> {job.location}</span>
                               </>
                             )}
