@@ -137,8 +137,9 @@ export default function EmployerDashboard() {
 
   const companyName = profile?.companyName ?? "My Company";
   const activeCount = stats?.activeJobs ?? 0;
-  const myJobs = Array.isArray(jobs) ? jobs.slice(0, 3) : [];
+  const myJobs = Array.isArray(jobs) ? jobs.filter(Boolean).slice(0, 3) : [];
   const topCandidates = (Array.isArray(matchedCandidates) ? matchedCandidates : [])
+    .filter(Boolean)
     .map(c => {
       const name = `${c.firstName ?? ""} ${c.lastName ?? ""}`.trim();
       if (name.toLowerCase().includes("test user") || name.toLowerCase().includes("test")) {

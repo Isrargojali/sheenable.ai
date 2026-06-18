@@ -808,50 +808,43 @@ export function DashboardShell({
           <div className="flex items-stretch justify-around h-16 px-1">
             {bottomNavItems.map(item => {
               const Icon = item.icon;
+              const isActive = location.pathname === item.to;
+              let badgeCount = 0;
+              if (item.to.includes("messages")) {
+                badgeCount = unreadMessagesCount;
+              } else if (item.to.includes("applications") && role === "CANDIDATE") {
+                badgeCount = appsCount;
+              }
+
               return (
                 <NavLink
                   key={item.to}
                   to={item.to}
-                  className={({ isActive }) =>
-                    cn(
-                      "flex-1 flex flex-col items-center justify-center gap-0.5 py-2 transition-all duration-200",
-                      "text-[9px] font-bold uppercase tracking-wide rounded-token-md mx-0.5",
-                      isActive
-                        ? "text-primary"
-                        : "text-muted-foreground hover:text-foreground"
-                    )
-                  }
+                  className={cn(
+                    "flex-1 flex flex-col items-center justify-center gap-0.5 py-2 transition-all duration-200",
+                    "text-[9px] font-bold uppercase tracking-wide rounded-token-md mx-0.5",
+                    isActive
+                      ? "text-primary"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
                 >
-                  {({ isActive }) => {
-                    let badgeCount = 0;
-                    if (item.to.includes("messages")) {
-                      badgeCount = unreadMessagesCount;
-                    } else if (item.to.includes("applications") && role === "CANDIDATE") {
-                      badgeCount = appsCount;
-                    }
-
-                    return (
-                      <>
-                        <span
-                          className={cn(
-                            "flex items-center justify-center w-8 h-6 rounded-token-sm transition-all duration-200 relative",
-                            isActive && "bg-primary/10"
-                          )}
-                        >
-                          <Icon
-                            size={16}
-                            className={cn("transition-transform duration-200", isActive && "scale-110")}
-                          />
-                          {badgeCount > 0 && (
-                            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[8px] font-bold text-primary-foreground min-w-[14px]">
-                              {badgeCount}
-                            </span>
-                          )}
-                        </span>
-                        <span>{item.label}</span>
-                      </>
-                    );
-                  }}
+                  <span
+                    className={cn(
+                      "flex items-center justify-center w-8 h-6 rounded-token-sm transition-all duration-200 relative",
+                      isActive && "bg-primary/10"
+                    )}
+                  >
+                    <Icon
+                      size={16}
+                      className={cn("transition-transform duration-200", isActive && "scale-110")}
+                    />
+                    {badgeCount > 0 && (
+                      <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[8px] font-bold text-primary-foreground min-w-[14px]">
+                        {badgeCount}
+                      </span>
+                    )}
+                  </span>
+                  <span>{item.label}</span>
                 </NavLink>
               );
             })}

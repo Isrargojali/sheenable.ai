@@ -67,7 +67,7 @@ export default function CandidateDashboard() {
 
   const rawThreads = Array.isArray(threadsData) ? threadsData : (threadsData?.results ?? []);
   const unreadMessagesCount = rawThreads.reduce(
-    (acc: number, t: any) => acc + t.unreadCandidate,
+    (acc: number, t: any) => acc + (t?.unreadCandidate ?? 0),
     0
   );
 
@@ -132,12 +132,18 @@ export default function CandidateDashboard() {
       };
     });
 
-  const scheduledAppIds = new Set((ints ?? []).map((iv: any) => iv.applicationId?._id || iv.applicationId));
+  const scheduledAppIds = new Set(
+    (ints ?? [])
+      .filter(Boolean)
+      .map((iv: any) => iv.applicationId?._id || iv.applicationId)
+      .filter(Boolean)
+  );
 
   const invitations = (appsData ?? [])
-    .filter((app: any) => app.stage === "INTERVIEW" && !scheduledAppIds.has(app.id))
+    .filter(Boolean)
+    .filter((app: any) => app.stage === "INTERVIEW" && !scheduledAppIds.has(app.id || app._id))
     .map((app: any) => ({
-      id: app.id,
+      id: app.id || app._id,
       isScheduled: false,
       role: app.job?.title || "Job Opportunity",
       company: app.job?.employer?.companyName || "Company",
@@ -204,9 +210,9 @@ export default function CandidateDashboard() {
       let incompleteStep = 0;
       const p = profileData as Record<string, unknown> | null | undefined;
       if (!user?.firstName || !user?.lastName || !p?.bio) incompleteStep = 0;
-      else if (!p?.education || (p.education as unknown[]).length === 0) incompleteStep = 1;
-      else if (!p?.skills || (p.skills as unknown[]).length === 0) incompleteStep = 2;
-      else if (!p?.experience || (p.experience as unknown[]).length === 0) incompleteStep = 3;
+      else if (!p?.education || !Array.isArray(p.education) || p.education.length === 0) incompleteStep = 1;
+      else if (!p?.skills || !Array.isArray(p.skills) || p.skills.length === 0) incompleteStep = 2;
+      else if (!p?.experience || !Array.isArray(p.experience) || p.experience.length === 0) incompleteStep = 3;
       else incompleteStep = 4;
 
       return {
@@ -538,12 +544,12 @@ export default function CandidateDashboard() {
             noPad
           >
             <div className="divide-y divide-border/60">
-              {(rec ?? []).length === 0 ? (
+              {(rec ?? []).filter(Boolean).length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground/60 text-xs">
                   No active job recommendations found. Try expanding your profile skills!
                 </div>
               ) : (
-                (rec ?? []).map(job => (
+                (rec ?? []).filter(Boolean).map(job => (
                   <Link
                     key={job.id}
                     to={`/candidate/jobs?applyJobId=${job.id}`}
