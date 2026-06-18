@@ -237,12 +237,12 @@ export default function CVBuilderPage() {
       title="Professional CV Builder"
       subtitle="Smart, AI-powered ATS resume compiler with direct in-line editing"
       actions={
-        <div className="flex items-center gap-2 relative">
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-1.5 sm:gap-2 relative">
           <BtnOutline
             onClick={handlePrint}
             disabled={!activeCv}
           >
-            <Download size={12} /> Download PDF
+            <Download size={12} /> <span className="hidden sm:inline">Download PDF</span><span className="sm:hidden">PDF</span>
           </BtnOutline>
           <BtnOutline
             onClick={() => {
@@ -252,7 +252,7 @@ export default function CVBuilderPage() {
             }}
             disabled={!activeCv}
           >
-            <Share2 size={12} /> Share CV link
+            <Share2 size={12} /> <span className="hidden sm:inline">Share CV link</span><span className="sm:hidden">Share</span>
           </BtnOutline>
           <BtnPrimary
             onClick={handleSave}
@@ -260,11 +260,11 @@ export default function CVBuilderPage() {
             className={saved ? "bg-emerald-500 hover:bg-emerald-600 border-emerald-500" : ""}
           >
             {saved ? (
-              <><Check size={12} /> Saved Successfully</>
+              <><Check size={12} /> <span className="hidden sm:inline">Saved Successfully</span><span className="sm:hidden">Saved</span></>
             ) : saveMutation.isPending ? (
-              <><Loader2 size={12} className="animate-spin" /> Saving...</>
+              <><Loader2 size={12} className="animate-spin" /> <span className="hidden sm:inline">Saving...</span><span className="sm:hidden">Saving</span></>
             ) : (
-              "Save progress"
+              <><span className="hidden sm:inline">Save progress</span><span className="sm:hidden">Save</span></>
             )}
           </BtnPrimary>
 
@@ -347,7 +347,7 @@ export default function CVBuilderPage() {
               </div>
 
               {/* Tone Selection */}
-              <div className="grid grid-cols-2 gap-2.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-wide text-ink-300 mb-1.5">Writing Tone</label>
                   <select
@@ -362,7 +362,7 @@ export default function CVBuilderPage() {
                   </select>
                 </div>
 
-                <div className="flex items-center pt-5">
+                <div className="flex items-center pt-2 sm:pt-5">
                   <label className="inline-flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
@@ -397,7 +397,7 @@ export default function CVBuilderPage() {
             <div className="space-y-4">
               <div>
                 <label className="block text-[10px] font-bold uppercase tracking-wide text-ink-300 mb-1.5">Layout Style</label>
-                <div className="grid grid-cols-3 gap-3 mt-1.5">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-1.5">
                   {[
                     { id: "modern", name: "Sleek Modern" },
                     { id: "executive", name: "Executive Class" },
@@ -538,7 +538,7 @@ export default function CVBuilderPage() {
         </div>
 
         {/* ── Preview panel ── */}
-        <div className="lg:col-span-3 lg:sticky lg:top-5 max-h-[calc(100vh-130px)] overflow-y-auto pr-1 scrollbar-thin rounded-2xl">
+        <div className="lg:col-span-3 lg:sticky lg:top-5 lg:max-h-[calc(100vh-130px)] lg:overflow-y-auto overflow-visible pr-1 scrollbar-thin rounded-2xl">
           <SectionCard
             title="Interactive CV Preview"
             subtitle="Directly click and edit any field in real-time"
@@ -604,14 +604,14 @@ export default function CVBuilderPage() {
                     />
                     <div className="hidden print:block text-xs font-semibold uppercase tracking-wider text-muted-foreground mt-1">{activeCv.title}</div>
 
-                    <div className="text-[10px] text-muted-foreground mt-2 flex gap-3 flex-wrap">
+                    <div className="text-[10px] text-muted-foreground mt-2 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 flex-wrap">
                       {activeCv.email ? (
                         <>
                           <input
                             type="text"
                             value={activeCv.email}
                             onChange={(e) => setActiveCv({ ...activeCv, email: e.target.value })}
-                            className="bg-transparent border-b border-transparent hover:border-border/30 focus:border-primary focus:outline-none text-[10px] py-0.5 px-1 rounded transition-all min-w-[140px] print:hidden"
+                            className="bg-transparent border-b border-transparent hover:border-border/30 focus:border-primary focus:outline-none text-[10px] py-0.5 px-1 rounded transition-all w-full sm:w-auto sm:min-w-[140px] print:hidden"
                             placeholder="Email Address"
                           />
                           <span className="hidden print:inline text-[10px] text-muted-foreground">📧 {activeCv.email}</span>
@@ -629,7 +629,7 @@ export default function CVBuilderPage() {
                             type="text"
                             value={activeCv.phone}
                             onChange={(e) => setActiveCv({ ...activeCv, phone: e.target.value })}
-                            className="bg-transparent border-b border-transparent hover:border-border/30 focus:border-primary focus:outline-none text-[10px] py-0.5 px-1 rounded transition-all min-w-[120px] print:hidden"
+                            className="bg-transparent border-b border-transparent hover:border-border/30 focus:border-primary focus:outline-none text-[10px] py-0.5 px-1 rounded transition-all w-full sm:w-auto sm:min-w-[120px] print:hidden"
                             placeholder="Phone Number"
                           />
                           <span className="hidden print:inline text-[10px] text-muted-foreground">📞 {activeCv.phone}</span>
@@ -717,12 +717,12 @@ export default function CVBuilderPage() {
                             const newExp = activeCv.experience?.filter((_, idx) => idx !== i);
                             setActiveCv({ ...activeCv, experience: newExp });
                           }}
-                          className="absolute top-2 right-2 p-1 text-ink-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover/exp:opacity-100 print:hidden"
+                          className="absolute top-2 right-2 p-1 text-ink-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all md:opacity-0 opacity-100 group-hover/exp:opacity-100 print:hidden"
                         >
                           <Trash2 size={12} />
                         </button>
 
-                        <div className="flex items-baseline justify-between gap-3">
+                        <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1 sm:gap-3">
                           <input
                             type="text"
                             value={exp.title}
@@ -731,7 +731,7 @@ export default function CVBuilderPage() {
                               newExp[i] = { ...exp, title: e.target.value };
                               setActiveCv({ ...activeCv, experience: newExp });
                             }}
-                            className="text-[13px] font-bold text-foreground bg-transparent border-b border-transparent hover:border-border/30 focus:border-primary focus:outline-none w-1/2 py-0.5 px-1 rounded transition-all print:hidden"
+                            className="text-[13px] font-bold text-foreground bg-transparent border-b border-transparent hover:border-border/30 focus:border-primary focus:outline-none w-full sm:w-1/2 py-0.5 px-1 rounded transition-all print:hidden"
                             placeholder="Job Title"
                           />
                           <div className="hidden print:block text-[13px] font-bold text-foreground">{exp.title}</div>
@@ -746,7 +746,7 @@ export default function CVBuilderPage() {
                               newExp[i] = { ...exp, from: parts[0]?.trim() || "", to: parts[1]?.trim() || "" };
                               setActiveCv({ ...activeCv, experience: newExp });
                             }}
-                            className="text-[10px] text-muted-foreground bg-transparent border-b border-transparent hover:border-border/30 focus:border-primary focus:outline-none text-right py-0.5 px-1 rounded transition-all w-1/3 print:hidden"
+                            className="text-[10px] text-muted-foreground bg-transparent border-b border-transparent hover:border-border/30 focus:border-primary focus:outline-none text-left sm:text-right py-0.5 px-1 rounded transition-all w-full sm:w-1/3 print:hidden"
                             placeholder="Jan 2020 - Present"
                           />
                           <div className="hidden print:block text-[10px] text-muted-foreground text-right">{exp.from} – {exp.to}</div>
@@ -760,7 +760,7 @@ export default function CVBuilderPage() {
                             newExp[i] = { ...exp, company: e.target.value };
                             setActiveCv({ ...activeCv, experience: newExp });
                           }}
-                          className="text-[11px] text-muted-foreground bg-transparent border-b border-transparent hover:border-border/30 focus:border-primary focus:outline-none w-1/2 py-0.5 px-1 rounded transition-all mt-0.5 print:hidden"
+                          className="text-[11px] text-muted-foreground bg-transparent border-b border-transparent hover:border-border/30 focus:border-primary focus:outline-none w-full sm:w-1/2 py-0.5 px-1 rounded transition-all mt-0.5 print:hidden"
                           placeholder="Company Name"
                         />
                         <div className="hidden print:block text-[11px] text-muted-foreground mt-0.5">{exp.company}</div>
@@ -792,7 +792,7 @@ export default function CVBuilderPage() {
                                   newExp[i] = { ...exp, bullets: newBullets };
                                   setActiveCv({ ...activeCv, experience: newExp });
                                 }}
-                                className="absolute right-0 top-1/2 -translate-y-1/2 p-0.5 text-muted-foreground hover:text-red-500 opacity-0 group-hover/bullet:opacity-100 transition-all print:hidden"
+                                className="absolute right-0 top-1/2 -translate-y-1/2 p-0.5 text-muted-foreground hover:text-red-500 md:opacity-0 opacity-100 group-hover/bullet:opacity-100 transition-all print:hidden"
                               >
                                 ×
                               </button>
@@ -838,8 +838,8 @@ export default function CVBuilderPage() {
                 {activeCv.education && activeCv.education.length > 0 && (
                   <Section heading="Education" accent={accentColor} template={previewTemplate || selectedTemplate}>
                     {activeCv.education.map((ed, i) => (
-                      <div key={i} className="flex items-baseline justify-between gap-3 group/edu border border-transparent hover:border-border/30 hover:bg-secondary/10 p-2 rounded-lg transition-all relative mb-1.5 last:mb-0">
-                        <div className="flex-1">
+                      <div key={i} className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1 sm:gap-3 group/edu border border-transparent hover:border-border/30 hover:bg-secondary/10 p-2 rounded-lg transition-all relative mb-1.5 last:mb-0">
+                        <div className="w-full sm:flex-1">
                           <input
                             type="text"
                             value={ed.degree}
@@ -853,7 +853,7 @@ export default function CVBuilderPage() {
                           />
                           <div className="hidden print:block text-[12px] font-semibold text-foreground">{ed.degree}</div>
                         </div>
-                        <div className="flex-1 flex gap-2 justify-end items-center pr-6">
+                        <div className="w-full sm:flex-1 flex gap-2 justify-start sm:justify-end items-center pr-6">
                           <input
                             type="text"
                             value={ed.school}
@@ -862,7 +862,7 @@ export default function CVBuilderPage() {
                               newEdu[i] = { ...ed, school: e.target.value };
                               setActiveCv({ ...activeCv, education: newEdu });
                             }}
-                            className="text-[11px] text-muted-foreground bg-transparent border-b border-transparent hover:border-border/30 focus:border-primary focus:outline-none text-right py-0.5 px-1 rounded transition-all w-[65%] print:hidden"
+                            className="text-[11px] text-muted-foreground bg-transparent border-b border-transparent hover:border-border/30 focus:border-primary focus:outline-none text-left sm:text-right py-0.5 px-1 rounded transition-all w-[70%] sm:w-[65%] print:hidden"
                             placeholder="Institution"
                           />
                           <span className="hidden print:inline text-[11px] text-muted-foreground text-right">{ed.school}</span>
@@ -876,7 +876,7 @@ export default function CVBuilderPage() {
                               newEdu[i] = { ...ed, year: e.target.value };
                               setActiveCv({ ...activeCv, education: newEdu });
                             }}
-                            className="text-[11px] text-muted-foreground bg-transparent border-b border-transparent hover:border-border/30 focus:border-primary focus:outline-none text-right py-0.5 px-1 rounded transition-all w-[25%] print:hidden"
+                            className="text-[11px] text-muted-foreground bg-transparent border-b border-transparent hover:border-border/30 focus:border-primary focus:outline-none text-left sm:text-right py-0.5 px-1 rounded transition-all w-[25%] sm:w-[25%] print:hidden"
                             placeholder="Year"
                           />
                           <span className="hidden print:inline text-[11px] text-muted-foreground text-right"> · {ed.year}</span>
@@ -888,7 +888,7 @@ export default function CVBuilderPage() {
                             const newEdu = activeCv.education?.filter((_, idx) => idx !== i);
                             setActiveCv({ ...activeCv, education: newEdu });
                           }}
-                          className="absolute top-1/2 -translate-y-1/2 right-1.5 p-0.5 text-muted-foreground hover:text-red-500 hover:bg-red-50 rounded transition-all opacity-0 group-hover/edu:opacity-100 print:hidden"
+                          className="absolute top-1/2 -translate-y-1/2 right-1.5 p-0.5 text-muted-foreground hover:text-red-500 hover:bg-red-50 rounded transition-all md:opacity-0 opacity-100 group-hover/edu:opacity-100 print:hidden"
                         >
                           <Trash2 size={12} />
                         </button>

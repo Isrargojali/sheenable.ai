@@ -562,7 +562,7 @@ function Topbar({
           {showNotif && (
             <>
               <div className="fixed inset-0 z-30" onClick={() => setShowNotif(false)} />
-              <div className="absolute right-0 mt-2 w-80 bg-card rounded-2xl border border-border shadow-xl z-40 overflow-hidden animate-fade-in">
+              <div className="fixed sm:absolute top-16 sm:top-auto left-4 right-4 sm:left-auto sm:right-0 mt-2 sm:w-80 w-auto bg-card rounded-2xl border border-border shadow-xl z-40 overflow-hidden animate-fade-in">
                 <div className="px-4 py-3 border-b border-border flex items-center justify-between">
                   <span className="text-sm font-semibold">Notifications</span>
                   <button onClick={() => markAllReadMut.mutate()} className="text-[11px] text-primary font-semibold hover:underline">
