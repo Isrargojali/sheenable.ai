@@ -254,6 +254,9 @@ export default function CandidateDashboard() {
     };
   })();
 
+  const displayName = `${user?.firstName || (profileData as any)?.userId?.firstName || ""} ${user?.lastName || (profileData as any)?.userId?.lastName || ""}`.trim() || "Candidate";
+  const avatarUrl = user?.avatarUrl || (profileData as any)?.userId?.avatarUrl || (profileData as any)?.avatarUrl || null;
+
   return (
     <DashboardShell
       title={`Welcome back, ${user?.firstName ?? "there"}`}
@@ -275,19 +278,36 @@ export default function CandidateDashboard() {
           <div className="flex flex-col md:flex-row gap-5 items-start justify-between relative z-10">
             {/* Left Column: Avatar + Basic Info */}
             <div className="flex gap-4 items-start min-w-0">
-              {/* Initials Badge */}
-              <div className={cn(
-                "w-16 h-16 rounded-2xl flex items-center justify-center text-white text-xl font-bold flex-shrink-0 shadow-inner bg-gradient-to-br",
-                getCompanyGradient(`${user?.firstName || (profileData as any)?.userId?.firstName || ""} ${user?.lastName || (profileData as any)?.userId?.lastName || ""}`)
-              )}>
-                {initials(`${user?.firstName || (profileData as any)?.userId?.firstName || ""} ${user?.lastName || (profileData as any)?.userId?.lastName || ""}`)}
+              {/* Profile Image / Initials Badge */}
+              <div className="relative w-16 h-16 rounded-2xl overflow-hidden flex-shrink-0 shadow-inner">
+                {avatarUrl && (
+                  <img
+                    src={avatarUrl}
+                    alt={displayName}
+                    className="w-16 h-16 object-cover absolute inset-0 rounded-2xl animate-fade-in"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).style.display = "none";
+                      const fallback = e.currentTarget.nextElementSibling as HTMLElement | null;
+                      if (fallback) fallback.style.display = "flex";
+                    }}
+                  />
+                )}
+                <div
+                  className={cn(
+                    "w-16 h-16 flex items-center justify-center text-white text-xl font-bold bg-gradient-to-br",
+                    getCompanyGradient(displayName)
+                  )}
+                  style={{ display: avatarUrl ? "none" : "flex" }}
+                >
+                  {initials(displayName)}
+                </div>
               </div>
 
               {/* Identity */}
               <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h3 className="font-serif text-lg font-bold text-foreground leading-tight">
-                    {user?.firstName || (profileData as any)?.userId?.firstName || ""} {user?.lastName || (profileData as any)?.userId?.lastName || ""}
+                    {displayName}
                   </h3>
                   <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-primary/10 text-primary uppercase tracking-wider">
                     Candidate
@@ -320,15 +340,15 @@ export default function CandidateDashboard() {
             </div>
 
             {/* Right Column: Profile Actions */}
-            <div className="flex gap-2.5 w-full md:w-auto flex-shrink-0 flex-wrap sm:flex-nowrap md:self-center">
-              <Link to="/candidate/profile" className="flex-1 sm:flex-initial">
-                <BtnOutline className="w-full justify-center px-4 py-2 text-xs font-bold flex items-center gap-1.5 bg-background">
+            <div className="flex flex-col sm:flex-row gap-2.5 w-full md:w-auto flex-shrink-0 md:self-center">
+              <Link to="/candidate/profile" className="w-full sm:w-auto">
+                <BtnOutline className="w-full justify-center px-4 py-2 lg:px-5 lg:py-2.5 text-xs font-bold flex items-center gap-1.5 bg-background">
                   <User size={13} />
                   Edit Profile
                 </BtnOutline>
               </Link>
-              <Link to="/candidate/cv" className="flex-1 sm:flex-initial">
-                <BtnPrimary className="w-full justify-center px-4.5 py-2 text-xs font-bold flex items-center gap-1.5 shadow-sm">
+              <Link to="/candidate/cv" className="w-full sm:w-auto">
+                <BtnPrimary className="w-full justify-center px-4.5 py-2 lg:px-6 lg:py-2.5 text-xs font-bold flex items-center gap-1.5 shadow-sm">
                   <FileText size={13} />
                   Build Resume
                 </BtnPrimary>
