@@ -301,9 +301,20 @@ export default function CandidateDashboard() {
                   {(profileData as any)?.userId?.phone && (
                     <span>📞 {(profileData as any).userId.phone}</span>
                   )}
-                  {(profileData as any)?.location && (
-                    <span className="inline-flex items-center gap-0.5"><MapPin size={10} /> {(profileData as any).location}</span>
-                  )}
+                  {(profileData as any)?.location && (() => {
+                    const loc = (profileData as any).location;
+                    if (typeof loc === "string") {
+                      return <span className="inline-flex items-center gap-0.5"><MapPin size={10} /> {loc}</span>;
+                    }
+                    const parts = [loc.city, loc.country].filter(Boolean);
+                    if (parts.length > 0) {
+                      return <span className="inline-flex items-center gap-0.5"><MapPin size={10} /> {parts.join(", ")}</span>;
+                    }
+                    if (loc.remote) {
+                      return <span className="inline-flex items-center gap-0.5"><MapPin size={10} /> Remote</span>;
+                    }
+                    return null;
+                  })()}
                 </div>
               </div>
             </div>
