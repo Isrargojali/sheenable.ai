@@ -451,7 +451,11 @@ export default function CandidateDashboard() {
                 </div>
               ) : (
                 (rec ?? []).map(job => (
-                  <div key={job.id} className="p-5 hover:bg-secondary/35 transition-all duration-200 group cursor-pointer">
+                  <Link
+                    key={job.id}
+                    to={`/candidate/jobs?applyJobId=${job.id}`}
+                    className="block p-5 hover:bg-secondary/35 transition-all duration-200 group cursor-pointer"
+                  >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex gap-4 min-w-0">
                         <div className={cn(
@@ -501,7 +505,7 @@ export default function CandidateDashboard() {
                         <div className="text-[10px] text-muted-foreground/60 mt-1 font-medium">{relativeTime(job.createdAt)}</div>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 ))
               )}
             </div>
