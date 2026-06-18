@@ -289,11 +289,13 @@ export default function LoginPage() {
 
         <div className="w-full max-w-[440px] relative z-10 bg-card/70 backdrop-blur-xl border border-border/50 rounded-[28px] p-8 md:p-10 shadow-lg animate-fade-in">
           <div className="lg:hidden flex items-center justify-center mb-6">
-             <img
-              src={logo}
-              alt="SheEnableAI logo"
-              className="w-48 h-20 object-contain"
-            />
+            <Link to="/" className="flex items-center justify-center group" aria-label="SheEnableAI home">
+              <img
+                src={logo}
+                alt="SheEnableAI logo"
+                className="w-48 h-20 object-contain transition-transform group-hover:scale-105"
+              />
+            </Link>
           </div>
 
           <h1 className="font-serif text-3xl text-foreground text-center mb-1.5 tracking-tight">Welcome back</h1>

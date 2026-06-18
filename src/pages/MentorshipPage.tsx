@@ -33,7 +33,7 @@ export default function MentorshipPage() {
     queryFn: async () => {
       const res = await api.get("/mentors", {
         params: { expertise: selectedExpertise }
-      });
+      }) as any;
       return res.data.data;
     },
     enabled: !!token // Protected route
@@ -42,7 +42,7 @@ export default function MentorshipPage() {
   // Book mentorship session
   const bookMutation = useMutation({
     mutationFn: async (mentorId: string) => {
-      const res = await api.post(`/mentors/${mentorId}/book`);
+      const res = await api.post(`/mentors/${mentorId}/book`) as any;
       return res.data;
     },
     onSuccess: (data) => {
