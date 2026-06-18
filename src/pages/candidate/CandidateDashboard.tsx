@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import {
-  Eye, Sparkles, FileText, Award, ArrowRight, MapPin, Briefcase, Calendar, Video, Loader2, Clock, CheckCircle2, X
+  Eye, Sparkles, FileText, Award, ArrowRight, MapPin, Briefcase, Calendar, Video, Loader2, Clock, CheckCircle2, X, User
 } from "lucide-react";
 import { DashboardShell, SectionCard, BtnPrimary, BtnOutline } from "@/components/layout/DashboardShell";
 import { apiProfile, apiJobs, apiApplications, apiMessages } from "@/lib/api";
@@ -256,6 +256,103 @@ export default function CandidateDashboard() {
         </Link>
       }
     >
+      {/* ── Candidate Profile Hero Card ── */}
+      {profileData && (
+        <div className="bg-card border border-border/80 rounded-3xl p-5 mb-6 hover:shadow-md transition-all duration-300 relative overflow-hidden group">
+          {/* Subtle gradient background decoration */}
+          <div className="absolute right-0 top-0 w-64 h-64 bg-gradient-to-bl from-primary/5 via-transparent to-transparent pointer-events-none" />
+          
+          <div className="flex flex-col md:flex-row gap-5 items-start justify-between relative z-10">
+            {/* Left Column: Avatar + Basic Info */}
+            <div className="flex gap-4 items-start min-w-0">
+              {/* Avatar */}
+              {user?.avatarUrl || (profileData as any)?.userId?.avatarUrl ? (
+                <img
+                  src={user?.avatarUrl || (profileData as any)?.userId?.avatarUrl}
+                  alt={`${user?.firstName} ${user?.lastName}`}
+                  className="w-16 h-16 rounded-2xl object-cover border border-border/40 flex-shrink-0 shadow-sm transition-transform duration-300 group-hover:scale-[1.02]"
+                />
+              ) : (
+                <div className={cn(
+                  "w-16 h-16 rounded-2xl flex items-center justify-center text-white text-xl font-bold flex-shrink-0 shadow-inner bg-gradient-to-br",
+                  getCompanyGradient(`${user?.firstName} ${user?.lastName}`)
+                )}>
+                  {initials(`${user?.firstName} ${user?.lastName}`)}
+                </div>
+              )}
+
+              {/* Identity */}
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="font-serif text-lg font-bold text-foreground leading-tight">
+                    {user?.firstName} {user?.lastName}
+                  </h3>
+                  <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-primary/10 text-primary uppercase tracking-wider">
+                    Candidate
+                  </span>
+                </div>
+                <p className="text-[12px] font-semibold text-muted-foreground mt-1 leading-snug">
+                  {(profileData as any)?.title || "Professional Title Not Set"}
+                </p>
+                <div className="text-[10px] text-muted-foreground mt-2 flex flex-wrap gap-x-3 gap-y-1 items-center">
+                  <span>📧 {user?.email}</span>
+                  {(profileData as any)?.userId?.phone && (
+                    <span>📞 {(profileData as any).userId.phone}</span>
+                  )}
+                  {(profileData as any)?.location && (
+                    <span className="inline-flex items-center gap-0.5"><MapPin size={10} /> {(profileData as any).location}</span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: Profile Actions */}
+            <div className="flex gap-2.5 w-full md:w-auto flex-shrink-0 flex-wrap sm:flex-nowrap md:self-center">
+              <Link to="/candidate/profile" className="flex-1 sm:flex-initial">
+                <BtnOutline className="w-full justify-center px-4 py-2 text-xs font-bold flex items-center gap-1.5 bg-background">
+                  <User size={13} />
+                  Edit Profile
+                </BtnOutline>
+              </Link>
+              <Link to="/candidate/cv" className="flex-1 sm:flex-initial">
+                <BtnPrimary className="w-full justify-center px-4.5 py-2 text-xs font-bold flex items-center gap-1.5 shadow-sm">
+                  <FileText size={13} />
+                  Build Resume
+                </BtnPrimary>
+              </Link>
+            </div>
+          </div>
+
+          {/* Bottom section: Bio & Skills */}
+          {((profileData as any)?.bio || ((profileData as any)?.skills && (profileData as any).skills.length > 0)) && (
+            <div className="border-t border-border/40 mt-4 pt-4 flex flex-col gap-3">
+              {/* Short Bio */}
+              {(profileData as any)?.bio && (
+                <p className="text-[11px] text-ink-500 leading-relaxed max-w-3xl">
+                  {(profileData as any).bio}
+                </p>
+              )}
+              {/* Skills Tags */}
+              {(profileData as any)?.skills && (profileData as any).skills.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 items-center">
+                  <span className="text-[10px] font-bold text-ink-300 uppercase tracking-wider mr-1">Skills:</span>
+                  {(profileData as any).skills.map((skill: any, idx: number) => {
+                    const skillName = typeof skill === 'object' && skill !== null && 'name' in skill ? skill.name : String(skill);
+                    return (
+                      <span
+                        key={idx}
+                        className="text-[9px] px-2 py-0.5 rounded-full font-bold bg-secondary/50 text-muted-foreground border border-border/60 hover:border-primary/20 hover:text-primary transition-colors cursor-default"
+                      >
+                        {skillName}
+                      </span>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
       {/* Contextual Urgent Action Banner */}
       {urgentAction && (
         <div className={cn(

@@ -943,7 +943,15 @@ export function BtnOutline({
 function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const user = useAuthStore((s) => s.user);
   const setUser = useAuthStore((s) => s.setUser);
+  const logout = useAuthStore((s) => s.logout);
+  const navigate = useNavigate();
   const qc = useQueryClient();
+
+  const handleLogout = () => {
+    logout();
+    onClose();
+    navigate("/auth/login");
+  };
 
   const [activeTab, setActiveTab] = useState<"profile" | "preferences">("profile");
 
@@ -1285,6 +1293,25 @@ function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
                       <div className="w-4 h-4 bg-white rounded-full shadow-sm" />
                     </button>
                   </div>
+                </div>
+              </div>
+
+              {/* Session / Logout */}
+              <div className="border-t border-border pt-4">
+                <h3 className="text-xs font-bold text-foreground mb-3 uppercase tracking-wide text-red-500">Account Session</h3>
+                <div className="flex items-center justify-between bg-red-500/5 dark:bg-red-500/10 border border-red-500/10 rounded-2xl p-4">
+                  <div>
+                    <div className="text-[12px] font-bold text-foreground">Sign Out</div>
+                    <div className="text-[10px] text-muted-foreground mt-0.5">Sign out of your active session on this device</div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white active:scale-95 rounded-full text-[11px] font-bold shadow-sm transition-all flex items-center gap-1.5"
+                  >
+                    <LogOut size={12} />
+                    <span>Sign Out</span>
+                  </button>
                 </div>
               </div>
             </div>
