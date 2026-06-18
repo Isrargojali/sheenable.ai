@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Search, Clock, Tag, ArrowLeft, BookOpen, Share2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import { api } from "@/lib/api";
 import logo from "@/assets/sheEnableAI-removebg-preview.png";
 import SubpageNav from "@/components/landing/SubpageNav";
 
@@ -28,7 +28,7 @@ export default function BlogPage() {
   const { data: articles, isLoading } = useQuery<BlogArticle[]>({
     queryKey: ["blogArticles"],
     queryFn: async () => {
-      const res = await axios.get("http://localhost:5000/api/articles");
+      const res = await api.get("/articles");
       // Filter out pure candidate career tips for corporate blog index, keep news & research
       return res.data.data.filter((a: BlogArticle) => a.category !== "CAREER_ADVICE");
     }

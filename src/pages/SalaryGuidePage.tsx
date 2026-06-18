@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { DollarSign, ShieldAlert, Sparkles, Plus, Check, MapPin, Briefcase, RefreshCw, Send, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
-import axios from "axios";
+import { api } from "@/lib/api";
 import logo from "@/assets/sheEnableAI-removebg-preview.png";
 import SubpageNav from "@/components/landing/SubpageNav";
 
@@ -39,7 +39,7 @@ export default function SalaryGuidePage() {
   const { data: salaryStats, isLoading, refetch } = useQuery<SalaryStat[]>({
     queryKey: ["salaryStats"],
     queryFn: async () => {
-      const res = await axios.get("http://localhost:5000/api/salaries");
+      const res = await api.get("/salaries");
       return res.data.data;
     }
   });
@@ -47,12 +47,10 @@ export default function SalaryGuidePage() {
   // Submit salary mutation
   const submitMutation = useMutation({
     mutationFn: async (data: typeof form) => {
-      const res = await axios.post("http://localhost:5000/api/salaries", {
+      const res = await api.post("/salaries", {
         ...data,
         salaryPKR: Number(data.salaryPKR),
         experienceYears: Number(data.experienceYears)
-      }, {
-        withCredentials: true // For auth middleware compatibility
       });
       return res.data;
     },

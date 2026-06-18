@@ -1,7 +1,18 @@
 import axios, { type AxiosResponse } from 'axios';
 import { useAuthStore } from '../store/authStore';
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const getApiBaseUrl = () => {
+  let envUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+  if (typeof window !== 'undefined' && window.location.hostname) {
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    if (!isLocalhost && (envUrl.includes('localhost') || envUrl.includes('127.0.0.1'))) {
+      envUrl = envUrl.replace('localhost', window.location.hostname).replace('127.0.0.1', window.location.hostname);
+    }
+  }
+  return envUrl;
+};
+
+const BASE_URL = getApiBaseUrl();
 
 export const api = axios.create({
   baseURL: BASE_URL,

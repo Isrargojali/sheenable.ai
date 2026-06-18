@@ -61,10 +61,10 @@ const corsVerify = (origin, callback) => {
     return callback(null, true);
   }
 
-  // In development, allow any localhost or 127.0.0.1 origin (regardless of port fallback)
+  // In development, allow localhost, 127.0.0.1, and local private network subnets (regardless of port)
   if (process.env.NODE_ENV !== 'production') {
-    const isLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
-    if (isLocalhost) {
+    const isLocal = /^https?:\/\/((localhost|127\.0\.0\.1)|(192\.168\.\d+\.\d+)|(10\.\d+\.\d+\.\d+)|(172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+))(:\d+)?$/.test(origin);
+    if (isLocal) {
       return callback(null, true);
     }
   }

@@ -4,7 +4,7 @@ import { Calendar, MapPin, Users, Sparkles, Check, ArrowRight, Loader2, Play } f
 import { Link } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "sonner";
-import axios from "axios";
+import { api } from "@/lib/api";
 import logo from "@/assets/sheEnableAI-removebg-preview.png";
 import SubpageNav from "@/components/landing/SubpageNav";
 
@@ -35,7 +35,7 @@ export default function EventsPage() {
   const { data: events, isLoading } = useQuery<EventItem[]>({
     queryKey: ["events"],
     queryFn: async () => {
-      const res = await axios.get("http://localhost:5000/api/events");
+      const res = await api.get("/events");
       return res.data.data;
     }
   });
@@ -43,9 +43,7 @@ export default function EventsPage() {
   // Register for event mutation
   const registerMutation = useMutation({
     mutationFn: async (eventId: string) => {
-      const res = await axios.post(`http://localhost:5000/api/events/${eventId}/register`, {}, {
-        headers: token ? { Authorization: `Bearer ${token}` } : undefined
-      });
+      const res = await api.post(`/events/${eventId}/register`);
       return res.data;
     },
     onSuccess: (data) => {

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Search, Sparkles, BookOpen, Clock, Tag, ArrowLeft, Heart, Share2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import { api } from "@/lib/api";
 import logo from "@/assets/sheEnableAI-removebg-preview.png";
 import SubpageNav from "@/components/landing/SubpageNav";
 
@@ -30,7 +30,7 @@ export default function CareerAdvicePage() {
   const { data: articles, isLoading } = useQuery<Article[]>({
     queryKey: ["articles", selectedCategory],
     queryFn: async () => {
-      const res = await axios.get("http://localhost:5000/api/articles", {
+      const res = await api.get("/articles", {
         params: { category: selectedCategory }
       });
       return res.data.data;

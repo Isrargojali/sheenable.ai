@@ -4,7 +4,7 @@ import { Search, Sparkles, Heart, Clock, Check, Plus, ArrowRight, UserCheck, Loa
 import { Link } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "sonner";
-import axios from "axios";
+import { api } from "@/lib/api";
 import logo from "@/assets/sheEnableAI-removebg-preview.png";
 import SubpageNav from "@/components/landing/SubpageNav";
 
@@ -31,9 +31,8 @@ export default function MentorshipPage() {
   const { data: mentors, isLoading } = useQuery<Mentor[]>({
     queryKey: ["mentors", selectedExpertise],
     queryFn: async () => {
-      const res = await axios.get("http://localhost:5000/api/mentors", {
-        params: { expertise: selectedExpertise },
-        headers: token ? { Authorization: `Bearer ${token}` } : undefined
+      const res = await api.get("/mentors", {
+        params: { expertise: selectedExpertise }
       });
       return res.data.data;
     },
@@ -43,9 +42,7 @@ export default function MentorshipPage() {
   // Book mentorship session
   const bookMutation = useMutation({
     mutationFn: async (mentorId: string) => {
-      const res = await axios.post(`http://localhost:5000/api/mentors/${mentorId}/book`, {}, {
-        headers: token ? { Authorization: `Bearer ${token}` } : undefined
-      });
+      const res = await api.post(`/mentors/${mentorId}/book`);
       return res.data;
     },
     onSuccess: (data) => {
