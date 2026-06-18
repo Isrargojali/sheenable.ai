@@ -496,15 +496,17 @@ function Topbar({
     }
   });
 
-  const notifsList = (realNotifs ?? []).map((n: NotificationItem) => ({
-    id: n._id || n.id,
-    type: n.type,
-    title: n.title,
-    body: n.body,
-    unread: !n.isRead,
-    icon: NOTIF_ICONS[n.type] || "🔔",
-    timestamp: relativeTime(n.createdAt),
-  }));
+  const notifsList = (realNotifs ?? [])
+    .filter(Boolean)
+    .map((n: NotificationItem) => ({
+      id: n._id || n.id,
+      type: n.type || "SYSTEM",
+      title: n.title || "Notification",
+      body: n.body || "",
+      unread: !n.isRead,
+      icon: NOTIF_ICONS[n.type || "SYSTEM"] || "🔔",
+      timestamp: n.createdAt ? relativeTime(n.createdAt) : "Just now",
+    }));
 
   const unreadCount = notifsList.filter(n => n.unread).length;
 

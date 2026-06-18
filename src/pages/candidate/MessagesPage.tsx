@@ -180,9 +180,13 @@ export default function MessagesPage() {
     }
 
     const unread = isCand ? t.unreadCandidate : t.unreadEmployer;
-    const lastTime = t.lastMessage?.sentAt
-      ? new Date(t.lastMessage.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      : "";
+    const lastTime = (() => {
+      if (!t.lastMessage?.sentAt) return "";
+      const dateObj = new Date(t.lastMessage.sentAt);
+      return !isNaN(dateObj.getTime())
+        ? dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        : "";
+    })();
 
     const initialsVal = initials(name) || "C";
     const color = getCompanyGradient(name);
@@ -239,7 +243,12 @@ export default function MessagesPage() {
     id: m._id || m.id,
     threadId: m.threadId,
     text: m.content,
-    sentAt: new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    sentAt: (() => {
+      const dateObj = new Date(m.createdAt);
+      return !isNaN(dateObj.getTime())
+        ? dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        : "";
+    })(),
     isMe: String(m.senderId?._id || m.senderId) === String(user?.id),
     isRead: m.isRead || false
   }));
@@ -624,7 +633,13 @@ export default function MessagesPage() {
                         <div>
                           <div className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider">Application Date</div>
                           <div className="font-semibold text-foreground mt-0.5 text-[11px]">
-                            {matchingApp?.appliedAt ? new Date(matchingApp.appliedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : "Not applied yet"}
+                            {(() => {
+                              if (!matchingApp?.appliedAt) return "Not applied yet";
+                              const dateObj = new Date(matchingApp.appliedAt);
+                              return !isNaN(dateObj.getTime())
+                                ? dateObj.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+                                : "Not applied yet";
+                            })()}
                           </div>
                         </div>
                       </div>

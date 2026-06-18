@@ -47,16 +47,24 @@ export function formatSalary(min?: number, max?: number, currency?: string): str
   return salaryStr ? `${salaryStr} per month` : "";
 }
 
-export function relativeTime(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const mins = Math.floor(diff / 60_000);
-  if (mins < 1)  return "Just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24)  return `${hrs}h ago`;
-  const days = Math.floor(hrs / 24);
-  if (days < 7)  return `${days}d ago`;
-  return new Date(iso).toLocaleDateString();
+export function relativeTime(iso?: string | null): string {
+  if (!iso) return "Just now";
+  try {
+    const dateObj = new Date(iso);
+    const timeMs = dateObj.getTime();
+    if (isNaN(timeMs)) return "Just now";
+    const diff = Date.now() - timeMs;
+    const mins = Math.floor(diff / 60_000);
+    if (mins < 1)  return "Just now";
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24)  return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    if (days < 7)  return `${days}d ago`;
+    return dateObj.toLocaleDateString();
+  } catch {
+    return "Just now";
+  }
 }
 
 export function initials(name: string): string {

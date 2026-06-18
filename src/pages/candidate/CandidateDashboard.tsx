@@ -114,19 +114,23 @@ export default function CandidateDashboard() {
     }
   });
 
-  const scheduled = (ints ?? []).map((iv: any) => {
-    const dateObj = new Date(iv.scheduledAt);
-    return {
-      id: iv._id || iv.id,
-      isScheduled: true,
-      role: iv.applicationId?.jobId?.title || "Job Interview",
-      company: iv.interviewerId?.companyName || (iv.interviewerId?.firstName ? `${iv.interviewerId.firstName} ${iv.interviewerId.lastName}` : "Company"),
-      status: iv.status === "SCHEDULED" ? "CONFIRMED" : iv.status,
-      date: dateObj.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
-      time: dateObj.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
-      format: iv.type || "VIDEO",
-    };
-  });
+  const scheduled = (ints ?? [])
+    .filter(Boolean)
+    .map((iv: any) => {
+      const dateObj = new Date(iv.scheduledAt);
+      const timeMs = dateObj.getTime();
+      const isValid = !isNaN(timeMs);
+      return {
+        id: iv._id || iv.id,
+        isScheduled: true,
+        role: iv.applicationId?.jobId?.title || "Job Interview",
+        company: iv.interviewerId?.companyName || (iv.interviewerId?.firstName ? `${iv.interviewerId.firstName} ${iv.interviewerId.lastName}` : "Company"),
+        status: iv.status === "SCHEDULED" ? "CONFIRMED" : iv.status,
+        date: isValid ? dateObj.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "Scheduled",
+        time: isValid ? dateObj.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "",
+        format: iv.type || "VIDEO",
+      };
+    });
 
   const scheduledAppIds = new Set((ints ?? []).map((iv: any) => iv.applicationId?._id || iv.applicationId));
 
@@ -265,21 +269,13 @@ export default function CandidateDashboard() {
           <div className="flex flex-col md:flex-row gap-5 items-start justify-between relative z-10">
             {/* Left Column: Avatar + Basic Info */}
             <div className="flex gap-4 items-start min-w-0">
-              {/* Avatar */}
-              {user?.avatarUrl || (profileData as any)?.userId?.avatarUrl ? (
-                <img
-                  src={user?.avatarUrl || (profileData as any)?.userId?.avatarUrl}
-                  alt={`${user?.firstName || (profileData as any)?.userId?.firstName || ""} ${user?.lastName || (profileData as any)?.userId?.lastName || ""}`}
-                  className="w-16 h-16 rounded-2xl object-cover border border-border/40 flex-shrink-0 shadow-sm transition-transform duration-300 group-hover:scale-[1.02]"
-                />
-              ) : (
-                <div className={cn(
-                  "w-16 h-16 rounded-2xl flex items-center justify-center text-white text-xl font-bold flex-shrink-0 shadow-inner bg-gradient-to-br",
-                  getCompanyGradient(`${user?.firstName || (profileData as any)?.userId?.firstName || ""} ${user?.lastName || (profileData as any)?.userId?.lastName || ""}`)
-                )}>
-                  {initials(`${user?.firstName || (profileData as any)?.userId?.firstName || ""} ${user?.lastName || (profileData as any)?.userId?.lastName || ""}`)}
-                </div>
-              )}
+              {/* Initials Badge */}
+              <div className={cn(
+                "w-16 h-16 rounded-2xl flex items-center justify-center text-white text-xl font-bold flex-shrink-0 shadow-inner bg-gradient-to-br",
+                getCompanyGradient(`${user?.firstName || (profileData as any)?.userId?.firstName || ""} ${user?.lastName || (profileData as any)?.userId?.lastName || ""}`)
+              )}>
+                {initials(`${user?.firstName || (profileData as any)?.userId?.firstName || ""} ${user?.lastName || (profileData as any)?.userId?.lastName || ""}`)}
+              </div>
 
               {/* Identity */}
               <div className="min-w-0">
@@ -324,7 +320,7 @@ export default function CandidateDashboard() {
           </div>
 
           {/* Bottom section: Bio & Skills */}
-          {((profileData as any)?.bio || ((profileData as any)?.skills && (profileData as any).skills.length > 0)) && (
+          {((profileData as any)?.bio || (Array.isArray((profileData as any)?.skills) && (profileData as any).skills.length > 0)) && (
             <div className="border-t border-border/40 mt-4 pt-4 flex flex-col gap-3">
               {/* Short Bio */}
               {(profileData as any)?.bio && (
@@ -333,7 +329,7 @@ export default function CandidateDashboard() {
                 </p>
               )}
               {/* Skills Tags */}
-              {(profileData as any)?.skills && (profileData as any).skills.length > 0 && (
+              {Array.isArray((profileData as any)?.skills) && (profileData as any).skills.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 items-center">
                   <span className="text-[10px] font-bold text-ink-300 uppercase tracking-wider mr-1">Skills:</span>
                   {(profileData as any).skills.map((skill: any, idx: number) => {
