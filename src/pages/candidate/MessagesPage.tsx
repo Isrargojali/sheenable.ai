@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { 
   Send, Search, Plus, X, MessageSquare, Loader2,
   Paperclip, Link as LinkIcon, Smile, ChevronDown, ChevronUp, 
-  CheckCheck, Building, Calendar, Mail
+  CheckCheck, Building, Calendar, Mail, ArrowLeft
 } from "lucide-react";
 import { cn, initials, getCompanyGradient } from "@/lib/utils";
 import FileAttachment from "@/components/ui/FileAttachment";
@@ -115,6 +115,7 @@ export default function MessagesPage() {
   const qc = useQueryClient();
   const location = useLocation();
   const [activeThread, setActive] = useState<string>(location.state?.activeThreadId || "thread_1");
+  const [mobileShowChat, setMobileShowChat] = useState<boolean>(!!location.state?.activeThreadId);
   const [text, setText]           = useState("");
   const [showNewChatModal, setShowNewChatModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -295,6 +296,7 @@ export default function MessagesPage() {
       // Invalidate and await the query refetch to ensure the threads list contains the new thread before setting it active
       await qc.refetchQueries({ queryKey: ["threads"] });
       setActive(tId);
+      setMobileShowChat(true);
       setShowNewChatModal(false);
       qc.invalidateQueries({ queryKey: ["threadsBadge"] });
       toast.success("Conversation started!");
@@ -416,7 +418,7 @@ export default function MessagesPage() {
       <div className="bg-card border border-border rounded-2xl overflow-hidden flex h-[calc(100vh-190px)] min-h-[520px] shadow-sm">
         
         {/* Thread sidebar */}
-        <div className="w-72 flex-shrink-0 border-r border-border flex flex-col bg-card">
+        <div className={cn("w-full md:w-72 flex-shrink-0 border-r border-border flex flex-col bg-card", mobileShowChat ? "hidden md:flex" : "flex")}>
           <div className="p-4 border-b border-border flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-foreground">Messages</h3>
@@ -455,7 +457,10 @@ export default function MessagesPage() {
               filteredThreads.map((t: Thread) => (
                 <button
                   key={t.id}
-                  onClick={() => { setActive(t.id); }}
+                  onClick={() => { 
+                    setActive(t.id);
+                    setMobileShowChat(true);
+                  }}
                   className={cn(
                     "w-full flex items-center gap-3 px-4 py-3.5 border-b border-border/40 text-left transition-all",
                     t.id === activeThread 
@@ -518,7 +523,7 @@ export default function MessagesPage() {
         </div>
 
         {/* Chat area */}
-        <div className="flex-1 flex flex-col min-w-0 bg-secondary/5">
+        <div className={cn("flex-1 flex flex-col min-w-0 bg-secondary/5", mobileShowChat ? "flex" : "hidden md:flex")}>
           {activeThread === "thread_1" || !active ? (
             <div className="flex-1 flex items-center justify-center text-center p-6">
               <div className="max-w-sm">
@@ -535,6 +540,13 @@ export default function MessagesPage() {
             <>
               {/* Chat header */}
               <div className="flex items-center gap-3 px-5 py-3 border-b border-border bg-card flex-shrink-0 shadow-sm">
+                <button
+                  onClick={() => setMobileShowChat(false)}
+                  className="p-1.5 mr-1 text-muted-foreground hover:text-foreground hover:bg-secondary/60 rounded-lg transition-all md:hidden"
+                  aria-label="Back to threads"
+                >
+                  <ArrowLeft size={16} />
+                </button>
                 {active.with.avatarUrl ? (
                   <img 
                     src={active.with.avatarUrl} 
@@ -711,8 +723,8 @@ export default function MessagesPage() {
               <div className="p-4 border-t border-border bg-card flex-shrink-0 print:hidden flex flex-col gap-2">
                 
                 {/* Actions Toolbar */}
-                <div className="flex items-center justify-between text-muted-foreground text-xs border-b border-border/40 pb-2">
-                  <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 text-muted-foreground text-xs border-b border-border/40 pb-2">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                     {/* Attach CV/File */}
                     {user?.role === "CANDIDATE" && (
                       <>
