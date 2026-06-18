@@ -30,7 +30,7 @@ export default function CareerAdvicePage() {
   const { data: articles, isLoading } = useQuery<Article[]>({
     queryKey: ["articles", selectedCategory],
     queryFn: async () => {
-      const res = await api.get("/articles", {
+      const res = await api.get<{ data: Article[] }>("/articles", {
         params: { category: selectedCategory }
       });
       return res.data.data;
