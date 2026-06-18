@@ -135,8 +135,8 @@ export default function CandidateDashboard() {
     .map((app: any) => ({
       id: app.id,
       isScheduled: false,
-      role: app.job.title,
-      company: app.job.employer.companyName,
+      role: app.job?.title || "Job Opportunity",
+      company: app.job?.employer?.companyName || "Company",
       status: app.interviewAccepted ? "ACCEPTED" : "INVITATION PENDING",
       interviewAccepted: app.interviewAccepted,
       date: app.interviewAccepted ? "Pending employer scheduling" : "Action required",
@@ -269,15 +269,15 @@ export default function CandidateDashboard() {
               {user?.avatarUrl || (profileData as any)?.userId?.avatarUrl ? (
                 <img
                   src={user?.avatarUrl || (profileData as any)?.userId?.avatarUrl}
-                  alt={`${user?.firstName} ${user?.lastName}`}
+                  alt={`${user?.firstName || (profileData as any)?.userId?.firstName || ""} ${user?.lastName || (profileData as any)?.userId?.lastName || ""}`}
                   className="w-16 h-16 rounded-2xl object-cover border border-border/40 flex-shrink-0 shadow-sm transition-transform duration-300 group-hover:scale-[1.02]"
                 />
               ) : (
                 <div className={cn(
                   "w-16 h-16 rounded-2xl flex items-center justify-center text-white text-xl font-bold flex-shrink-0 shadow-inner bg-gradient-to-br",
-                  getCompanyGradient(`${user?.firstName} ${user?.lastName}`)
+                  getCompanyGradient(`${user?.firstName || (profileData as any)?.userId?.firstName || ""} ${user?.lastName || (profileData as any)?.userId?.lastName || ""}`)
                 )}>
-                  {initials(`${user?.firstName} ${user?.lastName}`)}
+                  {initials(`${user?.firstName || (profileData as any)?.userId?.firstName || ""} ${user?.lastName || (profileData as any)?.userId?.lastName || ""}`)}
                 </div>
               )}
 
@@ -285,7 +285,7 @@ export default function CandidateDashboard() {
               <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h3 className="font-serif text-lg font-bold text-foreground leading-tight">
-                    {user?.firstName} {user?.lastName}
+                    {user?.firstName || (profileData as any)?.userId?.firstName || ""} {user?.lastName || (profileData as any)?.userId?.lastName || ""}
                   </h3>
                   <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-primary/10 text-primary uppercase tracking-wider">
                     Candidate
@@ -295,7 +295,7 @@ export default function CandidateDashboard() {
                   {(profileData as any)?.title || "Professional Title Not Set"}
                 </p>
                 <div className="text-[10px] text-muted-foreground mt-2 flex flex-wrap gap-x-3 gap-y-1 items-center">
-                  <span>📧 {user?.email}</span>
+                  <span>📧 {user?.email || (profileData as any)?.userId?.email || ""}</span>
                   {(profileData as any)?.userId?.phone && (
                     <span>📞 {(profileData as any).userId.phone}</span>
                   )}
@@ -557,16 +557,16 @@ export default function CandidateDashboard() {
                       <div className="flex gap-4 min-w-0">
                         <div className={cn(
                           "w-11 h-11 rounded-xl flex items-center justify-center text-xs font-black flex-shrink-0 shadow-sm bg-gradient-to-br transition-all duration-300 group-hover:shadow-md",
-                          getCompanyGradient(job.employer.companyName)
+                          getCompanyGradient(job.employer?.companyName || "Company")
                         )}>
-                          {initials(job.employer.companyName)}
+                          {initials(job.employer?.companyName || "Company")}
                         </div>
                         <div className="min-w-0">
                           <div className="text-[13px] font-extrabold text-foreground truncate group-hover:text-primary transition-colors leading-snug">
                             {job.title}
                           </div>
                           <div className="text-[11px] text-muted-foreground mt-1 font-medium flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-1.5">
-                            <span>{job.employer.companyName}</span>
+                            <span>{job.employer?.companyName || "Company"}</span>
                             {job.location && (
                               <>
                                 <span className="hidden sm:inline text-muted-foreground/30">·</span>
