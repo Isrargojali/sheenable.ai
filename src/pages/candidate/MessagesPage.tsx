@@ -159,7 +159,7 @@ export default function MessagesPage() {
   // 1. Fetch threads with 5s real-time poll
   const { data: threadsData, refetch: refetchThreads, isLoading: threadsLoading } = useQuery<any>({
     queryKey: ["threads"],
-    queryFn: apiMessages.getThreads,
+    queryFn: async () => await apiMessages.getThreads(),
     refetchInterval: 5000,
   });
 
@@ -229,7 +229,7 @@ export default function MessagesPage() {
   // 2. Fetch thread messages with 3s real-time poll
   const { data: messagesData, refetch: refetchMessages } = useQuery<any>({
     queryKey: ["thread-messages", activeThread],
-    queryFn: () => apiMessages.getMessages(activeThread),
+    queryFn: async () => await apiMessages.getMessages(activeThread),
     enabled: !!activeThread && activeThread !== "thread_1",
     refetchInterval: 3000,
   });
@@ -273,20 +273,20 @@ export default function MessagesPage() {
   // ── Modal data loaders ──────────────────────────────────────────────────────
   const { data: appsData } = useQuery<any[]>({
     queryKey: ["candidateAppsForChat"],
-    queryFn: () => apiApplications.getApplications(),
+    queryFn: async () => (await apiApplications.getApplications()) as any[],
     enabled: user?.role === "CANDIDATE"
   });
 
   const { data: matchedCandidates } = useQuery({
     queryKey: ["employerCandidatesForChat"],
-    queryFn: () => apiAI.getMatchedCandidates(),
+    queryFn: async () => await apiAI.getMatchedCandidates(),
     enabled: showNewChatModal && user?.role === "EMPLOYER"
   });
 
   // Start a new thread
   const startThreadMut = useMutation({
-    mutationFn: (data: { recipientId: string; jobId?: string }) => 
-      apiMessages.startThread({ 
+    mutationFn: async (data: { recipientId: string; jobId?: string }) => 
+      await apiMessages.startThread({ 
         recipientId: data.recipientId, 
         jobId: data.jobId,
         initialMessage: "Hello! Let's connect." 
@@ -353,7 +353,7 @@ export default function MessagesPage() {
 
     const uploadToast = toast.loading("Uploading CV...");
     try {
-      const res = await apiUpload.uploadCv(formData);
+      const res = await apiUpload.uploadCv(formData) as any;
       const url = res.cvFileUrl;
       toast.dismiss(uploadToast);
       toast.success("CV uploaded successfully!");
