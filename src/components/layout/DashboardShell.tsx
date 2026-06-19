@@ -39,7 +39,7 @@ const NAV: Record<UserRole, NavGroup[]> = {
         { to: "/candidate/profile", label: "My Profile", icon: User },
         { to: "/candidate/cv", label: "CV Builder", icon: FilePlus },
       ],
-    },
+    },  
   ],
   EMPLOYER: [
     {
