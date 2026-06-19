@@ -25,7 +25,7 @@ type NavGroup = { label: string; items: NavItem[] };
 const NAV: Record<UserRole, NavGroup[]> = {
   CANDIDATE: [
     {
-      label: "Workspace",
+      label: "Workspace", 
       items: [
         { to: "/candidate/dashboard", label: "Dashboard", icon: LayoutDashboard },
         { to: "/candidate/jobs", label: "Browse Jobs", icon: Briefcase },
