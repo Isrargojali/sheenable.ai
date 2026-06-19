@@ -215,7 +215,7 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
 
   const { unreadMessagesCount, appsCount, atsPendingCount, expiringListingsCount } = useNotificationBadges(role);
 
-  type AuditLogEntry = { createdAt: string; [key: string]: unknown };
+  type AuditLogEntry = { createdAt: string;[key: string]: unknown };
   type SecurityInfo = {
     recentFailedLogins?: number;
     accountsLockedToday?: number;
@@ -223,7 +223,7 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
     suspendedUsers?: number;
     [key: string]: unknown;
   };
-  type AdminUser = { id?: string; email?: string; role?: string; name?: string; [key: string]: unknown };
+  type AdminUser = { id?: string; email?: string; role?: string; name?: string;[key: string]: unknown };
 
   // Admin badges queries
   const { data: adminLogs = [] } = useQuery<AuditLogEntry[]>({
