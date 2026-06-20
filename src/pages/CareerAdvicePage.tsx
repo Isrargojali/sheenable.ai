@@ -5,6 +5,13 @@ import { Link } from "react-router-dom";
 import { api } from "@/lib/api";
 import logo from "@/assets/sheEnableAI-removebg-preview.png";
 import SubpageNav from "@/components/landing/SubpageNav";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Article {
   _id: string;
@@ -23,7 +30,7 @@ interface Article {
 
 export default function CareerAdvicePage() {
   const [search, setSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [activeArticle, setActiveArticle] = useState<Article | null>(null);
 
   // Fetch articles from backend API
@@ -31,7 +38,7 @@ export default function CareerAdvicePage() {
     queryKey: ["articles", selectedCategory],
     queryFn: async () => {
       const res = await api.get<{ data: Article[] }>("/articles", {
-        params: { category: selectedCategory }
+        params: { category: selectedCategory === "all" ? "" : selectedCategory }
       });
       return res.data.data;
     }
@@ -158,16 +165,25 @@ export default function CareerAdvicePage() {
               </div>
 
               {/* Category selector */}
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="bg-[#1A0D1F] border border-white/5 rounded-2xl px-4 py-3 text-xs text-white/70 focus:outline-none focus:border-[#22C55E]"
-              >
-                <option value="">All Categories</option>
-                <option value="CAREER_ADVICE">Career Advice</option>
-                <option value="COMPANY_BLOG">Company Blog</option>
-                <option value="DEI_RESEARCH">DEI & Salary Studies</option>
-              </select>
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger className="w-full bg-[#1A0D1F] border border-transparent hover:bg-white/5 text-xs text-white/70 focus:ring-0 focus:ring-offset-0 focus:outline-none shadow-none cursor-pointer rounded-2xl px-4 py-3 h-auto flex items-center justify-between transition-colors">
+                  <SelectValue placeholder="Category" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#0F0A1A] border border-transparent rounded-xl shadow-2xl min-w-[200px] p-1">
+                  <SelectItem value="all" className="text-xs font-semibold text-white/80 focus:bg-white/10 focus:text-white rounded-lg cursor-pointer py-2 pl-8 pr-2">
+                    All Categories
+                  </SelectItem>
+                  <SelectItem value="CAREER_ADVICE" className="text-xs font-semibold text-white/80 focus:bg-white/10 focus:text-white rounded-lg cursor-pointer py-2 pl-8 pr-2">
+                    Career Advice
+                  </SelectItem>
+                  <SelectItem value="COMPANY_BLOG" className="text-xs font-semibold text-white/80 focus:bg-white/10 focus:text-white rounded-lg cursor-pointer py-2 pl-8 pr-2">
+                    Company Blog
+                  </SelectItem>
+                  <SelectItem value="DEI_RESEARCH" className="text-xs font-semibold text-white/80 focus:bg-white/10 focus:text-white rounded-lg cursor-pointer py-2 pl-8 pr-2">
+                    DEI & Salary Studies
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Loading skeletons */}

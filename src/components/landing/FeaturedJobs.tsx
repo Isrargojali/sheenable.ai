@@ -1,5 +1,4 @@
-// src/components/landing/FeaturedJobs.tsx
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Search, ArrowRight, SlidersHorizontal, X, UserPlus, LogIn, Sparkles, AlertCircle } from "lucide-react";
 import { JobCard, type JobCardData } from "@/components/ui-kit";
@@ -7,6 +6,13 @@ import { useQuery } from "@tanstack/react-query";
 import { apiJobs } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 // Extend JobCardData with `category` — present in the API response but not
@@ -22,66 +28,63 @@ export default function FeaturedJobs() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const [q, setQ] = useState("");
+  const [debouncedQ, setDebouncedQ] = useState("");
   const [industry, setIndustry] = useState(INDUSTRIES[0]);
   const [type, setType] = useState(TYPES[0]);
-  const [applyModalJob, setApplyModalJob] = useState<Job | null>(null); // Fix: Ln 19 — was `any`
+  const [applyModalJob, setApplyModalJob] = useState<Job | null>(null);
 
-  // Fetch real-time job listings from employers
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQ(q);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [q]);
+
+  // Fetch real-time job listings from employers with query filters
   const { data: realJobs = [], isLoading, error } = useQuery<Job[]>({
-    queryKey: ["landingFeaturedJobs", user?.id || "guest"],
+    queryKey: ["landingFeaturedJobs", user?.id || "guest", debouncedQ, industry, type],
     queryFn: async () => {
-      const res = await apiJobs.getJobs();
+      const params: any = { limit: 12 };
+      if (debouncedQ.trim()) params.search = debouncedQ.trim();
+      if (industry && industry !== INDUSTRIES[0]) params.category = industry;
+      if (type && type !== TYPES[0]) {
+        const cleanType = type.toUpperCase().replace("-", "");
+        if (["REMOTE", "HYBRID", "ONSITE"].includes(cleanType)) {
+          params.jobMode = cleanType;
+        } else {
+          params.jobType = cleanType;
+        }
+      }
+      const res = await apiJobs.getJobs(params);
       return Array.isArray(res) ? (res as Job[]) : [];
     },
-    staleTime: 3 * 60 * 1000, // 3 minutes stale time - prevents multiple fetches on rapid tab shifts
+    staleTime: 30 * 1000,
   });
 
-  // Filter real-time jobs based on search query, selected industry, and job type/mode
+  const handleFilterClick = () => {
+    const targetUrl = user ? "/candidate/jobs" : "/jobs";
+    const params = new URLSearchParams();
+    if (q.trim()) params.set("q", q.trim());
+    if (industry && industry !== INDUSTRIES[0]) params.set("category", industry);
+    if (type && type !== TYPES[0]) {
+      const cleanType = type.toUpperCase().replace("-", "");
+      if (["REMOTE", "HYBRID", "ONSITE"].includes(cleanType)) {
+        params.set("mode", cleanType);
+      } else {
+        params.set("type", cleanType);
+      }
+    }
+    navigate(`${targetUrl}?${params.toString()}`);
+  };
+
+  // The slice limit is applied to the API results
   const filtered = useMemo(() => {
-    return realJobs.filter((j: Job) => { // Fix: Ln 75 — was `any`
-      // 1. Search filter (title, company name, skills)
-      if (q) {
-        const queryText = `${j.title ?? ""} ${j.employer?.companyName ?? ""} ${(j.skills ?? []).join(" ")}`.toLowerCase();
-        if (!queryText.includes(q.toLowerCase())) return false;
-      }
-
-      // 2. Industry filter (category)
-      if (industry && industry !== INDUSTRIES[0]) {
-        const jobCategory = (j.category ?? "").toLowerCase().trim();
-        const filterIndustry = industry.toLowerCase().trim();
-
-        if (jobCategory !== filterIndustry) {
-          const cleanJobCategory = jobCategory.replace("&", "and").replace("-", " ").replace("  ", " ");
-          const cleanFilterIndustry = filterIndustry.replace("&", "and").replace("-", " ").replace("  ", " ");
-
-          if (
-            cleanJobCategory !== cleanFilterIndustry &&
-            !cleanJobCategory.includes(cleanFilterIndustry) &&
-            !cleanFilterIndustry.includes(cleanJobCategory)
-          ) {
-            return false;
-          }
-        }
-      }
-
-      // 3. Job type or mode filter
-      if (type && type !== TYPES[0]) {
-        const cleanFilterType = type.toLowerCase().replace("-", "").replace(" ", "").trim();
-        const jobType = (j.type ?? "").toLowerCase().replace("-", "").replace(" ", "").trim();
-        const jobMode = (j.mode ?? "").toLowerCase().replace("-", "").replace(" ", "").trim();
-
-        if (jobType !== cleanFilterType && jobMode !== cleanFilterType) {
-          return false;
-        }
-      }
-
-      return true;
-    }).slice(0, 6);
-  }, [realJobs, q, industry, type]);
+    return realJobs.slice(0, 6);
+  }, [realJobs]);
 
   // Handle Apply Now button click
   const handleApplyClick = (jobId: string) => {
-    const selectedJob = realJobs.find((j: Job) => j.id === jobId); // Fix: Ln 195 — was `any`
+    const selectedJob = realJobs.find((j: Job) => j.id === jobId);
     if (!selectedJob) return;
 
     if (selectedJob.hasApplied) {
@@ -134,23 +137,43 @@ export default function FeaturedJobs() {
             aria-label="Search jobs"
           />
         </div>
-        <select
-          value={industry}
-          onChange={e => setIndustry(e.target.value)}
-          className="h-11 px-3 rounded-xl bg-[var(--ink-100)] text-[13px] font-semibold text-[var(--ink-500)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-pink)]/20 cursor-pointer"
-          aria-label="Industry"
+        <Select value={industry} onValueChange={setIndustry}>
+          <SelectTrigger className="h-11 w-full sm:w-[180px] px-3.5 rounded-xl bg-[var(--ink-100)] border border-transparent hover:bg-[var(--ink-300)]/40 text-[13px] font-semibold text-[var(--ink-700)] focus:ring-0 focus:ring-offset-0 focus:outline-none shadow-none cursor-pointer transition-colors duration-200">
+            <SelectValue placeholder="Industry" />
+          </SelectTrigger>
+          <SelectContent className="bg-[var(--surface)] border border-transparent rounded-xl shadow-card min-w-[180px] p-1">
+            {INDUSTRIES.map(i => (
+              <SelectItem
+                key={i}
+                value={i}
+                className="text-[13px] font-semibold text-[var(--ink-700)] focus:bg-[var(--ink-100)] focus:text-[var(--ink-900)] rounded-lg cursor-pointer py-2 pl-8 pr-2"
+              >
+                {i}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={type} onValueChange={setType}>
+          <SelectTrigger className="h-11 w-full sm:w-[150px] px-3.5 rounded-xl bg-[var(--ink-100)] border border-transparent hover:bg-[var(--ink-300)]/40 text-[13px] font-semibold text-[var(--ink-700)] focus:ring-0 focus:ring-offset-0 focus:outline-none shadow-none cursor-pointer transition-colors duration-200">
+            <SelectValue placeholder="Job Type" />
+          </SelectTrigger>
+          <SelectContent className="bg-[var(--surface)] border border-transparent rounded-xl shadow-card min-w-[150px] p-1">
+            {TYPES.map(t => (
+              <SelectItem
+                key={t}
+                value={t}
+                className="text-[13px] font-semibold text-[var(--ink-700)] focus:bg-[var(--ink-100)] focus:text-[var(--ink-900)] rounded-lg cursor-pointer py-2 pl-8 pr-2"
+              >
+                {t}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <button
+          onClick={handleFilterClick}
+          className="inline-flex items-center gap-1.5 h-11 px-6 rounded-xl bg-[var(--brand-pink)] text-white text-[15px] font-semibold hover:bg-[var(--brand-pink)]/90 press"
         >
-          {INDUSTRIES.map(i => <option key={i}>{i}</option>)}
-        </select>
-        <select
-          value={type}
-          onChange={e => setType(e.target.value)}
-          className="h-11 px-3 rounded-xl bg-[var(--ink-100)] text-[13px] font-semibold text-[var(--ink-500)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-pink)]/20 cursor-pointer"
-          aria-label="Job type"
-        >
-          {TYPES.map(t => <option key={t}>{t}</option>)}
-        </select>
-        <button className="inline-flex items-center gap-1.5 h-11 px-6 rounded-xl bg-[var(--brand-pink)] text-white text-[15px] font-semibold hover:bg-[var(--brand-pink)]/90 press">
           <SlidersHorizontal size={13} /> Filter
         </button>
       </div>

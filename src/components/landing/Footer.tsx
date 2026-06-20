@@ -97,18 +97,18 @@ export default function Footer() {
               {done ? (
                 <div className="text-[14px] text-[var(--accent-green)]">✓ Thanks — we'll be in touch.</div>
               ) : (
-                <div className="flex gap-1.5">
+                <div className="flex flex-col sm:flex-row gap-1.5">
                   <input
                     type="email"
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     placeholder="you@example.com"
-                    className="flex-1 h-9 px-3 rounded-xl bg-white/10 text-[14px] text-[var(--ink-300)] placeholder:text-[var(--ink-500)] focus:outline-none focus:bg-white/15"
+                    className="w-full sm:flex-1 h-9 px-3 rounded-xl bg-white/10 text-[14px] text-[var(--ink-300)] placeholder:text-[var(--ink-500)] focus:outline-none focus:bg-white/15"
                     aria-label="Email for newsletter"
                   />
                   <button
                     type="submit"
-                    className="h-9 px-4 rounded-xl bg-[var(--ink-100)] text-[var(--ink-900)] hover:bg-[var(--ink-300)] text-[13px] font-semibold press"
+                    className="h-9 px-4 rounded-xl bg-[var(--ink-100)] text-[var(--ink-900)] hover:bg-[var(--ink-300)] text-[13px] font-semibold press w-full sm:w-auto flex-shrink-0"
                   >
                     Join
                   </button>

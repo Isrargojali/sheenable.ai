@@ -7,6 +7,13 @@ import { apiJobs, apiApplications, apiProfile } from "@/lib/api";
 import { formatSalary, relativeTime, cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Job {
   id: string;
@@ -75,8 +82,8 @@ export default function JobsBrowsePage() {
   const [hasAutoOpened, setHasAutoOpened] = useState(false);
 
   const qc = useQueryClient();
-  const [search,   setSearch]   = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [search,   setSearch]   = useState(searchParams.get("q") ?? "");
+  const [debouncedSearch, setDebouncedSearch] = useState(searchParams.get("q") ?? "");
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -85,10 +92,19 @@ export default function JobsBrowsePage() {
     return () => clearTimeout(timer);
   }, [search]);
 
-  const [category, setCategory] = useState("All");
-  const [type,     setType]     = useState("All");
-  const [mode,     setMode]     = useState("All");
-  const [sort,     setSort]     = useState("");
+  const [category, setCategory] = useState(() => {
+    const cat = searchParams.get("category");
+    return cat && CATEGORIES.includes(cat as any) ? cat : "All";
+  });
+  const [type,     setType]     = useState(() => {
+    const t = searchParams.get("type");
+    return t && TYPES.includes(t as any) ? t : "All";
+  });
+  const [mode,     setMode]     = useState(() => {
+    const m = searchParams.get("mode");
+    return m && MODES.includes(m as any) ? m : "All";
+  });
+  const [sort,     setSort]     = useState("recent");
 
   const [applyingJob, setApplyingJob] = useState<Job | null>(null);
   const [coverLetter, setCoverLetter] = useState("");
@@ -180,7 +196,7 @@ ${candidateName}`;
         category: category === "All" ? undefined : category,
         jobType:  type     === "All" ? undefined : type,
         jobMode:  mode     === "All" ? undefined : mode,
-        sort,
+        sort: sort === "recent" ? undefined : sort,
       });
       
       // Since apiJobs.getJobs already runs `.then(unwrap)`, the response is the unwrapped Job[] array directly
@@ -339,16 +355,17 @@ ${candidateName}`;
           </span>
           <div className="flex items-center gap-1.5">
             <span className="text-[11px] text-muted-foreground font-medium">Sort:</span>
-            <select 
-              value={sort} 
-              onChange={e => setSort(e.target.value)}
-              className="text-[11px] border border-border rounded-lg px-2 py-1 bg-card text-foreground outline-none focus:border-primary cursor-pointer font-bold transition-all hover:bg-secondary/20"
-            >
-              <option value="">Recent ▾</option>
-              <option value="salary_desc">Salary: High to Low ▾</option>
-              <option value="salary_asc">Salary: Low to High ▾</option>
-              <option value="most_applied">Popularity ▾</option>
-            </select>
+            <Select value={sort} onValueChange={setSort}>
+              <SelectTrigger className="h-7 text-[11px] px-2 rounded-lg bg-card border border-transparent hover:bg-secondary/20 text-foreground focus:ring-0 focus:ring-offset-0 focus:outline-none shadow-none cursor-pointer font-bold transition-all flex items-center justify-between gap-1">
+                <SelectValue placeholder="Recent" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover border border-transparent rounded-lg shadow-lg min-w-[140px] p-1">
+                <SelectItem value="recent" className="text-[11px] font-bold text-foreground focus:bg-accent focus:text-accent-foreground rounded cursor-pointer py-1.5 pl-8 pr-2">Recent</SelectItem>
+                <SelectItem value="salary_desc" className="text-[11px] font-bold text-foreground focus:bg-accent focus:text-accent-foreground rounded cursor-pointer py-1.5 pl-8 pr-2">Salary: High to Low</SelectItem>
+                <SelectItem value="salary_asc" className="text-[11px] font-bold text-foreground focus:bg-accent focus:text-accent-foreground rounded cursor-pointer py-1.5 pl-8 pr-2">Salary: Low to High</SelectItem>
+                <SelectItem value="most_applied" className="text-[11px] font-bold text-foreground focus:bg-accent focus:text-accent-foreground rounded cursor-pointer py-1.5 pl-8 pr-2">Popularity</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       )}

@@ -8,6 +8,13 @@ import { JobCard, type JobCardData } from "@/components/ui-kit";
 import { apiJobs } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type Job = JobCardData & { category?: string };
 
@@ -19,8 +26,20 @@ export default function BrowseJobsPage() {
   const { user } = useAuthStore();
   const [searchParams] = useSearchParams();
   const [q, setQ] = useState(searchParams.get("q") ?? "");
-  const [industry, setIndustry] = useState(INDUSTRIES[0]);
-  const [type, setType] = useState(TYPES[0]);
+  const [industry, setIndustry] = useState(() => {
+    const cat = searchParams.get("category");
+    return cat && INDUSTRIES.includes(cat) ? cat : INDUSTRIES[0];
+  });
+  const [type, setType] = useState(() => {
+    const urlMode = searchParams.get("mode")?.toLowerCase();
+    const urlType = searchParams.get("type")?.toLowerCase();
+    if (urlMode === "remote") return "Remote";
+    if (urlMode === "hybrid") return "Hybrid";
+    if (urlMode === "onsite") return "Onsite";
+    if (urlType === "fulltime" || urlType === "full-time") return "Full-time";
+    if (urlType === "parttime" || urlType === "part-time") return "Part-time";
+    return TYPES[0];
+  });
   const [applyModalJob, setApplyModalJob] = useState<Job | null>(null);
 
   useEffect(() => {
@@ -142,23 +161,39 @@ export default function BrowseJobsPage() {
             />
           </div>
 
-          <select
-            value={industry}
-            onChange={e => setIndustry(e.target.value)}
-            className="h-11 px-4 rounded-xl bg-white/5 border border-white/5 text-xs text-white/80 focus:outline-none focus:ring-2 focus:ring-[#22C55E]/15 cursor-pointer"
-            aria-label="Industry filter"
-          >
-            {INDUSTRIES.map(i => <option key={i} value={i} className="bg-[#0F0A1A]">{i}</option>)}
-          </select>
+          <Select value={industry} onValueChange={setIndustry}>
+            <SelectTrigger className="h-11 w-full sm:w-[180px] px-4 rounded-xl bg-white/5 border border-transparent hover:bg-white/10 text-xs text-white/80 focus:ring-0 focus:ring-offset-0 focus:outline-none shadow-none cursor-pointer flex items-center justify-between transition-colors">
+              <SelectValue placeholder="Industry" />
+            </SelectTrigger>
+            <SelectContent className="bg-[#0F0A1A] border-none rounded-xl shadow-2xl min-w-[180px]">
+              {INDUSTRIES.map(i => (
+                <SelectItem
+                  key={i}
+                  value={i}
+                  className="text-xs font-semibold text-white/80 focus:bg-white/10 focus:text-white rounded-lg cursor-pointer py-2 pl-8 pr-2"
+                >
+                  {i}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-          <select
-            value={type}
-            onChange={e => setType(e.target.value)}
-            className="h-11 px-4 rounded-xl bg-white/5 border border-white/5 text-xs text-white/80 focus:outline-none focus:ring-2 focus:ring-[#22C55E]/15 cursor-pointer"
-            aria-label="Job type filter"
-          >
-            {TYPES.map(t => <option key={t} value={t} className="bg-[#0F0A1A]">{t}</option>)}
-          </select>
+          <Select value={type} onValueChange={setType}>
+            <SelectTrigger className="h-11 w-full sm:w-[150px] px-4 rounded-xl bg-white/5 border border-transparent hover:bg-white/10 text-xs text-white/80 focus:ring-0 focus:ring-offset-0 focus:outline-none shadow-none cursor-pointer flex items-center justify-between transition-colors">
+              <SelectValue placeholder="Job Type" />
+            </SelectTrigger>
+            <SelectContent className="bg-[#0F0A1A] border-none rounded-xl shadow-2xl min-w-[150px]">
+              {TYPES.map(t => (
+                <SelectItem
+                  key={t}
+                  value={t}
+                  className="text-xs font-semibold text-white/80 focus:bg-white/10 focus:text-white rounded-lg cursor-pointer py-2 pl-8 pr-2"
+                >
+                  {t}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Loading state */}

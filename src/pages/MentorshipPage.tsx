@@ -7,6 +7,13 @@ import { toast } from "sonner";
 import { api } from "@/lib/api";
 import logo from "@/assets/sheEnableAI-removebg-preview.png";
 import SubpageNav from "@/components/landing/SubpageNav";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Mentor {
   _id: string;
@@ -24,7 +31,7 @@ export default function MentorshipPage() {
   const queryClient = useQueryClient();
   const { token } = useAuthStore();
   const [search, setSearch] = useState("");
-  const [selectedExpertise, setSelectedExpertise] = useState("");
+  const [selectedExpertise, setSelectedExpertise] = useState("all");
   const [activeMentor, setActiveMentor] = useState<Mentor | null>(null);
 
   // Fetch mentors from API
@@ -32,7 +39,7 @@ export default function MentorshipPage() {
     queryKey: ["mentors", selectedExpertise],
     queryFn: async () => {
       const res = await api.get("/mentors", {
-        params: { expertise: selectedExpertise }
+        params: { expertise: selectedExpertise === "all" ? "" : selectedExpertise }
       }) as any;
       return res.data.data;
     },
@@ -127,17 +134,28 @@ export default function MentorshipPage() {
               </div>
 
               {/* Specialty selector */}
-              <select
-                value={selectedExpertise}
-                onChange={(e) => setSelectedExpertise(e.target.value)}
-                className="bg-[#1A0D1F] border border-white/5 rounded-2xl px-4 py-3 text-xs text-white/70 focus:outline-none focus:border-[#22C55E]"
-              >
-                <option value="">All Specialties</option>
-                <option value="System Architecture">System Architecture</option>
-                <option value="UX Research">UX Research</option>
-                <option value="React">React</option>
-                <option value="Product Strategy">Product Strategy</option>
-              </select>
+              <Select value={selectedExpertise} onValueChange={setSelectedExpertise}>
+                <SelectTrigger className="w-full bg-[#1A0D1F] border border-transparent hover:bg-white/5 text-xs text-white/70 focus:ring-0 focus:ring-offset-0 focus:outline-none shadow-none cursor-pointer rounded-2xl px-4 py-3 h-auto flex items-center justify-between transition-colors">
+                  <SelectValue placeholder="Specialty" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#0F0A1A] border border-transparent rounded-xl shadow-2xl min-w-[200px] p-1">
+                  <SelectItem value="all" className="text-xs font-semibold text-white/80 focus:bg-white/10 focus:text-white rounded-lg cursor-pointer py-2 pl-8 pr-2">
+                    All Specialties
+                  </SelectItem>
+                  <SelectItem value="System Architecture" className="text-xs font-semibold text-white/80 focus:bg-white/10 focus:text-white rounded-lg cursor-pointer py-2 pl-8 pr-2">
+                    System Architecture
+                  </SelectItem>
+                  <SelectItem value="UX Research" className="text-xs font-semibold text-white/80 focus:bg-white/10 focus:text-white rounded-lg cursor-pointer py-2 pl-8 pr-2">
+                    UX Research
+                  </SelectItem>
+                  <SelectItem value="React" className="text-xs font-semibold text-white/80 focus:bg-white/10 focus:text-white rounded-lg cursor-pointer py-2 pl-8 pr-2">
+                    React
+                  </SelectItem>
+                  <SelectItem value="Product Strategy" className="text-xs font-semibold text-white/80 focus:bg-white/10 focus:text-white rounded-lg cursor-pointer py-2 pl-8 pr-2">
+                    Product Strategy
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {isLoading ? (
