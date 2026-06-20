@@ -22,6 +22,14 @@ export default {
         xs: "375px",
       },
       colors: {
+        "brand-pink": "var(--brand-pink)",
+        "ink-900": "var(--ink-900)",
+        "ink-700": "var(--ink-700)",
+        "ink-500": "var(--ink-500)",
+        "ink-300": "var(--ink-300)",
+        "ink-100": "var(--ink-100)",
+        surface: "var(--surface)",
+        "accent-green": "var(--accent-green)",
         border: "hsl(var(--border))",
         input:  "hsl(var(--input))",
         ring:   "hsl(var(--ring))",
@@ -122,6 +130,7 @@ export default {
         "token-xl": "var(--radius-xl)",  /* 20px — modals/panels   */
       },
       boxShadow: {
+        card:    "0 1px 2px rgba(14, 14, 18, 0.04)",
         soft:    "0 1px 2px hsl(264 31% 9% / 0.04)",
         elev1:   "0 6px 16px -4px hsl(317 35% 36% / 0.08)",
         elev2:   "0 20px 40px -16px hsl(317 35% 36% / 0.18)",

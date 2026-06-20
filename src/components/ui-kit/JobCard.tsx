@@ -39,31 +39,21 @@ const TYPE_VARIANT: Record<NonNullable<JobCardData["type"]>, TagVariant> = {
   FULLTIME: "fulltime", PARTTIME: "parttime", CONTRACT: "contract", INTERNSHIP: "internship",
 };
 
-const TYPE_BORDER: Record<NonNullable<JobCardData["type"]>, string> = {
-  FULLTIME: "border-l-[4px] border-l-primary/60",
-  PARTTIME: "border-l-[4px] border-l-primary/40",
-  CONTRACT: "border-l-[4px] border-l-foreground/30",
-  INTERNSHIP: "border-l-[4px] border-l-primary/25",
-};
-
 export function JobCard({ job, onSave, onApply, className }: Props) {
-  const borderClass = job.type ? TYPE_BORDER[job.type] : "border-l-[4px] border-l-primary/30";
-
   return (
     <article className={cn(
-      "group bg-card border border-border rounded-2xl p-5 lift relative overflow-hidden flex flex-col justify-between min-h-[260px]",
-      borderClass,
+      "bg-[var(--surface)] border border-[var(--ink-300)] rounded-xl p-5 shadow-card relative overflow-hidden flex flex-col justify-between min-h-[260px]",
       className,
     )}>
-      {/* corner accent */}
-      <div className="pointer-events-none absolute -top-12 -right-12 w-32 h-32 rounded-full bg-accent/30 opacity-0 group-hover:opacity-100 transition-opacity" />
+      {/* corner accent - removed gradient background for spec conformity */}
+      <div className="pointer-events-none absolute -top-12 -right-12 w-32 h-32 rounded-full bg-[var(--ink-100)] opacity-0 group-hover:opacity-100 transition-opacity" />
 
       <div>
         <header className="relative flex items-start justify-between gap-3 mb-4">
           <div className="flex items-center gap-3 min-w-0">
             {/* Prominent Logo */}
             {job.employer.logoUrl ? (
-              <div className="w-10 h-10 rounded-xl overflow-hidden bg-secondary border border-border flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 rounded-xl overflow-hidden bg-[var(--ink-100)] border border-[var(--ink-300)] flex items-center justify-center flex-shrink-0">
                 <img 
                   src={job.employer.logoUrl} 
                   alt={`${job.employer.companyName} logo`} 
@@ -79,13 +69,13 @@ export function JobCard({ job, onSave, onApply, className }: Props) {
               </div>
             )}
             <div className="min-w-0">
-              <h3 className="text-[14px] font-bold text-foreground leading-tight truncate">
+              <h3 className="text-[14px] font-bold text-[var(--ink-900)] leading-tight truncate">
                 {job.title}
               </h3>
-              <div className="flex items-center gap-1 text-[11px] text-muted-foreground mt-0.5">
+              <div className="flex items-center gap-1 text-[11px] text-[var(--ink-500)] mt-0.5">
                 <span className="truncate">{job.employer.companyName}</span>
                 {job.employer.isVerified && (
-                  <BadgeCheck size={11} className="text-mint-500 flex-shrink-0" />
+                  <BadgeCheck size={11} className="text-[var(--accent-green)] flex-shrink-0" />
                 )}
               </div>
             </div>
@@ -94,9 +84,9 @@ export function JobCard({ job, onSave, onApply, className }: Props) {
           <button
             onClick={() => onSave?.(job.id)}
             aria-label={job.isSaved ? "Unsave job" : "Save job"}
-            className="p-1.5 rounded-lg hover:bg-secondary press text-muted-foreground hover:text-primary flex-shrink-0"
+            className="p-1.5 rounded-xl hover:bg-[var(--ink-100)] press text-[var(--ink-500)] hover:text-[var(--brand-pink)] flex-shrink-0"
           >
-            <Bookmark size={14} className={cn(job.isSaved && "fill-primary text-primary")} />
+            <Bookmark size={14} className={cn(job.isSaved && "fill-[var(--brand-pink)] text-[var(--brand-pink)]")} />
           </button>
         </header>
 
@@ -105,7 +95,7 @@ export function JobCard({ job, onSave, onApply, className }: Props) {
           {job.mode && <TagPill variant={MODE_VARIANT[job.mode]} />}
           {job.type && <TagPill variant={TYPE_VARIANT[job.type]} />}
           {job.location && (
-            <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
+            <span className="inline-flex items-center gap-1 text-[10px] text-[var(--ink-500)]">
               <MapPin size={10} /> {job.location}
             </span>
           )}
@@ -114,8 +104,8 @@ export function JobCard({ job, onSave, onApply, className }: Props) {
         {/* Hero Salary */}
         {(job.salaryMin || job.salaryMax) && (
           <div className="mt-1 mb-4">
-            <span className="text-[9px] text-muted-foreground/75 block uppercase tracking-wider font-black font-sans mb-0.5">Estimated Salary</span>
-            <div className="text-[18px] font-black text-foreground tracking-tight leading-none font-sans">
+            <span className="text-[9px] text-[var(--ink-500)] block uppercase tracking-wider font-black font-sans mb-0.5">Estimated Salary</span>
+            <div className="text-[18px] font-black text-[var(--ink-900)] tracking-tight leading-none font-sans">
               {formatSalary(job.salaryMin, job.salaryMax)}
             </div>
           </div>
@@ -134,10 +124,10 @@ export function JobCard({ job, onSave, onApply, className }: Props) {
         )}
       </div>
 
-      <footer className="flex items-center justify-between pt-3 border-t border-border mt-auto">
-        <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+      <footer className="flex items-center justify-between pt-3 border-t border-[var(--ink-300)] mt-auto">
+        <div className="flex items-center gap-1.5 text-[10px] text-[var(--ink-500)]">
           {job.aiScore != null && (
-            <span className="inline-flex items-center gap-1 font-semibold text-primary">
+            <span className="inline-flex items-center gap-1 font-semibold text-[var(--brand-pink)]">
               <Sparkles size={10} /> {job.aiScore}% match
             </span>
           )}
@@ -147,10 +137,10 @@ export function JobCard({ job, onSave, onApply, className }: Props) {
           onClick={() => onApply?.(job.id)}
           disabled={job.hasApplied}
           className={cn(
-            "px-4 py-1.5 rounded-full text-[11px] font-black tracking-wide press transition-all duration-200",
+            "px-4 py-1.5 rounded-xl text-[11px] font-bold tracking-wide press transition-all duration-200",
             job.hasApplied
-              ? "bg-secondary text-muted-foreground border border-border/60 cursor-not-allowed"
-              : "bg-primary text-white hover:bg-primary/95 hover:-translate-y-0.5 hover:shadow-elev1"
+              ? "bg-[var(--ink-100)] text-[var(--ink-500)] border border-[var(--ink-300)] cursor-not-allowed"
+              : "bg-[var(--brand-pink)] text-white hover:bg-[var(--brand-pink)]/90 hover:-translate-y-0.5 hover:shadow-card"
           )}
         >
           {job.hasApplied ? "Applied" : "Apply Now"}

@@ -31,7 +31,7 @@ export default function GlassNav() {
       <nav
         className={cn(
           "sticky top-0 z-40 transition-all duration-300",
-          scrolled ? "glass shadow-soft" : "bg-transparent"
+          scrolled ? "bg-[var(--surface)] border-b border-[var(--ink-300)] shadow-card" : "bg-transparent"
         )}
       >
         <div className="max-w-[1280px] mx-auto h-16 px-5 lg:px-8 flex items-center justify-between gap-4">
@@ -43,7 +43,7 @@ export default function GlassNav() {
               className="w-48 h-24 object-contain transition-transform group-hover:scale-105"
             />
           </Link>
-
+ 
           {/* Center links */}
           <div className="hidden lg:flex items-center gap-7">
             {NAV_LINKS.map(l => (
@@ -52,33 +52,33 @@ export default function GlassNav() {
                 href={l.href}
                 className={cn(
                   "text-[13px] font-medium relative group transition-colors",
-                  hash === l.href ? "text-primary" : "text-foreground/75 hover:text-foreground"
+                  hash === l.href ? "text-[var(--brand-pink)]" : "text-[var(--ink-700)] hover:text-[var(--ink-900)]"
                 )}
               >
                 {l.label}
-                <span className="absolute -bottom-1 left-0 right-0 h-px bg-primary scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
+                <span className="absolute -bottom-1 left-0 right-0 h-px bg-[var(--brand-pink)] scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
               </a>
             ))}
           </div>
-
+ 
           {/* CTAs */}
           <div className="flex items-center gap-2">
             <Link
               to="/auth/signup?role=EMPLOYER"
-              className="hidden md:inline-flex items-center px-4 h-9 rounded-full text-[12px] font-semibold border-[1.5px] border-foreground/15 text-foreground/85 hover:border-primary hover:text-primary press"
+              className="hidden md:inline-flex items-center px-4 h-9 rounded-xl text-[12px] font-semibold border-[1.5px] border-[var(--ink-300)] text-[var(--ink-700)] hover:border-[var(--brand-pink)] hover:text-[var(--brand-pink)] press"
             >
               Post a Job
             </Link>
             <Link
               to="/auth/signup"
-              className="hidden lg:inline-flex items-center px-4 h-9 rounded-full text-[12px] font-bold bg-primary text-primary-foreground hover:bg-mauve-600 hover:-translate-y-0.5 hover:shadow-elev2 press"
+              className="hidden lg:inline-flex items-center px-4 h-9 rounded-xl text-[12px] font-bold bg-[var(--brand-pink)] text-white hover:bg-[var(--brand-pink)]/90 hover:-translate-y-0.5 hover:shadow-card press"
             >
               Join Free
             </Link>
-
+ 
             <button
               onClick={() => setOpen(true)}
-              className="lg:hidden p-2 rounded-lg hover:bg-secondary press"
+              className="lg:hidden p-2 rounded-lg hover:bg-[var(--ink-100)] press"
               aria-label="Open menu"
             >
               <Menu size={18} />
@@ -91,10 +91,10 @@ export default function GlassNav() {
       {open && (
         <>
           <div className="fixed inset-0 bg-foreground/40 z-50 lg:hidden animate-fade-in" onClick={() => setOpen(false)} />
-          <aside className="fixed top-0 right-0 bottom-0 w-[80%] max-w-[320px] bg-card z-50 lg:hidden p-6 animate-slide-up">
+          <aside className="fixed top-0 right-0 bottom-0 w-[80%] max-w-[320px] bg-[var(--surface)] border-l border-[var(--ink-300)] z-50 lg:hidden p-6 animate-slide-up">
             <div className="flex items-center justify-between mb-8">
-              <span className="font-serif text-lg">Menu</span>
-              <button onClick={() => setOpen(false)} className="p-2 rounded-lg hover:bg-secondary press" aria-label="Close menu">
+              <span className="font-sans font-semibold text-lg text-[var(--ink-900)]">Menu</span>
+              <button onClick={() => setOpen(false)} className="p-2 rounded-lg hover:bg-[var(--ink-100)] text-[var(--ink-700)] press" aria-label="Close menu">
                 <X size={18} />
               </button>
             </div>
@@ -104,22 +104,22 @@ export default function GlassNav() {
                   key={l.label}
                   href={l.href}
                   onClick={() => setOpen(false)}
-                  className="px-3 py-3 rounded-xl text-sm font-semibold text-foreground hover:bg-secondary"
+                  className="px-3 py-3 rounded-xl text-sm font-semibold text-[var(--ink-700)] hover:bg-[var(--ink-100)] hover:text-[var(--ink-900)]"
                 >
                   {l.label}
                 </a>
               ))}
-              <div className="my-3 h-px bg-border" />
+              <div className="my-3 h-px bg-[var(--ink-300)]" />
               <Link to="/auth/signup?role=EMPLOYER" onClick={() => setOpen(false)}
-                className="px-3 py-3 rounded-xl text-sm font-semibold border-[1.5px] border-border text-foreground hover:border-primary hover:text-primary text-center">
+                className="px-3 py-3 rounded-xl text-sm font-semibold border-[1.5px] border-[var(--ink-300)] text-[var(--ink-700)] hover:border-[var(--brand-pink)] hover:text-[var(--brand-pink)] text-center">
                 Post a Job
               </Link>
               <Link to="/auth/signup" onClick={() => setOpen(false)}
-                className="px-3 py-3 rounded-xl text-sm font-bold bg-primary text-primary-foreground text-center mt-2">
+                className="px-3 py-3 rounded-xl text-sm font-bold bg-[var(--brand-pink)] text-white hover:bg-[var(--brand-pink)]/90 text-center mt-2">
                 Join Free
               </Link>
               <Link to="/auth/login" onClick={() => setOpen(false)}
-                className="px-3 py-3 text-xs text-muted-foreground text-center mt-2">
+                className="px-3 py-3 text-xs text-[var(--ink-500)] hover:text-[var(--ink-900)] text-center mt-2">
                 Already have an account? Sign in
               </Link>
             </div>

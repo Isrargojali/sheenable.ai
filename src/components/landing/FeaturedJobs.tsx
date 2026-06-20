@@ -101,43 +101,43 @@ export default function FeaturedJobs() {
   };
 
   return (
-    <section id="jobs" className="max-w-[1280px] mx-auto px-5 lg:px-8 py-24 lg:py-32 relative">
+    <section id="jobs" className="max-w-[1280px] mx-auto px-5 lg:px-8 py-16 lg:py-24 bg-[var(--ink-100)] border-y border-[var(--ink-300)] relative">
       <div className="flex items-end justify-between flex-wrap gap-4 mb-12">
         <div>
-          <div className="inline-block px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] bg-accent text-accent-foreground mb-3 font-sans">
+          <div className="inline-block px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] bg-[var(--surface)] text-[var(--ink-700)] mb-3 font-sans border border-[var(--ink-300)]">
             Featured Openings
           </div>
-          <h2 className="font-serif text-3xl md:text-5xl text-foreground tracking-tight">
-            Curated Opportunities for <span className="italic text-primary">Trajectory Growth</span>
+          <h2 className="font-sans font-semibold text-3xl md:text-5xl text-[var(--ink-900)] tracking-tight">
+            Curated Opportunities for <span className="font-sans font-bold text-[var(--brand-pink)]">Trajectory Growth</span>
           </h2>
-          <p className="text-[13px] text-muted-foreground mt-2 max-w-md">
+          <p className="text-[13px] text-[var(--ink-500)] mt-2 max-w-md">
             Real-time verified openings from inclusive employers, refreshed instantly.
           </p>
         </div>
         <Link
           to={user ? "/candidate/jobs" : "/auth/login"}
-          className="inline-flex items-center gap-1.5 text-[12px] font-bold text-primary hover:gap-2.5 transition-all duration-200"
+          className="inline-flex items-center gap-1.5 text-[12px] font-bold text-[var(--brand-pink)] hover:gap-2.5 transition-all duration-200"
         >
           View all jobs <ArrowRight size={13} />
         </Link>
       </div>
 
       {/* Filter bar */}
-      <div className="bg-card border border-border rounded-2xl p-3 mb-8 flex flex-wrap items-center gap-2 shadow-soft">
-        <div className="flex-1 min-w-[220px] flex items-center gap-2 px-3 h-10 rounded-xl bg-secondary/60">
-          <Search size={14} className="text-muted-foreground" />
+      <div className="bg-[var(--surface)] border border-[var(--ink-300)] rounded-xl p-3 mb-8 flex flex-wrap items-center gap-2 shadow-card">
+        <div className="flex-1 min-w-[220px] flex items-center gap-2 px-3 h-10 rounded-xl bg-[var(--ink-100)]">
+          <Search size={14} className="text-[var(--ink-500)]" />
           <input
             value={q}
             onChange={e => setQ(e.target.value)}
             placeholder="Search jobs, skills, or companies"
-            className="flex-1 bg-transparent text-[12px] focus:outline-none placeholder:text-muted-foreground"
+            className="flex-1 bg-transparent text-[12px] text-[var(--ink-900)] focus:outline-none placeholder:text-[var(--ink-500)]"
             aria-label="Search jobs"
           />
         </div>
         <select
           value={industry}
           onChange={e => setIndustry(e.target.value)}
-          className="h-10 px-3 rounded-xl bg-secondary/60 text-[12px] font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
+          className="h-10 px-3 rounded-xl bg-[var(--ink-100)] text-[12px] font-medium text-[var(--ink-700)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-pink)]/20 cursor-pointer"
           aria-label="Industry"
         >
           {INDUSTRIES.map(i => <option key={i}>{i}</option>)}
@@ -145,12 +145,12 @@ export default function FeaturedJobs() {
         <select
           value={type}
           onChange={e => setType(e.target.value)}
-          className="h-10 px-3 rounded-xl bg-secondary/60 text-[12px] font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
+          className="h-10 px-3 rounded-xl bg-[var(--ink-100)] text-[12px] font-medium text-[var(--ink-700)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-pink)]/20 cursor-pointer"
           aria-label="Job type"
         >
           {TYPES.map(t => <option key={t}>{t}</option>)}
         </select>
-        <button className="inline-flex items-center gap-1.5 h-10 px-4 rounded-xl bg-primary text-primary-foreground text-[12px] font-bold press">
+        <button className="inline-flex items-center gap-1.5 h-10 px-4 rounded-xl bg-[var(--brand-pink)] text-white text-[12px] font-bold hover:bg-[var(--brand-pink)]/90 press">
           <SlidersHorizontal size={13} /> Filter
         </button>
       </div>
@@ -159,19 +159,19 @@ export default function FeaturedJobs() {
       {isLoading && (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 py-8">
           {[1, 2, 3].map(n => (
-            <div key={n} className="bg-card border border-border rounded-2xl p-5 animate-pulse h-[220px] flex flex-col justify-between">
+            <div key={n} className="bg-[var(--surface)] border border-[var(--ink-300)] rounded-xl p-5 animate-pulse h-[220px] flex flex-col justify-between shadow-card">
               <div>
                 <div className="flex gap-3 mb-4">
-                  <div className="w-11 h-11 rounded-xl bg-secondary" />
+                  <div className="w-11 h-11 rounded-xl bg-[var(--ink-100)]" />
                   <div className="flex-1 space-y-2 py-1">
-                    <div className="h-4 bg-secondary rounded w-3/4" />
-                    <div className="h-3 bg-secondary rounded w-1/2" />
+                    <div className="h-4 bg-[var(--ink-100)] rounded w-3/4" />
+                    <div className="h-3 bg-[var(--ink-100)] rounded w-1/2" />
                   </div>
                 </div>
-                <div className="h-3 bg-secondary rounded w-1/3 mb-2" />
-                <div className="h-3 bg-secondary rounded w-full" />
+                <div className="h-3 bg-[var(--ink-100)] rounded w-1/3 mb-2" />
+                <div className="h-3 bg-[var(--ink-100)] rounded w-full" />
               </div>
-              <div className="h-8 bg-secondary rounded-full w-1/3 self-end" />
+              <div className="h-8 bg-[var(--ink-100)] rounded-xl w-1/3 self-end" />
             </div>
           ))}
         </div>
@@ -179,7 +179,7 @@ export default function FeaturedJobs() {
 
       {/* Error state */}
       {error && !isLoading && (
-        <div className="bg-rose-50 border border-rose-100 text-rose-800 rounded-2xl p-6 text-center my-6 flex flex-col items-center justify-center max-w-lg mx-auto">
+        <div className="bg-rose-50/20 border border-[var(--ink-300)] text-rose-800 rounded-xl p-6 text-center my-6 flex flex-col items-center justify-center max-w-lg mx-auto">
           <AlertCircle size={24} className="text-rose-500 mb-2" />
           <h3 className="font-semibold text-sm">Failed to load real-time jobs</h3>
           <p className="text-xs text-rose-600/80 mt-1">Please check your network connection or try refreshing the page.</p>
@@ -188,10 +188,10 @@ export default function FeaturedJobs() {
 
       {/* Empty / No results state */}
       {!isLoading && !error && filtered.length === 0 && (
-        <div className="text-center py-16 bg-card border border-dashed border-border rounded-2xl">
+        <div className="text-center py-16 bg-[var(--surface)] border border-dashed border-[var(--ink-300)] rounded-xl shadow-card">
           <div className="text-4xl mb-3">💼</div>
-          <h3 className="font-serif text-lg text-foreground font-medium">No matching jobs found</h3>
-          <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
+          <h3 className="font-sans text-lg text-[var(--ink-900)] font-medium">No matching jobs found</h3>
+          <p className="text-xs text-[var(--ink-500)] mt-1 max-w-sm mx-auto">
             Try adjusting your search filters or clearing the search text to see other active opportunities.
           </p>
         </div>
@@ -213,33 +213,28 @@ export default function FeaturedJobs() {
       {/* Premium Guest Authorization Gate Modal */}
       {applyModalJob && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-in fade-in-50 duration-200">
-          <div className="bg-card border border-border w-full max-w-md rounded-2xl p-6 shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-200">
-            {/* Corner ambient blur */}
-            <div className="absolute -top-24 -right-24 w-48 h-48 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-24 -left-24 w-48 h-48 rounded-full bg-accent/15 blur-3xl pointer-events-none" />
-
+          <div className="bg-[var(--surface)] border border-[var(--ink-300)] w-full max-w-md rounded-xl p-6 shadow-card relative overflow-hidden animate-in zoom-in-95 duration-200">
             <button
               onClick={() => setApplyModalJob(null)}
-              className="absolute top-4 right-4 p-1.5 rounded-full bg-secondary/80 text-muted-foreground hover:text-foreground hover:bg-secondary transition-all press"
+              className="absolute top-4 right-4 p-1.5 rounded-xl bg-[var(--ink-100)] text-[var(--ink-500)] hover:text-[var(--ink-900)] hover:bg-[var(--ink-300)] transition-all press"
               aria-label="Close modal"
             >
               <X size={16} />
             </button>
 
             <div className="flex flex-col items-center text-center mt-2">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white shadow-lg mb-4">
+              <div className="w-12 h-12 rounded-xl bg-[rgba(230,0,126,0.1)] text-[var(--brand-pink)] border border-[rgba(230,0,126,0.2)] flex items-center justify-center shadow-card mb-4">
                 <Sparkles size={22} className="animate-spin-slow" />
               </div>
 
-              <h3 className="font-serif text-xl text-foreground font-semibold">
+              <h3 className="font-sans font-semibold text-xl text-[var(--ink-900)]">
                 Apply for {applyModalJob.title}
               </h3>
-              {/* Fix: Ln 226 cssConflict — removed conflicting text-muted-foreground, kept text-primary */}
-              <p className="text-[11px] text-primary uppercase tracking-wider font-bold mt-1">
+              <p className="text-[11px] text-[var(--brand-pink)] uppercase tracking-wider font-bold mt-1">
                 {applyModalJob.employer?.companyName}
               </p>
 
-              <p className="text-[12px] text-muted-foreground mt-3 leading-relaxed max-w-sm">
+              <p className="text-[12px] text-[var(--ink-500)] mt-3 leading-relaxed max-w-sm">
                 Unlock inclusive and verified opportunities. Create a free account or sign in to complete your application with Pakistan's premium AI-powered platform built for women.
               </p>
 
@@ -250,7 +245,7 @@ export default function FeaturedJobs() {
                     setApplyModalJob(null);
                     navigate(`/auth/signup?applyJobId=${applyModalJob.id}`);
                   }}
-                  className="w-full h-11 rounded-full text-[13px] font-bold text-white bg-primary hover:bg-mauve-600 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/20 transition-all flex items-center justify-center gap-2 press"
+                  className="w-full h-11 rounded-xl text-[13px] font-bold text-white bg-[var(--brand-pink)] hover:bg-[var(--brand-pink)]/90 hover:-translate-y-0.5 hover:shadow-card transition-all flex items-center justify-center gap-2 press"
                 >
                   <UserPlus size={15} />
                   <span>I'm a new user (Create Free Account)</span>
@@ -262,14 +257,14 @@ export default function FeaturedJobs() {
                     setApplyModalJob(null);
                     navigate(`/auth/login?applyJobId=${applyModalJob.id}`);
                   }}
-                  className="w-full h-11 rounded-full text-[13px] font-bold text-primary border border-primary/40 hover:bg-primary/5 hover:border-primary hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 press"
+                  className="w-full h-11 rounded-xl text-[13px] font-bold text-[var(--brand-pink)] border border-[var(--brand-pink)]/40 hover:bg-[var(--brand-pink)]/5 hover:border-[var(--brand-pink)] hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 press"
                 >
                   <LogIn size={15} />
                   <span>I already have an account (Sign In)</span>
                 </button>
               </div>
 
-              <div className="text-[10px] text-muted-foreground mt-5 flex items-center gap-1.5 justify-center">
+              <div className="text-[10px] text-[var(--ink-500)] mt-5 flex items-center gap-1.5 justify-center">
                 <span>🛡️ Premium Secure Verified Employer Listings</span>
               </div>
             </div>

@@ -29,26 +29,26 @@ export default function HowItWorksTabs() {
   ];
 
   return (
-    <section id="community" className="max-w-[1280px] mx-auto px-5 lg:px-8 py-24 lg:py-32">
+    <section id="community" className="max-w-[1280px] mx-auto px-5 lg:px-8 py-16 lg:py-24 bg-[var(--surface)]">
       <div className="text-center mb-12">
-        <div className="inline-block px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] bg-accent text-accent-foreground mb-3 font-sans">
+        <div className="inline-block px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] bg-[var(--ink-100)] text-[var(--ink-700)] mb-3 font-sans border border-[var(--ink-300)]">
           The SheEnable Pathway
         </div>
-        <h2 className="font-serif text-3xl md:text-5xl text-foreground tracking-tight">
-          A simple path to your <span className="italic text-primary">next chapter</span>
+        <h2 className="font-sans font-semibold text-3xl md:text-5xl text-[var(--ink-900)] tracking-tight">
+          A simple path to your <span className="font-sans font-bold text-[var(--brand-pink)]">next chapter</span>
         </h2>
       </div>
 
       {/* Tab switcher */}
       <div className="relative flex justify-center mb-12">
-        <div className="inline-flex items-center bg-card border border-border rounded-full p-1 relative">
+        <div className="inline-flex items-center bg-[var(--surface)] border border-[var(--ink-300)] rounded-xl p-1 relative">
           {tabs.map(t => (
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
               className={cn(
-                "relative z-10 px-8 h-10 rounded-full text-[12px] font-bold press transition-colors",
-                tab === t.key ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                "relative z-10 px-8 h-10 rounded-xl text-[12px] font-bold press transition-colors",
+                tab === t.key ? "text-white" : "text-[var(--ink-700)] hover:text-[var(--ink-900)]"
               )}
             >
               {t.label}
@@ -56,7 +56,7 @@ export default function HowItWorksTabs() {
           ))}
           {/* sliding pill */}
           <div
-            className="absolute top-1 bottom-1 rounded-full bg-primary shadow-elev1 transition-all duration-300"
+            className="absolute top-1 bottom-1 rounded-xl bg-[var(--brand-pink)] shadow-card transition-all duration-300"
             style={{
               width: "calc(50% - 0.25rem)",
               left: tab === "candidate" ? "0.25rem" : "calc(50% + 0.0rem)",
@@ -72,20 +72,17 @@ export default function HowItWorksTabs() {
           return (
             <div
               key={`${tab}-${i}`}
-              className={cn(
-                "bg-card border border-border border-l-[3px] rounded-2xl p-6 lg:p-8 lift animate-fade-in",
-                s.accent,
-              )}
+              className="bg-[var(--surface)] border border-[var(--ink-300)] rounded-xl p-6 lg:p-8 shadow-card animate-fade-in"
               style={{ animationDelay: `${i * 80}ms` }}
             >
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-9 h-9 rounded-full bg-mauve-50 text-primary flex items-center justify-center font-serif text-base font-bold">
+                <div className="w-9 h-9 rounded-full bg-[var(--ink-100)] text-[var(--brand-pink)] flex items-center justify-center font-sans text-base font-bold">
                   {i + 1}
                 </div>
-                <Icon size={18} className="text-primary/70" />
+                <Icon size={18} className="text-[var(--ink-700)]" />
               </div>
-              <h3 className="text-[14px] font-bold text-foreground mb-1.5">{s.title}</h3>
-              <p className="text-[12px] text-muted-foreground leading-relaxed">{s.desc}</p>
+              <h3 className="text-[14px] font-bold text-[var(--ink-900)] mb-1.5">{s.title}</h3>
+              <p className="text-[12px] text-[var(--ink-500)] leading-relaxed">{s.desc}</p>
             </div>
           );
         })}
