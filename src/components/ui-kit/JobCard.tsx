@@ -75,7 +75,7 @@ export function JobCard({ job, onSave, onApply, className }: Props) {
               <div className="flex items-center gap-1 text-[11px] text-[var(--ink-500)] mt-0.5">
                 <span className="truncate">{job.employer.companyName}</span>
                 {job.employer.isVerified && (
-                  <BadgeCheck size={11} className="text-[var(--accent-green)] flex-shrink-0" />
+                  <BadgeCheck size={11} className="text-[var(--ink-700)] flex-shrink-0" />
                 )}
               </div>
             </div>
@@ -84,9 +84,9 @@ export function JobCard({ job, onSave, onApply, className }: Props) {
           <button
             onClick={() => onSave?.(job.id)}
             aria-label={job.isSaved ? "Unsave job" : "Save job"}
-            className="p-1.5 rounded-xl hover:bg-[var(--ink-100)] press text-[var(--ink-500)] hover:text-[var(--brand-pink)] flex-shrink-0"
+            className="p-1.5 rounded-xl hover:bg-[var(--ink-100)] press text-[var(--ink-500)] hover:text-[var(--ink-900)] flex-shrink-0"
           >
-            <Bookmark size={14} className={cn(job.isSaved && "fill-[var(--brand-pink)] text-[var(--brand-pink)]")} />
+            <Bookmark size={14} className={cn(job.isSaved && "fill-[var(--ink-900)] text-[var(--ink-900)]")} />
           </button>
         </header>
 
@@ -127,7 +127,7 @@ export function JobCard({ job, onSave, onApply, className }: Props) {
       <footer className="flex items-center justify-between pt-3 border-t border-[var(--ink-300)] mt-auto">
         <div className="flex items-center gap-1.5 text-[10px] text-[var(--ink-500)]">
           {job.aiScore != null && (
-            <span className="inline-flex items-center gap-1 font-semibold text-[var(--brand-pink)]">
+            <span className="inline-flex items-center gap-1 font-semibold text-[var(--ink-700)]">
               <Sparkles size={10} /> {job.aiScore}% match
             </span>
           )}

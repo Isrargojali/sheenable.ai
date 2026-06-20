@@ -9,7 +9,7 @@ export type TagVariant =
   | "skill" | "verified" | "hot" | "neutral";
 
 const STYLES: Record<TagVariant, string> = {
-  remote:     "bg-[var(--ink-100)] text-[var(--ink-700)] border-[var(--ink-300)]",
+  remote:     "bg-[rgba(31,157,107,0.1)] text-[var(--accent-green)] border-[rgba(31,157,107,0.2)]",
   hybrid:     "bg-[var(--ink-100)] text-[var(--ink-700)] border-[var(--ink-300)]",
   onsite:     "bg-[var(--ink-100)] text-[var(--ink-700)] border-[var(--ink-300)]",
   fulltime:   "bg-[var(--ink-100)] text-[var(--ink-700)] border-[var(--ink-300)]",
@@ -17,8 +17,8 @@ const STYLES: Record<TagVariant, string> = {
   contract:   "bg-[var(--ink-100)] text-[var(--ink-700)] border-[var(--ink-300)]",
   internship: "bg-[var(--ink-100)] text-[var(--ink-700)] border-[var(--ink-300)]",
   skill:      "bg-[var(--ink-100)] text-[var(--ink-700)] border-[var(--ink-300)]",
-  verified:   "bg-[rgba(31,157,107,0.1)] text-[var(--accent-green)] border-[rgba(31,157,107,0.2)]",
-  hot:        "bg-[rgba(230,0,126,0.1)] text-[var(--brand-pink)] border-[rgba(230,0,126,0.2)]",
+  verified:   "bg-[var(--ink-100)] text-[var(--ink-700)] border-[var(--ink-300)]",
+  hot:        "bg-[var(--ink-100)] text-[var(--ink-700)] border-[var(--ink-300)]",
   neutral:    "bg-[var(--ink-100)] text-[var(--ink-700)] border-[var(--ink-300)]",
 };
 

@@ -56,7 +56,7 @@ export default function HowItWorksTabs() {
           ))}
           {/* sliding pill */}
           <div
-            className="absolute top-1 bottom-1 rounded-xl bg-[var(--brand-pink)] shadow-card transition-all duration-300"
+            className="absolute top-1 bottom-1 rounded-xl bg-[var(--ink-900)] shadow-card transition-all duration-300"
             style={{
               width: "calc(50% - 0.25rem)",
               left: tab === "candidate" ? "0.25rem" : "calc(50% + 0.0rem)",

@@ -150,7 +150,7 @@ export default function LandingPage() {
           >
             {aiStatus ? (
               <div className="bg-[rgba(255,255,255,0.05)] border border-white/15 rounded-xl p-8 shadow-card flex flex-col items-center justify-center min-h-[144px] animate-in zoom-in-95 duration-200">
-                <div className="w-12 h-12 rounded-full bg-[rgba(230,0,126,0.1)] border border-[var(--brand-pink)]/20 flex items-center justify-center text-[var(--brand-pink)] mb-4 animate-spin">
+                <div className="w-12 h-12 rounded-full bg-white/10 border border-white/15 flex items-center justify-center text-white mb-4 animate-spin">
                   <Sparkles size={20} />
                 </div>
                 <div className="text-sm font-bold text-white mb-1.5 transition-all duration-300 animate-pulse">

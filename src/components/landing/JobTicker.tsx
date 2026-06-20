@@ -70,16 +70,16 @@ export default function JobTicker() {
             key={i}
             className="flex items-center gap-3.5 pl-4 pr-5 py-2.5 rounded-full bg-white/10 border border-white/15 backdrop-blur-sm whitespace-nowrap"
           >
-            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[var(--accent-green)]/20 text-[var(--accent-green)] flex-shrink-0">
+            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-white/10 text-white/80 flex-shrink-0">
               <Briefcase size={12} />
             </span>
             
             {j.badge === "New" ? (
-              <span className="text-[11px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[var(--accent-green)] text-white">
+              <span className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-white/15 border border-white/10 text-white">
                 New
               </span>
             ) : (
-              <span className="text-[11px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[var(--brand-pink)] text-white">
+              <span className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-white/15 border border-white/10 text-white">
                 Urgent
               </span>
             )}
@@ -92,7 +92,7 @@ export default function JobTicker() {
               <MapPin size={11} className="text-white/40" /> {j.mode}
             </span>
             
-            <span className="text-[13px] font-extrabold text-[var(--brand-pink)]">
+            <span className="text-[13px] font-bold text-white">
               {j.salary}
             </span>
           </div>

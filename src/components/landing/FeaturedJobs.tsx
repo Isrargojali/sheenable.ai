@@ -116,7 +116,7 @@ export default function FeaturedJobs() {
         </div>
         <Link
           to={user ? "/candidate/jobs" : "/auth/login"}
-          className="inline-flex items-center gap-1.5 text-[12px] font-bold text-[var(--brand-pink)] hover:gap-2.5 transition-all duration-200"
+          className="inline-flex items-center gap-1.5 text-[12px] font-bold text-[var(--ink-900)] underline hover:text-[var(--brand-pink)] transition-all duration-200"
         >
           View all jobs <ArrowRight size={13} />
         </Link>
@@ -223,14 +223,14 @@ export default function FeaturedJobs() {
             </button>
 
             <div className="flex flex-col items-center text-center mt-2">
-              <div className="w-12 h-12 rounded-xl bg-[rgba(230,0,126,0.1)] text-[var(--brand-pink)] border border-[rgba(230,0,126,0.2)] flex items-center justify-center shadow-card mb-4">
+              <div className="w-12 h-12 rounded-xl bg-[var(--ink-100)] text-[var(--ink-900)] border border-[var(--ink-300)] flex items-center justify-center shadow-card mb-4">
                 <Sparkles size={22} className="animate-spin-slow" />
               </div>
 
               <h3 className="font-sans font-semibold text-xl text-[var(--ink-900)]">
                 Apply for {applyModalJob.title}
               </h3>
-              <p className="text-[11px] text-[var(--brand-pink)] uppercase tracking-wider font-bold mt-1">
+              <p className="text-[11px] text-[var(--ink-700)] uppercase tracking-wider font-bold mt-1">
                 {applyModalJob.employer?.companyName}
               </p>
 

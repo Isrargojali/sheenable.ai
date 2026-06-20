@@ -26,10 +26,10 @@ const TESTIMONIALS = [
 
 export default function Testimonials() {
   return (
-    <section id="stories" className="bg-[var(--ink-100)] border-y border-[var(--ink-300)]">
+    <section id="stories" className="bg-[var(--surface)] border-y border-[var(--ink-300)]">
       <div className="max-w-[1280px] mx-auto px-5 lg:px-8 py-16 lg:py-24">
         <div className="text-center mb-12">
-          <div className="inline-block px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] bg-[var(--surface)] text-[var(--ink-700)] mb-3 font-sans border border-[var(--ink-300)]">
+          <div className="inline-block px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] bg-[var(--ink-100)] text-[var(--ink-700)] mb-3 font-sans border border-[var(--ink-300)]">
             Voices of the Community
           </div>
           <h2 className="font-sans font-semibold text-3xl md:text-5xl text-[var(--ink-900)] tracking-tight">
@@ -44,17 +44,17 @@ export default function Testimonials() {
               className="bg-[var(--surface)] border border-[var(--ink-300)] rounded-xl p-6 lg:p-8 shadow-card flex flex-col animate-fade-in"
               style={{ animationDelay: `${i * 100}ms` }}
             >
-              <Quote className="text-[var(--brand-pink)]/25 mb-4" size={28} />
+              <Quote className="text-[var(--ink-300)] mb-4" size={28} />
               <blockquote className="text-[14px] text-[var(--ink-900)] leading-relaxed mb-5 flex-1 font-medium">
                 "{t.quote}"
               </blockquote>
-              <div className="flex items-center gap-1 mb-4 text-[var(--brand-pink)]">
+              <div className="flex items-center gap-1 mb-4 text-[var(--ink-900)]">
                 {Array.from({ length: 5 }).map((_, idx) => (
                   <Star key={idx} size={13} fill="currentColor" stroke="none" />
                 ))}
               </div>
               <figcaption className="flex items-center gap-3 pt-4 border-t border-[var(--ink-300)]">
-                <div className="w-10 h-10 rounded-full flex items-center justify-center text-[12px] font-bold text-white bg-[var(--brand-pink)]">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center text-[12px] font-bold text-white bg-[var(--ink-900)]">
                   {t.avatar}
                 </div>
                 <div>
