@@ -117,6 +117,16 @@
     --shadow-md:      0 6px 16px -4px hsl(330 65% 52% / 0.08);
     --shadow-lg:      0 20px 40px -16px hsl(330 65% 52% / 0.18);
     --shadow-xl:      0 30px 60px -20px hsl(330 65% 52% / 0.25);
+
+    /*  Auth specific design tokens  */
+    --auth-surface: #FFFFFF;
+    --auth-surface-muted: #FAFAFB;
+    --auth-ink-900: #0E0E12;
+    --auth-border: #E6E6EA;
+    --auth-border-focus: var(--brand-pink);
+    --radius-input: 10px;
+    --radius-button: 10px;
+    --radius-card: 16px;
   }
 
   /* ── Dark mode override block ──────────────────────────────── */

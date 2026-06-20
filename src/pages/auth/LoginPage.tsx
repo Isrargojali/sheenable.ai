@@ -3,9 +3,8 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import logo from "@/assets/sheEnableAI-removebg-preview.png";
-import { Eye, EyeOff, Mail, Lock, Heart, Sparkles, ShieldCheck, ArrowRight, Building2, User } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, Heart, Sparkles, ShieldCheck, ArrowRight } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
-import { useNotifStore } from "@/store/notifStore";
 import { apiAuth } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -24,7 +23,6 @@ export default function LoginPage() {
   const [searchParams] = useSearchParams();
   const applyJobId = searchParams.get("applyJobId");
   const setSession = useAuthStore(s => s.setSession);
-  const setNotifs = useNotifStore(s => s.setNotifs);
 
   const [role, setRole] = useState<Role>("CANDIDATE");
   const [email, setEmail] = useState("");
@@ -175,53 +173,10 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-[1.05fr_1fr] bg-background relative overflow-hidden">
-      {/* Premium Visual Flourish Animations */}
-      <style dangerouslySetInnerHTML={{__html: `
-        @keyframes float-blob-1 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(40px, -60px) scale(1.15); }
-          66% { transform: translate(-30px, 30px) scale(0.90); }
-        }
-        @keyframes float-blob-2 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(-50px, 40px) scale(1.10); }
-        }
-        .animate-blob-1 {
-          animation: float-blob-1 18s ease-in-out infinite;
-        }
-        .animate-blob-2 {
-          animation: float-blob-2 22s ease-in-out infinite;
-        }
-        .animate-shimmer-btn {
-          position: relative;
-          overflow: hidden;
-        }
-        .animate-shimmer-btn::after {
-          content: '';
-          position: absolute;
-          top: -50%;
-          left: -60%;
-          width: 200%;
-          height: 200%;
-          background: linear-gradient(
-            to right,
-            rgba(255, 255, 255, 0) 0%,
-            rgba(255, 255, 255, 0.25) 50%,
-            rgba(255, 255, 255, 0) 100%
-          );
-          transform: rotate(30deg);
-          transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .animate-shimmer-btn:hover::after {
-          transform: translate(65%, 65%) rotate(30deg);
-        }
-      `}} />
-
+    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-[1.05fr_1fr] bg-[var(--auth-surface-muted)] relative overflow-hidden">
       {/* ── Left: Brand & mission (Desktop only) ─────────────────── */}
       <aside
-        className="hidden lg:flex flex-col justify-between relative overflow-hidden text-white px-12 py-12"
-        style={{ background: "var(--grad-hero)" }}
+        className="hidden lg:flex flex-col justify-between relative overflow-hidden text-white px-12 py-12 bg-[var(--auth-ink-900)]"
       >
         {/* Soft dot pattern */}
         <svg className="absolute inset-0 w-full h-full opacity-[0.18]" aria-hidden="true">
@@ -233,9 +188,9 @@ export default function LoginPage() {
           <rect width="100%" height="100%" fill="url(#login-dots)" />
         </svg>
         <div className="absolute -top-32 -right-20 w-[450px] h-[450px] rounded-full pointer-events-none"
-          style={{ background: "radial-gradient(circle,rgba(200,82,140,.30),transparent 65%)", filter: "blur(80px)" }} />
+          style={{ background: "radial-gradient(circle,rgba(230,0,126,.15),transparent 65%)", filter: "blur(80px)" }} />
         <div className="absolute -bottom-32 -left-20 w-[350px] h-[350px] rounded-full pointer-events-none"
-          style={{ background: "radial-gradient(circle,rgba(61,170,125,.20),transparent 65%)", filter: "blur(70px)" }} />
+          style={{ background: "radial-gradient(circle,rgba(61,170,125,.12),transparent 65%)", filter: "blur(70px)" }} />
 
         {/* Logo */}
         <Link to="/" className="relative z-10 flex items-center gap-2.5 group" aria-label="SheEnableAI home">
@@ -249,7 +204,7 @@ export default function LoginPage() {
         {/* Hero text */}
         <div className="relative z-10">
           <h2 className="font-serif text-4xl xl:text-5xl text-white leading-[1.05] tracking-tight mb-5">
-            Your next<br /><span className="italic text-shimmer">opportunity</span><br />awaits.
+            Your next<br /><span className="italic text-[var(--brand-pink)] font-bold">opportunity</span><br />awaits.
           </h2>
           <p className="text-sm text-white/65 leading-7 mb-10 max-w-md">
             Join 12,400+ women professionals and 500+ inclusive employers on Pakistan's premium AI-powered hiring platform.
@@ -260,10 +215,8 @@ export default function LoginPage() {
             { icon: Heart, title: "Built for women", sub: "Verified inclusive employers only" },
             { icon: ShieldCheck, title: "Bank-grade security", sub: "End-to-end encrypted, never sold" },
           ].map(({ icon: Icon, title, sub }) => (
-            <div key={title} className="flex items-center gap-3 px-4 py-3 rounded-xl border mb-2.5 max-w-md transition-all duration-300 hover:scale-[1.02]"
-              style={{ background: "rgba(255,255,255,.05)", borderColor: "rgba(255,255,255,.08)" }}>
-              <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
-                style={{ background: "rgba(200,82,140,.22)" }}>
+            <div key={title} className="flex items-center gap-3 px-4 py-3 rounded-[var(--radius-card)] border border-white/10 mb-2.5 max-w-md bg-white/5 transition-all duration-300 hover:scale-[1.02]">
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-[var(--brand-pink)]/20 text-[var(--brand-pink)]">
                 <Icon size={15} />
               </div>
               <div>
@@ -274,20 +227,14 @@ export default function LoginPage() {
           ))}
         </div>
 
-        <div className="relative z-10 text-[11px] text-white/70 max-w-sm px-4 py-3 rounded-2xl border border-white/10 backdrop-blur-md bg-white/5 shadow-soft">
-          <span className="text-shimmer italic font-semibold font-serif">"</span>I landed my dream role in 11 days. The match accuracy was scary good.<span className="text-shimmer italic font-semibold font-serif">"</span> — Aisha K., Senior Frontend Engineer
+        <div className="relative z-10 text-[11px] text-white/70 max-w-sm px-4 py-3 rounded-[var(--radius-card)] border border-white/10 backdrop-blur-md bg-white/5 shadow-soft">
+          <span className="text-[var(--brand-pink)] italic font-semibold font-serif">"</span>I landed my dream role in 11 days. The match accuracy was scary good.<span className="text-[var(--brand-pink)] italic font-semibold font-serif">"</span> — Aisha K., Senior Frontend Engineer
         </div>
       </aside>
 
-      {/* ── Right: Form ───────────────────────────────────────────── */}
-      <div className="relative flex items-center justify-center px-6 py-10 lg:py-12 bg-background/40 backdrop-blur-md overflow-hidden">
-        {/* Ambient background glow spots */}
-        <div className="absolute top-1/4 -right-20 w-80 h-80 rounded-full opacity-[0.10] pointer-events-none blur-3xl animate-blob-1"
-          style={{ background: "radial-gradient(circle, #C8528C, transparent 70%)" }} />
-        <div className="absolute bottom-1/4 -left-20 w-80 h-80 rounded-full opacity-[0.08] pointer-events-none blur-3xl animate-blob-2"
-          style={{ background: "radial-gradient(circle, #3DAA7D, transparent 70%)" }} />
-
-        <div className="w-full max-w-[440px] relative z-10 bg-card/70 backdrop-blur-xl border border-border/50 rounded-[28px] p-8 md:p-10 shadow-lg animate-fade-in">
+      {/* ── Right: Form Panel ──────────────────────────────────────── */}
+      <div className="relative flex items-center justify-center px-6 py-10 lg:py-12 bg-[var(--auth-surface-muted)] overflow-hidden">
+        <div className="w-full max-w-[440px] relative z-10 bg-[var(--auth-surface)] border border-[var(--auth-border)] rounded-[var(--radius-card)] p-8 md:p-10 shadow-sm animate-fade-in">
           <div className="lg:hidden flex items-center justify-center mb-6">
             <Link to="/" className="flex items-center justify-center group" aria-label="SheEnableAI home">
               <img
@@ -298,11 +245,11 @@ export default function LoginPage() {
             </Link>
           </div>
 
-          <h1 className="font-serif text-3xl text-foreground text-center mb-1.5 tracking-tight">Welcome back</h1>
+          <h1 className="font-serif text-3xl text-[var(--auth-ink-900)] text-center mb-1.5 tracking-tight">Welcome back</h1>
           <p className="text-[13px] text-muted-foreground text-center mb-6">Sign in to continue your journey.</p>
 
-          {/* Role tabs */}
-          <div className="flex bg-secondary border border-border/40 rounded-full p-1 mb-6">
+          {/* Role switcher tabs */}
+          <div className="flex bg-[var(--auth-surface-muted)] border border-[var(--auth-border)] rounded-[var(--radius-input)] p-1 mb-6">
             {([
               { key: "CANDIDATE", label: "Candidate" },
               { key: "EMPLOYER", label: "Employer" },
@@ -313,8 +260,10 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => fillRole(r.key)}
                 className={cn(
-                  "flex-1 h-9 rounded-full text-[12px] font-bold press transition-all duration-300",
-                  role === r.key ? "bg-card text-primary shadow-soft border border-border/20" : "text-muted-foreground hover:text-foreground"
+                  "flex-1 h-9 rounded-[8px] text-[12px] font-bold press transition-all duration-300",
+                  role === r.key 
+                    ? "bg-[var(--auth-surface)] text-[var(--brand-pink)] shadow-sm border border-[var(--auth-border)]" 
+                    : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 {r.label}
@@ -323,25 +272,25 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <div className="bg-rose-50 border border-rose-200 rounded-xl px-4 py-3 mb-5 text-[12px] text-rose-700 animate-shake">
+            <div className="bg-rose-50 border border-rose-200 rounded-[var(--radius-input)] px-4 py-3 mb-5 text-[12px] text-rose-700 animate-shake">
               ⚠ {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-            <div className="space-y-1.5">
-              <label htmlFor="login-email" className="block text-[11px] font-bold text-foreground/70 uppercase tracking-wider">
+          <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+            <div className="space-y-2">
+              <label htmlFor="login-email" className="block text-[11px] font-bold text-[var(--ink-700)] uppercase tracking-wider">
                 Email address
               </label>
               <div className={cn(
-                "relative flex items-center border rounded-xl bg-card transition-all duration-300",
+                "relative flex items-center border bg-[var(--auth-surface)] transition-all duration-200",
                 focusedField === 'email' 
-                  ? "border-primary ring-4 ring-primary/5 shadow-md scale-[1.01]" 
-                  : "border-border shadow-sm hover:border-primary/30"
+                  ? "border-[var(--auth-border-focus)] ring-2 ring-[var(--brand-pink)]/10 rounded-[var(--radius-input)]" 
+                  : "border-[var(--auth-border)] rounded-[var(--radius-input)]"
               )}>
                 <Mail className={cn(
                   "absolute left-4 transition-colors duration-300",
-                  focusedField === 'email' ? "text-primary" : "text-muted-foreground"
+                  focusedField === 'email' ? "text-[var(--brand-pink)]" : "text-muted-foreground"
                 )} size={15} />
                 <input
                   id="login-email"
@@ -352,29 +301,29 @@ export default function LoginPage() {
                   onBlur={() => setFocusedField(null)}
                   placeholder="you@example.com"
                   autoComplete="email"
-                  className="w-full h-12 pl-11 pr-4 bg-transparent border-none rounded-xl text-[13px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0"
+                  className="w-full h-12 pl-11 pr-4 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0"
                 />
               </div>
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <label htmlFor="login-pwd" className="text-[11px] font-bold text-foreground/70 uppercase tracking-wider">
+                <label htmlFor="login-pwd" className="text-[11px] font-bold text-[var(--ink-700)] uppercase tracking-wider">
                   Password
                 </label>
-                <Link to="/auth/forgot-password" className="text-[11px] font-semibold text-primary hover:text-mauve-600 transition-colors">
+                <Link to="/auth/forgot-password" className="text-[11px] font-semibold text-[var(--brand-pink)] hover:opacity-85 transition-opacity">
                   Forgot password?
                 </Link>
               </div>
               <div className={cn(
-                "relative flex items-center border rounded-xl bg-card transition-all duration-300",
+                "relative flex items-center border bg-[var(--auth-surface)] transition-all duration-200",
                 focusedField === 'password' 
-                  ? "border-primary ring-4 ring-primary/5 shadow-md scale-[1.01]" 
-                  : "border-border shadow-sm hover:border-primary/30"
+                  ? "border-[var(--auth-border-focus)] ring-2 ring-[var(--brand-pink)]/10 rounded-[var(--radius-input)]" 
+                  : "border-[var(--auth-border)] rounded-[var(--radius-input)]"
               )}>
                 <Lock className={cn(
                   "absolute left-4 transition-colors duration-300",
-                  focusedField === 'password' ? "text-primary" : "text-muted-foreground"
+                  focusedField === 'password' ? "text-[var(--brand-pink)]" : "text-muted-foreground"
                 )} size={15} />
                 <input
                   id="login-pwd"
@@ -385,11 +334,11 @@ export default function LoginPage() {
                   onBlur={() => setFocusedField(null)}
                   placeholder="••••••••"
                   autoComplete="current-password"
-                  className="w-full h-12 pl-11 pr-11 bg-transparent border-none rounded-xl text-[13px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0"
+                  className="w-full h-12 pl-11 pr-11 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0"
                 />
                 <button type="button" onClick={() => setShowPwd(v => !v)}
                   aria-label={showPwd ? "Hide password" : "Show password"}
-                  className="absolute right-4 text-muted-foreground hover:text-primary transition-colors">
+                  className="absolute right-4 text-muted-foreground hover:text-[var(--brand-pink)] transition-colors">
                   {showPwd ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
               </div>
@@ -398,17 +347,16 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full h-12 rounded-full text-[13px] font-bold text-white transition-all duration-300 hover:shadow-lg press disabled:opacity-50 disabled:transform-none mt-2 inline-flex items-center justify-center gap-2 animate-shimmer-btn"
-              style={{ background: "var(--grad-mauve-rose)" }}
+              className="w-full h-12 bg-[var(--brand-pink)] hover:bg-[var(--brand-pink)]/90 text-white rounded-[var(--radius-button)] text-[13px] font-bold transition-all duration-300 press disabled:opacity-50 flex items-center justify-center gap-2 mt-2"
             >
               {loading ? "Signing in securely…" : <>Sign in securely <ArrowRight size={14} /></>}
             </button>
           </form>
 
           <div className="flex items-center gap-3 my-5">
-            <div className="flex-1 h-px bg-border/60" />
+            <div className="flex-1 h-px bg-[var(--auth-border)]" />
             <span className="text-[10px] uppercase tracking-wider text-muted-foreground">or continue with</span>
-            <div className="flex-1 h-px bg-border/60" />
+            <div className="flex-1 h-px bg-[var(--auth-border)]" />
           </div>
 
           <div className="grid grid-cols-2 gap-3 mb-6">
@@ -421,7 +369,7 @@ export default function LoginPage() {
                 setOauthRole("CANDIDATE");
                 setOauthModal({ isOpen: true, provider: 'Google' });
               }}
-              className="h-11 border border-border rounded-xl text-[13px] font-semibold text-foreground bg-card hover:bg-secondary hover:border-foreground/20 transition-all duration-200 press flex items-center justify-center gap-2 shadow-sm animate-shimmer-btn"
+              className="h-11 border border-[var(--auth-border)] rounded-[var(--radius-input)] text-[13px] font-semibold text-[var(--ink-700)] bg-[var(--auth-surface)] hover:bg-[var(--auth-surface-muted)] transition-all duration-200 press flex items-center justify-center gap-2"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -440,7 +388,7 @@ export default function LoginPage() {
                 setOauthRole("CANDIDATE");
                 setOauthModal({ isOpen: true, provider: 'LinkedIn' });
               }}
-              className="h-11 border border-border rounded-xl text-[13px] font-semibold text-foreground bg-card hover:bg-secondary hover:border-foreground/20 transition-all duration-200 press flex items-center justify-center gap-2 shadow-sm animate-shimmer-btn"
+              className="h-11 border border-[var(--auth-border)] rounded-[var(--radius-input)] text-[13px] font-semibold text-[var(--ink-700)] bg-[var(--auth-surface)] hover:bg-[var(--auth-surface-muted)] transition-all duration-200 press flex items-center justify-center gap-2"
             >
               <svg className="w-4 h-4 text-[#0A66C2]" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.779-1.75-1.75s.784-1.75 1.75-1.75 1.75.779 1.75 1.75-.784 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
@@ -451,7 +399,7 @@ export default function LoginPage() {
 
           <p className="text-center text-[12px] text-muted-foreground">
             New to SheEnableAI?{" "}
-            <Link to="/auth/signup" className="text-primary font-bold hover:text-mauve-600 transition-colors">
+            <Link to="/auth/signup" className="text-[var(--brand-pink)] font-bold hover:opacity-85 transition-opacity">
               Join Free →
             </Link>
           </p>
@@ -465,11 +413,11 @@ export default function LoginPage() {
       {/* Simulated OAuth Modal Overlay */}
       {oauthModal.isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#14101F]/60 backdrop-blur-md animate-fade-in">
-          <div className="w-full max-w-[420px] bg-card border border-border rounded-[28px] p-6 shadow-xl relative overflow-hidden transition-all duration-300 scale-[1.02]">
+          <div className="w-full max-w-[420px] bg-[var(--auth-surface)] border border-[var(--auth-border)] rounded-[var(--radius-card)] p-6 shadow-xl relative overflow-hidden transition-all duration-300 scale-[1.02]">
             {/* Modal branding header */}
             <div className="flex flex-col items-center mb-6">
               {oauthModal.provider === 'Google' ? (
-                <div className="w-12 h-12 rounded-full bg-secondary border border-border flex items-center justify-center shadow-sm mb-3">
+                <div className="w-12 h-12 rounded-full bg-[var(--auth-surface-muted)] border border-[var(--auth-border)] flex items-center justify-center shadow-sm mb-3">
                   <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -484,22 +432,24 @@ export default function LoginPage() {
                   </svg>
                 </div>
               )}
-              <h2 className="font-serif text-xl font-bold text-foreground">Sign in with {oauthModal.provider}</h2>
+              <h2 className="font-serif text-xl font-bold text-[var(--auth-ink-900)]">Sign in with {oauthModal.provider}</h2>
               <p className="text-[11px] text-muted-foreground mt-1">To verify your connection to SheEnableAI</p>
             </div>
 
             <form onSubmit={handleOauthSubmit} className="space-y-4">
               <div className="space-y-1">
                 <label className="text-[10px] font-bold text-foreground/75 uppercase tracking-wide">Select Your Account Role</label>
-                <div className="flex bg-secondary border border-border/40 rounded-full p-1">
+                <div className="flex bg-[var(--auth-surface-muted)] border border-[var(--auth-border)] rounded-[var(--radius-input)] p-1">
                   {(["CANDIDATE", "EMPLOYER"] as const).map(r => (
                     <button
                       key={r}
                       type="button"
                       onClick={() => setOauthRole(r)}
                       className={cn(
-                        "flex-1 h-9 rounded-full text-[11px] font-bold transition-all duration-200 press",
-                        oauthRole === r ? "bg-card text-primary shadow-soft border border-border/20" : "text-muted-foreground hover:text-foreground"
+                        "flex-1 h-9 rounded-[8px] text-[11px] font-bold transition-all duration-200 press",
+                        oauthRole === r 
+                          ? "bg-[var(--auth-surface)] text-[var(--brand-pink)] shadow-sm border border-[var(--auth-border)]" 
+                          : "text-muted-foreground hover:text-foreground"
                       )}
                     >
                       {r === "CANDIDATE" ? "Candidate" : "Employer"}
@@ -512,34 +462,34 @@ export default function LoginPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="block text-[10px] font-bold text-foreground/70 uppercase tracking-wide">First Name</label>
+                <label className="block text-[10px] font-bold text-[var(--ink-700)] uppercase tracking-wide">First Name</label>
                 <input 
                   type="text" 
                   value={oauthFname} 
                   onChange={e => setOauthFname(e.target.value)}
-                  className="w-full h-11 px-3.5 border border-border rounded-xl text-[13px] bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all"
+                  className="w-full h-11 px-3.5 border border-[var(--auth-border)] rounded-[var(--radius-input)] text-[13px] bg-[var(--auth-surface)] text-[var(--ink-900)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-pink)]/10 focus:border-[var(--brand-pink)] transition-all"
                   required
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="block text-[10px] font-bold text-foreground/70 uppercase tracking-wide">Last Name</label>
+                <label className="block text-[10px] font-bold text-[var(--ink-700)] uppercase tracking-wide">Last Name</label>
                 <input 
                   type="text" 
                   value={oauthLname} 
                   onChange={e => setOauthLname(e.target.value)}
-                  className="w-full h-11 px-3.5 border border-border rounded-xl text-[13px] bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all"
+                  className="w-full h-11 px-3.5 border border-[var(--auth-border)] rounded-[var(--radius-input)] text-[13px] bg-[var(--auth-surface)] text-[var(--ink-900)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-pink)]/10 focus:border-[var(--brand-pink)] transition-all"
                   required
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="block text-[10px] font-bold text-foreground/70 uppercase tracking-wide">Email Address</label>
+                <label className="block text-[10px] font-bold text-[var(--ink-700)] uppercase tracking-wide">Email Address</label>
                 <input 
                   type="email" 
                   value={oauthEmail} 
                   onChange={e => setOauthEmail(e.target.value)}
-                  className="w-full h-11 px-3.5 border border-border rounded-xl text-[13px] bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all"
+                  className="w-full h-11 px-3.5 border border-[var(--auth-border)] rounded-[var(--radius-input)] text-[13px] bg-[var(--auth-surface)] text-[var(--ink-900)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-pink)]/10 focus:border-[var(--brand-pink)] transition-all"
                   required
                 />
               </div>
@@ -548,14 +498,13 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setOauthModal(prev => ({ ...prev, isOpen: false }))}
-                  className="flex-1 h-11 rounded-full text-[12px] font-bold border border-border bg-card hover:bg-secondary transition-colors press"
+                  className="flex-1 h-11 rounded-[var(--radius-button)] text-[12px] font-bold border border-[var(--auth-border)] bg-[var(--auth-surface)] hover:bg-[var(--auth-surface-muted)] transition-colors press"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 h-11 rounded-full text-[12px] font-bold text-white transition-colors animate-shimmer-btn press"
-                  style={{ background: "var(--grad-mauve-rose)" }}
+                  className="flex-1 h-11 rounded-[var(--radius-button)] text-[12px] font-bold text-white bg-[var(--brand-pink)] hover:bg-[var(--brand-pink)]/90 transition-colors press"
                 >
                   Authorize
                 </button>

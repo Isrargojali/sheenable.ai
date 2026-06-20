@@ -1,8 +1,9 @@
 // src/pages/auth/SignupPage.tsx
+// Premium split-screen register. Brand mission left, form right.
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import logo from "@/assets/sheEnableAI-removebg-preview.png";
-import { Eye, EyeOff, ArrowRight, Building2, User, Mail, Lock } from "lucide-react";
+import { Eye, EyeOff, ArrowRight, Building2, User, Mail, Lock, Heart, Sparkles, ShieldCheck } from "lucide-react";
 import { apiAuth } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -22,7 +23,7 @@ function PwdStrength({ pwd }: { pwd: string }) {
       <div className="flex gap-1.5">
         {[1, 2, 3, 4, 5].map(i => (
           <div key={i} className="flex-1 h-1 rounded-full transition-all duration-300"
-            style={{ background: i <= s ? colors[s] : "hsl(var(--border))" }} />
+            style={{ background: i <= s ? colors[s] : "var(--auth-border)" }} />
         ))}
       </div>
       {pwd && <p className="text-[10px] mt-1.5 font-medium transition-colors duration-300" style={{ color: colors[s] }}>{labels[s]}</p>}
@@ -107,306 +108,317 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background bg-arcs px-4 py-10 relative overflow-hidden">
-      {/* Premium Visual Flourish Animations */}
-      <style dangerouslySetInnerHTML={{__html: `
-        @keyframes float-blob-1 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(40px, -60px) scale(1.15); }
-          66% { transform: translate(-30px, 30px) scale(0.90); }
-        }
-        @keyframes float-blob-2 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(-50px, 40px) scale(1.10); }
-        }
-        .animate-blob-1 {
-          animation: float-blob-1 18s ease-in-out infinite;
-        }
-        .animate-blob-2 {
-          animation: float-blob-2 22s ease-in-out infinite;
-        }
-        .animate-shimmer-btn {
-          position: relative;
-          overflow: hidden;
-        }
-        .animate-shimmer-btn::after {
-          content: '';
-          position: absolute;
-          top: -50%;
-          left: -60%;
-          width: 200%;
-          height: 200%;
-          background: linear-gradient(
-            to right,
-            rgba(255, 255, 255, 0) 0%,
-            rgba(255, 255, 255, 0.25) 50%,
-            rgba(255, 255, 255, 0) 100%
-          );
-          transform: rotate(30deg);
-          transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .animate-shimmer-btn:hover::after {
-          transform: translate(65%, 65%) rotate(30deg);
-        }
-      `}} />
+    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-[1.05fr_1fr] bg-[var(--auth-surface-muted)] relative overflow-hidden">
+      {/* ── Left: Brand & mission (Desktop only) ─────────────────── */}
+      <aside
+        className="hidden lg:flex flex-col justify-between relative overflow-hidden text-white px-12 py-12 bg-[var(--auth-ink-900)]"
+      >
+        {/* Soft dot pattern */}
+        <svg className="absolute inset-0 w-full h-full opacity-[0.18]" aria-hidden="true">
+          <defs>
+            <pattern id="signup-dots" x="0" y="0" width="28" height="28" patternUnits="userSpaceOnUse">
+              <circle cx="2" cy="2" r="1" fill="white" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#signup-dots)" />
+        </svg>
+        <div className="absolute -top-32 -right-20 w-[450px] h-[450px] rounded-full pointer-events-none"
+          style={{ background: "radial-gradient(circle,rgba(230,0,126,.15),transparent 65%)", filter: "blur(80px)" }} />
+        <div className="absolute -bottom-32 -left-20 w-[350px] h-[350px] rounded-full pointer-events-none"
+          style={{ background: "radial-gradient(circle,rgba(61,170,125,.12),transparent 65%)", filter: "blur(70px)" }} />
 
-      {/* Dynamic ambient blur spots */}
-      <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full opacity-[0.08] pointer-events-none blur-3xl animate-blob-1"
-        style={{ background: "radial-gradient(circle, #C8528C, transparent 70%)" }} />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[55vw] h-[55vw] rounded-full opacity-[0.08] pointer-events-none blur-3xl animate-blob-2"
-        style={{ background: "radial-gradient(circle, #3DAA7D, transparent 70%)" }} />
-
-      <div className="w-full max-w-[460px] relative z-10 bg-card/70 backdrop-blur-xl border border-border/50 rounded-[28px] p-8 md:p-10 shadow-lg animate-fade-in">
-
-        {/* Brand */}
-        <div className="flex items-center justify-center mb-6">
+        {/* Logo */}
+        <Link to="/" className="relative z-10 flex items-center gap-2.5 group" aria-label="SheEnableAI home">
           <img
             src={logo}
             alt="SheEnableAI logo"
-            className="w-48 h-20 object-contain"
+            className="w-48 h-24 object-contain transition-transform group-hover:scale-105"
           />
-        </div>
+        </Link>
 
-        <h1 className="font-serif text-3xl text-foreground text-center mb-1.5 tracking-tight">
-          {role === "CANDIDATE" ? "Join SheEnableAI" : "Hire with SheEnableAI"}
-        </h1>
-        <p className="text-[13px] text-muted-foreground text-center mb-6">
-          {role === "CANDIDATE"
-            ? "Free forever for women professionals."
-            : "Reach 50,000+ qualified women. First job free."}
-        </p>
+        {/* Hero text */}
+        <div className="relative z-10">
+          <h2 className="font-serif text-4xl xl:text-5xl text-white leading-[1.05] tracking-tight mb-5">
+            Your next<br /><span className="italic text-[var(--brand-pink)] font-bold">opportunity</span><br />awaits.
+          </h2>
+          <p className="text-sm text-white/65 leading-7 mb-10 max-w-md">
+            Join 12,400+ women professionals and 500+ inclusive employers on Pakistan's premium AI-powered hiring platform.
+          </p>
 
-        {/* Role switcher */}
-        <div className="flex bg-secondary border border-border/40 rounded-full p-1 mb-6">
-          {(["CANDIDATE", "EMPLOYER"] as Role[]).map(r => (
-            <button
-              key={r}
-              type="button"
-              onClick={() => { setRole(r); setError(""); }}
-              className={cn(
-                "flex-1 h-10 rounded-full text-[12px] font-bold press transition-all duration-300 inline-flex items-center justify-center gap-1.5",
-                role === r ? "bg-card text-primary shadow-soft border border-border/20" : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              {r === "CANDIDATE" ? <User size={13} /> : <Building2 size={13} />}
-              {r === "CANDIDATE" ? "I'm a Candidate" : "I'm an Employer"}
-            </button>
+          {[
+            { icon: Sparkles, title: "AI-powered matching", sub: "96% match accuracy across 47 industries" },
+            { icon: Heart, title: "Built for women", sub: "Verified inclusive employers only" },
+            { icon: ShieldCheck, title: "Bank-grade security", sub: "End-to-end encrypted, never sold" },
+          ].map(({ icon: Icon, title, sub }) => (
+            <div key={title} className="flex items-center gap-3 px-4 py-3 rounded-[var(--radius-card)] border border-white/10 mb-2.5 max-w-md bg-white/5 transition-all duration-300 hover:scale-[1.02]">
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-[var(--brand-pink)]/20 text-[var(--brand-pink)]">
+                <Icon size={15} />
+              </div>
+              <div>
+                <div className="text-[13px] font-bold text-white">{title}</div>
+                <div className="text-[11px] text-white/50 mt-0.5">{sub}</div>
+              </div>
+            </div>
           ))}
         </div>
 
-        {error && (
-          <div className="bg-rose-50 border border-rose-200 rounded-xl px-4 py-3 mb-5 text-[12px] text-rose-700 animate-shake">
-            ⚠ {error}
-          </div>
-        )}
+        <div className="relative z-10 text-[11px] text-white/70 max-w-sm px-4 py-3 rounded-[var(--radius-card)] border border-white/10 backdrop-blur-md bg-white/5 shadow-soft">
+          <span className="text-[var(--brand-pink)] italic font-semibold font-serif">"</span>I landed my dream role in 11 days. The match accuracy was scary good.<span className="text-[var(--brand-pink)] italic font-semibold font-serif">"</span> — Aisha K., Senior Frontend Engineer
+        </div>
+      </aside>
 
-        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-          {role === "CANDIDATE" ? (
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="block text-[11px] font-bold text-foreground/70 uppercase tracking-wider">First name</label>
-                <div className={cn(
-                  "relative flex items-center border rounded-xl bg-card transition-all duration-300",
-                  focusedField === 'fname' 
-                    ? "border-primary ring-4 ring-primary/5 shadow-md scale-[1.01]" 
-                    : "border-border shadow-sm hover:border-primary/30"
-                )}>
-                  <input 
-                    value={fname} 
-                    onChange={e => setFname(e.target.value)}
-                    onFocus={() => setFocusedField('fname')}
-                    onBlur={() => setFocusedField(null)}
-                    placeholder="Ayesha" 
-                    className="w-full h-12 px-4 bg-transparent border-none rounded-xl text-[13px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0" 
-                  />
-                </div>
-              </div>
-              <div className="space-y-1.5">
-                <label className="block text-[11px] font-bold text-foreground/70 uppercase tracking-wider">Last name</label>
-                <div className={cn(
-                  "relative flex items-center border rounded-xl bg-card transition-all duration-300",
-                  focusedField === 'lname' 
-                    ? "border-primary ring-4 ring-primary/5 shadow-md scale-[1.01]" 
-                    : "border-border shadow-sm hover:border-primary/30"
-                )}>
-                  <input 
-                    value={lname} 
-                    onChange={e => setLname(e.target.value)}
-                    onFocus={() => setFocusedField('lname')}
-                    onBlur={() => setFocusedField(null)}
-                    placeholder="Khan" 
-                    className="w-full h-12 px-4 bg-transparent border-none rounded-xl text-[13px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0" 
-                  />
-                </div>
-              </div>
-            </div>
-          ) : (
-            <>
-              <div className="space-y-1.5">
-                <label className="block text-[11px] font-bold text-foreground/70 uppercase tracking-wider">Company name</label>
-                <div className={cn(
-                  "relative flex items-center border rounded-xl bg-card transition-all duration-300",
-                  focusedField === 'companyName' 
-                    ? "border-primary ring-4 ring-primary/5 shadow-md scale-[1.01]" 
-                    : "border-border shadow-sm hover:border-primary/30"
-                )}>
-                  <Building2 className={cn(
-                    "absolute left-4 transition-colors duration-300",
-                    focusedField === 'companyName' ? "text-primary" : "text-muted-foreground"
-                  )} size={15} />
-                  <input 
-                    value={companyName} 
-                    onChange={e => setCompanyName(e.target.value)}
-                    onFocus={() => setFocusedField('companyName')}
-                    onBlur={() => setFocusedField(null)}
-                    placeholder="Acme Inc." 
-                    className="w-full h-12 pl-11 pr-4 bg-transparent border-none rounded-xl text-[13px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0" 
-                  />
-                </div>
-              </div>
-              <div className="space-y-1.5">
-                <label className="block text-[11px] font-bold text-foreground/70 uppercase tracking-wider">Company size</label>
-                <div className={cn(
-                  "relative flex items-center border rounded-xl bg-card transition-all duration-300",
-                  focusedField === 'companySize' 
-                    ? "border-primary ring-4 ring-primary/5 shadow-md scale-[1.01]" 
-                    : "border-border shadow-sm hover:border-primary/30"
-                )}>
-                  <select 
-                    value={companySize} 
-                    onChange={e => setCompanySize(e.target.value)} 
-                    onFocus={() => setFocusedField('companySize')}
-                    onBlur={() => setFocusedField(null)}
-                    className="w-full h-12 px-4 bg-transparent border-none rounded-xl text-[13px] text-foreground focus:outline-none focus:ring-0 cursor-pointer"
-                  >
-                    {COMPANY_SIZES.map(s => <option key={s} value={s}>{s} employees</option>)}
-                  </select>
-                </div>
-              </div>
-            </>
-          )}
-
-          <div className="space-y-1.5">
-            <label className="block text-[11px] font-bold text-foreground/70 uppercase tracking-wider">
-              {role === "EMPLOYER" ? "Work email" : "Email address"}
-            </label>
-            <div className={cn(
-              "relative flex items-center border rounded-xl bg-card transition-all duration-300",
-              focusedField === 'email' 
-                ? "border-primary ring-4 ring-primary/5 shadow-md scale-[1.01]" 
-                : "border-border shadow-sm hover:border-primary/30"
-            )}>
-              <Mail className={cn(
-                "absolute left-4 transition-colors duration-300",
-                focusedField === 'email' ? "text-primary" : "text-muted-foreground"
-              )} size={15} />
-              <input 
-                type="email" 
-                value={email} 
-                onChange={e => setEmail(e.target.value)}
-                onFocus={() => setFocusedField('email')}
-                onBlur={() => setFocusedField(null)}
-                placeholder={role === "EMPLOYER" ? "you@company.com" : "you@example.com"}
-                autoComplete="email"
-                className="w-full h-12 pl-11 pr-4 bg-transparent border-none rounded-xl text-[13px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0" 
+      {/* ── Right: Form Panel ──────────────────────────────────────── */}
+      <div className="relative flex items-center justify-center px-6 py-10 lg:py-12 bg-[var(--auth-surface-muted)] overflow-hidden">
+        <div className="w-full max-w-[440px] relative z-10 bg-[var(--auth-surface)] border border-[var(--auth-border)] rounded-[var(--radius-card)] p-8 md:p-10 shadow-sm animate-fade-in">
+          <div className="lg:hidden flex items-center justify-center mb-6">
+            <Link to="/" className="flex items-center justify-center group" aria-label="SheEnableAI home">
+              <img
+                src={logo}
+                alt="SheEnableAI logo"
+                className="w-48 h-20 object-contain transition-transform group-hover:scale-105"
               />
-            </div>
-            {role === "EMPLOYER" && (
-              <p className="text-[10px] text-muted-foreground/80 mt-1">We verify employers via your work email domain.</p>
-            )}
+            </Link>
           </div>
 
-          <div className="space-y-1.5">
-            <label className="block text-[11px] font-bold text-foreground/70 uppercase tracking-wider">Password</label>
-            <div className={cn(
-              "relative flex items-center border rounded-xl bg-card transition-all duration-300",
-              focusedField === 'pwd' 
-                ? "border-primary ring-4 ring-primary/5 shadow-md scale-[1.01]" 
-                : "border-border shadow-sm hover:border-primary/30"
-            )}>
-              <Lock className={cn(
-                "absolute left-4 transition-colors duration-300",
-                focusedField === 'pwd' ? "text-primary" : "text-muted-foreground"
-              )} size={15} />
-              <input 
-                type={showPwd ? "text" : "password"} 
-                value={pwd} 
-                onChange={e => setPwd(e.target.value)}
-                onFocus={() => setFocusedField('pwd')}
-                onBlur={() => setFocusedField(null)}
-                placeholder="Min. 8 characters"
-                autoComplete="new-password"
-                className="w-full h-12 pl-11 pr-11 bg-transparent border-none rounded-xl text-[13px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0" 
-              />
-              <button type="button" onClick={() => setShowPwd(v => !v)}
-                aria-label={showPwd ? "Hide password" : "Show password"}
-                className="absolute right-4 text-muted-foreground hover:text-primary transition-colors">
-                {showPwd ? <EyeOff size={15} /> : <Eye size={15} />}
+          <h1 className="font-serif text-3xl text-[var(--auth-ink-900)] text-center mb-1.5 tracking-tight">
+            {role === "CANDIDATE" ? "Join SheEnableAI" : "Hire with SheEnableAI"}
+          </h1>
+          <p className="text-[13px] text-muted-foreground text-center mb-6">
+            {role === "CANDIDATE"
+              ? "Free forever for women professionals."
+              : "Reach 50,000+ qualified women. First job free."}
+          </p>
+
+          {/* Role switcher tabs */}
+          <div className="flex bg-[var(--auth-surface-muted)] border border-[var(--auth-border)] rounded-[var(--radius-input)] p-1 mb-6">
+            {(["CANDIDATE", "EMPLOYER"] as Role[]).map(r => (
+              <button
+                key={r}
+                type="button"
+                onClick={() => { setRole(r); setError(""); }}
+                className={cn(
+                  "flex-1 h-9 rounded-[8px] text-[12px] font-bold press transition-all duration-300 inline-flex items-center justify-center gap-1.5",
+                  role === r 
+                    ? "bg-[var(--auth-surface)] text-[var(--brand-pink)] shadow-sm border border-[var(--auth-border)]" 
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {r === "CANDIDATE" ? <User size={13} /> : <Building2 size={13} />}
+                {r === "CANDIDATE" ? "Candidate" : "Employer"}
               </button>
-            </div>
-            <PwdStrength pwd={pwd} />
+            ))}
           </div>
 
-          <div className="space-y-1.5">
-            <label className="block text-[11px] font-bold text-foreground/70 uppercase tracking-wider">Confirm password</label>
-            <div className={cn(
-              "relative flex items-center border rounded-xl bg-card transition-all duration-300",
-              focusedField === 'confirm' 
-                ? "border-primary ring-4 ring-primary/5 shadow-md scale-[1.01]" 
-                : "border-border shadow-sm hover:border-primary/30"
-            )}>
-              <input 
-                type="password" 
-                value={confirm} 
-                onChange={e => setConfirm(e.target.value)}
-                onFocus={() => setFocusedField('confirm')}
-                onBlur={() => setFocusedField(null)}
-                placeholder="Repeat password"
-                autoComplete="new-password"
-                className="w-full h-12 px-4 bg-transparent border-none rounded-xl text-[13px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0" 
-              />
+          {error && (
+            <div className="bg-rose-50 border border-rose-200 rounded-[var(--radius-input)] px-4 py-3 mb-5 text-[12px] text-rose-700 animate-shake">
+              ⚠ {error}
             </div>
-          </div>
-
-          {/* Women-only confirmation */}
-          {role === "CANDIDATE" && (
-            <label className={cn(
-              "flex items-start gap-3 rounded-2xl border-l-[3px] p-4 cursor-pointer transition-all duration-300 press",
-              identityOk
-                ? "bg-mint-50/60 border-mint-200 border border-l-mint-500 shadow-sm"
-                : "bg-mauve-50/70 border-mauve-100 border border-l-primary hover:bg-mauve-50"
-            )}>
-              <input
-                type="checkbox"
-                checked={identityOk}
-                onChange={e => { setIdentityOk(e.target.checked); setError(""); }}
-                className="mt-0.5 w-4 h-4 accent-primary cursor-pointer flex-shrink-0"
-              />
-              <span className="text-[11px] text-foreground/80 leading-relaxed">
-                <strong className="text-foreground">I confirm I identify as a woman or non-binary individual.</strong>
-                <br />
-                <span className="text-muted-foreground/90">SheEnableAI exists to create safer, focused career opportunities for women — this confirmation is required.</span>
-              </span>
-            </label>
           )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full h-12 rounded-full text-[13px] font-bold text-white transition-all duration-300 hover:shadow-lg press disabled:opacity-50 disabled:transform-none mt-3 inline-flex items-center justify-center gap-2 animate-shimmer-btn"
-            style={{ background: "var(--grad-mauve-rose)" }}
-          >
-            {loading ? "Creating account…" : <><span>Create account</span> <ArrowRight size={14} /></>}
-          </button>
-        </form>
+          <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+            {role === "CANDIDATE" ? (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="block text-[11px] font-bold text-[var(--ink-700)] uppercase tracking-wider">First name</label>
+                  <div className={cn(
+                    "relative flex items-center border bg-[var(--auth-surface)] transition-all duration-200",
+                    focusedField === 'fname' 
+                      ? "border-[var(--auth-border-focus)] ring-2 ring-[var(--brand-pink)]/10 rounded-[var(--radius-input)]" 
+                      : "border-[var(--auth-border)] rounded-[var(--radius-input)]"
+                  )}>
+                    <input 
+                      value={fname} 
+                      onChange={e => setFname(e.target.value)}
+                      onFocus={() => setFocusedField('fname')}
+                      onBlur={() => setFocusedField(null)}
+                      placeholder="Ayesha" 
+                      className="w-full h-12 px-4 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0" 
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-[11px] font-bold text-[var(--ink-700)] uppercase tracking-wider">Last name</label>
+                  <div className={cn(
+                    "relative flex items-center border bg-[var(--auth-surface)] transition-all duration-200",
+                    focusedField === 'lname' 
+                      ? "border-[var(--auth-border-focus)] ring-2 ring-[var(--brand-pink)]/10 rounded-[var(--radius-input)]" 
+                      : "border-[var(--auth-border)] rounded-[var(--radius-input)]"
+                  )}>
+                    <input 
+                      value={lname} 
+                      onChange={e => setLname(e.target.value)}
+                      onFocus={() => setFocusedField('lname')}
+                      onBlur={() => setFocusedField(null)}
+                      placeholder="Khan" 
+                      className="w-full h-12 px-4 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0" 
+                    />
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  <label className="block text-[11px] font-bold text-[var(--ink-700)] uppercase tracking-wider">Company name</label>
+                  <div className={cn(
+                    "relative flex items-center border bg-[var(--auth-surface)] transition-all duration-200",
+                    focusedField === 'companyName' 
+                      ? "border-[var(--auth-border-focus)] ring-2 ring-[var(--brand-pink)]/10 rounded-[var(--radius-input)]" 
+                      : "border-[var(--auth-border)] rounded-[var(--radius-input)]"
+                  )}>
+                    <Building2 className={cn(
+                      "absolute left-4 transition-colors duration-300",
+                      focusedField === 'companyName' ? "text-[var(--brand-pink)]" : "text-muted-foreground"
+                    )} size={15} />
+                    <input 
+                      value={companyName} 
+                      onChange={e => setCompanyName(e.target.value)}
+                      onFocus={() => setFocusedField('companyName')}
+                      onBlur={() => setFocusedField(null)}
+                      placeholder="Acme Inc." 
+                      className="w-full h-12 pl-11 pr-4 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0" 
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-[11px] font-bold text-[var(--ink-700)] uppercase tracking-wider">Company size</label>
+                  <div className={cn(
+                    "relative flex items-center border bg-[var(--auth-surface)] transition-all duration-200",
+                    focusedField === 'companySize' 
+                      ? "border-[var(--auth-border-focus)] ring-2 ring-[var(--brand-pink)]/10 rounded-[var(--radius-input)]" 
+                      : "border-[var(--auth-border)] rounded-[var(--radius-input)]"
+                  )}>
+                    <select 
+                      value={companySize} 
+                      onChange={e => setCompanySize(e.target.value)} 
+                      onFocus={() => setFocusedField('companySize')}
+                      onBlur={() => setFocusedField(null)}
+                      className="w-full h-12 px-4 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] focus:outline-none focus:ring-0 cursor-pointer"
+                    >
+                      {COMPANY_SIZES.map(s => <option key={s} value={s}>{s} employees</option>)}
+                    </select>
+                  </div>
+                </div>
+              </>
+            )}
 
-        <p className="text-center text-[12px] text-muted-foreground mt-6">
-          Already registered?{" "}
-          <Link to="/auth/login" className="text-primary font-bold hover:text-mauve-600 transition-colors">Sign in</Link>
-        </p>
+            <div className="space-y-2">
+              <label className="block text-[11px] font-bold text-[var(--ink-700)] uppercase tracking-wider">
+                {role === "EMPLOYER" ? "Work email" : "Email address"}
+              </label>
+              <div className={cn(
+                "relative flex items-center border bg-[var(--auth-surface)] transition-all duration-200",
+                focusedField === 'email' 
+                  ? "border-[var(--auth-border-focus)] ring-2 ring-[var(--brand-pink)]/10 rounded-[var(--radius-input)]" 
+                  : "border-[var(--auth-border)] rounded-[var(--radius-input)]"
+              )}>
+                <Mail className={cn(
+                  "absolute left-4 transition-colors duration-300",
+                  focusedField === 'email' ? "text-[var(--brand-pink)]" : "text-muted-foreground"
+                )} size={15} />
+                <input 
+                  type="email" 
+                  value={email} 
+                  onChange={e => setEmail(e.target.value)}
+                  onFocus={() => setFocusedField('email')}
+                  onBlur={() => setFocusedField(null)}
+                  placeholder={role === "EMPLOYER" ? "you@company.com" : "you@example.com"}
+                  autoComplete="email"
+                  className="w-full h-12 pl-11 pr-4 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0" 
+                />
+              </div>
+              {role === "EMPLOYER" && (
+                <p className="text-[10px] text-muted-foreground/80 mt-1">We verify employers via your work email domain.</p>
+              )}
+            </div>
 
-        <div className="text-center text-[10px] text-muted-foreground mt-6 opacity-75">
-          By signing up you agree to our <a href="#" className="underline">Terms</a> and <a href="#" className="underline">Privacy Policy</a>.
+            <div className="space-y-2">
+              <label className="block text-[11px] font-bold text-[var(--ink-700)] uppercase tracking-wider">Password</label>
+              <div className={cn(
+                "relative flex items-center border bg-[var(--auth-surface)] transition-all duration-200",
+                focusedField === 'pwd' 
+                  ? "border-[var(--auth-border-focus)] ring-2 ring-[var(--brand-pink)]/10 rounded-[var(--radius-input)]" 
+                  : "border-[var(--auth-border)] rounded-[var(--radius-input)]"
+              )}>
+                <Lock className={cn(
+                  "absolute left-4 transition-colors duration-300",
+                  focusedField === 'pwd' ? "text-[var(--brand-pink)]" : "text-muted-foreground"
+                )} size={15} />
+                <input 
+                  type={showPwd ? "text" : "password"} 
+                  value={pwd} 
+                  onChange={e => setPwd(e.target.value)}
+                  onFocus={() => setFocusedField('pwd')}
+                  onBlur={() => setFocusedField(null)}
+                  placeholder="Min. 8 characters"
+                  autoComplete="new-password"
+                  className="w-full h-12 pl-11 pr-11 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0" 
+                />
+                <button type="button" onClick={() => setShowPwd(v => !v)}
+                  aria-label={showPwd ? "Hide password" : "Show password"}
+                  className="absolute right-4 text-muted-foreground hover:text-[var(--brand-pink)] transition-colors">
+                  {showPwd ? <EyeOff size={15} /> : <Eye size={15} />}
+                </button>
+              </div>
+              <PwdStrength pwd={pwd} />
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-[11px] font-bold text-[var(--ink-700)] uppercase tracking-wider">Confirm password</label>
+              <div className={cn(
+                "relative flex items-center border bg-[var(--auth-surface)] transition-all duration-200",
+                focusedField === 'confirm' 
+                  ? "border-[var(--auth-border-focus)] ring-2 ring-[var(--brand-pink)]/10 rounded-[var(--radius-input)]" 
+                  : "border-[var(--auth-border)] rounded-[var(--radius-input)]"
+              )}>
+                <input 
+                  type="password" 
+                  value={confirm} 
+                  onChange={e => setConfirm(e.target.value)}
+                  onFocus={() => setFocusedField('confirm')}
+                  onBlur={() => setFocusedField(null)}
+                  placeholder="Repeat password"
+                  autoComplete="new-password"
+                  className="w-full h-12 px-4 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0" 
+                />
+              </div>
+            </div>
+
+            {/* Women-only confirmation */}
+            {role === "CANDIDATE" && (
+              <label className={cn(
+                "flex items-start gap-3 rounded-[var(--radius-card)] border-l-[3px] p-4 cursor-pointer transition-all duration-300 press border border-[var(--auth-border)] bg-[var(--auth-surface-muted)] border-l-[var(--brand-pink)]"
+              )}>
+                <input
+                  type="checkbox"
+                  checked={identityOk}
+                  onChange={e => { setIdentityOk(e.target.checked); setError(""); }}
+                  className="mt-0.5 w-4 h-4 accent-[var(--brand-pink)] cursor-pointer flex-shrink-0"
+                />
+                <span className="text-[11px] text-[var(--ink-700)] leading-relaxed">
+                  <strong className="text-[var(--ink-900)]">I confirm I identify as a woman or non-binary individual.</strong>
+                  <br />
+                  <span className="text-muted-foreground/90">SheEnableAI exists to create safer, focused career opportunities for women — this confirmation is required.</span>
+                </span>
+              </label>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full h-12 bg-[var(--brand-pink)] hover:bg-[var(--brand-pink)]/90 text-white rounded-[var(--radius-button)] text-[13px] font-bold transition-all duration-300 press disabled:opacity-50 flex items-center justify-center gap-2 mt-3"
+            >
+              {loading ? "Creating account…" : <><span>Create account</span> <ArrowRight size={14} /></>}
+            </button>
+          </form>
+
+          <p className="text-center text-[12px] text-muted-foreground mt-6">
+            Already registered?{" "}
+            <Link to="/auth/login" className="text-[var(--brand-pink)] font-bold hover:opacity-85 transition-opacity">Sign in</Link>
+          </p>
+
+          <div className="text-center text-[10px] text-muted-foreground mt-6 opacity-75">
+            By signing up you agree to our <a href="#" className="underline">Terms</a> and <a href="#" className="underline">Privacy Policy</a>.
+          </div>
         </div>
       </div>
     </div>
