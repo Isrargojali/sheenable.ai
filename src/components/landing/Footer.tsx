@@ -27,7 +27,6 @@ export default function Footer() {
   const [done, setDone] = useState(false);
 
   return (
-  return (
     <footer className="bg-[var(--ink-900)] text-white/80 border-t border-[var(--ink-300)]">
       <div className="max-w-[1280px] mx-auto px-5 lg:px-8 py-16">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">

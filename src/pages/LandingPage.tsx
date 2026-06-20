@@ -99,7 +99,10 @@ export default function LandingPage() {
       {/*  HERO */}
       <section
         className="relative overflow-hidden text-white flex flex-col items-center justify-center bg-[var(--ink-900)]"
-        style={{ minHeight: "min(100vh, 880px)" }}
+        style={{ 
+          minHeight: "min(100vh, 880px)",
+          backgroundImage: "radial-gradient(ellipse at 50% 30%, rgba(230,0,126,.10), transparent 60%)"
+        }}
       >
         <div className="relative z-10 w-full max-w-[1280px] mx-auto px-5 lg:px-8 pt-16 lg:pt-24 pb-16 lg:pb-24 flex flex-col items-center text-center">
           <motion.div
@@ -107,9 +110,8 @@ export default function LandingPage() {
             variants={fadeUpVariants}
             initial="hidden"
             animate="visible"
-            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em] mb-7 bg-white/10 border border-white/15 font-sans"
+            className="text-[12px] uppercase tracking-[0.12em] text-[var(--ink-300)] mb-7 font-sans font-semibold"
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-green)]" />
             Pakistan's Premier Ecosystem for Female Leaders & Professionals
           </motion.div>
  
@@ -198,38 +200,22 @@ export default function LandingPage() {
                 </div>
               </form>
             )}
-          </motion.div>
 
-          <motion.div
-            custom={4}
-            variants={fadeUpVariants}
-            initial="hidden"
-            animate="visible"
-            className="flex flex-col sm:flex-row gap-3 mb-10 w-full sm:w-auto relative z-20"
-          >
-            <Link
-              to="/auth/signup"
-              className="border-[1.5px] border-[var(--brand-pink)] text-[var(--brand-pink)] hover:bg-[var(--brand-pink)]/10 rounded-xl px-7 h-12 text-[13px] font-bold flex items-center justify-center gap-2 press"
-            >
-              <span>Explore Job Board</span> <ArrowRight size={14} className="arrow" />
-            </Link>
-            <Link
-              to="/auth/signup?role=EMPLOYER"
-              className="bg-[var(--brand-pink)] text-white hover:bg-[var(--brand-pink)]/90 rounded-xl px-7 h-12 text-[13px] font-bold flex items-center justify-center gap-2 shadow-card press"
-            >
-              <span>Enterprise Integration</span> <ArrowRight size={14} className="arrow" />
-            </Link>
-          </motion.div>
-
-          {/* Job ticker */}
-          <motion.div
-            custom={5}
-            variants={fadeUpVariants}
-            initial="hidden"
-            animate="visible"
-            className="w-full max-w-[1100px] relative z-20"
-          >
-            <JobTicker />
+            {/* Secondary outline CTA & demoted B2B link directly under search/suggestions */}
+            <div className="flex flex-col items-center gap-4 mt-8 relative z-30">
+              <Link
+                to="/auth/signup"
+                className="inline-flex items-center px-6 h-11 rounded-xl border border-white/25 text-white bg-transparent hover:bg-white/5 transition-all text-[13px] font-bold press"
+              >
+                Create Job Search
+              </Link>
+              <Link
+                to="/auth/signup?role=EMPLOYER"
+                className="text-[14px] text-[var(--ink-300)] hover:text-white hover:underline flex items-center gap-1 transition-colors"
+              >
+                <span>Enterprise Integration</span> <ArrowRight size={13} className="arrow" />
+              </Link>
+            </div>
           </motion.div>
         </div>
 
@@ -257,6 +243,13 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* Job Ticker below the fold */}
+      <div className="bg-[var(--ink-900)] py-4 border-b border-[var(--ink-300)]">
+        <div className="max-w-[1280px] mx-auto px-5 lg:px-8">
+          <JobTicker />
+        </div>
+      </div>
 
       {/*  STATS */}
       <section className="relative border-b border-[var(--ink-300)] overflow-hidden bg-[var(--ink-100)]">
