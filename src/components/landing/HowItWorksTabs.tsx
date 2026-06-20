@@ -34,7 +34,7 @@ export default function HowItWorksTabs() {
         <div className="inline-block px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] bg-[var(--ink-100)] text-[var(--ink-700)] mb-3 font-sans border border-[var(--ink-300)]">
           The SheEnable Pathway
         </div>
-        <h2 className="font-sans font-semibold text-3xl md:text-5xl text-[var(--ink-900)] tracking-tight">
+        <h2 className="font-sans font-semibold text-[28px] lg:text-[40px] text-[var(--ink-900)] tracking-tight">
           A simple path to your <span className="font-sans font-bold text-[var(--brand-pink)]">next chapter</span>
         </h2>
       </div>
@@ -66,7 +66,7 @@ export default function HowItWorksTabs() {
       </div>
 
       {/* Steps */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-y-8">
         {STEPS[tab].map((s, i) => {
           const Icon = s.icon;
           return (
@@ -78,8 +78,8 @@ export default function HowItWorksTabs() {
               <div className="w-10 h-10 rounded-xl bg-[var(--ink-100)] text-[var(--ink-900)] flex items-center justify-center mb-4">
                 <Icon size={20} />
               </div>
-              <h3 className="text-[14px] font-bold text-[var(--ink-900)] mb-1.5">{s.title}</h3>
-              <p className="text-[12px] text-[var(--ink-500)] leading-relaxed">{s.desc}</p>
+              <h3 className="text-[18px] font-semibold text-[var(--ink-900)] mb-1.5">{s.title}</h3>
+              <p className="text-[13px] text-[var(--ink-500)] leading-[1.6]">{s.desc}</p>
             </div>
           );
         })}

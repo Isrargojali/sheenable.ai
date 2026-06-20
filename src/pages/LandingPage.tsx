@@ -111,7 +111,7 @@ export default function LandingPage() {
             variants={fadeUpVariants}
             initial="hidden"
             animate="visible"
-            className="text-[12px] uppercase tracking-[0.12em] text-[var(--ink-300)] mb-7 font-sans font-semibold"
+            className="text-[13px] uppercase tracking-[0.12em] text-[var(--ink-500)] mb-3 font-sans font-medium"
           >
             Pakistan's Premier Ecosystem for Female Leaders & Professionals
           </motion.div>
@@ -122,7 +122,7 @@ export default function LandingPage() {
             initial="hidden"
             animate="visible"
           >
-            <h1 className="font-sans font-semibold text-[48px] xs:text-[62px] md:text-[82px] lg:text-[96px] leading-[1.0] tracking-tight max-w-5xl mb-6 text-white">
+            <h1 className="font-sans font-semibold text-[40px] lg:text-[64px] leading-[1.1] tracking-tight max-w-5xl mb-4 text-white">
               Where Ambition
               <br />
               Meets <span className="font-sans font-bold text-[var(--brand-pink)]">Opportunity</span>
@@ -135,7 +135,7 @@ export default function LandingPage() {
             initial="hidden"
             animate="visible"
           >
-            <p className="text-[14px] md:text-base lg:text-lg text-white/70 leading-relaxed max-w-2xl mb-9">
+            <p className="text-[13px] text-[var(--ink-500)] leading-[1.6] max-w-2xl mb-12">
               Empowering Pakistan’s female professionals with hand-vetted, high-impact careers.<br className="hidden md:block" />
               Powered by AI-precision matching, built for safe hiring.
             </p>
@@ -178,7 +178,7 @@ export default function LandingPage() {
                   <button
                     type="submit"
                     disabled={!prompt.trim()}
-                    className="h-12 px-6 rounded-xl bg-[var(--brand-pink)] text-white hover:bg-[var(--brand-pink)]/90 disabled:opacity-40 transition-all text-[12px] font-bold press flex items-center justify-center gap-1.5"
+                    className="h-11 px-6 rounded-xl bg-[var(--brand-pink)] text-white hover:bg-[var(--brand-pink)]/90 disabled:opacity-40 transition-all text-[15px] font-semibold press flex items-center justify-center gap-1.5"
                   >
                     <span>Match Me</span>
                     <ArrowRight size={13} className="arrow" />
@@ -206,13 +206,13 @@ export default function LandingPage() {
             <div className="flex flex-col items-center gap-4 mt-8 relative z-30">
               <Link
                 to="/auth/signup"
-                className="inline-flex items-center px-6 h-11 rounded-xl border border-white/25 text-white bg-transparent hover:bg-white/5 transition-all text-[13px] font-bold press"
+                className="inline-flex items-center px-6 h-11 rounded-xl border border-white/24 text-white bg-transparent hover:bg-white/5 transition-all text-[15px] font-semibold press"
               >
                 Create Job Search
               </Link>
               <Link
                 to="/auth/signup?role=EMPLOYER"
-                className="text-[14px] text-[var(--ink-300)] hover:text-white hover:underline flex items-center gap-1 transition-colors"
+                className="text-[13px] text-[var(--ink-500)] hover:text-white hover:underline flex items-center gap-1 transition-colors"
               >
                 <span>Enterprise Integration</span> <ArrowRight size={13} className="arrow" />
               </Link>
@@ -255,11 +255,11 @@ export default function LandingPage() {
       {/*  STATS */}
       <section className="relative border-b border-[var(--ink-300)] overflow-hidden bg-[var(--surface)]">
         <div className="relative max-w-[1280px] mx-auto px-6 lg:px-8 py-16 lg:py-24 z-10">
-          <div className="text-center mb-16">
-            <div className="inline-block px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] bg-[var(--surface)] text-[var(--ink-700)] mb-4 font-sans border border-[var(--ink-300)]">
+          <div className="text-center mb-12">
+            <div className="inline-block px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] bg-[var(--surface)] text-[var(--ink-700)] mb-3 font-sans border border-[var(--ink-300)]">
               Quantifying Our Impact
             </div>
-            <h2 className="font-sans font-semibold text-3xl md:text-5xl text-[var(--ink-900)] tracking-tight max-w-2xl mx-auto leading-tight">
+            <h2 className="font-sans font-semibold text-[32px] text-[var(--ink-900)] tracking-tight max-w-2xl mx-auto leading-tight">
               A community defining <span className="font-sans font-bold text-[var(--brand-pink)]">the future of equitable work</span>
             </h2>
           </div>

@@ -32,12 +32,12 @@ export default function Testimonials() {
           <div className="inline-block px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] bg-[var(--ink-100)] text-[var(--ink-700)] mb-3 font-sans border border-[var(--ink-300)]">
             Voices of the Community
           </div>
-          <h2 className="font-sans font-semibold text-3xl md:text-5xl text-[var(--ink-900)] tracking-tight">
+          <h2 className="font-sans font-semibold text-[28px] lg:text-[40px] text-[var(--ink-900)] tracking-tight">
             Realizing Potential, <span className="font-sans font-bold text-[var(--brand-pink)]">Redefining Industries</span>
           </h2>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid md:grid-cols-3 gap-6 md:gap-y-8">
           {TESTIMONIALS.map((t, i) => (
             <figure
               key={t.name}
@@ -45,10 +45,10 @@ export default function Testimonials() {
               style={{ animationDelay: `${i * 100}ms` }}
             >
               <Quote className="text-[var(--ink-300)] mb-4" size={28} />
-              <blockquote className="text-[14px] text-[var(--ink-900)] leading-relaxed mb-5 flex-1 font-medium">
+              <blockquote className="text-[18px] font-semibold text-[var(--ink-900)] leading-relaxed mb-5 flex-1">
                 "{t.quote}"
               </blockquote>
-              <div className="flex items-center gap-1 mb-4 text-[var(--ink-900)]">
+              <div className="flex items-center gap-1 mb-4 text-[var(--ink-500)]">
                 {Array.from({ length: 5 }).map((_, idx) => (
                   <Star key={idx} size={14} fill="currentColor" stroke="none" />
                 ))}
@@ -58,8 +58,8 @@ export default function Testimonials() {
                   {t.avatar}
                 </div>
                 <div>
-                  <div className="text-[13px] font-semibold text-[var(--ink-900)]">{t.name}</div>
-                  <div className="text-[11px] text-[var(--ink-500)]">{t.title} · {t.company}</div>
+                  <div className="text-[13px] font-medium text-[var(--ink-500)]">{t.name}</div>
+                  <div className="text-[13px] text-[var(--ink-500)]">{t.title} · {t.company}</div>
                 </div>
               </figcaption>
             </figure>

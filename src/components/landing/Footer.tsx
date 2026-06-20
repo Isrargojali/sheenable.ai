@@ -28,7 +28,7 @@ export default function Footer() {
 
   return (
     <footer className="bg-[var(--ink-900)] text-white/80">
-      <div className="max-w-[1280px] mx-auto px-5 lg:px-8 py-16">
+      <div className="max-w-[1280px] mx-auto px-5 lg:px-8 py-16 lg:py-24">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand + mission */}
           <div className="lg:col-span-1">
@@ -40,7 +40,7 @@ export default function Footer() {
                 className="w-48 h-24 object-contain transition-transform group-hover:scale-105"
               />
                              
-            <p className="text-[12px] leading-relaxed text-white/55 mb-5 max-w-xs">
+            <p className="text-[14px] leading-relaxed text-[var(--ink-300)] mb-5 max-w-xs">
               Pakistan's premium hiring platform built for ambitious women. Where talent finds its worth and where inclusive employers find extraordinary teams.
             </p>
             <div className="flex gap-2">
@@ -54,21 +54,21 @@ export default function Footer() {
 
           {/* Link columns */}
           <div>
-            <h4 className="text-[11px] font-bold uppercase tracking-[1.5px] text-white/50 mb-4">For Candidates</h4>
+            <h4 className="text-[14px] font-bold uppercase tracking-[1.5px] text-[var(--ink-300)] mb-4">For Candidates</h4>
             <ul className="space-y-2.5">
               {COL_CANDIDATES.map(l => (
                 <li key={l.label}>
-                  <Link to={l.href} className="text-[12px] text-white/70 hover:text-white transition-colors">{l.label}</Link>
+                  <Link to={l.href} className="text-[14px] text-[var(--ink-300)] hover:text-white transition-colors">{l.label}</Link>
                 </li>
               ))}
             </ul>
           </div>
           <div>
-            <h4 className="text-[11px] font-bold uppercase tracking-[1.5px] text-white/50 mb-4">For Employers</h4>
+            <h4 className="text-[14px] font-bold uppercase tracking-[1.5px] text-[var(--ink-300)] mb-4">For Employers</h4>
             <ul className="space-y-2.5">
               {COL_EMPLOYERS.map(l => (
                 <li key={l.label}>
-                  <Link to={l.href} className="text-[12px] text-white/70 hover:text-white transition-colors">{l.label}</Link>
+                  <Link to={l.href} className="text-[14px] text-[var(--ink-300)] hover:text-white transition-colors">{l.label}</Link>
                 </li>
               ))}
             </ul>
@@ -76,14 +76,14 @@ export default function Footer() {
 
           {/* Community + Newsletter */}
           <div id="newsletter">
-            <h4 className="text-[11px] font-bold uppercase tracking-[1.5px] text-white/50 mb-4">Community</h4>
+            <h4 className="text-[14px] font-bold uppercase tracking-[1.5px] text-[var(--ink-300)] mb-4">Community</h4>
             <ul className="space-y-2.5 mb-6">
               {COL_COMMUNITY.map(l => (
                 <li key={l.label}>
                   {l.href.startsWith("/") ? (
-                    <Link to={l.href} className="text-[12px] text-white/70 hover:text-white transition-colors">{l.label}</Link>
+                    <Link to={l.href} className="text-[14px] text-[var(--ink-300)] hover:text-white transition-colors">{l.label}</Link>
                   ) : (
-                    <a href={l.href} className="text-[12px] text-white/70 hover:text-white transition-colors">{l.label}</a>
+                    <a href={l.href} className="text-[14px] text-[var(--ink-300)] hover:text-white transition-colors">{l.label}</a>
                   )}
                 </li>
               ))}
@@ -93,9 +93,9 @@ export default function Footer() {
               onSubmit={e => { e.preventDefault(); if (email.trim()) setDone(true); }}
               className="bg-white/5 border border-white/10 rounded-xl p-3"
             >
-              <div className="text-[11px] font-bold text-white mb-2">Get weekly job alerts</div>
+              <div className="text-[14px] font-semibold text-[var(--ink-300)] mb-2">Get weekly job alerts</div>
               {done ? (
-                <div className="text-[11px] text-[var(--accent-green)]">✓ Thanks — we'll be in touch.</div>
+                <div className="text-[14px] text-[var(--accent-green)]">✓ Thanks — we'll be in touch.</div>
               ) : (
                 <div className="flex gap-1.5">
                   <input
@@ -103,12 +103,12 @@ export default function Footer() {
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     placeholder="you@example.com"
-                    className="flex-1 h-9 px-3 rounded-xl bg-white/10 text-[11px] text-white placeholder:text-white/40 focus:outline-none focus:bg-white/15"
+                    className="flex-1 h-9 px-3 rounded-xl bg-white/10 text-[14px] text-[var(--ink-300)] placeholder:text-[var(--ink-500)] focus:outline-none focus:bg-white/15"
                     aria-label="Email for newsletter"
                   />
                   <button
                     type="submit"
-                    className="h-9 px-4 rounded-xl bg-[var(--brand-pink)] text-white text-[11px] font-bold press hover:bg-[var(--brand-pink)]/90"
+                    className="h-9 px-4 rounded-xl bg-[var(--ink-100)] text-[var(--ink-900)] hover:bg-[var(--ink-300)] text-[13px] font-semibold press"
                   >
                     Join
                   </button>
@@ -119,7 +119,7 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-14 pt-6 border-t border-white/10 flex flex-wrap items-center justify-between gap-4 text-[11px] text-white/45">
+        <div className="mt-14 pt-6 border-t border-white/10 flex flex-wrap items-center justify-between gap-4 text-[14px] text-[var(--ink-300)]">
           <div className="flex items-center gap-2">
              © {new Date().getFullYear()} SheEnableAI · Built for women
           </div>

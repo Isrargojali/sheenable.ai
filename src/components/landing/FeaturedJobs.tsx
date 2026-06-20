@@ -107,37 +107,37 @@ export default function FeaturedJobs() {
           <div className="inline-block px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] bg-[var(--surface)] text-[var(--ink-700)] mb-3 font-sans border border-[var(--ink-300)]">
             Featured Openings
           </div>
-          <h2 className="font-sans font-semibold text-3xl md:text-5xl text-[var(--ink-900)] tracking-tight">
+          <h2 className="font-sans font-semibold text-[28px] lg:text-[40px] text-[var(--ink-900)] tracking-tight">
             Curated Opportunities for <span className="font-sans font-bold text-[var(--brand-pink)]">Trajectory Growth</span>
           </h2>
-          <p className="text-[13px] text-[var(--ink-500)] mt-2 max-w-md">
+          <p className="text-[13px] text-[var(--ink-500)] mt-4 max-w-md">
             Real-time verified openings from inclusive employers, refreshed instantly.
           </p>
         </div>
         <Link
           to={user ? "/candidate/jobs" : "/auth/login"}
-          className="inline-flex items-center gap-1.5 text-[12px] font-bold text-[var(--ink-900)] underline hover:text-[var(--brand-pink)] transition-all duration-200"
+          className="inline-flex items-center gap-1.5 text-[13px] text-[var(--ink-500)] underline hover:text-[var(--brand-pink)] transition-all duration-200"
         >
           View all jobs <ArrowRight size={13} />
         </Link>
       </div>
 
       {/* Filter bar */}
-      <div className="bg-[var(--surface)] border border-[var(--ink-300)] rounded-xl p-3 mb-8 flex flex-wrap items-center gap-2 shadow-card">
-        <div className="flex-1 min-w-[220px] flex items-center gap-2 px-3 h-10 rounded-xl bg-[var(--ink-100)]">
+      <div className="bg-[var(--surface)] border border-[var(--ink-300)] rounded-xl p-2 mb-8 flex flex-wrap items-center gap-2 shadow-card">
+        <div className="flex-1 min-w-[220px] flex items-center gap-2 px-3 h-11 rounded-xl bg-[var(--ink-100)]">
           <Search size={14} className="text-[var(--ink-500)]" />
           <input
             value={q}
             onChange={e => setQ(e.target.value)}
             placeholder="Search jobs, skills, or companies"
-            className="flex-1 bg-transparent text-[12px] text-[var(--ink-900)] focus:outline-none placeholder:text-[var(--ink-500)]"
+            className="flex-1 bg-transparent text-[13px] text-[var(--ink-500)] focus:outline-none placeholder:text-[var(--ink-500)]"
             aria-label="Search jobs"
           />
         </div>
         <select
           value={industry}
           onChange={e => setIndustry(e.target.value)}
-          className="h-10 px-3 rounded-xl bg-[var(--ink-100)] text-[12px] font-medium text-[var(--ink-700)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-pink)]/20 cursor-pointer"
+          className="h-11 px-3 rounded-xl bg-[var(--ink-100)] text-[13px] font-semibold text-[var(--ink-500)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-pink)]/20 cursor-pointer"
           aria-label="Industry"
         >
           {INDUSTRIES.map(i => <option key={i}>{i}</option>)}
@@ -145,19 +145,19 @@ export default function FeaturedJobs() {
         <select
           value={type}
           onChange={e => setType(e.target.value)}
-          className="h-10 px-3 rounded-xl bg-[var(--ink-100)] text-[12px] font-medium text-[var(--ink-700)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-pink)]/20 cursor-pointer"
+          className="h-11 px-3 rounded-xl bg-[var(--ink-100)] text-[13px] font-semibold text-[var(--ink-500)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-pink)]/20 cursor-pointer"
           aria-label="Job type"
         >
           {TYPES.map(t => <option key={t}>{t}</option>)}
         </select>
-        <button className="inline-flex items-center gap-1.5 h-10 px-4 rounded-xl bg-[var(--brand-pink)] text-white text-[12px] font-bold hover:bg-[var(--brand-pink)]/90 press">
+        <button className="inline-flex items-center gap-1.5 h-11 px-6 rounded-xl bg-[var(--brand-pink)] text-white text-[15px] font-semibold hover:bg-[var(--brand-pink)]/90 press">
           <SlidersHorizontal size={13} /> Filter
         </button>
       </div>
 
       {/* Loading state */}
       {isLoading && (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 py-8">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-y-8 py-8">
           {[1, 2, 3].map(n => (
             <div key={n} className="bg-[var(--surface)] border border-[var(--ink-300)] rounded-xl p-5 animate-pulse h-[220px] flex flex-col justify-between shadow-card">
               <div>
@@ -199,7 +199,7 @@ export default function FeaturedJobs() {
 
       {/* Jobs Grid */}
       {!isLoading && !error && filtered.length > 0 && (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-y-8">
           {filtered.map(job => (
             <JobCard
               key={job.id}

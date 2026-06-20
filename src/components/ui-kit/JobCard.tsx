@@ -69,7 +69,7 @@ export function JobCard({ job, onSave, onApply, className }: Props) {
               </div>
             )}
             <div className="min-w-0">
-              <h3 className="text-[14px] font-bold text-[var(--ink-900)] leading-tight truncate">
+              <h3 className="text-[18px] font-semibold text-[var(--ink-900)] leading-tight truncate">
                 {job.title}
               </h3>
               <div className="flex items-center gap-1 text-[11px] text-[var(--ink-500)] mt-0.5">
