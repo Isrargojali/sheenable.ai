@@ -14,6 +14,7 @@
     --ink-900: #0E0E12;
     --ink-700: #2A2A33;
     --ink-500: #6B6B75;
+    --ink-400: #9CA3B5;
     --ink-300: #C9C9D1;
     --ink-100: #F4F4F6;
     --surface: #FFFFFF;
@@ -651,4 +652,33 @@
 .btn-primary-premium-white:hover:not(:disabled) svg,
 .btn-primary-premium-white:hover:not(:disabled) span.arrow {
   transform: translateX(4px) !important;
+}
+
+.btn-auth-primary {
+  background-color: var(--brand-pink) !important;
+  color: #FFFFFF !important;
+  height: 48px !important;
+  border-radius: var(--radius-button, 10px) !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  box-shadow: none !important;
+  border: none !important;
+  transition: background-color 150ms ease-in-out !important;
+}
+
+.btn-auth-primary:hover:not(:disabled) {
+  background-color: color-mix(in oklab, var(--brand-pink) 90%, black) !important;
+}
+
+.btn-auth-primary:active:not(:disabled) {
+  background-color: color-mix(in oklab, var(--brand-pink) 80%, black) !important;
+}
+
+.btn-auth-primary:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(230, 0, 126, 0.25) !important;
 }

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import logo from "@/assets/sheEnableAI-removebg-preview.png";
-import { Eye, EyeOff, ArrowRight, Building2, User, Mail, Lock, Heart, Sparkles, ShieldCheck } from "lucide-react";
+import { Eye, EyeOff, ArrowRight, Building2, User, Mail, Lock, Heart, Sparkles, ShieldCheck, ChevronDown } from "lucide-react";
 import { apiAuth } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -16,17 +16,16 @@ function PwdStrength({ pwd }: { pwd: string }) {
   if (/[a-z]/.test(pwd)) s++;
   if (/[0-9]/.test(pwd)) s++;
   if (/[!@#$%^&*]/.test(pwd)) s++;
-  const colors = ["", "#DC2626", "#D97706", "#D97706", "#3DAA7D", "#2C8862"];
   const labels = ["", "Very weak", "Weak", "Fair", "Strong", "Very strong"];
   return (
-    <div className="mt-2">
-      <div className="flex gap-1.5">
+    <div className="mt-1.5">
+      <div className="flex gap-1">
         {[1, 2, 3, 4, 5].map(i => (
-          <div key={i} className="flex-1 h-1 rounded-full transition-all duration-300"
-            style={{ background: i <= s ? colors[s] : "var(--auth-border)" }} />
+          <div key={i} className="flex-1 h-[3px] rounded-full transition-all duration-300"
+            style={{ background: i <= s ? "var(--brand-pink)" : "#E6E6EA" }} />
         ))}
       </div>
-      {pwd && <p className="text-[10px] mt-1.5 font-medium transition-colors duration-300" style={{ color: colors[s] }}>{labels[s]}</p>}
+      {pwd && <p className="text-[10px] mt-1 font-semibold text-[var(--brand-pink)] transition-colors duration-300">{labels[s]}</p>}
     </div>
   );
 }
@@ -56,6 +55,27 @@ export default function SignupPage() {
   const [error,       setError]       = useState(notice);
   const [loading,     setLoading]     = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
+
+  const getFieldError = (fieldName: string) => {
+    if (!error) return null;
+    const errLower = error.toLowerCase();
+    if (fieldName === 'fname' && errLower.includes('first name')) return error;
+    if (fieldName === 'lname' && errLower.includes('last name')) return error;
+    if (fieldName === 'companyName' && errLower.includes('company name')) return error;
+    if (fieldName === 'email' && errLower.includes('email')) return error;
+    if (fieldName === 'pwd' && errLower.includes('password')) return error;
+    if (fieldName === 'confirm' && errLower.includes('match')) return error;
+    return null;
+  };
+
+  const hasFieldSpecificError = !!error && (
+    error.toLowerCase().includes('first name') ||
+    error.toLowerCase().includes('last name') ||
+    error.toLowerCase().includes('company name') ||
+    error.toLowerCase().includes('email') ||
+    error.toLowerCase().includes('password') ||
+    error.toLowerCase().includes('match')
+  );
 
   useEffect(() => {
     document.title = "Join SheEnableAI — Free for women, forever";
@@ -212,7 +232,7 @@ export default function SignupPage() {
             ))}
           </div>
 
-          {error && (
+          {error && !hasFieldSpecificError && (
             <div className="bg-rose-50 border border-rose-200 rounded-[var(--radius-input)] px-4 py-3 mb-5 text-[12px] text-rose-700 animate-shake">
               ⚠ {error}
             </div>
@@ -222,12 +242,14 @@ export default function SignupPage() {
             {role === "CANDIDATE" ? (
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="block text-[11px] font-bold text-[var(--ink-700)] uppercase tracking-wider">First name</label>
+                  <label className="block text-[12px] font-semibold text-[var(--ink-700)] uppercase tracking-[0.04em]">First name</label>
                   <div className={cn(
-                    "relative flex items-center border bg-[var(--auth-surface)] transition-all duration-200",
-                    focusedField === 'fname' 
-                      ? "border-[var(--auth-border-focus)] ring-2 ring-[var(--brand-pink)]/10 rounded-[var(--radius-input)]" 
-                      : "border-[var(--auth-border)] rounded-[var(--radius-input)]"
+                    "relative flex items-center h-12 bg-white transition-all duration-200 border rounded-[var(--radius-input)]",
+                    getFieldError('fname')
+                      ? "border-[#D92D20] ring-1 ring-[#D92D20]"
+                      : focusedField === 'fname' 
+                        ? "border-[var(--brand-pink)] ring-[3px] ring-[rgba(230,0,126,0.12)]" 
+                        : "border-[var(--auth-border)]"
                   )}>
                     <input 
                       value={fname} 
@@ -235,17 +257,22 @@ export default function SignupPage() {
                       onFocus={() => setFocusedField('fname')}
                       onBlur={() => setFocusedField(null)}
                       placeholder="Ayesha" 
-                      className="w-full h-12 px-4 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0" 
+                      className="w-full h-12 pl-3.5 pr-3.5 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-[var(--ink-400)] focus:outline-none focus:ring-0" 
                     />
                   </div>
+                  {getFieldError('fname') && (
+                    <p className="text-[12px] text-[#D92D20] mt-1.5">{getFieldError('fname')}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
-                  <label className="block text-[11px] font-bold text-[var(--ink-700)] uppercase tracking-wider">Last name</label>
+                  <label className="block text-[12px] font-semibold text-[var(--ink-700)] uppercase tracking-[0.04em]">Last name</label>
                   <div className={cn(
-                    "relative flex items-center border bg-[var(--auth-surface)] transition-all duration-200",
-                    focusedField === 'lname' 
-                      ? "border-[var(--auth-border-focus)] ring-2 ring-[var(--brand-pink)]/10 rounded-[var(--radius-input)]" 
-                      : "border-[var(--auth-border)] rounded-[var(--radius-input)]"
+                    "relative flex items-center h-12 bg-white transition-all duration-200 border rounded-[var(--radius-input)]",
+                    getFieldError('lname')
+                      ? "border-[#D92D20] ring-1 ring-[#D92D20]"
+                      : focusedField === 'lname' 
+                        ? "border-[var(--brand-pink)] ring-[3px] ring-[rgba(230,0,126,0.12)]" 
+                        : "border-[var(--auth-border)]"
                   )}>
                     <input 
                       value={lname} 
@@ -253,71 +280,76 @@ export default function SignupPage() {
                       onFocus={() => setFocusedField('lname')}
                       onBlur={() => setFocusedField(null)}
                       placeholder="Khan" 
-                      className="w-full h-12 px-4 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0" 
+                      className="w-full h-12 pl-3.5 pr-3.5 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-[var(--ink-400)] focus:outline-none focus:ring-0" 
                     />
                   </div>
+                  {getFieldError('lname') && (
+                    <p className="text-[12px] text-[#D92D20] mt-1.5">{getFieldError('lname')}</p>
+                  )}
                 </div>
               </div>
             ) : (
               <>
                 <div className="space-y-2">
-                  <label className="block text-[11px] font-bold text-[var(--ink-700)] uppercase tracking-wider">Company name</label>
+                  <label className="block text-[12px] font-semibold text-[var(--ink-700)] uppercase tracking-[0.04em]">Company name</label>
                   <div className={cn(
-                    "relative flex items-center border bg-[var(--auth-surface)] transition-all duration-200",
-                    focusedField === 'companyName' 
-                      ? "border-[var(--auth-border-focus)] ring-2 ring-[var(--brand-pink)]/10 rounded-[var(--radius-input)]" 
-                      : "border-[var(--auth-border)] rounded-[var(--radius-input)]"
+                    "relative flex items-center h-12 bg-white transition-all duration-200 border rounded-[var(--radius-input)]",
+                    getFieldError('companyName')
+                      ? "border-[#D92D20] ring-1 ring-[#D92D20]"
+                      : focusedField === 'companyName' 
+                        ? "border-[var(--brand-pink)] ring-[3px] ring-[rgba(230,0,126,0.12)]" 
+                        : "border-[var(--auth-border)]"
                   )}>
-                    <Building2 className={cn(
-                      "absolute left-4 transition-colors duration-300",
-                      focusedField === 'companyName' ? "text-[var(--brand-pink)]" : "text-muted-foreground"
-                    )} size={15} />
+                    <Building2 className="absolute left-3.5 text-[var(--ink-500)]" size={18} />
                     <input 
                       value={companyName} 
                       onChange={e => setCompanyName(e.target.value)}
                       onFocus={() => setFocusedField('companyName')}
                       onBlur={() => setFocusedField(null)}
                       placeholder="Acme Inc." 
-                      className="w-full h-12 pl-11 pr-4 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0" 
+                      className="w-full h-12 pl-11 pr-3.5 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-[var(--ink-400)] focus:outline-none focus:ring-0" 
                     />
                   </div>
+                  {getFieldError('companyName') && (
+                    <p className="text-[12px] text-[#D92D20] mt-1.5">{getFieldError('companyName')}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
-                  <label className="block text-[11px] font-bold text-[var(--ink-700)] uppercase tracking-wider">Company size</label>
+                  <label className="block text-[12px] font-semibold text-[var(--ink-700)] uppercase tracking-[0.04em]">Company size</label>
                   <div className={cn(
-                    "relative flex items-center border bg-[var(--auth-surface)] transition-all duration-200",
+                    "relative flex items-center h-12 bg-white transition-all duration-200 border rounded-[var(--radius-input)]",
                     focusedField === 'companySize' 
-                      ? "border-[var(--auth-border-focus)] ring-2 ring-[var(--brand-pink)]/10 rounded-[var(--radius-input)]" 
-                      : "border-[var(--auth-border)] rounded-[var(--radius-input)]"
+                      ? "border-[var(--brand-pink)] ring-[3px] ring-[rgba(230,0,126,0.12)]" 
+                      : "border-[var(--auth-border)]"
                   )}>
                     <select 
                       value={companySize} 
                       onChange={e => setCompanySize(e.target.value)} 
                       onFocus={() => setFocusedField('companySize')}
                       onBlur={() => setFocusedField(null)}
-                      className="w-full h-12 px-4 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] focus:outline-none focus:ring-0 cursor-pointer"
+                      className="w-full h-12 pl-3.5 pr-10 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] focus:outline-none focus:ring-0 cursor-pointer appearance-none"
                     >
                       {COMPANY_SIZES.map(s => <option key={s} value={s}>{s} employees</option>)}
                     </select>
+                    <ChevronDown className="absolute right-3.5 text-[var(--ink-500)] pointer-events-none" size={18} />
                   </div>
                 </div>
               </>
             )}
 
             <div className="space-y-2">
-              <label className="block text-[11px] font-bold text-[var(--ink-700)] uppercase tracking-wider">
+              <label className="block text-[12px] font-semibold text-[var(--ink-700)] uppercase tracking-[0.04em]">
                 {role === "EMPLOYER" ? "Work email" : "Email address"}
               </label>
               <div className={cn(
-                "relative flex items-center border bg-[var(--auth-surface)] transition-all duration-200",
-                focusedField === 'email' 
-                  ? "border-[var(--auth-border-focus)] ring-2 ring-[var(--brand-pink)]/10 rounded-[var(--radius-input)]" 
-                  : "border-[var(--auth-border)] rounded-[var(--radius-input)]"
+                "relative flex items-center h-12 bg-white transition-all duration-200 border rounded-[var(--radius-input)]",
+                getFieldError('email')
+                  ? "border-[#D92D20] ring-1 ring-[#D92D20]"
+                  : focusedField === 'email' 
+                    ? "border-[var(--brand-pink)] ring-[3px] ring-[rgba(230,0,126,0.12)]" 
+                    : "border-[var(--auth-border)]"
               )}>
-                <Mail className={cn(
-                  "absolute left-4 transition-colors duration-300",
-                  focusedField === 'email' ? "text-[var(--brand-pink)]" : "text-muted-foreground"
-                )} size={15} />
+                <Mail className="absolute left-3.5 text-[var(--ink-500)]" size={18} />
                 <input 
                   type="email" 
                   value={email} 
@@ -326,26 +358,28 @@ export default function SignupPage() {
                   onBlur={() => setFocusedField(null)}
                   placeholder={role === "EMPLOYER" ? "you@company.com" : "you@example.com"}
                   autoComplete="email"
-                  className="w-full h-12 pl-11 pr-4 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0" 
+                  className="w-full h-12 pl-11 pr-3.5 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-[var(--ink-400)] focus:outline-none focus:ring-0" 
                 />
               </div>
-              {role === "EMPLOYER" && (
+              {getFieldError('email') && (
+                <p className="text-[12px] text-[#D92D20] mt-1.5">{getFieldError('email')}</p>
+              )}
+              {role === "EMPLOYER" && !getFieldError('email') && (
                 <p className="text-[10px] text-muted-foreground/80 mt-1">We verify employers via your work email domain.</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <label className="block text-[11px] font-bold text-[var(--ink-700)] uppercase tracking-wider">Password</label>
+              <label className="block text-[12px] font-semibold text-[var(--ink-700)] uppercase tracking-[0.04em]">Password</label>
               <div className={cn(
-                "relative flex items-center border bg-[var(--auth-surface)] transition-all duration-200",
-                focusedField === 'pwd' 
-                  ? "border-[var(--auth-border-focus)] ring-2 ring-[var(--brand-pink)]/10 rounded-[var(--radius-input)]" 
-                  : "border-[var(--auth-border)] rounded-[var(--radius-input)]"
+                "relative flex items-center h-12 bg-white transition-all duration-200 border rounded-[var(--radius-input)]",
+                getFieldError('pwd')
+                  ? "border-[#D92D20] ring-1 ring-[#D92D20]"
+                  : focusedField === 'pwd' 
+                    ? "border-[var(--brand-pink)] ring-[3px] ring-[rgba(230,0,126,0.12)]" 
+                    : "border-[var(--auth-border)]"
               )}>
-                <Lock className={cn(
-                  "absolute left-4 transition-colors duration-300",
-                  focusedField === 'pwd' ? "text-[var(--brand-pink)]" : "text-muted-foreground"
-                )} size={15} />
+                <Lock className="absolute left-3.5 text-[var(--ink-500)]" size={18} />
                 <input 
                   type={showPwd ? "text" : "password"} 
                   value={pwd} 
@@ -354,24 +388,32 @@ export default function SignupPage() {
                   onBlur={() => setFocusedField(null)}
                   placeholder="Min. 8 characters"
                   autoComplete="new-password"
-                  className="w-full h-12 pl-11 pr-11 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0" 
+                  className="w-full h-12 pl-11 pr-11 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-[var(--ink-400)] focus:outline-none focus:ring-0" 
                 />
-                <button type="button" onClick={() => setShowPwd(v => !v)}
+                <button 
+                  type="button" 
+                  onClick={() => setShowPwd(v => !v)}
                   aria-label={showPwd ? "Hide password" : "Show password"}
-                  className="absolute right-4 text-muted-foreground hover:text-[var(--brand-pink)] transition-colors">
-                  {showPwd ? <EyeOff size={15} /> : <Eye size={15} />}
+                  className="absolute right-3.5 w-8 h-8 rounded-md flex items-center justify-center text-[var(--ink-500)] hover:text-[var(--brand-pink)] transition-colors"
+                >
+                  {showPwd ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
+              {getFieldError('pwd') && (
+                <p className="text-[12px] text-[#D92D20] mt-1.5">{getFieldError('pwd')}</p>
+              )}
               <PwdStrength pwd={pwd} />
             </div>
 
             <div className="space-y-2">
-              <label className="block text-[11px] font-bold text-[var(--ink-700)] uppercase tracking-wider">Confirm password</label>
+              <label className="block text-[12px] font-semibold text-[var(--ink-700)] uppercase tracking-[0.04em]">Confirm password</label>
               <div className={cn(
-                "relative flex items-center border bg-[var(--auth-surface)] transition-all duration-200",
-                focusedField === 'confirm' 
-                  ? "border-[var(--auth-border-focus)] ring-2 ring-[var(--brand-pink)]/10 rounded-[var(--radius-input)]" 
-                  : "border-[var(--auth-border)] rounded-[var(--radius-input)]"
+                "relative flex items-center h-12 bg-white transition-all duration-200 border rounded-[var(--radius-input)]",
+                getFieldError('confirm')
+                  ? "border-[#D92D20] ring-1 ring-[#D92D20]"
+                  : focusedField === 'confirm' 
+                    ? "border-[var(--brand-pink)] ring-[3px] ring-[rgba(230,0,126,0.12)]" 
+                    : "border-[var(--auth-border)]"
               )}>
                 <input 
                   type="password" 
@@ -381,9 +423,12 @@ export default function SignupPage() {
                   onBlur={() => setFocusedField(null)}
                   placeholder="Repeat password"
                   autoComplete="new-password"
-                  className="w-full h-12 px-4 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0" 
+                  className="w-full h-12 pl-3.5 pr-3.5 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-[var(--ink-400)] focus:outline-none focus:ring-0" 
                 />
               </div>
+              {getFieldError('confirm') && (
+                <p className="text-[12px] text-[#D92D20] mt-1.5">{getFieldError('confirm')}</p>
+              )}
             </div>
 
             {/* Women-only confirmation */}
@@ -408,9 +453,9 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full h-12 bg-[var(--brand-pink)] hover:bg-[var(--brand-pink)]/90 text-white rounded-[var(--radius-button)] text-[13px] font-bold transition-all duration-300 press disabled:opacity-50 flex items-center justify-center gap-2 mt-3"
+              className="w-full btn-auth-primary press disabled:opacity-50 mt-3"
             >
-              {loading ? "Creating account…" : <><span>Create account</span> <ArrowRight size={14} /></>}
+              {loading ? "Creating account…" : <><span>Create account</span> <ArrowRight size={16} /></>}
             </button>
           </form>
 

@@ -35,6 +35,19 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
 
+  const getFieldError = (fieldName: string) => {
+    if (!error) return null;
+    const errLower = error.toLowerCase();
+    if (fieldName === 'email' && errLower.includes('email')) return error;
+    if (fieldName === 'password' && errLower.includes('password')) return error;
+    return null;
+  };
+
+  const hasFieldSpecificError = !!error && (
+    error.toLowerCase().includes('email') ||
+    error.toLowerCase().includes('password')
+  );
+
   // Simulated OAuth Modal State
   const [oauthModal, setOauthModal] = useState<{ isOpen: boolean; provider: 'Google' | 'LinkedIn' }>({
     isOpen: false,
@@ -289,7 +302,7 @@ export default function LoginPage() {
             </div>
           )}
 
-          {error && (
+          {error && !hasFieldSpecificError && (
             <div className="bg-rose-50 border border-rose-200 rounded-[var(--radius-input)] px-4 py-3 mb-5 text-[12px] text-rose-700 animate-shake">
               ⚠ {error}
             </div>
@@ -297,19 +310,18 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-5" noValidate>
             <div className="space-y-2">
-              <label htmlFor="login-email" className="block text-[11px] font-bold text-[var(--ink-700)] uppercase tracking-wider">
+              <label htmlFor="login-email" className="block text-[12px] font-semibold text-[var(--ink-700)] uppercase tracking-[0.04em]">
                 Email address
               </label>
               <div className={cn(
-                "relative flex items-center border bg-[var(--auth-surface)] transition-all duration-200",
-                focusedField === 'email' 
-                  ? "border-[var(--auth-border-focus)] ring-2 ring-[var(--brand-pink)]/10 rounded-[var(--radius-input)]" 
-                  : "border-[var(--auth-border)] rounded-[var(--radius-input)]"
+                "relative flex items-center h-12 bg-white transition-all duration-200 border rounded-[var(--radius-input)]",
+                getFieldError('email')
+                  ? "border-[#D92D20] ring-1 ring-[#D92D20]"
+                  : focusedField === 'email' 
+                    ? "border-[var(--brand-pink)] ring-[3px] ring-[rgba(230,0,126,0.12)]" 
+                    : "border-[var(--auth-border)]"
               )}>
-                <Mail className={cn(
-                  "absolute left-4 transition-colors duration-300",
-                  focusedField === 'email' ? "text-[var(--brand-pink)]" : "text-muted-foreground"
-                )} size={15} />
+                <Mail className="absolute left-3.5 text-[var(--ink-500)]" size={18} />
                 <input
                   id="login-email"
                   type="email"
@@ -319,14 +331,17 @@ export default function LoginPage() {
                   onBlur={() => setFocusedField(null)}
                   placeholder="you@example.com"
                   autoComplete="email"
-                  className="w-full h-12 pl-11 pr-4 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0"
+                  className="w-full h-12 pl-11 pr-3.5 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-[var(--ink-400)] focus:outline-none focus:ring-0"
                 />
               </div>
+              {getFieldError('email') && (
+                <p className="text-[12px] text-[#D92D20] mt-1.5">{getFieldError('email')}</p>
+              )}
             </div>
 
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <label htmlFor="login-pwd" className="text-[11px] font-bold text-[var(--ink-700)] uppercase tracking-wider">
+                <label htmlFor="login-pwd" className="text-[12px] font-semibold text-[var(--ink-700)] uppercase tracking-[0.04em]">
                   Password
                 </label>
                 <Link to="/auth/forgot-password" className="text-[11px] font-semibold text-[var(--brand-pink)] hover:opacity-85 transition-opacity">
@@ -334,15 +349,14 @@ export default function LoginPage() {
                 </Link>
               </div>
               <div className={cn(
-                "relative flex items-center border bg-[var(--auth-surface)] transition-all duration-200",
-                focusedField === 'password' 
-                  ? "border-[var(--auth-border-focus)] ring-2 ring-[var(--brand-pink)]/10 rounded-[var(--radius-input)]" 
-                  : "border-[var(--auth-border)] rounded-[var(--radius-input)]"
+                "relative flex items-center h-12 bg-white transition-all duration-200 border rounded-[var(--radius-input)]",
+                getFieldError('password')
+                  ? "border-[#D92D20] ring-1 ring-[#D92D20]"
+                  : focusedField === 'password' 
+                    ? "border-[var(--brand-pink)] ring-[3px] ring-[rgba(230,0,126,0.12)]" 
+                    : "border-[var(--auth-border)]"
               )}>
-                <Lock className={cn(
-                  "absolute left-4 transition-colors duration-300",
-                  focusedField === 'password' ? "text-[var(--brand-pink)]" : "text-muted-foreground"
-                )} size={15} />
+                <Lock className="absolute left-3.5 text-[var(--ink-500)]" size={18} />
                 <input
                   id="login-pwd"
                   type={showPwd ? "text" : "password"}
@@ -352,22 +366,28 @@ export default function LoginPage() {
                   onBlur={() => setFocusedField(null)}
                   placeholder="••••••••"
                   autoComplete="current-password"
-                  className="w-full h-12 pl-11 pr-11 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0"
+                  className="w-full h-12 pl-11 pr-11 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-[var(--ink-400)] focus:outline-none focus:ring-0"
                 />
-                <button type="button" onClick={() => setShowPwd(v => !v)}
+                <button 
+                  type="button" 
+                  onClick={() => setShowPwd(v => !v)}
                   aria-label={showPwd ? "Hide password" : "Show password"}
-                  className="absolute right-4 text-muted-foreground hover:text-[var(--brand-pink)] transition-colors">
-                  {showPwd ? <EyeOff size={15} /> : <Eye size={15} />}
+                  className="absolute right-3.5 w-8 h-8 rounded-md flex items-center justify-center text-[var(--ink-500)] hover:text-[var(--brand-pink)] transition-colors"
+                >
+                  {showPwd ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
+              {getFieldError('password') && (
+                <p className="text-[12px] text-[#D92D20] mt-1.5">{getFieldError('password')}</p>
+              )}
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full h-12 bg-[var(--brand-pink)] hover:bg-[var(--brand-pink)]/90 text-white rounded-[var(--radius-button)] text-[13px] font-bold transition-all duration-300 press disabled:opacity-50 flex items-center justify-center gap-2 mt-2"
+              className="w-full btn-auth-primary press disabled:opacity-50 mt-2"
             >
-              {loading ? "Signing in securely…" : <>Sign in securely <ArrowRight size={14} /></>}
+              {loading ? "Signing in securely…" : <>Sign in securely <ArrowRight size={16} /></>}
             </button>
           </form>
 
