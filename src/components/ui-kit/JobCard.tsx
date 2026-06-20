@@ -42,7 +42,7 @@ const TYPE_VARIANT: Record<NonNullable<JobCardData["type"]>, TagVariant> = {
 export function JobCard({ job, onSave, onApply, className }: Props) {
   return (
     <article className={cn(
-      "bg-[var(--surface)] border border-[var(--ink-300)] rounded-xl p-5 shadow-card relative overflow-hidden flex flex-col justify-between min-h-[260px]",
+      "bg-[var(--surface)] border border-[var(--ink-300)] rounded-xl p-6 shadow-card relative overflow-hidden flex flex-col justify-between min-h-[260px]",
       className,
     )}>
       {/* corner accent - removed gradient background for spec conformity */}
@@ -104,8 +104,8 @@ export function JobCard({ job, onSave, onApply, className }: Props) {
         {/* Hero Salary */}
         {(job.salaryMin || job.salaryMax) && (
           <div className="mt-1 mb-4">
-            <span className="text-[9px] text-[var(--ink-500)] block uppercase tracking-wider font-black font-sans mb-0.5">Estimated Salary</span>
-            <div className="text-[18px] font-black text-[var(--ink-900)] tracking-tight leading-none font-sans">
+            <span className="text-[9px] text-[var(--ink-500)] block uppercase tracking-wider font-semibold font-sans mb-0.5">Estimated Salary</span>
+            <div className="text-[18px] font-semibold text-[var(--ink-900)] tracking-tight leading-none font-sans">
               {formatSalary(job.salaryMin, job.salaryMax)}
             </div>
           </div>
@@ -137,7 +137,7 @@ export function JobCard({ job, onSave, onApply, className }: Props) {
           onClick={() => onApply?.(job.id)}
           disabled={job.hasApplied}
           className={cn(
-            "px-4 py-1.5 rounded-xl text-[11px] font-bold tracking-wide press transition-all duration-200",
+            "h-[22px] px-3 rounded-full text-[10px] font-bold tracking-wide press transition-all duration-200 flex items-center justify-center",
             job.hasApplied
               ? "bg-[var(--ink-100)] text-[var(--ink-500)] border border-[var(--ink-300)] cursor-not-allowed"
               : "bg-[var(--brand-pink)] text-white hover:bg-[var(--brand-pink)]/90 hover:-translate-y-0.5 hover:shadow-card"

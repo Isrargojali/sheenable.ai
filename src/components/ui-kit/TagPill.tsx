@@ -9,9 +9,9 @@ export type TagVariant =
   | "skill" | "verified" | "hot" | "neutral";
 
 const STYLES: Record<TagVariant, string> = {
-  remote:     "bg-[rgba(31,157,107,0.1)] text-[var(--accent-green)] border-[rgba(31,157,107,0.2)]",
-  hybrid:     "bg-[var(--ink-100)] text-[var(--ink-700)] border-[var(--ink-300)]",
-  onsite:     "bg-[var(--ink-100)] text-[var(--ink-700)] border-[var(--ink-300)]",
+  remote:     "bg-[rgba(31,157,107,0.12)] text-[var(--accent-green)] border-[rgba(31,157,107,0.2)]",
+  hybrid:     "bg-[rgba(31,157,107,0.12)] text-[var(--accent-green)] border-[rgba(31,157,107,0.2)]",
+  onsite:     "bg-[rgba(31,157,107,0.12)] text-[var(--accent-green)] border-[rgba(31,157,107,0.2)]",
   fulltime:   "bg-[var(--ink-100)] text-[var(--ink-700)] border-[var(--ink-300)]",
   parttime:   "bg-[var(--ink-100)] text-[var(--ink-700)] border-[var(--ink-300)]",
   contract:   "bg-[var(--ink-100)] text-[var(--ink-700)] border-[var(--ink-300)]",

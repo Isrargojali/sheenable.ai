@@ -72,14 +72,11 @@ export default function HowItWorksTabs() {
           return (
             <div
               key={`${tab}-${i}`}
-              className="bg-[var(--surface)] border border-[var(--ink-300)] rounded-xl p-6 lg:p-8 shadow-card animate-fade-in"
+              className="bg-[var(--surface)] border border-[var(--ink-300)] rounded-xl p-6 shadow-card animate-fade-in"
               style={{ animationDelay: `${i * 80}ms` }}
             >
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-9 h-9 rounded-full bg-[var(--ink-100)] text-[var(--brand-pink)] flex items-center justify-center font-sans text-base font-bold">
-                  {i + 1}
-                </div>
-                <Icon size={18} className="text-[var(--ink-700)]" />
+              <div className="w-10 h-10 rounded-xl bg-[var(--ink-100)] text-[var(--ink-900)] flex items-center justify-center mb-4">
+                <Icon size={20} />
               </div>
               <h3 className="text-[14px] font-bold text-[var(--ink-900)] mb-1.5">{s.title}</h3>
               <p className="text-[12px] text-[var(--ink-500)] leading-relaxed">{s.desc}</p>

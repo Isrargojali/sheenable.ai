@@ -41,7 +41,7 @@ export default function Testimonials() {
           {TESTIMONIALS.map((t, i) => (
             <figure
               key={t.name}
-              className="bg-[var(--surface)] border border-[var(--ink-300)] rounded-xl p-6 lg:p-8 shadow-card flex flex-col animate-fade-in"
+              className="bg-[var(--surface)] border border-[var(--ink-300)] rounded-xl p-6 shadow-card flex flex-col animate-fade-in"
               style={{ animationDelay: `${i * 100}ms` }}
             >
               <Quote className="text-[var(--ink-300)] mb-4" size={28} />
@@ -50,7 +50,7 @@ export default function Testimonials() {
               </blockquote>
               <div className="flex items-center gap-1 mb-4 text-[var(--ink-900)]">
                 {Array.from({ length: 5 }).map((_, idx) => (
-                  <Star key={idx} size={13} fill="currentColor" stroke="none" />
+                  <Star key={idx} size={14} fill="currentColor" stroke="none" />
                 ))}
               </div>
               <figcaption className="flex items-center gap-3 pt-4 border-t border-[var(--ink-300)]">
@@ -58,7 +58,7 @@ export default function Testimonials() {
                   {t.avatar}
                 </div>
                 <div>
-                  <div className="text-[13px] font-bold text-[var(--ink-900)]">{t.name}</div>
+                  <div className="text-[13px] font-semibold text-[var(--ink-900)]">{t.name}</div>
                   <div className="text-[11px] text-[var(--ink-500)]">{t.title} · {t.company}</div>
                 </div>
               </figcaption>

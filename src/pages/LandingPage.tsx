@@ -4,6 +4,7 @@ import { ArrowRight, Sparkles, ShieldCheck, Heart, BadgeCheck } from "lucide-rea
 import { motion } from "framer-motion";
 import CountUp from "@/components/CountUp";
 import { useReveal } from "@/hooks/useReveal";
+import { cn } from "@/lib/utils";
 
 
 import GlassNav        from "@/components/landing/GlassNav";
@@ -263,26 +264,38 @@ export default function LandingPage() {
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
-            {STATS.map((s, i) => (
-              <div
-                key={s.label}
-                className="bg-[var(--surface)] border border-[var(--ink-300)] rounded-xl p-6 flex flex-col justify-between min-h-[220px] shadow-card animate-fade-in"
-                style={{ animationDelay: `${i * 80}ms` }}
-              >
-                <div>
-                  <div className="text-[40px] xs:text-[48px] sm:text-[56px] lg:text-[64px] font-bold text-[var(--brand-pink)] leading-none tracking-tighter font-sans whitespace-nowrap">
-                    <CountUp end={s.v} suffix={s.suffix} duration={1200} />
+          <div className="grid grid-cols-2 md:grid-cols-4 bg-[var(--surface)] border border-[var(--ink-300)] rounded-xl shadow-card overflow-hidden">
+            {STATS.map((s, i) => {
+              const borderClasses = cn(
+                "border-[var(--ink-300)]",
+                i % 2 === 0 ? "border-r" : "",
+                i < 2 ? "border-b" : "",
+                "md:border-b-0",
+                i < 3 ? "md:border-r" : "md:border-r-0"
+              );
+              return (
+                <div
+                  key={s.label}
+                  className={cn(
+                    "p-6 md:py-6 md:px-8 flex flex-col justify-center animate-fade-in",
+                    borderClasses
+                  )}
+                  style={{ animationDelay: `${i * 80}ms` }}
+                >
+                  <div>
+                    <div className="text-[40px] font-bold text-[var(--brand-pink)] leading-none font-sans whitespace-nowrap">
+                      <CountUp end={s.v} suffix={s.suffix} duration={1200} />
+                    </div>
+                    <div className="text-[13px] font-bold uppercase tracking-[0.08em] text-[var(--ink-500)] mt-2 font-sans">
+                      {s.label}
+                    </div>
                   </div>
-                  <div className="text-[13px] font-bold uppercase tracking-[0.2em] text-[var(--ink-700)] mt-3 font-sans">
-                    {s.label}
-                  </div>
+                  <p className="text-[13px] text-[var(--ink-500)] leading-relaxed mt-2 truncate max-w-full" title={s.desc}>
+                    {s.desc}
+                  </p>
                 </div>
-                <p className="text-[13px] text-[var(--ink-500)] leading-relaxed mt-6 max-w-[260px]">
-                  {s.desc}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
