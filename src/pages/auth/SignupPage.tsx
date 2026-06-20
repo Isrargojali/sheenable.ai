@@ -108,10 +108,10 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-[1.05fr_1fr] bg-[var(--auth-surface-muted)] relative overflow-hidden">
-      {/* ── Left: Brand & mission (Desktop only) ─────────────────── */}
+    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-[40fr_60fr] xl:grid-cols-[50fr_50fr] bg-[var(--auth-surface-muted)] relative overflow-hidden">
+      {/* ── Left: Brand & mission ─────────────────── */}
       <aside
-        className="hidden lg:flex flex-col justify-between relative overflow-hidden text-white px-12 py-12 bg-[var(--auth-ink-900)]"
+        className="flex flex-col justify-between relative overflow-hidden text-white px-6 py-10 lg:px-12 lg:py-12 bg-[var(--auth-ink-900)] h-auto lg:h-full lg:min-h-screen"
       >
         {/* Soft dot pattern */}
         <svg className="absolute inset-0 w-full h-full opacity-[0.18]" aria-hidden="true">
@@ -122,48 +122,52 @@ export default function SignupPage() {
           </defs>
           <rect width="100%" height="100%" fill="url(#signup-dots)" />
         </svg>
-        <div className="absolute -top-32 -right-20 w-[450px] h-[450px] rounded-full pointer-events-none"
-          style={{ background: "radial-gradient(circle,rgba(230,0,126,.15),transparent 65%)", filter: "blur(80px)" }} />
-        <div className="absolute -bottom-32 -left-20 w-[350px] h-[350px] rounded-full pointer-events-none"
-          style={{ background: "radial-gradient(circle,rgba(61,170,125,.12),transparent 65%)", filter: "blur(70px)" }} />
 
-        {/* Logo */}
-        <Link to="/" className="relative z-10 flex items-center gap-2.5 group" aria-label="SheEnableAI home">
-          <img
-            src={logo}
-            alt="SheEnableAI logo"
-            className="w-48 h-24 object-contain transition-transform group-hover:scale-105"
-          />
-        </Link>
+        {/* Top: Logo */}
+        <div className="relative z-10 flex items-center justify-center lg:justify-start">
+          <Link to="/" className="group" aria-label="SheEnableAI home">
+            <img
+              src={logo}
+              alt="SheEnableAI logo"
+              className="w-40 lg:w-48 h-16 lg:h-24 object-contain transition-transform group-hover:scale-105"
+            />
+          </Link>
+        </div>
 
-        {/* Hero text */}
-        <div className="relative z-10">
-          <h2 className="font-serif text-4xl xl:text-5xl text-white leading-[1.05] tracking-tight mb-5">
-            Your next<br /><span className="italic text-[var(--brand-pink)] font-bold">opportunity</span><br />awaits.
+        {/* Center: Headline & Subtitles */}
+        <div className="relative z-10 mt-6 lg:mt-0 text-center lg:text-left">
+          <h2 className="font-serif text-3xl lg:text-4xl xl:text-5xl text-white leading-[1.1] lg:leading-[1.05] tracking-tight mb-4 lg:mb-5">
+            Your next<br className="hidden lg:inline" /> <span className="italic text-[var(--brand-pink)] font-bold">opportunity</span><br />awaits.
           </h2>
-          <p className="text-sm text-white/65 leading-7 mb-10 max-w-md">
+          <p className="text-xs lg:text-sm text-white/65 leading-7 mb-8 lg:mb-10 max-w-md mx-auto lg:mx-0 hidden lg:block">
             Join 12,400+ women professionals and 500+ inclusive employers on Pakistan's premium AI-powered hiring platform.
           </p>
 
-          {[
-            { icon: Sparkles, title: "AI-powered matching", sub: "96% match accuracy across 47 industries" },
-            { icon: Heart, title: "Built for women", sub: "Verified inclusive employers only" },
-            { icon: ShieldCheck, title: "Bank-grade security", sub: "End-to-end encrypted, never sold" },
-          ].map(({ icon: Icon, title, sub }) => (
-            <div key={title} className="flex items-center gap-3 px-4 py-3 rounded-[var(--radius-card)] border border-white/10 mb-2.5 max-w-md bg-white/5 transition-all duration-300 hover:scale-[1.02]">
-              <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-[var(--brand-pink)]/20 text-[var(--brand-pink)]">
-                <Icon size={15} />
+          {/* Trust badges */}
+          <div className="hidden lg:flex flex-col gap-2.5 max-w-md">
+            {[
+              { icon: Sparkles, title: "AI-powered matching", sub: "96% match accuracy across 47 industries" },
+              { icon: Heart, title: "Built for women", sub: "Verified inclusive employers only" },
+              { icon: ShieldCheck, title: "Bank-grade security", sub: "End-to-end encrypted, never sold" },
+            ].map(({ icon: Icon, title, sub }) => (
+              <div key={title} className="flex items-center gap-3 px-4 py-3 rounded-[var(--radius-card)] border border-white/10 bg-white/5 transition-all duration-300 hover:scale-[1.02]">
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-[var(--brand-pink)]/20 text-[var(--brand-pink)]">
+                  <Icon size={15} />
+                </div>
+                <div>
+                  <div className="text-[13px] font-bold text-white">{title}</div>
+                  <div className="text-[11px] text-white/50 mt-0.5">{sub}</div>
+                </div>
               </div>
-              <div>
-                <div className="text-[13px] font-bold text-white">{title}</div>
-                <div className="text-[11px] text-white/50 mt-0.5">{sub}</div>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
-        <div className="relative z-10 text-[11px] text-white/70 max-w-sm px-4 py-3 rounded-[var(--radius-card)] border border-white/10 backdrop-blur-md bg-white/5 shadow-soft">
-          <span className="text-[var(--brand-pink)] italic font-semibold font-serif">"</span>I landed my dream role in 11 days. The match accuracy was scary good.<span className="text-[var(--brand-pink)] italic font-semibold font-serif">"</span> — Aisha K., Senior Frontend Engineer
+        {/* Bottom: Testimonial */}
+        <div className="relative z-10 mt-8 lg:mt-0 hidden lg:block text-left">
+          <div className="text-[11px] text-white/70 max-w-sm px-4 py-3 rounded-[var(--radius-card)] border border-white/10 backdrop-blur-md bg-white/5 shadow-soft">
+            <span className="text-[var(--brand-pink)] italic font-semibold font-serif">"</span>I landed my dream role in 11 days. The match accuracy was scary good.<span className="text-[var(--brand-pink)] italic font-semibold font-serif">"</span> — Aisha K., Senior Frontend Engineer
+          </div>
         </div>
       </aside>
 
@@ -190,20 +194,19 @@ export default function SignupPage() {
           </p>
 
           {/* Role switcher tabs */}
-          <div className="flex bg-[var(--auth-surface-muted)] border border-[var(--auth-border)] rounded-[var(--radius-input)] p-1 mb-6">
+          <div className="w-full h-11 bg-[#F4F4F6] rounded-[10px] p-1 flex items-center mb-6">
             {(["CANDIDATE", "EMPLOYER"] as Role[]).map(r => (
               <button
                 key={r}
                 type="button"
                 onClick={() => { setRole(r); setError(""); }}
                 className={cn(
-                  "flex-1 h-9 rounded-[8px] text-[12px] font-bold press transition-all duration-300 inline-flex items-center justify-center gap-1.5",
+                  "flex-1 h-9 rounded-[8px] text-[14px] font-semibold transition-all duration-150 ease-in-out press",
                   role === r 
-                    ? "bg-[var(--auth-surface)] text-[var(--brand-pink)] shadow-sm border border-[var(--auth-border)]" 
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "bg-white text-[var(--brand-pink)] shadow-[0_1px_2px_rgba(0,0,0,0.06)]" 
+                    : "bg-transparent text-[var(--ink-500)] hover:text-[var(--ink-700)]"
                 )}
               >
-                {r === "CANDIDATE" ? <User size={13} /> : <Building2 size={13} />}
                 {r === "CANDIDATE" ? "Candidate" : "Employer"}
               </button>
             ))}

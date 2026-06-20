@@ -114,6 +114,7 @@ const App = () => (
           <Route path="/events"                element={<EventsPage />} />
           <Route path="/blog"                  element={<BlogPage />} />
           <Route path="/auth/login"            element={<LoginPage />} />
+          <Route path="/admin/sign-in"         element={<LoginPage />} />
           <Route path="/auth/signup"           element={<SignupPage />} />
           <Route path="/auth/verify"           element={<VerifyOtpPage />} />
           <Route path="/home"                  element={<RoleHome />} />
