@@ -18,10 +18,10 @@ export function AIAssistButton({
       type="button"
       onClick={onClick}
       disabled={disabled || loading}
-      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gradient-to-r from-purple-500/10 to-violet-500/10 border border-purple-200 hover:border-purple-300 text-purple-600 hover:text-purple-700 text-xs font-semibold transition-all hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+      className="h-11 inline-flex items-center justify-center gap-1.5 px-[18px] py-3 rounded-[var(--radius-control)] text-sm font-medium text-[var(--ink-900)] bg-[var(--surface)] border border-[var(--ink-300)] hover:border-[var(--ink-500)] hover:bg-[var(--surface-alt)] focus:outline-none focus:ring-2 focus:ring-[rgba(230,0,126,0.4)] focus:ring-offset-2 transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed select-none shadow-none"
       title={label}
     >
-      <Sparkles size={13} />
+      <Sparkles size={16} strokeWidth={1.75} className="text-[var(--ink-700)]" />
       {loading ? "Processing…" : label}
     </button>
   );

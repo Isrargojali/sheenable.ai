@@ -287,7 +287,7 @@ ${candidateName}`;
       subtitle={`${total} opportunities matching your profile`}
       actions={
         <Link to="/candidate/cv">
-          <BtnPrimary className="px-5 py-2.5 shadow-sm text-xs font-bold flex items-center gap-1.5">
+          <BtnPrimary>
             CV Builder
           </BtnPrimary>
         </Link>
@@ -490,14 +490,14 @@ ${candidateName}`;
               <div className="flex gap-2.5 pt-2">
                 <BtnOutline 
                   onClick={() => setApplyingJob(null)}
-                  className="flex-1 justify-center py-2"
+                  className="flex-1 justify-center"
                 >
                   Cancel
                 </BtnOutline>
                 <BtnPrimary
                   onClick={() => applyMutation.mutate({ jobId: applyingJob.id, coverLetter, resumeUrl })}
                   disabled={applyMutation.isPending || !resumeUrl.trim()}
-                  className="flex-1 justify-center py-2"
+                  className="flex-1 justify-center"
                 >
                   {applyMutation.isPending ? "Submitting..." : "Submit Application"}
                 </BtnPrimary>
@@ -742,40 +742,38 @@ ${candidateName}`;
 
             {/* Footer section with CTAs */}
             <div className="p-4 border-t border-border bg-secondary/10 flex gap-3 items-center justify-end flex-shrink-0">
-              <button
+              <BtnOutline
                 onClick={() => {
                   save.mutate(viewingJobDetails);
                   setViewingJobDetails(prev => prev ? { ...prev, isSaved: !prev.isSaved } : null);
                 }}
                 disabled={save.isPending}
                 className={cn(
-                  "px-4 py-2 border rounded-full text-xs font-bold transition-all flex items-center gap-1.5 active:scale-95 disabled:opacity-50",
                   viewingJobDetails.isSaved 
-                    ? "bg-[var(--brand-pink-soft)] border-primary/20 text-primary" 
-                    : "bg-background border-border text-foreground hover:bg-secondary"
+                    ? "bg-[var(--brand-pink-soft)] border-primary/20 text-primary hover:text-primary-dark" 
+                    : ""
                 )}
               >
                 {viewingJobDetails.isSaved ? (
                   <>
-                    <BookmarkCheck size={13} className="text-primary fill-primary" /> Saved
+                    <BookmarkCheck size={16} strokeWidth={1.75} className="text-primary fill-primary" /> Saved
                   </>
                 ) : (
                   <>
-                    <Bookmark size={13} /> Save Job
+                    <Bookmark size={16} strokeWidth={1.75} /> Save Job
                   </>
                 )}
-              </button>
+              </BtnOutline>
 
               <BtnOutline 
                 onClick={() => setViewingJobDetails(null)}
-                className="px-4 py-2"
               >
                 Close
               </BtnOutline>
 
               {viewingJobDetails.hasApplied ? (
                 <Link to="/candidate/applications" onClick={() => setViewingJobDetails(null)}>
-                  <BtnPrimary className="px-5 py-2">
+                  <BtnPrimary>
                     View Application
                   </BtnPrimary>
                 </Link>
@@ -785,7 +783,6 @@ ${candidateName}`;
                     handleOpenApply(viewingJobDetails);
                     setViewingJobDetails(null);
                   }}
-                  className="px-5 py-2 shadow-md"
                 >
                   Apply Now
                 </BtnPrimary>
@@ -1084,16 +1081,17 @@ function JobCard({ job, profile, appliedDate, onSave, onApply, isLoading, onClic
         {hasApplied ? (
           <Link 
             to="/candidate/applications" 
-            className="text-[11px] font-bold text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 flex items-center gap-0.5 transition-colors group/link hover:underline animate-fade-in"
             onClick={(e) => e.stopPropagation()}
+            className="inline-block animate-fade-in"
           >
-            View status <ArrowRight size={10} className="transform group-hover/link:translate-x-0.5 transition-transform" />
+            <BtnOutline>
+              View status <ArrowRight size={16} strokeWidth={1.75} />
+            </BtnOutline>
           </Link>
         ) : (
           <div onClick={(e) => e.stopPropagation()}>
             <BtnPrimary 
               onClick={onApply}
-              className="text-xs px-3.5 py-1.5 font-bold shadow-sm"
             >
               Apply
             </BtnPrimary>

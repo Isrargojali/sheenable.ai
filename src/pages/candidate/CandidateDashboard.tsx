@@ -263,8 +263,8 @@ export default function CandidateDashboard() {
       subtitle="Here's what's happening with your she-enable job search today"
       actions={
         <Link to="/candidate/jobs">
-          <BtnPrimary className="px-5 py-2.5 shadow-sm text-xs font-bold flex items-center gap-2">
-            Browse jobs <ArrowRight size={13} />
+          <BtnPrimary>
+            Browse jobs <ArrowRight size={16} strokeWidth={1.75} />
           </BtnPrimary>
         </Link>
       }
@@ -342,14 +342,14 @@ export default function CandidateDashboard() {
             {/* Right Column: Profile Actions */}
             <div className="flex flex-col sm:flex-row gap-2.5 w-full md:w-auto flex-shrink-0 md:self-center">
               <Link to="/candidate/profile" className="w-full sm:w-auto">
-                <BtnOutline className="w-full justify-center px-4 py-2 lg:px-5 lg:py-2.5 text-xs font-bold flex items-center gap-1.5 bg-background">
-                  <User size={13} />
+                <BtnOutline className="w-full justify-center">
+                  <User size={16} strokeWidth={1.75} />
                   Edit Profile
                 </BtnOutline>
               </Link>
               <Link to="/candidate/cv" className="w-full sm:w-auto">
-                <BtnPrimary className="w-full justify-center px-4.5 py-2 lg:px-6 lg:py-2.5 text-xs font-bold flex items-center gap-1.5 shadow-sm">
-                  <FileText size={13} />
+                <BtnPrimary className="w-full justify-center">
+                  <FileText size={16} strokeWidth={1.75} />
                   Build Resume
                 </BtnPrimary>
               </Link>
@@ -478,18 +478,13 @@ export default function CandidateDashboard() {
         </div>
 
         {/* Right: CTA — full width on mobile, auto on sm+ */}
-        <button
+        <BtnPrimary
           onClick={() => setIsSchedulingOpen(true)}
-          className={cn(
-            "w-full sm:w-auto inline-flex items-center justify-center gap-1.5",
-            "px-4 py-2.5 sm:px-4.5 rounded-full flex-shrink-0 border border-[var(--status-success-fg)]/30",
-            "bg-white hover:bg-[var(--status-success-bg)] text-[var(--status-success-fg)] text-xs font-bold shadow-sm",
-            "transition-all duration-200 active:scale-[0.97]"
-          )}
+          className="w-full sm:w-auto flex-shrink-0"
         >
-          <Calendar size={13} />
+          <Calendar size={16} strokeWidth={1.75} />
           Schedule Availability
-        </button>
+        </BtnPrimary>
       </div>
 
       {/* Stat Grid: Standardized and Unified */}
@@ -699,7 +694,7 @@ export default function CandidateDashboard() {
               </div>
 
               <Link to="/candidate/profile">
-                <BtnOutline className="w-full justify-center py-2.5 text-xs font-bold">
+                <BtnOutline className="w-full justify-center">
                   {computedScore >= 80 ? "View Profile Settings" : "Complete My Profile"}
                 </BtnOutline>
               </Link>
@@ -753,13 +748,13 @@ export default function CandidateDashboard() {
                           <span className="inline-flex items-center gap-1"><Video size={11} /> {iv.format}</span>
                         </div>
                         {!iv.interviewAccepted && (
-                          <button
+                          <BtnPrimary
                             onClick={() => acceptMutation.mutate(iv.id)}
                             disabled={acceptMutation.isPending}
-                            className="w-full h-8 bg-primary hover:bg-[var(--brand-pink-hover)] text-white rounded-xl text-[10px] font-bold shadow-sm transition-all flex items-center justify-center gap-1 active:scale-95 disabled:opacity-50 press"
+                            className="w-full"
                           >
-                            {acceptMutation.isPending ? <Loader2 size={10} className="animate-spin" /> : "Accept Invitation"}
-                          </button>
+                            {acceptMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : "Accept Invitation"}
+                          </BtnPrimary>
                         )}
                       </div>
                     )}
@@ -872,23 +867,21 @@ export default function CandidateDashboard() {
             </div>
 
             <footer className="px-6 py-4 bg-secondary/10 border-t border-border flex justify-end gap-2.5">
-              <button
+              <BtnOutline
                 type="button"
                 onClick={() => setIsSchedulingOpen(false)}
-                className="px-4 py-2 border border-border text-ink-500 hover:bg-secondary rounded-full text-[11px] font-bold transition-all"
               >
                 Cancel
-              </button>
-              <button
+              </BtnOutline>
+              <BtnPrimary
                 type="button"
                 onClick={() => {
                   setIsSchedulingOpen(false);
                   toast.success("Interview availability schedule saved successfully!");
                 }}
-                className="px-5 py-2 bg-primary hover:bg-[var(--brand-pink-hover)] text-white rounded-full text-[11px] font-bold shadow-sm transition-all active:scale-95 flex items-center gap-1"
               >
                 Save Schedule
-              </button>
+              </BtnPrimary>
             </footer>
           </div>
         </div>

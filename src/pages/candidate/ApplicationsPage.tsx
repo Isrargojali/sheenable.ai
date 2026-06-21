@@ -109,7 +109,7 @@ export default function ApplicationsPage() {
       subtitle="Track every job you've applied to"
       actions={
         <Link to="/candidate/jobs">
-          <BtnPrimary className="px-5 py-2.5 shadow-sm text-xs font-bold flex items-center gap-1.5">
+          <BtnPrimary>
             Find More Jobs
           </BtnPrimary>
         </Link>
@@ -372,13 +372,12 @@ export default function ApplicationsPage() {
                       : "You have been selected for an interview! Please accept the invitation to proceed."}
                   </div>
                   {!app.interviewAccepted && (
-                    <button
+                    <BtnPrimary
                       onClick={() => acceptMutation.mutate(app.id)}
                       disabled={acceptMutation.isPending}
-                      className="px-3.5 py-1.5 bg-ink-900 hover:bg-ink-700 text-white rounded-full text-[10px] font-bold shadow-sm transition-all flex items-center gap-1 active:scale-95 disabled:opacity-50"
                     >
-                      {acceptMutation.isPending ? <Loader2 size={10} className="animate-spin" /> : "Accept Invitation"}
-                    </button>
+                      {acceptMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : "Accept Invitation"}
+                    </BtnPrimary>
                   )}
                 </div>
               )}
@@ -392,13 +391,12 @@ export default function ApplicationsPage() {
                       : "Congratulations! You have received a Job Offer Letter! Please accept the offer to join."}
                   </div>
                   {!app.offerAccepted && (
-                    <button
+                    <BtnPrimary
                       onClick={() => acceptOfferMutation.mutate(app.id)}
                       disabled={acceptOfferMutation.isPending}
-                      className="px-3.5 py-1.5 bg-ink-900 hover:bg-ink-700 text-white rounded-full text-[10px] font-bold shadow-sm transition-all flex items-center gap-1 active:scale-95 disabled:opacity-50"
                     >
-                      {acceptOfferMutation.isPending ? <Loader2 size={10} className="animate-spin" /> : "Accept Job Offer"}
-                    </button>
+                      {acceptOfferMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : "Accept Job Offer"}
+                    </BtnPrimary>
                   )}
                 </div>
               )}

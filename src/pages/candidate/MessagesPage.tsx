@@ -418,7 +418,7 @@ export default function MessagesPage() {
       subtitle={user?.role === "CANDIDATE" ? "Your conversations with employers" : "Your conversations with candidates"}
       actions={
         <Link to="/candidate/jobs">
-          <BtnPrimary className="px-5 py-2.5 shadow-sm text-xs font-bold flex items-center gap-1.5">
+          <BtnPrimary>
             Browse Jobs
           </BtnPrimary>
         </Link>
@@ -595,22 +595,21 @@ export default function MessagesPage() {
                         Re: {active.jobId.title} at {active.with.name}
                       </span>
                     </div>
-                    <button
+                    <BtnOutline
                       onClick={() => setContextCollapsed(!contextCollapsed)}
-                      className="text-muted-foreground hover:text-foreground p-1 hover:bg-secondary/50 rounded-md transition-all flex items-center gap-1 text-[9px] font-bold"
                     >
                       {contextCollapsed ? (
                         <>
                           <span>Show Details</span>
-                          <ChevronDown size={11} />
+                          <ChevronDown size={16} strokeWidth={1.75} />
                         </>
                       ) : (
                         <>
                           <span>Collapse</span>
-                          <ChevronUp size={11} />
+                          <ChevronUp size={16} strokeWidth={1.75} />
                         </>
                       )}
-                    </button>
+                    </BtnOutline>
                   </div>
                   
                   {!contextCollapsed && (

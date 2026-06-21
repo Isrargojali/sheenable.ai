@@ -238,7 +238,7 @@ export default function CVBuilderPage() {
             onClick={handlePrint}
             disabled={!activeCv}
           >
-            <Download size={12} /> <span className="hidden sm:inline">Download PDF</span><span className="sm:hidden">PDF</span>
+            <Download size={16} strokeWidth={1.75} /> <span className="hidden sm:inline">Download PDF</span><span className="sm:hidden">PDF</span>
           </BtnOutline>
           <BtnOutline
             onClick={() => {
@@ -248,7 +248,7 @@ export default function CVBuilderPage() {
             }}
             disabled={!activeCv}
           >
-            <Share2 size={12} /> <span className="hidden sm:inline">Share CV link</span><span className="sm:hidden">Share</span>
+            <Share2 size={16} strokeWidth={1.75} /> <span className="hidden sm:inline">Share CV link</span><span className="sm:hidden">Share</span>
           </BtnOutline>
           <BtnPrimary
             onClick={handleSave}
@@ -256,9 +256,9 @@ export default function CVBuilderPage() {
             className={saved ? "bg-[var(--status-success-fg)] hover:bg-[var(--status-success-fg)]/90 border-[var(--status-success-fg)] text-white" : ""}
           >
             {saved ? (
-              <><Check size={12} /> <span className="hidden sm:inline">Saved Successfully</span><span className="sm:hidden">Saved</span></>
+              <><Check size={16} strokeWidth={1.75} /> <span className="hidden sm:inline">Saved Successfully</span><span className="sm:hidden">Saved</span></>
             ) : saveMutation.isPending ? (
-              <><Loader2 size={12} className="animate-spin" /> <span className="hidden sm:inline">Saving...</span><span className="sm:hidden">Saving</span></>
+              <><Loader2 size={16} className="animate-spin" /> <span className="hidden sm:inline">Saving...</span><span className="sm:hidden">Saving</span></>
             ) : (
               <><span className="hidden sm:inline">Save progress</span><span className="sm:hidden">Save</span></>
             )}
@@ -320,14 +320,13 @@ export default function CVBuilderPage() {
             title="AI CV Prompt & Settings"
             subtitle="Describe your experience or sync directly from profile"
             actions={
-              <button
+              <BtnOutline
                 type="button"
                 onClick={handlePrepopulate}
                 disabled={isProfileLoading}
-                className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1 bg-primary/5 px-2.5 py-1 rounded-full border border-primary/10 transition-colors"
               >
-                <RefreshCw size={10} className={isProfileLoading ? "animate-spin" : ""} /> Sync from Profile
-              </button>
+                <RefreshCw size={16} strokeWidth={1.75} className={isProfileLoading ? "animate-spin" : ""} /> Sync from Profile
+              </BtnOutline>
             }
           >
             <div className="space-y-3.5">
@@ -377,9 +376,9 @@ export default function CVBuilderPage() {
                 className="w-full justify-center mt-1"
               >
                 {gen.isPending ? (
-                  <><Loader2 size={12} className="animate-spin" /> Compiling details...</>
+                  <><Loader2 size={16} className="animate-spin" /> Compiling details...</>
                 ) : (
-                  <><Wand2 size={12} /> Compile Professional CV</>
+                  <><Wand2 size={16} strokeWidth={1.75} /> Compile Professional CV</>
                 )}
               </BtnPrimary>
             </div>
@@ -541,7 +540,7 @@ export default function CVBuilderPage() {
             actions={
               activeCv && (
                 <BtnOutline onClick={handlePrint}>
-                  <Download size={12} /> Download PDF
+                  <Download size={16} strokeWidth={1.75} /> Download PDF
                 </BtnOutline>
               )
             }
