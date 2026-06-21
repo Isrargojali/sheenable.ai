@@ -281,7 +281,7 @@ export default function SuperAdminDashboard() {
   return (
     <DashboardShell
       title="Super admin command center"
-      subtitle="The most powerful view in the platform — handle with care"
+      subtitle="Control super-admin access, configurations, and platform governance."
     >
       {/* 1. Hero Metrics Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 animate-fade-in">

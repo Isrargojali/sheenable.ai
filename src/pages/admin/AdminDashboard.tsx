@@ -298,7 +298,7 @@ export default function AdminDashboard() {
   return (
     <DashboardShell 
       title="Admin overview" 
-      subtitle="Real-time control tower of SheEnableAI platform health, user status, and security compliance"
+      subtitle="Monitor platform health, service status, and security compliance."
     >
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in mb-6">
         {/* Left Column (Main Governance Panels) */}

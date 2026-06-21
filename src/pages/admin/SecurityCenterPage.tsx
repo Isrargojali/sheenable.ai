@@ -169,7 +169,7 @@ export default function SecurityCenterPage() {
   return (
     <DashboardShell
       title="Security center"
-      subtitle="Real-time monitoring of SheEnableAI core security perimeter, login activities, and threat logs"
+      subtitle="Configure cryptographic keys, active session tokens, and security rules."
     >
       {/* Simulation Controller Row */}
       <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-secondary/20 border border-border/80 rounded-2xl mb-6">

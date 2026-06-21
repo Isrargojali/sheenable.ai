@@ -8,6 +8,7 @@ import {
 import { cn } from "@/lib/utils";
 import { apiAdmin } from "@/lib/api";
 import { DashboardShell, SectionCard, BtnPrimary } from "@/components/layout/DashboardShell";
+import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 import { toast } from "sonner";
 import { useSearchParams, useNavigate } from "react-router-dom";
 
@@ -39,14 +40,15 @@ export default function UsersPage() {
 
   // Confirmation modal state
   const [confirmModal, setConfirmModal] = useState<{
-    show: boolean;
-    userId: string;
-    userName?: string;
+    isOpen: boolean;
     title: string;
-    message: string;
-    action: () => void;
+    description: string;
+    affectedEntity: string;
+    consequence: string;
+    confirmLabel: string;
+    isDestructive: boolean;
+    onConfirm: () => void;
   } | null>(null);
-  const [confirmInput, setConfirmInput] = useState("");
 
   // Role change modal
   const [roleModal, setRoleModal] = useState<{
@@ -107,6 +109,7 @@ export default function UsersPage() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["adminUsers"] });
       toast.success("User suspended successfully!");
+      setConfirmModal(null);
     },
     onError: (err: any) => {
       toast.error(err.response?.data?.message || err.message || "Failed to suspend user");
@@ -119,7 +122,6 @@ export default function UsersPage() {
       qc.invalidateQueries({ queryKey: ["adminUsers"] });
       toast.success("User status restored successfully!");
       setConfirmModal(null);
-      setConfirmInput("");
     },
     onError: (err: any) => {
       toast.error(err.response?.data?.message || err.message || "Failed to restore user");
@@ -201,7 +203,7 @@ export default function UsersPage() {
   return (
     <DashboardShell
       title="User governance"
-      subtitle="Manage user accounts, verify platform credentials, and toggle statuses"
+      subtitle="Manage user accounts, verify credentials, and assign roles."
       actions={<BtnPrimary onClick={handleExport}>Export CSV Report</BtnPrimary>}
     >
       {/* Filters Control Center */}
@@ -513,13 +515,29 @@ export default function UsersPage() {
                                 <button
                                   onClick={() => {
                                     setActiveDropdown(null);
-                                    setConfirmModal({
-                                      show: true,
-                                      userId: u.id,
-                                      title: u.isSuspended ? "Restore account" : "Suspend account",
-                                      message: `Are you sure you want to ${u.isSuspended ? "restore access for" : "suspend the account for"} ${displayName}?`,
-                                      action: u.isSuspended ? () => restoreMut.mutate(u.id) : () => suspendMut.mutate(u.id)
-                                    });
+                                    if (u.isSuspended) {
+                                      setConfirmModal({
+                                        isOpen: true,
+                                        title: "Restore User Account",
+                                        description: `Are you sure you want to restore access for ${displayName}?`,
+                                        affectedEntity: `${displayName} (${u.email})`,
+                                        consequence: "This will re-enable the user to log in and participate on the platform.",
+                                        confirmLabel: "Restore Account",
+                                        isDestructive: false,
+                                        onConfirm: () => restoreMut.mutate(u.id)
+                                      });
+                                    } else {
+                                      setConfirmModal({
+                                        isOpen: true,
+                                        title: "Suspend User Account",
+                                        description: `Are you sure you want to suspend access for ${displayName}?`,
+                                        affectedEntity: `${displayName} (${u.email})`,
+                                        consequence: "This action will block the user from logging in, applying to jobs, or managing listings.",
+                                        confirmLabel: "Suspend User",
+                                        isDestructive: true,
+                                        onConfirm: () => suspendMut.mutate(u.id)
+                                      });
+                                    }
                                   }}
                                   className={cn(
                                     "w-full px-3.5 py-2 text-xs flex items-center gap-2 font-bold",
@@ -582,44 +600,18 @@ export default function UsersPage() {
       </SectionCard>
 
       {/* Confirmation Modal for Suspend/Restore */}
-      {confirmModal?.show && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-foreground/50 backdrop-blur-sm animate-fade-in">
-          <div className="bg-card w-full max-w-md rounded-3xl border border-border/80 shadow-2xl overflow-hidden">
-            <header className="px-6 py-4 border-b border-border flex items-center justify-between">
-              <h3 className="font-serif text-sm text-foreground font-bold flex items-center gap-2">
-                <AlertTriangle size={15} className="text-amber-500" />
-                {confirmModal.title}
-              </h3>
-              <button onClick={() => { setConfirmModal(null); setConfirmInput(""); }} className="p-1.5 hover:bg-secondary rounded-full">
-                <X size={14} />
-              </button>
-            </header>
-            <div className="p-6 space-y-4">
-              <p className="text-sm text-muted-foreground">{confirmModal.message}</p>
-              <div className="p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/30 rounded-xl text-xs text-amber-800 dark:text-amber-400 font-medium">
-                This action will immediately affect the user's ability to access the platform.
-              </div>
-              <button
-                onClick={() => {
-                  confirmModal.action();
-                  setConfirmModal(null);
-                  setConfirmInput("");
-                }}
-                disabled={suspendMut.isPending || restoreMut.isPending}
-                className="w-full py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition-all disabled:opacity-60 flex items-center justify-center gap-2"
-              >
-                {(suspendMut.isPending || restoreMut.isPending) ? <Loader2 size={13} className="animate-spin" /> : null}
-                Confirm action
-              </button>
-              <button
-                onClick={() => { setConfirmModal(null); setConfirmInput(""); }}
-                className="w-full py-2 text-xs text-muted-foreground hover:text-foreground transition-all"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
+      {confirmModal && (
+        <ConfirmationModal
+          isOpen={confirmModal.isOpen}
+          onClose={() => setConfirmModal(null)}
+          onConfirm={confirmModal.onConfirm}
+          title={confirmModal.title}
+          description={confirmModal.description}
+          affectedEntity={confirmModal.affectedEntity}
+          consequence={confirmModal.consequence}
+          confirmLabel={confirmModal.confirmLabel}
+          isDestructive={confirmModal.isDestructive}
+        />
       )}
 
       {/* Role Change Modal */}

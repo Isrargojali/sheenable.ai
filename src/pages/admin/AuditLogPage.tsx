@@ -1,5 +1,5 @@
 // src/pages/admin/AuditLogPage.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { 
   Search, ScrollText, Filter, Calendar, X, 
@@ -248,6 +248,10 @@ export default function AuditLogPage() {
   const initialAction = searchParams.get("action") || "All Actions";
   const [actionType, setActionType] = useState(initialAction);
 
+  useEffect(() => {
+    localStorage.setItem("last-visit-audit", new Date().toISOString());
+  }, []);
+
   const handleSetActionType = (action: string) => {
     setActionType(action);
     if (action === "All Actions") {
@@ -362,7 +366,7 @@ export default function AuditLogPage() {
   return (
     <DashboardShell 
       title="Audit trails" 
-      subtitle="Comprehensive compliance ledger recording administrative overrides, threat blocks, and platform activities"
+      subtitle="Inspect administrative overrides, threat blocks, and compliance trails."
     >
       {/* Filters Control Station */}
       <div className="flex flex-col md:flex-row gap-3 mb-6 items-stretch md:items-center justify-between">
