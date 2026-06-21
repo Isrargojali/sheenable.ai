@@ -1,13 +1,20 @@
 // src/pages/auth/LoginPage.tsx
-// Premium split-screen login. Brand mission left, form right.
+// Refactored with premium modular AuthComponents.
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams, useLocation } from "react-router-dom";
-import logo from "@/assets/sheEnableAI-removebg-preview.png";
-import { Eye, EyeOff, Mail, Lock, Heart, Sparkles, ShieldCheck, ArrowRight } from "lucide-react";
+import { Mail, ArrowRight } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { apiAuth } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { 
+  AuthLayout, 
+  RoleTabs, 
+  AuthInput, 
+  AuthPasswordInput, 
+  AuthButton, 
+  SocialAuthButtons 
+} from "./AuthComponents";
 
 type Role = "CANDIDATE" | "EMPLOYER" | "ADMIN";
 
@@ -30,10 +37,8 @@ export default function LoginPage() {
   const [role, setRole] = useState<Role>(isAdminMode ? "ADMIN" : "CANDIDATE");
   const [email, setEmail] = useState("");
   const [password, setPass] = useState("");
-  const [showPwd, setShowPwd] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [focusedField, setFocusedField] = useState<string | null>(null);
 
   const getFieldError = (fieldName: string) => {
     if (!error) return null;
@@ -88,7 +93,6 @@ export default function LoginPage() {
         return setError("Invalid response from server");
       }
 
-      // Store both user AND token in authStore using setSession
       setSession({
         id: user.id,
         email: user.email,
@@ -126,15 +130,12 @@ export default function LoginPage() {
            errorMessage = err.message;
         }
 
-        // Check if it's a network error or Chrome extension interference
         if (errorMessage.includes("Network") || errorMessage.includes("ERR_")) {
           errorMessage = "Connection error. Please check your internet connection and try again.";
         }
       }
 
-      // Log the full error for debugging
       console.error("Login error details:", err);
-
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -195,258 +196,85 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-[40fr_60fr] xl:grid-cols-[50fr_50fr] bg-[var(--auth-surface-muted)] relative overflow-hidden">
-      {/* ── Left: Brand & mission ─────────────────── */}
-      <aside
-        className="flex flex-col justify-between relative overflow-hidden text-white px-6 py-10 lg:px-12 lg:py-12 bg-[var(--auth-ink-900)] h-auto lg:h-full lg:min-h-screen"
-      >
-        {/* Subtle dot pattern */}
-        <svg className="absolute inset-0 w-full h-full" aria-hidden="true">
-          <defs>
-            <pattern id="auth-dots" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
-              <circle cx="2" cy="2" r="1" fill="white" fillOpacity="0.04" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#auth-dots)" />
-        </svg>
+    <AuthLayout
+      title={isAdminMode ? "Admin Sign in" : "Welcome back"}
+      subtitle={isAdminMode ? "Access the administrator console." : "Sign in to continue your journey."}
+    >
+      {!isAdminMode && (
+        <RoleTabs role={role as any} onChange={fillRole as any} />
+      )}
 
-        {/* Top: Logo */}
-        <div className="relative z-10 flex items-center justify-center lg:justify-start">
-          <Link to="/" className="group" aria-label="SheEnableAI home">
-            <img
-              src={logo}
-              alt="SheEnableAI logo"
-              className="w-40 lg:w-48 h-16 lg:h-24 object-contain transition-transform group-hover:scale-105"
-            />
-          </Link>
+      {error && !hasFieldSpecificError && (
+        <div className="bg-rose-50 border border-rose-200 rounded-[var(--radius-input)] px-4 py-3 mt-[28px] text-[12px] text-rose-700 animate-shake animate-fade-in">
+          ⚠ {error}
         </div>
+      )}
 
-        {/* Center: Headline & Subtitles */}
-        <div className="relative z-10 mt-6 lg:mt-0 text-center lg:text-left">
-          <h2 className="font-serif text-3xl lg:text-4xl xl:text-5xl text-white leading-[1.1] lg:leading-[1.05] tracking-tight mb-4 lg:mb-5">
-            Your next<br className="hidden lg:inline" /> <span className="italic text-[var(--brand-pink)] font-bold">opportunity</span><br />awaits.
-          </h2>
-          <p className="text-xs lg:text-sm text-white/65 leading-7 mb-8 lg:mb-10 max-w-md mx-auto lg:mx-0 hidden lg:block">
-            Join 12,400+ women professionals and 500+ inclusive employers on Pakistan's premium AI-powered hiring platform.
-          </p>
+      <form onSubmit={handleSubmit} className="no-scrollbar mt-[28px] space-y-6 animate-fade-in" noValidate>
+        <AuthInput
+          label="Email address"
+          id="login-email"
+          type="email"
+          value={email}
+          onChange={e => { setEmail(e.target.value); setError(""); }}
+          placeholder="you@example.com"
+          autoComplete="email"
+          icon={Mail}
+          error={getFieldError('email')}
+        />
 
-          {/* Trust badges */}
-          <div className="hidden lg:flex flex-col gap-2.5 max-w-md">
-            {[
-              { icon: Sparkles, title: "AI-powered matching", sub: "96% match accuracy across 47 industries" },
-              { icon: Heart, title: "Built for women", sub: "Verified inclusive employers only" },
-              { icon: ShieldCheck, title: "Bank-grade security", sub: "End-to-end encrypted, never sold" },
-            ].map(({ icon: Icon, title, sub }) => (
-              <div key={title} className="flex items-center gap-3 px-4 py-3 rounded-[var(--radius-card)] border border-white/10 bg-white/5 transition-all duration-300 hover:scale-[1.02]">
-                <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-[var(--brand-pink)]/20 text-[var(--brand-pink)]">
-                  <Icon size={15} />
-                </div>
-                <div>
-                  <div className="text-[13px] font-bold text-white">{title}</div>
-                  <div className="text-[11px] text-white/50 mt-0.5">{sub}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Bottom: Testimonial */}
-        <div className="relative z-10 mt-8 lg:mt-0 hidden lg:block text-left">
-          <div className="text-[11px] text-white/70 max-w-sm px-4 py-3 rounded-[var(--radius-card)] border border-white/10 backdrop-blur-md bg-white/5 shadow-soft">
-            <span className="text-[var(--brand-pink)] italic font-semibold font-serif">"</span>I landed my dream role in 11 days. The match accuracy was scary good.<span className="text-[var(--brand-pink)] italic font-semibold font-serif">"</span> — Aisha K., Senior Frontend Engineer
-          </div>
-        </div>
-      </aside>
-
-      {/* ── Right: Form Panel ──────────────────────────────────────── */}
-      <div className="relative flex items-center justify-center px-6 py-10 lg:py-12 bg-white overflow-hidden">
-        <div className="w-full max-w-[440px] relative z-10 px-4 md:px-0 py-8 md:py-10 animate-fade-in">
-          <div className="lg:hidden flex items-center justify-center mb-6">
-            <Link to="/" className="flex items-center justify-center group" aria-label="SheEnableAI home">
-              <img
-                src={logo}
-                alt="SheEnableAI logo"
-                className="w-48 h-20 object-contain transition-transform group-hover:scale-105"
-              />
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <label htmlFor="login-pwd" className="block text-[12px] font-semibold text-[var(--ink-700)] uppercase tracking-[0.04em]">
+              Password
+            </label>
+            <Link to="/auth/forgot-password" className="text-[12px] font-normal text-[var(--brand-pink)] hover:opacity-85 transition-opacity">
+              Forgot password?
             </Link>
           </div>
-
-          <h1 className="font-serif text-3xl text-[var(--auth-ink-900)] text-center mb-1.5 tracking-tight">
-            {isAdminMode ? "Admin Sign in" : "Welcome back"}
-          </h1>
-          <p className="text-[13px] text-muted-foreground text-center mb-6">
-            {isAdminMode ? "Access the administrator console." : "Sign in to continue your journey."}
-          </p>
-
-          {!isAdminMode && (
-            <div className="w-full h-11 bg-[#F4F4F6] rounded-[10px] p-1 flex items-center mb-6">
-              {([
-                { key: "CANDIDATE", label: "Candidate" },
-                { key: "EMPLOYER", label: "Employer" },
-              ] as { key: Role; label: string }[]).map(r => (
-                <button
-                  key={r.key}
-                  type="button"
-                  onClick={() => fillRole(r.key)}
-                  className={cn(
-                    "flex-1 h-9 rounded-[8px] text-[13px] font-semibold transition-all duration-150 ease-in-out press",
-                    role === r.key 
-                      ? "bg-white text-[var(--brand-pink)] shadow-[0_1px_2px_rgba(0,0,0,0.06)]" 
-                      : "bg-transparent text-[var(--ink-500)] hover:text-[var(--ink-700)]"
-                  )}
-                >
-                  {r.label}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {error && !hasFieldSpecificError && (
-            <div className="bg-rose-50 border border-rose-200 rounded-[var(--radius-input)] px-4 py-3 mb-5 text-[12px] text-rose-700 animate-shake">
-              ⚠ {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-            <div className="space-y-2">
-              <label htmlFor="login-email" className="block text-[12px] font-semibold text-[var(--ink-700)] uppercase tracking-[0.04em]">
-                Email address
-              </label>
-              <div className={cn(
-                "relative flex items-center h-12 bg-white transition-all duration-200 border rounded-[var(--radius-input)]",
-                getFieldError('email')
-                  ? "border-[#D92D20] ring-1 ring-[#D92D20]"
-                  : focusedField === 'email' 
-                    ? "border-[var(--brand-pink)] ring-[3px] ring-[rgba(230,0,126,0.12)]" 
-                    : "border-[var(--auth-border)]"
-              )}>
-                <Mail className="absolute left-3.5 text-[var(--ink-500)]" size={18} />
-                <input
-                  id="login-email"
-                  type="email"
-                  value={email}
-                  onChange={e => { setEmail(e.target.value); setError(""); }}
-                  onFocus={() => setFocusedField('email')}
-                  onBlur={() => setFocusedField(null)}
-                  placeholder="you@example.com"
-                  autoComplete="email"
-                  className="w-full h-12 pl-11 pr-3.5 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-[var(--ink-400)] focus:outline-none focus:ring-0"
-                />
-              </div>
-              {getFieldError('email') && (
-                <p className="text-[12px] text-[#D92D20] mt-1.5">{getFieldError('email')}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <label htmlFor="login-pwd" className="text-[12px] font-semibold text-[var(--ink-700)] uppercase tracking-[0.04em]">
-                  Password
-                </label>
-                <Link to="/auth/forgot-password" className="text-[12px] font-normal text-[var(--brand-pink)] hover:opacity-85 transition-opacity">
-                  Forgot password?
-                </Link>
-              </div>
-              <div className={cn(
-                "relative flex items-center h-12 bg-white transition-all duration-200 border rounded-[var(--radius-input)]",
-                getFieldError('password')
-                  ? "border-[#D92D20] ring-1 ring-[#D92D20]"
-                  : focusedField === 'password' 
-                    ? "border-[var(--brand-pink)] ring-[3px] ring-[rgba(230,0,126,0.12)]" 
-                    : "border-[var(--auth-border)]"
-              )}>
-                <Lock className="absolute left-3.5 text-[var(--ink-500)]" size={18} />
-                <input
-                  id="login-pwd"
-                  type={showPwd ? "text" : "password"}
-                  value={password}
-                  onChange={e => { setPass(e.target.value); setError(""); }}
-                  onFocus={() => setFocusedField('password')}
-                  onBlur={() => setFocusedField(null)}
-                  placeholder="••••••••"
-                  autoComplete="current-password"
-                  className="w-full h-12 pl-11 pr-11 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-[var(--ink-400)] focus:outline-none focus:ring-0"
-                />
-                <button 
-                  type="button" 
-                  onClick={() => setShowPwd(v => !v)}
-                  aria-label={showPwd ? "Hide password" : "Show password"}
-                  className="absolute right-3.5 w-8 h-8 rounded-md flex items-center justify-center text-[var(--ink-500)] hover:text-[var(--brand-pink)] transition-colors"
-                >
-                  {showPwd ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-              {getFieldError('password') && (
-                <p className="text-[12px] text-[#D92D20] mt-1.5">{getFieldError('password')}</p>
-              )}
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full btn-auth-primary press disabled:opacity-50 mt-2"
-            >
-              {loading ? "Signing in securely…" : <>Sign in securely <ArrowRight size={16} /></>}
-            </button>
-          </form>
-
-          <div className="flex items-center gap-3 my-5">
-            <div className="flex-1 h-px bg-[var(--auth-border)]" />
-            <span className="text-[10px] uppercase tracking-wider text-[var(--auth-border)]">or continue with</span>
-            <div className="flex-1 h-px bg-[var(--auth-border)]" />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 mb-6">
-            <button 
-              type="button"
-              onClick={() => {
-                setOauthEmail("ayesha.k@gmail.com");
-                setOauthFname("Ayesha");
-                setOauthLname("Khan");
-                setOauthRole("CANDIDATE");
-                setOauthModal({ isOpen: true, provider: 'Google' });
-              }}
-              className="h-12 border border-[var(--auth-border)] rounded-[var(--radius-input)] text-[13px] font-semibold text-[var(--ink-700)] bg-white hover:bg-[var(--auth-surface-muted)] transition-all duration-200 press flex items-center justify-center gap-2"
-            >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
-                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
-              </svg>
-              Google
-            </button>
-            <button 
-              type="button"
-              onClick={() => {
-                setOauthEmail("ayesha.k@linkedin.com");
-                setOauthFname("Ayesha");
-                setOauthLname("Khan");
-                setOauthRole("CANDIDATE");
-                setOauthModal({ isOpen: true, provider: 'LinkedIn' });
-              }}
-              className="h-12 border border-[var(--auth-border)] rounded-[var(--radius-input)] text-[13px] font-semibold text-[var(--ink-700)] bg-white hover:bg-[var(--auth-surface-muted)] transition-all duration-200 press flex items-center justify-center gap-2"
-            >
-              <svg className="w-4 h-4 text-[#0A66C2]" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.779-1.75-1.75s.784-1.75 1.75-1.75 1.75.779 1.75 1.75-.784 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
-              </svg>
-              LinkedIn
-            </button>
-          </div>
-
-          {!isAdminMode && (
-            <p className="text-center text-[12px] text-muted-foreground">
-              New to SheEnableAI?{" "}
-              <Link to="/auth/signup" className="text-[var(--brand-pink)] font-bold hover:opacity-85 transition-opacity">
-                Join Free →
-              </Link>
-            </p>
-          )}
-
-          <div className="text-center text-[11px] text-[var(--ink-500)] mt-8">
-            🔒 SHA-256 encrypted · httpOnly cookies · Rate limited
-          </div>
+          <AuthPasswordInput
+            id="login-pwd"
+            value={password}
+            onChange={e => { setPass(e.target.value); setError(""); }}
+            placeholder="••••••••"
+            autoComplete="current-password"
+            error={getFieldError('password')}
+          />
         </div>
+
+        <AuthButton loading={loading}>
+          {loading ? "Signing in securely…" : <><span>Sign in securely</span> <ArrowRight size={16} /></>}
+        </AuthButton>
+      </form>
+
+      <SocialAuthButtons
+        onGoogleClick={() => {
+          setOauthEmail("ayesha.k@gmail.com");
+          setOauthFname("Ayesha");
+          setOauthLname("Khan");
+          setOauthRole("CANDIDATE");
+          setOauthModal({ isOpen: true, provider: 'Google' });
+        }}
+        onLinkedInClick={() => {
+          setOauthEmail("ayesha.k@linkedin.com");
+          setOauthFname("Ayesha");
+          setOauthLname("Khan");
+          setOauthRole("CANDIDATE");
+          setOauthModal({ isOpen: true, provider: 'LinkedIn' });
+        }}
+      />
+
+      {!isAdminMode && (
+        <p className="text-center text-[12px] text-muted-foreground mt-6 animate-fade-in">
+          New to SheEnableAI?{" "}
+          <Link to="/auth/signup" className="text-[var(--brand-pink)] font-bold hover:opacity-85 transition-opacity">
+            Join Free →
+          </Link>
+        </p>
+      )}
+
+      <div className="text-center text-[11px] text-[var(--ink-500)] mt-8 animate-fade-in">
+        🔒 SHA-256 encrypted · httpOnly cookies · Rate limited
       </div>
 
       {/* Simulated OAuth Modal Overlay */}
@@ -552,6 +380,6 @@ export default function LoginPage() {
           </div>
         </div>
       )}
-    </div>
+    </AuthLayout>
   );
 }
