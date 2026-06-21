@@ -200,14 +200,14 @@ export default function LoginPage() {
       <aside
         className="flex flex-col justify-between relative overflow-hidden text-white px-6 py-10 lg:px-12 lg:py-12 bg-[var(--auth-ink-900)] h-auto lg:h-full lg:min-h-screen"
       >
-        {/* Soft dot pattern */}
-        <svg className="absolute inset-0 w-full h-full opacity-[0.18]" aria-hidden="true">
+        {/* Subtle dot pattern */}
+        <svg className="absolute inset-0 w-full h-full" aria-hidden="true">
           <defs>
-            <pattern id="login-dots" x="0" y="0" width="28" height="28" patternUnits="userSpaceOnUse">
-              <circle cx="2" cy="2" r="1" fill="white" />
+            <pattern id="auth-dots" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+              <circle cx="2" cy="2" r="1" fill="white" fillOpacity="0.04" />
             </pattern>
           </defs>
-          <rect width="100%" height="100%" fill="url(#login-dots)" />
+          <rect width="100%" height="100%" fill="url(#auth-dots)" />
         </svg>
 
         {/* Top: Logo */}
@@ -259,8 +259,8 @@ export default function LoginPage() {
       </aside>
 
       {/* ── Right: Form Panel ──────────────────────────────────────── */}
-      <div className="relative flex items-center justify-center px-6 py-10 lg:py-12 bg-[var(--auth-surface-muted)] overflow-hidden">
-        <div className="w-full max-w-[440px] relative z-10 bg-[var(--auth-surface)] border border-[var(--auth-border)] rounded-[var(--radius-card)] p-8 md:p-10 shadow-sm animate-fade-in">
+      <div className="relative flex items-center justify-center px-6 py-10 lg:py-12 bg-white overflow-hidden">
+        <div className="w-full max-w-[440px] relative z-10 px-4 md:px-0 py-8 md:py-10 animate-fade-in">
           <div className="lg:hidden flex items-center justify-center mb-6">
             <Link to="/" className="flex items-center justify-center group" aria-label="SheEnableAI home">
               <img
