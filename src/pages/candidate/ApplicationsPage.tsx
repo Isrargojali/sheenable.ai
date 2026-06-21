@@ -18,48 +18,48 @@ const FILTER_STAGES = ["ALL", "APPLIED", "SCREENING", "INTERVIEW", "OFFER", "HIR
 const FILTER_STYLES: Record<string, { label: string; activeClass: string; badgeClass: string }> = {
   ALL: { 
     label: "All", 
-    activeClass: "bg-primary text-primary-foreground border-primary shadow-sm",
-    badgeClass: "bg-primary-foreground/20 text-primary-foreground"
+    activeClass: "bg-ink-900 text-white border-ink-900 shadow-sm",
+    badgeClass: "bg-white/20 text-white"
   },
   APPLIED: { 
     label: "Applied", 
-    activeClass: "bg-blue-600 text-white border-blue-600 shadow-sm",
-    badgeClass: "bg-blue-800 text-blue-100"
+    activeClass: "bg-ink-900 text-white border-ink-900 shadow-sm",
+    badgeClass: "bg-white/20 text-white"
   },
   SCREENING: { 
     label: "Screening", 
-    activeClass: "bg-indigo-600 text-white border-indigo-600 shadow-sm",
-    badgeClass: "bg-indigo-800 text-indigo-100"
+    activeClass: "bg-ink-900 text-white border-ink-900 shadow-sm",
+    badgeClass: "bg-white/20 text-white"
   },
   INTERVIEW: { 
     label: "Interview", 
-    activeClass: "bg-amber-500 text-white border-amber-500 shadow-sm",
-    badgeClass: "bg-amber-700 text-amber-100"
+    activeClass: "bg-ink-900 text-white border-ink-900 shadow-sm",
+    badgeClass: "bg-white/20 text-white"
   },
   OFFER: { 
     label: "Offer", 
-    activeClass: "bg-purple-600 text-white border-purple-600 shadow-sm",
-    badgeClass: "bg-purple-800 text-purple-100"
+    activeClass: "bg-ink-900 text-white border-ink-900 shadow-sm",
+    badgeClass: "bg-white/20 text-white"
   },
   HIRED: { 
     label: "Hired", 
-    activeClass: "bg-emerald-600 text-white border-emerald-600 shadow-sm",
-    badgeClass: "bg-emerald-800 text-emerald-100"
+    activeClass: "bg-ink-900 text-white border-ink-900 shadow-sm",
+    badgeClass: "bg-white/20 text-white"
   },
   REJECTED: { 
     label: "Rejected", 
-    activeClass: "bg-rose-600 text-white border-rose-600 shadow-sm",
-    badgeClass: "bg-rose-800 text-rose-100"
+    activeClass: "bg-ink-900 text-white border-ink-900 shadow-sm",
+    badgeClass: "bg-white/20 text-white"
   }
 };
 
 const STAGE_COLOR: Record<string, string> = {
-  APPLIED:   "bg-blue-50 text-blue-700 dark:bg-blue-950/20 dark:text-blue-400 border border-blue-200/30",
-  SCREENING: "bg-indigo-50 text-indigo-700 dark:bg-indigo-950/20 dark:text-indigo-400 border border-indigo-200/30",
-  INTERVIEW: "bg-amber-50 text-amber-700 dark:bg-amber-950/20 dark:text-amber-400 border border-amber-200/30",
-  OFFER:     "bg-purple-50 text-purple-700 dark:bg-purple-950/20 dark:text-purple-400 border border-purple-200/30",
-  HIRED:     "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400 border border-emerald-200/30",
-  REJECTED:  "bg-rose-50 text-rose-700 dark:bg-rose-950/20 dark:text-rose-400 border border-rose-200/30",
+  APPLIED:   "bg-[var(--status-info-bg)] text-[var(--status-info-fg)] border border-[var(--status-info-fg)]/10",
+  SCREENING: "bg-[var(--status-progress-bg)] text-[var(--status-progress-fg)] border border-[var(--status-progress-fg)]/10",
+  INTERVIEW: "bg-[var(--status-progress-bg)] text-[var(--status-progress-fg)] border border-[var(--status-progress-fg)]/10",
+  OFFER:     "bg-[var(--status-success-bg)] text-[var(--status-success-fg)] border border-[var(--status-success-fg)]/10",
+  HIRED:     "bg-[var(--status-success-bg)] text-[var(--status-success-fg)] border border-[var(--status-success-fg)]/10",
+  REJECTED:  "bg-[var(--status-danger-bg)] text-[var(--status-danger-fg)] border border-[var(--status-danger-fg)]/10",
 };
 
 
@@ -158,7 +158,7 @@ export default function ApplicationsPage() {
               className={cn(
                 "transition-all duration-300 relative border",
                 isRejected 
-                  ? "opacity-75 hover:opacity-95 border-l-4 border-l-rose-500 bg-[#FFF5F5]/10 dark:bg-rose-950/5"
+                  ? "opacity-75 hover:opacity-95 border-l-4 border-l-[var(--status-danger-fg)] bg-[var(--status-danger-bg)]/20"
                   : "border-border hover:border-primary/20 hover:shadow-sm"
               )}
             >
@@ -328,7 +328,7 @@ export default function ApplicationsPage() {
                           isRejected
                             ? "bg-secondary/60 text-ink-300/60 line-through"
                             : isCompleted
-                              ? "bg-emerald-500 text-white"
+                              ? "bg-[var(--status-success-fg)] text-white"
                               : isActive
                                 ? "bg-primary text-primary-foreground ring-4 ring-primary/15"
                                 : "bg-secondary text-ink-300"
@@ -342,7 +342,7 @@ export default function ApplicationsPage() {
                             : isActive 
                               ? "text-primary" 
                               : isCompleted 
-                                ? "text-emerald-600" 
+                                ? "text-[var(--status-success-fg)]" 
                                 : "text-ink-300"
                         )}>
                           {s.toLowerCase()}
@@ -354,7 +354,7 @@ export default function ApplicationsPage() {
                           isRejected 
                             ? "bg-secondary/40"
                             : i < stageIdx 
-                              ? "bg-emerald-500" 
+                              ? "bg-[var(--status-success-fg)]" 
                               : "bg-secondary"
                         )} />
                       )}
@@ -365,8 +365,8 @@ export default function ApplicationsPage() {
 
               {/* Contextual Banner for Interview Invitation */}
               {app.stage === "INTERVIEW" && (
-                <div className="mt-4 pt-3 border-t border-border flex flex-wrap gap-2.5 justify-between items-center bg-[#F7F4F9]/60 backdrop-blur-md -mx-4 -mb-4 px-4 py-3 rounded-b-2xl">
-                  <div className="text-[11px] text-[#7C3AED] font-bold">
+                <div className="mt-4 pt-3 border-t border-border flex flex-wrap gap-2.5 justify-between items-center bg-[var(--status-progress-bg)]/80 backdrop-blur-md -mx-4 -mb-4 px-4 py-3 rounded-b-2xl">
+                  <div className="text-[11px] text-[var(--status-progress-fg)] font-bold">
                     {app.interviewAccepted
                       ? "✓ You have accepted the interview invitation! The employer will schedule the interview soon."
                       : "You have been selected for an interview! Please accept the invitation to proceed."}
@@ -375,7 +375,7 @@ export default function ApplicationsPage() {
                     <button
                       onClick={() => acceptMutation.mutate(app.id)}
                       disabled={acceptMutation.isPending}
-                      className="px-3.5 py-1.5 bg-[#7C3AED] hover:bg-violet-750 text-white rounded-full text-[10px] font-bold shadow-sm transition-all flex items-center gap-1 active:scale-95 disabled:opacity-50"
+                      className="px-3.5 py-1.5 bg-ink-900 hover:bg-ink-700 text-white rounded-full text-[10px] font-bold shadow-sm transition-all flex items-center gap-1 active:scale-95 disabled:opacity-50"
                     >
                       {acceptMutation.isPending ? <Loader2 size={10} className="animate-spin" /> : "Accept Invitation"}
                     </button>
@@ -385,8 +385,8 @@ export default function ApplicationsPage() {
 
               {/* Contextual Banner for Offer Stage */}
               {app.stage === "OFFER" && (
-                <div className="mt-4 pt-3 border-t border-border flex flex-wrap gap-2.5 justify-between items-center bg-emerald-50/50 backdrop-blur-md -mx-4 -mb-4 px-4 py-3 rounded-b-2xl">
-                  <div className="text-[11px] text-emerald-700 font-bold">
+                <div className="mt-4 pt-3 border-t border-border flex flex-wrap gap-2.5 justify-between items-center bg-[var(--status-success-bg)]/80 backdrop-blur-md -mx-4 -mb-4 px-4 py-3 rounded-b-2xl">
+                  <div className="text-[11px] text-[var(--status-success-fg)] font-bold">
                     {app.offerAccepted
                       ? "✓ You have accepted the job offer! The employer has been notified and can now finalize your hiring."
                       : "Congratulations! You have received a Job Offer Letter! Please accept the offer to join."}
@@ -395,7 +395,7 @@ export default function ApplicationsPage() {
                     <button
                       onClick={() => acceptOfferMutation.mutate(app.id)}
                       disabled={acceptOfferMutation.isPending}
-                      className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full text-[10px] font-bold shadow-sm transition-all flex items-center gap-1 active:scale-95 disabled:opacity-50"
+                      className="px-3.5 py-1.5 bg-ink-900 hover:bg-ink-700 text-white rounded-full text-[10px] font-bold shadow-sm transition-all flex items-center gap-1 active:scale-95 disabled:opacity-50"
                     >
                       {acceptOfferMutation.isPending ? <Loader2 size={10} className="animate-spin" /> : "Accept Job Offer"}
                     </button>
@@ -405,14 +405,14 @@ export default function ApplicationsPage() {
 
               {/* Re-engagement Banner for Rejected Applications */}
               {isRejected && (
-                <div className="mt-4 pt-3 border-t border-border flex justify-between items-center bg-rose-500/5 -mx-4 -mb-4 px-4 py-3 rounded-b-2xl">
-                  <div className="text-[11px] text-rose-700 dark:text-rose-400 font-semibold flex items-center gap-1">
-                    <XCircle size={12} className="text-rose-500" />
+                <div className="mt-4 pt-3 border-t border-border flex justify-between items-center bg-[var(--status-danger-bg)]/50 -mx-4 -mb-4 px-4 py-3 rounded-b-2xl">
+                  <div className="text-[11px] text-[var(--status-danger-fg)] font-semibold flex items-center gap-1">
+                    <XCircle size={12} className="text-[var(--status-danger-fg)]" />
                     This role is closed, but you match other open positions.
                   </div>
                   <Link 
                     to="/candidate/jobs" 
-                    className="text-[10px] font-extrabold text-rose-600 dark:text-rose-400 hover:underline flex items-center gap-0.5 group"
+                    className="text-[10px] font-extrabold text-[var(--status-danger-fg)] hover:underline flex items-center gap-0.5 group"
                   >
                     Apply to a similar role 
                     <ArrowRight size={11} className="transform group-hover/link:translate-x-0.5 transition-transform" />

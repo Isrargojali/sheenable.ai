@@ -11,14 +11,37 @@
   :root {
     /*  Design Improvement Spec Tokens  */
     --brand-pink: #E6007E;
+    --brand-pink-hover: #C70069;
+    --brand-pink-soft: #FCE7F1;
     --ink-900: #0E0E12;
     --ink-700: #2A2A33;
     --ink-500: #6B6B75;
     --ink-400: #9CA3B5;
     --ink-300: #C9C9D1;
-    --ink-100: #F4F4F6;
+    --ink-100: #F1F1F3;
     --surface: #FFFFFF;
+    --surface-alt: #FAFAFB;
     --accent-green: #1F9D6B;
+
+    /* Status Colors */
+    --status-success-bg: #E8F6EE;
+    --status-success-fg: #1F7A43;
+    --status-progress-bg: #FFF3E0;
+    --status-progress-fg: #B45309;
+    --status-info-bg: #EAF1FB;
+    --status-info-fg: #1F4FA8;
+    --status-danger-bg: #FCE8E8;
+    --status-danger-fg: #B42318;
+    --status-neutral-bg: #F1F1F3;
+    --status-neutral-fg: #2A2A33;
+
+    /* Radii / shadow / spacing */
+    --radius-card: 12px;
+    --radius-control: 10px;
+    --radius-pill: 999px;
+    --shadow-card: 0 1px 2px rgba(14,14,18,0.04), 0 1px 1px rgba(14,14,18,0.03);
+    --space-card-pad: 24px;
+    --space-section-gap: 24px;
 
     /*  Brand surfaces  */
     --background:    330 30% 98.5%;   /* #FCF8FA soft primary blush/white */
@@ -30,8 +53,8 @@
     --popover:       0 0% 100%;
     --popover-foreground: 330 60% 8%;
 
-    /*  Brand primary: vibrant magenta/rose  */
-    --primary:       330 65% 52%;     /* #DC287B vibrant magenta/rose */
+    /*  Brand primary: vibrant brand-pink (#E6007E)  */
+    --primary:       327 100% 45%;
     --primary-foreground: 0 0% 100%;
 
     /*  Mint accent for success states  */
@@ -45,15 +68,15 @@
     --muted:         30 8% 90%;       /* #E7E4E1 slightly darker warm gray */
     --muted-foreground: 330 20% 35%;  /* #6B4B5A muted dark berry gray */
 
-    --accent:        330 75% 97%;     /* #FDF1F5 very light primary blush */
-    --accent-foreground: 330 65% 35%; /* #B21F5F accent primary */
+    --accent:        327 100% 96%;    /* var(--brand-pink-soft) HSL match */
+    --accent-foreground: 327 100% 45%; /* var(--brand-pink) HSL match */
 
     --destructive:   0 73% 50%;
     --destructive-foreground: 0 0% 100%;
 
     --border:        30 8% 88%;       /* #E2DFDB warm gray border */
     --input:         30 8% 88%;
-    --ring:          330 65% 52%;
+    --ring:          327 100% 45%;
 
     --radius:        0.75rem;         /* 12px cards · 20px modals via utility */
 

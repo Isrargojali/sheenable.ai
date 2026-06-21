@@ -43,10 +43,10 @@ type StatIcon = {
 };
 
 const STAT_ICONS: StatIcon[] = [
-  { key: "profileViews",   label: "Profile views",   icon: Eye,       color: "from-violet-500 to-violet-700",  delta: "+12%" },
-  { key: "jobMatches",     label: "Job matches",     icon: Sparkles,  color: "from-rose-500 to-rose-700",      delta: "+8%"  },
-  { key: "totalApplications", label: "Applications", icon: FileText,  color: "from-blue-500 to-blue-700",      delta: "+3"   },
-  { key: "certifications", label: "Certifications",  icon: Award,     color: "from-emerald-500 to-emerald-700",delta: "+1"   },
+  { key: "profileViews",   label: "Profile views",   icon: Eye,       color: "bg-secondary text-ink-700",      delta: "+12%" },
+  { key: "jobMatches",     label: "Job matches",     icon: Sparkles,  color: "bg-secondary text-ink-700",      delta: "+8%"  },
+  { key: "totalApplications", label: "Applications", icon: FileText,  color: "bg-secondary text-ink-700",      delta: "+3"   },
+  { key: "certifications", label: "Certifications",  icon: Award,     color: "bg-secondary text-ink-700",      delta: "+1"   },
 ];
 
 export default function CandidateDashboard() {
@@ -200,8 +200,8 @@ export default function CandidateDashboard() {
             toast.info("Please scroll to the 'Upcoming interviews' section to accept the invitation.");
           }
         },
-        color: "border-amber-200 dark:border-amber-900/50 bg-amber-500/5 text-amber-800 dark:text-amber-300",
-        btnColor: "bg-amber-600 hover:bg-amber-700 text-white"
+        color: "border-[var(--status-progress-fg)]/20 bg-[var(--status-progress-bg)] text-[var(--status-progress-fg)]",
+        btnColor: "bg-ink-900 text-white hover:bg-ink-700 dark:bg-white dark:text-ink-900 dark:hover:bg-ink-100"
       };
     }
 
@@ -222,8 +222,8 @@ export default function CandidateDashboard() {
         description: `Your profile is only ${computedScore}% complete. Profiles above 70% get 3x more recruiter views.`,
         ctaText: "Update Profile",
         link: `/candidate/profile?step=${incompleteStep}`,
-        color: "border-rose-200 dark:border-rose-900/50 bg-rose-500/5 text-rose-800 dark:text-rose-300",
-        btnColor: "bg-rose-600 hover:bg-rose-750 text-white"
+        color: "border-[var(--status-danger-fg)]/20 bg-[var(--status-danger-bg)] text-[var(--status-danger-fg)]",
+        btnColor: "bg-ink-900 text-white hover:bg-ink-700 dark:bg-white dark:text-ink-900 dark:hover:bg-ink-100"
       };
     }
 
@@ -236,8 +236,8 @@ export default function CandidateDashboard() {
         description: "You haven't submitted any job applications yet. Let's find your first match!",
         ctaText: "Explore Job Openings",
         link: "/candidate/jobs",
-        color: "border-blue-200 dark:border-blue-900/50 bg-blue-500/5 text-blue-800 dark:text-blue-300",
-        btnColor: "bg-blue-600 hover:bg-blue-755 text-white"
+        color: "border-[var(--status-info-fg)]/20 bg-[var(--status-info-bg)] text-[var(--status-info-fg)]",
+        btnColor: "bg-ink-900 text-white hover:bg-ink-700 dark:bg-white dark:text-ink-900 dark:hover:bg-ink-100"
       };
     }
 
@@ -249,8 +249,8 @@ export default function CandidateDashboard() {
       description: "Check out new jobs matched to your professional profile today.",
       ctaText: "Search Jobs",
       link: "/candidate/jobs",
-      color: "border-violet-200 dark:border-violet-900/50 bg-violet-500/5 text-violet-800 dark:text-violet-300",
-      btnColor: "bg-violet-600 hover:bg-violet-755 text-white"
+      color: "border-border bg-card text-foreground",
+      btnColor: "bg-primary hover:bg-[var(--brand-pink-hover)] text-white"
     };
   })();
 
@@ -445,15 +445,15 @@ export default function CandidateDashboard() {
       {/* Prominent Availability Pill & Scheduling CTA */}
       <div className={cn(
         "flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4",
-        "bg-gradient-to-r from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10",
-        "border border-emerald-500/20 rounded-2xl px-4 py-4 sm:px-5 sm:py-4 mb-6 shadow-sm animate-fade-in"
+        "bg-[var(--status-success-bg)] border border-[var(--status-success-fg)]/20",
+        "rounded-2xl px-4 py-4 sm:px-5 sm:py-4 mb-6 shadow-sm animate-fade-in"
       )}>
         {/* Left: live dot + status copy */}
         <div className="flex items-start sm:items-center gap-3 min-w-0">
           {/* Pulsing live indicator */}
           <div className="relative flex h-3.5 w-3.5 flex-shrink-0 mt-1 sm:mt-0">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 shadow-sm" />
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--status-success-fg)] opacity-75" />
+            <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-[var(--status-success-fg)] shadow-sm" />
           </div>
 
           <div className="min-w-0">
@@ -464,7 +464,7 @@ export default function CandidateDashboard() {
               </span>
               <span className={cn(
                 "text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider flex-shrink-0",
-                "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-400"
+                "bg-[var(--status-success-bg)] text-[var(--status-success-fg)] border border-[var(--status-success-fg)]/25"
               )}>
                 Immediate
               </span>
@@ -482,10 +482,9 @@ export default function CandidateDashboard() {
           onClick={() => setIsSchedulingOpen(true)}
           className={cn(
             "w-full sm:w-auto inline-flex items-center justify-center gap-1.5",
-            "px-4 py-2.5 sm:px-4.5 rounded-xl flex-shrink-0",
-            "bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-700",
-            "text-white text-xs font-bold shadow-sm",
-            "transition-all duration-200 active:scale-[0.97] hover:shadow-emerald-500/30 hover:shadow-md"
+            "px-4 py-2.5 sm:px-4.5 rounded-full flex-shrink-0 border border-[var(--status-success-fg)]/30",
+            "bg-white hover:bg-[var(--status-success-bg)] text-[var(--status-success-fg)] text-xs font-bold shadow-sm",
+            "transition-all duration-200 active:scale-[0.97]"
           )}
         >
           <Calendar size={13} />
@@ -493,76 +492,47 @@ export default function CandidateDashboard() {
         </button>
       </div>
 
-      {/* Stat Grid: Hero + Secondary Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-6">
-        {/* Hero Stat: Profile Views */}
-        <div className="lg:col-span-1 bg-gradient-to-br from-violet-600 to-indigo-700 dark:from-violet-900 dark:to-indigo-950 text-white rounded-3xl p-6 shadow-lg shadow-violet-500/10 hover:shadow-violet-500/20 hover:-translate-y-0.5 transition-all duration-300 group relative overflow-hidden">
-          {/* Accent decoration glow */}
-          <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/5 rounded-full blur-2xl group-hover:scale-110 transition-transform duration-500" />
-          <div className="relative z-10 flex flex-col h-full justify-between">
-            <div className="flex items-start justify-between">
-              <div className="w-11 h-11 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform duration-300">
-                <Eye size={20} className="text-violet-100" />
+      {/* Stat Grid: Standardized and Unified */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
+        {[
+          { key: "profileViews", label: "Profile Views", icon: Eye, delta: "+12%" },
+          { key: "jobMatches", label: "Job Matches", icon: Sparkles, delta: "+8%" },
+          { key: "totalApplications", label: "Applications", icon: FileText, delta: "+3" },
+          { key: "certifications", label: "Certifications", icon: Award, delta: "+1" }
+        ].map((s) => {
+          const Icon = s.icon;
+          const value = stats?.[s.key as keyof CandidateStats] ?? 0;
+          return (
+            <div
+              key={s.key}
+              className="bg-card border border-border/80 rounded-2xl p-5 flex flex-col justify-between hover:shadow-md hover:border-primary/20 transition-all duration-300 group"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <div className="w-8.5 h-8.5 rounded-xl bg-secondary flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-300">
+                  <Icon size={14} className="text-ink-700" />
+                </div>
+                <span className="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-[var(--status-success-bg)] text-[var(--status-success-fg)]">
+                  ▲ {s.delta}
+                </span>
               </div>
-              <span className="text-[10px] font-extrabold px-3 py-1 rounded-full bg-white/20 text-white backdrop-blur-sm">
-                ▲ +12% this week
-              </span>
-            </div>
-            <div className="mt-6">
-              <div className="font-serif text-5xl font-black leading-none tracking-tight text-white select-none">
-                {stats?.profileViews ?? 0}
-              </div>
-              <div className="text-xs text-violet-200 mt-2 font-bold uppercase tracking-widest leading-none">
-                Profile Views
-              </div>
-              <p className="text-[10px] text-violet-100/70 mt-2 leading-normal font-medium">
-                Employers are actively viewing your profile. Keep it updated to improve matches!
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Secondary Stats in tighter row */}
-        <div className="lg:col-span-2 grid grid-cols-3 gap-4">
-          {[
-            { key: "jobMatches", label: "Job Matches", icon: Sparkles, color: "from-rose-500 to-rose-600 text-rose-500 bg-rose-50 dark:bg-rose-950/20 dark:text-rose-400", delta: "+8%" },
-            { key: "totalApplications", label: "Applications", icon: FileText, color: "from-blue-500 to-blue-600 text-blue-500 bg-blue-50 dark:bg-blue-950/20 dark:text-blue-400", delta: "+3" },
-            { key: "certifications", label: "Certifications", icon: Award, color: "from-emerald-500 to-emerald-600 text-emerald-500 bg-emerald-50 dark:bg-emerald-950/20 dark:text-emerald-400", delta: "+1" }
-          ].map((s) => {
-            const Icon = s.icon;
-            const value = stats?.[s.key as keyof CandidateStats] ?? 0;
-            return (
-              <div
-                key={s.key}
-                className="bg-card border border-border/80 rounded-2xl p-4 flex flex-col justify-between hover:shadow-md hover:border-primary/20 transition-all duration-300 group"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <div className={`w-8.5 h-8.5 rounded-xl bg-gradient-to-br ${s.color.split(' ')[0]} ${s.color.split(' ')[1]} flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-300`}>
-                    <Icon size={14} className="text-white" />
-                  </div>
-                  <span className={cn("text-[9px] font-extrabold px-2 py-0.5 rounded-full", s.color.split(' ').slice(2).join(' '))}>
-                    ▲ {s.delta}
+              <div>
+                <div className="flex items-baseline gap-1.5 flex-wrap">
+                  <span className="font-serif text-2.5xl font-black text-foreground leading-none tracking-tight">
+                    {value}
                   </span>
-                </div>
-                <div>
-                  <div className="flex items-baseline gap-1.5 flex-wrap">
-                    <span className="font-serif text-2.5xl font-black text-foreground leading-none tracking-tight">
-                      {value}
+                  {s.key === "totalApplications" && unreadMessagesCount > 0 && (
+                    <span className="inline-flex items-center gap-0.5 text-[8px] font-black px-1.5 py-0.5 rounded-full bg-primary text-white animate-pulse shadow-sm leading-none">
+                      New
                     </span>
-                    {s.key === "totalApplications" && unreadMessagesCount > 0 && (
-                      <span className="inline-flex items-center gap-0.5 text-[8px] font-black px-1.5 py-0.5 rounded-full bg-rose-500 text-white animate-pulse shadow-sm leading-none">
-                        New
-                      </span>
-                    )}
-                  </div>
-                  <div className="text-[10px] text-muted-foreground mt-1.5 font-bold uppercase tracking-wider text-ink-300 truncate">
-                    {s.label}
-                  </div>
+                  )}
+                </div>
+                <div className="text-[10px] text-muted-foreground mt-1.5 font-bold uppercase tracking-wider text-ink-300 truncate">
+                  {s.label}
                 </div>
               </div>
-            );
-          })}
-        </div>
+            </div>
+          );
+        })}
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
@@ -617,13 +587,13 @@ export default function CandidateDashboard() {
                       <div className="text-right flex-shrink-0 flex flex-col items-end">
                         {/* Match % shows real number with animated fill bar */}
                         <div className="text-right flex flex-col items-end mb-2">
-                          <div className="text-[10px] font-black text-emerald-700 dark:text-emerald-400 inline-flex items-center gap-1">
-                            <Sparkles size={10} className="text-emerald-500 animate-pulse" />
+                          <div className="text-[10px] font-black text-[var(--status-success-fg)] inline-flex items-center gap-1">
+                            <Sparkles size={10} className="text-[var(--status-success-fg)] animate-pulse" />
                             {job.aiScore}% Match
                           </div>
-                          <div className="w-20 bg-emerald-100/50 dark:bg-emerald-950/30 rounded-full h-1.5 mt-1 overflow-hidden relative border border-emerald-500/10">
+                          <div className="w-20 bg-[var(--status-success-bg)] rounded-full h-1.5 mt-1 overflow-hidden relative border border-[var(--status-success-fg)]/10">
                             <div
-                              className="h-full bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-full origin-left transition-all duration-1000 ease-out"
+                              className="h-full bg-[var(--status-success-fg)] rounded-full origin-left transition-all duration-1000 ease-out"
                               style={{ width: `${job.aiScore}%` }}
                             />
                           </div>
@@ -649,24 +619,17 @@ export default function CandidateDashboard() {
             <div className="text-center py-2">
               <div className="relative w-28 h-28 mx-auto mb-4 flex items-center justify-center">
                 <svg width="112" height="112" viewBox="0 0 80 80" style={{ transform: "rotate(-90deg)" }}>
-                  <circle cx="40" cy="40" r="32" fill="none" stroke="#F5DCEA" strokeWidth="5.5" />
+                  <circle cx="40" cy="40" r="32" fill="none" stroke="var(--brand-pink-soft)" strokeWidth="5.5" />
                   <circle
                     cx="40" cy="40" r="32" fill="none"
-                    stroke="url(#dash-grad)" strokeWidth="5.5"
+                    stroke="var(--brand-pink)" strokeWidth="5.5"
                     strokeLinecap="round"
                     strokeDasharray={`${2 * Math.PI * 32}`}
                     strokeDashoffset={`${2 * Math.PI * 32 * (1 - computedScore / 100)}`}
                     style={{
-                      transition: "stroke-dashoffset 0.8s cubic-bezier(0.16, 1, 0.3, 1)",
-                      filter: "drop-shadow(0 0 5px rgba(244,63,94,0.35))"
+                      transition: "stroke-dashoffset 0.8s cubic-bezier(0.16, 1, 0.3, 1)"
                     }}
                   />
-                  <defs>
-                    <linearGradient id="dash-grad" x1="0" y1="0" x2="1" y2="1">
-                      <stop offset="0%" stopColor="#f43f5e" />
-                      <stop offset="100%" stopColor="#8b5cf6" />
-                    </linearGradient>
-                  </defs>
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center animate-fade-in" style={{ transform: "none" }}>
                   <span className="font-serif text-2.5xl font-black text-foreground leading-none">{computedScore}%</span>
@@ -705,15 +668,15 @@ export default function CandidateDashboard() {
                     className={cn(
                       "flex items-center justify-between p-2.5 rounded-xl border transition-all duration-200 group/item",
                       item.done
-                        ? "bg-emerald-500/5 border-emerald-500/10 hover:border-emerald-500/20"
-                        : "bg-secondary/40 border-border/80 hover:border-primary/20 hover:bg-secondary/60"
+                        ? "bg-[var(--status-success-bg)] border-[var(--status-success-fg)]/10 hover:border-[var(--status-success-fg)]/20"
+                        : "bg-secondary/40 border-border/80 hover:border-primary/25 hover:bg-secondary/60"
                     )}
                   >
                     <div className="min-w-0">
                       <div className="text-[11px] font-bold text-foreground group-hover/item:text-primary transition-colors leading-tight flex items-center gap-1.5">
                         {item.label}
                         {!item.done && (
-                          <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                         )}
                       </div>
                       <div className="text-[9px] text-muted-foreground mt-0.5 truncate max-w-[170px]">
@@ -722,11 +685,11 @@ export default function CandidateDashboard() {
                     </div>
                     <div className="flex-shrink-0 ml-2">
                       {item.done ? (
-                        <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-bold shadow-sm">
+                        <span className="w-5 h-5 rounded-full bg-[var(--status-success-fg)] text-white flex items-center justify-center text-[10px] font-bold shadow-sm">
                           ✓
                         </span>
                       ) : (
-                        <span className="w-5 h-5 rounded-full border border-dashed border-rose-400 flex items-center justify-center text-[10px] font-bold text-rose-500 group-hover/item:border-primary/50 group-hover/item:text-primary bg-rose-50 dark:bg-rose-950/20 animate-pulse">
+                        <span className="w-5 h-5 rounded-full border border-dashed border-primary/45 flex items-center justify-center text-[10px] font-bold text-primary group-hover/item:border-primary group-hover/item:text-primary bg-primary/5 animate-pulse">
                           +
                         </span>
                       )}
@@ -759,7 +722,7 @@ export default function CandidateDashboard() {
                     className={cn(
                       "p-4 rounded-2xl border transition-all duration-300 bg-card flex flex-col gap-2.5",
                       !iv.isScheduled && !iv.interviewAccepted
-                        ? "border-amber-200 bg-amber-50/15 hover:border-amber-300"
+                        ? "border-[var(--status-progress-fg)]/20 bg-[var(--status-progress-bg)] hover:border-[var(--status-progress-fg)]/35"
                         : "border-border hover:border-primary/20 hover:shadow-sm"
                     )}
                   >
@@ -770,7 +733,9 @@ export default function CandidateDashboard() {
                       </div>
                       <span className={cn(
                         "text-[8px] font-black px-2.5 py-0.5 rounded-full whitespace-nowrap uppercase tracking-wider",
-                        iv.status === "CONFIRMED" || iv.status === "ACCEPTED" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"
+                        iv.status === "CONFIRMED" || iv.status === "ACCEPTED" 
+                          ? "bg-[var(--status-success-bg)] text-[var(--status-success-fg)]" 
+                          : "bg-[var(--status-progress-bg)] text-[var(--status-progress-fg)]"
                       )}>
                         {iv.status}
                       </span>
@@ -791,7 +756,7 @@ export default function CandidateDashboard() {
                           <button
                             onClick={() => acceptMutation.mutate(iv.id)}
                             disabled={acceptMutation.isPending}
-                            className="w-full h-8 bg-primary hover:bg-mauve-600 text-white rounded-xl text-[10px] font-bold shadow-sm transition-all flex items-center justify-center gap-1 active:scale-95 disabled:opacity-50 press"
+                            className="w-full h-8 bg-primary hover:bg-[var(--brand-pink-hover)] text-white rounded-xl text-[10px] font-bold shadow-sm transition-all flex items-center justify-center gap-1 active:scale-95 disabled:opacity-50 press"
                           >
                             {acceptMutation.isPending ? <Loader2 size={10} className="animate-spin" /> : "Accept Invitation"}
                           </button>
@@ -847,8 +812,8 @@ export default function CandidateDashboard() {
                         className={cn(
                           "py-2 rounded-xl text-[10px] font-bold transition-all border text-center",
                           isSelected
-                            ? "bg-emerald-500 border-emerald-500 text-white"
-                            : "bg-[#F7F4F9] dark:bg-secondary/40 border-border hover:border-emerald-300 text-foreground"
+                            ? "bg-primary border-primary text-white"
+                            : "bg-[#F7F4F9] dark:bg-secondary/40 border-border hover:border-primary/30 text-foreground"
                         )}
                       >
                         {day.slice(0, 3)}
@@ -874,8 +839,8 @@ export default function CandidateDashboard() {
                         className={cn(
                           "flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all duration-200",
                           isSelected
-                            ? "border-emerald-500 bg-emerald-500/5"
-                            : "border-border hover:border-emerald-300 bg-[#F7F4F9]/30 dark:bg-transparent"
+                            ? "border-primary bg-primary/5"
+                            : "border-border hover:border-primary/30 bg-[#F7F4F9]/30 dark:bg-transparent"
                         )}
                       >
                         <span className="text-xs font-semibold text-foreground">{slot}</span>
@@ -889,7 +854,7 @@ export default function CandidateDashboard() {
                               setTimeSlots([...timeSlots, slot]);
                             }
                           }}
-                          className="accent-emerald-500 w-3.5 h-3.5 cursor-pointer"
+                          className="accent-primary w-3.5 h-3.5 cursor-pointer"
                         />
                       </label>
                     );
@@ -898,9 +863,9 @@ export default function CandidateDashboard() {
               </div>
 
               {/* Notice */}
-              <div className="p-3 bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-950/30 rounded-2xl flex gap-2">
-                <Clock size={14} className="text-indigo-500 flex-shrink-0 mt-0.5" />
-                <p className="text-[10px] text-indigo-700 dark:text-indigo-400 leading-normal font-medium">
+              <div className="p-3 bg-[var(--status-info-bg)] border border-[var(--status-info-fg)]/20 rounded-2xl flex gap-2">
+                <Clock size={14} className="text-[var(--status-info-fg)] flex-shrink-0 mt-0.5" />
+                <p className="text-[10px] text-[var(--status-info-fg)] leading-normal font-medium">
                   Matches are dynamically linked in your local timezone ({Intl.DateTimeFormat().resolvedOptions().timeZone || "PKT"}). Make sure your system settings are accurate.
                 </p>
               </div>
@@ -920,7 +885,7 @@ export default function CandidateDashboard() {
                   setIsSchedulingOpen(false);
                   toast.success("Interview availability schedule saved successfully!");
                 }}
-                className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full text-[11px] font-bold shadow-sm transition-all active:scale-95 flex items-center gap-1"
+                className="px-5 py-2 bg-primary hover:bg-[var(--brand-pink-hover)] text-white rounded-full text-[11px] font-bold shadow-sm transition-all active:scale-95 flex items-center gap-1"
               >
                 Save Schedule
               </button>

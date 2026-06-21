@@ -648,18 +648,18 @@ ${candidateName}`;
                   <div className={cn(
                     "border rounded-2xl p-4 flex flex-col sm:flex-row gap-4 items-center justify-between shadow-sm relative overflow-hidden",
                     matchesWell 
-                      ? "bg-emerald-500/5 border-emerald-500/20 text-emerald-950 dark:text-emerald-350"
+                      ? "bg-[var(--status-success-bg)] border-[var(--status-success-fg)]/20 text-[var(--status-success-fg)]"
                       : "bg-secondary/10 border-border/80 text-foreground"
                   )}>
                     {matchesWell && (
-                      <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full translate-x-8 -translate-y-8 flex-shrink-0 pointer-events-none" />
+                      <div className="absolute top-0 right-0 w-24 h-24 bg-[var(--status-success-fg)]/5 rounded-full translate-x-8 -translate-y-8 flex-shrink-0 pointer-events-none" />
                     )}
                     
                     <div className="flex gap-3 items-center min-w-0 text-center sm:text-left">
                       <div className={cn(
                         "w-12 h-12 rounded-full flex items-center justify-center font-black text-sm flex-shrink-0 shadow-sm border-2",
                         matchesWell 
-                          ? "bg-emerald-500 border-emerald-600 text-white" 
+                          ? "bg-[var(--status-success-fg)] border-[var(--status-success-fg)] text-white" 
                           : "bg-secondary border-border text-muted-foreground"
                       )}>
                         {score}%
@@ -687,7 +687,7 @@ ${candidateName}`;
                     <div className="w-full sm:w-auto flex-shrink-0">
                       <div className="w-full bg-secondary dark:bg-zinc-800 rounded-full h-2 min-w-[120px] overflow-hidden border border-border/20">
                         <div 
-                          className={cn("h-full rounded-full transition-all duration-500", matchesWell ? "bg-emerald-500" : "bg-muted-foreground/60")} 
+                          className={cn("h-full rounded-full transition-all duration-500", matchesWell ? "bg-[var(--status-success-fg)]" : "bg-muted-foreground/60")} 
                           style={{ width: `${score}%` }}
                         />
                       </div>
@@ -723,7 +723,7 @@ ${candidateName}`;
                           className={cn(
                             "text-[10px] px-3 py-1 rounded-full font-bold transition-all border",
                             candidateHasIt 
-                              ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400" 
+                              ? "bg-[var(--status-success-bg)] border-[var(--status-success-fg)]/20 text-[var(--status-success-fg)]" 
                               : "bg-secondary border-border/40 text-ink-500"
                           )}
                           title={candidateHasIt ? "Skill present on your profile ✓" : undefined}
@@ -751,13 +751,13 @@ ${candidateName}`;
                 className={cn(
                   "px-4 py-2 border rounded-full text-xs font-bold transition-all flex items-center gap-1.5 active:scale-95 disabled:opacity-50",
                   viewingJobDetails.isSaved 
-                    ? "bg-violet-50 border-violet-200 text-violet-700 dark:bg-violet-950/20 dark:border-violet-900 dark:text-violet-400" 
+                    ? "bg-[var(--brand-pink-soft)] border-primary/20 text-primary" 
                     : "bg-background border-border text-foreground hover:bg-secondary"
                 )}
               >
                 {viewingJobDetails.isSaved ? (
                   <>
-                    <BookmarkCheck size={13} className="text-violet-600 fill-violet-600" /> Saved
+                    <BookmarkCheck size={13} className="text-primary fill-primary" /> Saved
                   </>
                 ) : (
                   <>
@@ -950,15 +950,15 @@ function JobCard({ job, profile, appliedDate, onSave, onApply, isLoading, onClic
       className={cn(
         "bg-card border rounded-2xl p-5 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden flex flex-col justify-between group cursor-pointer",
         hasApplied 
-          ? "opacity-80 border-l-4 border-l-emerald-500 hover:opacity-95" 
+          ? "opacity-80 border-l-4 border-l-[var(--status-success-fg)] hover:opacity-95" 
           : job.isFeatured 
-            ? "border-l-4 border-l-purple-500 border-t-border border-r-border border-b-border hover:border-purple-500/50" 
+            ? "border-l-4 border-l-[var(--status-info-fg)] border-t-border border-r-border border-b-border hover:border-[var(--status-info-fg)]/50" 
             : "border-border hover:border-primary/45"
       )}
     >
       {/* Top accent line if featured (only if not applied which overrides it) */}
       {job.isFeatured && !hasApplied && (
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-500 to-indigo-500" />
+        <div className="absolute top-0 left-0 right-0 h-1 bg-[var(--status-info-fg)]" />
       )}
 
       <div>
@@ -991,13 +991,13 @@ function JobCard({ job, profile, appliedDate, onSave, onApply, isLoading, onClic
               disabled={isLoading}
               className={cn(
                 "flex-shrink-0 transition-colors p-1.5 rounded-full hover:bg-secondary/60 disabled:opacity-50",
-                job.isSaved ? "text-violet-650 hover:text-violet-850" : "text-muted-foreground hover:text-foreground"
+                job.isSaved ? "text-primary hover:text-[var(--brand-pink-hover)]" : "text-muted-foreground hover:text-foreground"
               )}
               title={job.isSaved ? "Saved" : "Save for later"}
               aria-label={job.isSaved ? "Remove bookmark" : "Save job"}
             >
               {job.isSaved ? (
-                <BookmarkCheck size={15} className="text-violet-600 fill-violet-600" />
+                <BookmarkCheck size={15} className="text-primary fill-primary" />
               ) : (
                 <Bookmark size={15} />
               )}
@@ -1010,7 +1010,7 @@ function JobCard({ job, profile, appliedDate, onSave, onApply, isLoading, onClic
           {/* Applied Status Badge in header */}
           {hasApplied && (
             <span 
-              className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-600 dark:bg-teal-500/20 dark:text-teal-400 inline-flex items-center gap-0.5 border border-teal-500/20 shadow-sm"
+              className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-[var(--status-success-bg)] text-[var(--status-success-fg)] inline-flex items-center gap-0.5 border border-[var(--status-success-fg)]/20 shadow-sm"
               title={appliedDate ? `Applied on ${appliedDate}` : "Applied"}
               onClick={(e) => e.stopPropagation()}
             >
@@ -1020,8 +1020,8 @@ function JobCard({ job, profile, appliedDate, onSave, onApply, isLoading, onClic
 
           {/* AI Match percentage pill */}
           {isHighMatch ? (
-            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 dark:bg-emerald-500/20 inline-flex items-center gap-0.5 border border-emerald-500/20">
-              <Sparkles size={9} className="text-emerald-500 animate-pulse" />
+            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-[var(--status-success-bg)] text-[var(--status-success-fg)] inline-flex items-center gap-0.5 border border-[var(--status-success-fg)]/20">
+              <Sparkles size={9} className="text-[var(--status-success-fg)] animate-pulse" />
               {matchScore}% match
             </span>
           ) : (
@@ -1037,15 +1037,15 @@ function JobCard({ job, profile, appliedDate, onSave, onApply, isLoading, onClic
           )}
 
           {job.isFeatured && (
-            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 inline-flex items-center gap-1 border border-purple-500/20 animate-pulse">
+            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-[var(--status-info-bg)] text-[var(--status-info-fg)] inline-flex items-center gap-1 border border-[var(--status-info-fg)]/20 animate-pulse">
               ★ FEATURED
             </span>
           )}
           
-          <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-950/20 dark:text-blue-400 capitalize">
+          <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-[var(--status-neutral-bg)] text-[var(--status-neutral-fg)] capitalize">
             {job.type.toLowerCase().replace("time", "-time")}
           </span>
-          <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-violet-50 text-violet-700 dark:bg-violet-950/20 dark:text-violet-400 capitalize">
+          <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-[var(--status-neutral-bg)] text-[var(--status-neutral-fg)] capitalize">
             {job.mode.toLowerCase()}
           </span>
         </div>
@@ -1127,8 +1127,8 @@ function FilterRow({ label, options, value, onChange, mapping, getCount }: {
               className={cn(
                 "px-3 py-1 rounded-full text-[11px] font-semibold transition-all duration-200 border flex items-center gap-1 active:scale-95",
                 active
-                  ? "bg-primary text-primary-foreground border-primary shadow-sm font-bold scale-[1.02]"
-                  : "bg-[#F7F4F9]/40 text-ink-500 border-border hover:border-primary/40 hover:bg-secondary/25"
+                  ? "bg-ink-900 text-white border-ink-900 shadow-sm font-bold scale-[1.02]"
+                  : "bg-secondary/40 text-ink-500 border-border hover:border-primary/40 hover:bg-secondary/25"
               )}
             >
               <span>{mapData.icon}</span>
@@ -1136,7 +1136,7 @@ function FilterRow({ label, options, value, onChange, mapping, getCount }: {
               <span className={cn(
                 "text-[9px] px-1.5 py-0.2 rounded-full font-bold ml-0.5",
                 active 
-                  ? "bg-primary-foreground/20 text-primary-foreground" 
+                  ? "bg-white/20 text-white" 
                   : "bg-secondary text-ink-300"
               )}>
                 {count}

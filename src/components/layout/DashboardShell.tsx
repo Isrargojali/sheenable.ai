@@ -101,19 +101,12 @@ const ROLE_LABEL: Record<UserRole, string> = {
 //
 // SIDEBAR
 //
-// Theme helper
-const applyThemeVars = (themeName: string) => {
+// Theme helper (Unified under single brand pink anchor)
+const applyThemeVars = () => {
   const root = document.documentElement;
-  const themes: Record<string, { primary: string; ring: string; hcMauve: string }> = {
-    lavender: { primary: "317 35% 36%", ring: "317 35% 36%", hcMauve: "#7C3B6E" },
-    emerald: { primary: "159 47% 45%", ring: "159 47% 45%", hcMauve: "#3DAA7D" },
-    sunset: { primary: "30 70% 50%", ring: "30 70% 50%", hcMauve: "#D4A24C" },
-    indigo: { primary: "260 70% 55%", ring: "260 70% 55%", hcMauve: "#7C3AED" },
-  };
-  const cfg = themes[themeName] || themes.lavender;
-  root.style.setProperty("--primary", cfg.primary);
-  root.style.setProperty("--ring", cfg.ring);
-  root.style.setProperty("--hc-mauve", cfg.hcMauve);
+  root.style.setProperty("--primary", "327 100% 45%");
+  root.style.setProperty("--ring", "327 100% 45%");
+  root.style.setProperty("--hc-mauve", "#E6007E");
 };
 
 // Hook to fetch notification/message badges
@@ -329,11 +322,13 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
           <button
             onClick={() => setAvailable(v => !v)}
             className={cn(
-              "w-full flex items-center gap-2 px-2.5 py-2 rounded-lg transition-colors",
-              available ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"
+              "w-full flex items-center gap-2 px-2.5 py-2 rounded-[var(--radius-control)] transition-colors",
+              available 
+                ? "bg-[var(--status-success-bg)] text-[var(--status-success-fg)]" 
+                : "bg-[var(--status-progress-bg)] text-[var(--status-progress-fg)]"
             )}
           >
-            <span className={cn("w-1.5 h-1.5 rounded-full", available ? "bg-emerald-500" : "bg-amber-500")} />
+            <span className={cn("w-1.5 h-1.5 rounded-full", available ? "bg-[var(--status-success-fg)]" : "bg-[var(--status-progress-fg)]")} />
             <span className="text-[11px] font-semibold">
               {available ? "Available for hire" : "Not available"}
             </span>
@@ -674,8 +669,7 @@ export function DashboardShell({
 
   // Load and apply the theme + dark mode on mount
   useEffect(() => {
-    const storedTheme = localStorage.getItem("dashboard-theme") || "lavender";
-    applyThemeVars(storedTheme);
+    applyThemeVars();
     // Restore dark mode preference
     const isDark = localStorage.getItem("dashboard-dark-mode") === "true";
     document.documentElement.classList.toggle("dark", isDark);
@@ -901,7 +895,7 @@ export function BtnPrimary({
       disabled={disabled}
       className={cn(
         "inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[12px] font-semibold text-primary-foreground bg-primary press",
-        "hover:bg-mauve-600 hover:-translate-y-0.5 hover:shadow-elev1",
+        "hover:bg-[var(--brand-pink-hover)] hover:-translate-y-0.5 hover:shadow-sm",
         "disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none",
         className,
       )}
@@ -923,7 +917,7 @@ export function BtnOutline({
       disabled={disabled}
       className={cn(
         "inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[12px] font-semibold transition-all",
-        "bg-transparent border-[1.5px] border-ink-200 text-ink-500",
+        "bg-transparent border-[1.5px] border-[var(--ink-300)] text-[var(--ink-500)]",
         "hover:border-primary hover:text-primary",
         "disabled:opacity-50 disabled:cursor-not-allowed",
         className,
@@ -960,7 +954,6 @@ function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
   });
 
   const [prefs, setPrefs] = useState({
-    theme: "lavender",
     emailAlerts: true,
     soundAlerts: false,
   });
@@ -1018,10 +1011,9 @@ function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
   // Load preferences from local storage
   useEffect(() => {
     if (isOpen) {
-      const storedTheme = localStorage.getItem("dashboard-theme") || "lavender";
       const storedEmail = localStorage.getItem("pref-email") !== "false";
       const storedSound = localStorage.getItem("pref-sound") === "true";
-      setPrefs({ theme: storedTheme, emailAlerts: storedEmail, soundAlerts: storedSound });
+      setPrefs({ emailAlerts: storedEmail, soundAlerts: storedSound });
     }
   }, [isOpen]);
 
@@ -1051,13 +1043,6 @@ function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
       toast.error(getMutationErrorMessage(err) || "Failed to update profile settings");
     }
   });
-
-  const applyTheme = (themeName: string) => {
-    applyThemeVars(themeName);
-    setPrefs(p => ({ ...p, theme: themeName }));
-    localStorage.setItem("dashboard-theme", themeName);
-    toast.success(`Theme updated to ${themeName}!`);
-  };
 
   const handlePrefChange = (key: "emailAlerts" | "soundAlerts", value: boolean) => {
     setPrefs(p => ({ ...p, [key]: value }));
@@ -1210,33 +1195,8 @@ function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
             </form>
           ) : (
             <div className="space-y-5 py-2">
-              {/* Theme customizer */}
-              <div>
-                <h3 className="text-xs font-bold text-foreground mb-3 uppercase tracking-wide">Interface Accent Theme</h3>
-                <div className="grid grid-cols-4 gap-2.5">
-                  {[
-                    { key: "lavender", name: "Lavender", bg: "bg-[#7C3B6E]", border: "border-[#7C3B6E]" },
-                    { key: "emerald", name: "Emerald", bg: "bg-[#3DAA7D]", border: "border-[#3DAA7D]" },
-                    { key: "sunset", name: "Sunset", bg: "bg-[#D4A24C]", border: "border-[#D4A24C]" },
-                    { key: "indigo", name: "Indigo", bg: "bg-[#7C3AED]", border: "border-[#7C3AED]" },
-                  ].map(t => (
-                    <button
-                      key={t.key}
-                      onClick={() => applyTheme(t.key)}
-                      className={cn(
-                        "p-3 rounded-2xl border text-center transition-all flex flex-col items-center gap-1.5 hover:shadow-sm",
-                        prefs.theme === t.key ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"
-                      )}
-                    >
-                      <div className={cn("w-6 h-6 rounded-full flex-shrink-0", t.bg)} />
-                      <span className="text-[10px] font-semibold text-foreground">{t.name}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               {/* Dark Mode toggle */}
-              <div className="border-t border-border pt-4">
+              <div className="pt-2">
                 <h3 className="text-xs font-bold text-foreground mb-3.5 uppercase tracking-wide">Appearance</h3>
                 <div className="flex items-center justify-between">
                   <div>

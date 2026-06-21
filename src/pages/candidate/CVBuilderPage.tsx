@@ -48,7 +48,7 @@ export default function CVBuilderPage() {
   );
   const [saved, setSaved] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<string>("modern");
-  const [accentColor, setAccentColor] = useState<string>("#7C3B6E"); // Lavender-ish default
+  const [accentColor, setAccentColor] = useState<string>("#E6007E"); // Brand Pink default
   const [selectedTone, setSelectedTone] = useState<string>("executive");
   const [atsOptimize, setAtsOptimize] = useState<boolean>(true);
   const [showDevMenu, setShowDevMenu] = useState(false);
@@ -140,11 +140,7 @@ export default function CVBuilderPage() {
 
   // Sync Theme Color dynamically with accent color if changed in Settings Modal
   useEffect(() => {
-    const storedTheme = localStorage.getItem("dashboard-theme") || "lavender";
-    if (storedTheme === "lavender") setAccentColor("#7C3B6E");
-    else if (storedTheme === "emerald") setAccentColor("#3DAA7D");
-    else if (storedTheme === "sunset") setAccentColor("#D4A24C");
-    else if (storedTheme === "indigo") setAccentColor("#7C3AED");
+    setAccentColor("#E6007E");
   }, []);
 
   const handlePrepopulate = () => {
@@ -494,7 +490,7 @@ export default function CVBuilderPage() {
                 </label>
                 <div className="flex gap-2.5 flex-wrap">
                   {[
-                    { hex: "#7C3B6E", name: "Lavender", ats: false },
+                    { hex: "#E6007E", name: "Brand Pink", ats: false },
                     { hex: "#3DAA7D", name: "Emerald", ats: false },
                     { hex: "#D4A24C", name: "Sunset", ats: false },
                     { hex: "#7C3AED", name: "Indigo", ats: false },
