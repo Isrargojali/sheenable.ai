@@ -136,16 +136,16 @@ function StepIndicator({ current, total, onChange }: { current: number; total: n
       {/* Completion percentage bar */}
       <div className="mb-4">
         <div className="flex items-center justify-between mb-2">
-          <div className="text-xs font-semibold text-[#3D3656]">
+          <div className="text-xs font-semibold text-foreground">
             Step {current + 1} of {total}
           </div>
-          <div className="text-xs font-semibold text-rose-500">
+          <div className="text-xs font-semibold text-primary">
             {Math.round(percentage)}% complete
           </div>
         </div>
-        <div className="h-1.5 bg-[#F5DCEA] rounded-full overflow-hidden">
+        <div className="h-1.5 bg-[var(--brand-pink-soft)] rounded-full overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-rose-500 to-violet-500 rounded-full transition-all duration-300"
+            className="h-full bg-primary rounded-full transition-all duration-300"
             style={{ width: `${percentage}%` }}
           />
         </div>
@@ -164,10 +164,10 @@ function StepIndicator({ current, total, onChange }: { current: number; total: n
                 className={cn(
                   "w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold transition-all relative",
                   i < current
-                    ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/30"
+                    ? "bg-[var(--status-success-fg)] text-white shadow-sm"
                     : i === current
-                      ? "bg-rose-500 text-white ring-4 ring-rose-500/20 shadow-md shadow-rose-500/30"
-                      : "bg-[#EDE8F5] text-[#A89EC0] group-hover:bg-[#D4CBE8] group-disabled:cursor-not-allowed"
+                      ? "bg-primary text-white ring-4 ring-primary/20 shadow-sm"
+                      : "bg-secondary text-ink-300 group-hover:bg-secondary/80 group-disabled:cursor-not-allowed"
                 )}
               >
                 {i < current ? (
@@ -180,17 +180,17 @@ function StepIndicator({ current, total, onChange }: { current: number; total: n
                 className={cn(
                   "text-[10px] font-semibold whitespace-nowrap transition-colors",
                   i === current
-                    ? "text-rose-500"
+                    ? "text-primary"
                     : i < current
-                      ? "text-emerald-600"
-                      : "text-[#A89EC0] group-disabled:opacity-50"
+                      ? "text-[var(--status-success-fg)]"
+                      : "text-ink-300 group-disabled:opacity-50"
                 )}
               >
                 {s}
               </span>
             </button>
             {i < STEPS.length - 1 && (
-              <div className={cn("flex-1 h-0.5 mx-2 mb-4 transition-colors", i < current ? "bg-emerald-500" : "bg-[#EDE8F5]")} />
+              <div className={cn("flex-1 h-0.5 mx-2 mb-4 transition-colors", i < current ? "bg-[var(--status-success-fg)]" : "bg-secondary")} />
             )}
           </div>
         ))}
@@ -250,16 +250,16 @@ function Field({
   );
 }
 
-const inp = "w-full px-3.5 py-2.5 border border-[#E8E1F0] rounded-xl text-sm bg-white text-[#0F0B1A] placeholder:text-[#C4BEDD] focus:outline-none focus:ring-2 focus:ring-rose-500/10 focus:border-rose-400 transition-all hover:border-[#D4CBE8]";
+const inp = "w-full px-3.5 py-2.5 border border-border rounded-xl text-xs bg-background text-foreground placeholder:text-ink-300 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all hover:border-primary/50";
 
 function SkillInput({ chips, onAdd, onRemove }: { chips: string[]; onAdd: (v: string) => void; onRemove: (i: number) => void }) {
   const [val, setVal] = useState("");
   function add() { const t = val.trim(); if (t && !chips.includes(t)) { onAdd(t); setVal(""); } }
   return (
     <div onClick={e => (e.currentTarget.querySelector("input") as HTMLInputElement)?.focus()}
-      className="min-h-[44px] w-full px-3 py-2 border border-[#E8E1F0] rounded-xl cursor-text flex flex-wrap gap-1.5 items-center focus-within:border-rose-400 focus-within:ring-2 focus-within:ring-rose-500/10 transition-all">
+      className="min-h-[44px] w-full px-3 py-2 border border-border rounded-xl cursor-text flex flex-wrap gap-1.5 items-center focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10 transition-all">
       {chips.map((c, i) => (
-        <span key={c} className="flex items-center gap-1 bg-rose-50 border border-rose-200 text-rose-600 text-[11px] font-semibold px-2.5 py-0.5 rounded-full">
+        <span key={c} className="flex items-center gap-1 bg-[var(--brand-pink-soft)] border border-primary/20 text-primary text-[11px] font-semibold px-2.5 py-0.5 rounded-full">
           {c}<button type="button" onClick={() => onRemove(i)}><X size={10} /></button>
         </span>
       ))}
@@ -267,7 +267,7 @@ function SkillInput({ chips, onAdd, onRemove }: { chips: string[]; onAdd: (v: st
         onKeyDown={e => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); add(); } }}
         onBlur={add}
         placeholder={chips.length === 0 ? "Type a skill and press Enter…" : ""}
-        className="flex-1 min-w-[120px] outline-none text-sm text-[#0F0B1A] placeholder:text-[#C4BEDD] bg-transparent" />
+        className="flex-1 min-w-[120px] outline-none text-xs text-foreground placeholder:text-ink-300 bg-transparent" />
     </div>
   );
 }
@@ -277,11 +277,11 @@ function MiniRing({ score }: { score: number }) {
   return (
     <div className="relative w-12 h-12">
       <svg width="48" height="48" viewBox="0 0 48 48" style={{ transform: "rotate(-90deg)" }}>
-        <circle cx="24" cy="24" r={r} fill="none" stroke="#F5DCEA" strokeWidth="4" />
-        <circle cx="24" cy="24" r={r} fill="none" stroke="#C8315A" strokeWidth="4"
+        <circle cx="24" cy="24" r={r} fill="none" stroke="var(--brand-pink-soft)" strokeWidth="4" />
+        <circle cx="24" cy="24" r={r} fill="none" stroke="var(--brand-pink)" strokeWidth="4"
           strokeDasharray={circ} strokeDashoffset={circ * (1 - score / 100)} strokeLinecap="round" />
       </svg>
-      <div className="absolute inset-0 flex items-center justify-center font-serif text-xs text-rose-500">{score}%</div>
+      <div className="absolute inset-0 flex items-center justify-center font-serif text-xs text-primary">{score}%</div>
     </div>
   );
 }
@@ -676,21 +676,21 @@ export default function ProfilePage() {
                 return (
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
-                      <div className="text-3xl font-bold text-rose-500">{completion.percentage}%</div>
+                      <div className="text-3xl font-bold text-primary">{completion.percentage}%</div>
                       <div className="flex-1">
-                        <div className="h-2 bg-rose-100 rounded-full overflow-hidden">
+                        <div className="h-2 bg-[var(--brand-pink-soft)] rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-gradient-to-r from-rose-500 to-violet-500 rounded-full transition-all duration-500"
+                            className="h-full bg-primary rounded-full transition-all duration-500"
                             style={{ width: `${completion.percentage}%` }}
                           />
                         </div>
-                        <p className="text-[10px] text-[#A89EC0] mt-1">{completion.completedChecks} of {completion.totalChecks} fields</p>
+                        <p className="text-[10px] text-ink-300 mt-1">{completion.completedChecks} of {completion.totalChecks} fields</p>
                       </div>
                     </div>
                     {completion.percentage < 100 && (
-                      <div className="p-2.5 bg-rose-50 border border-rose-200 rounded-lg">
-                        <p className="text-[11px] font-semibold text-rose-700">
-                          💡 Complete: <span className="text-rose-600 font-bold">{missingField}</span>
+                      <div className="p-2.5 bg-[var(--brand-pink-soft)]/20 border border-primary/20 rounded-lg">
+                        <p className="text-[11px] font-semibold text-primary">
+                          💡 Complete: <span className="text-primary font-bold">{missingField}</span>
                         </p>
                       </div>
                     )}
@@ -763,7 +763,7 @@ export default function ProfilePage() {
             <button
               type="button"
               onClick={() => setEdus(es => [...es, { id: Date.now(), degree: "", institution: "", field: "", year: "" }])}
-              className="flex items-center gap-2 px-4 py-2.5 border-2 border-dashed border-[#E8E1F0] rounded-2xl text-sm font-semibold w-full justify-center text-[#6B6480] hover:border-rose-300 hover:text-rose-500 transition-colors"
+              className="flex items-center gap-2 px-4 py-2.5 border-2 border-dashed border-border rounded-2xl text-sm font-semibold w-full justify-center text-ink-500 hover:border-primary hover:text-primary transition-colors"
             >
               <Plus size={15} /> Add Education
             </button>
@@ -833,7 +833,7 @@ export default function ProfilePage() {
               <button
                 type="button"
                 onClick={() => setCerts(cs => [...cs, { id: Date.now(), name: "", issuer: "", year: "", url: "" }])}
-                className="flex items-center gap-2 px-4 py-2.5 border-2 border-dashed border-[#E8E1F0] rounded-2xl text-sm font-semibold w-full justify-center text-[#6B6480] hover:border-violet-300 hover:text-violet-500 transition-colors"
+                className="flex items-center gap-2 px-4 py-2.5 border-2 border-dashed border-border rounded-2xl text-sm font-semibold w-full justify-center text-ink-500 hover:border-primary hover:text-primary transition-colors"
               >
                 <Plus size={15} /> Add Certification
               </button>
@@ -891,7 +891,7 @@ export default function ProfilePage() {
             </SectionCard>
           ))}
           <button onClick={() => setExps(es => [...es, { id: Date.now(), title: "", company: "", from: "", to: "", isCurrent: false, desc: "" }])}
-            className="flex items-center gap-2 px-4 py-2.5 border-2 border-dashed rounded-2xl text-sm font-semibold w-full justify-center">
+            className="flex items-center gap-2 px-4 py-2.5 border-2 border-dashed border-border rounded-2xl text-sm font-semibold w-full justify-center text-ink-500 hover:border-primary hover:text-primary transition-colors">
             <Plus size={15} /> Add Experience
           </button>
         </div>
@@ -920,7 +920,7 @@ export default function ProfilePage() {
                   {[["REMOTE", "Remote"], ["HYBRID", "Hybrid"], ["ONSITE", "On-site"]].map(([v, l]) => (
                     <button key={v} onClick={() => setPrefMode(v)}
                       className={cn("flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold border transition-all",
-                        prefMode === v ? "bg-rose-500 border-rose-500 text-white" : "bg-[#F7F4F9] border-[#E8E1F0]")}>
+                        prefMode === v ? "bg-primary border-primary text-white" : "bg-secondary border-border text-ink-500 hover:border-primary/45")}>
                       {l}
                     </button>
                   ))}

@@ -48,7 +48,7 @@ export default function CVBuilderPage() {
   );
   const [saved, setSaved] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<string>("modern");
-  const [accentColor, setAccentColor] = useState<string>("#E6007E"); // Brand Pink default
+  const [accentColor, setAccentColor] = useState<string>("#D4A24C"); // Gold default for CV document preview
   const [selectedTone, setSelectedTone] = useState<string>("executive");
   const [atsOptimize, setAtsOptimize] = useState<boolean>(true);
   const [showDevMenu, setShowDevMenu] = useState(false);
@@ -140,7 +140,7 @@ export default function CVBuilderPage() {
 
   // Sync Theme Color dynamically with accent color if changed in Settings Modal
   useEffect(() => {
-    setAccentColor("#E6007E");
+    setAccentColor("#D4A24C");
   }, []);
 
   const handlePrepopulate = () => {
@@ -253,7 +253,7 @@ export default function CVBuilderPage() {
           <BtnPrimary
             onClick={handleSave}
             disabled={!activeCv || saveMutation.isPending}
-            className={saved ? "bg-emerald-500 hover:bg-emerald-600 border-emerald-500" : ""}
+            className={saved ? "bg-[var(--status-success-fg)] hover:bg-[var(--status-success-fg)]/90 border-[var(--status-success-fg)] text-white" : ""}
           >
             {saved ? (
               <><Check size={12} /> <span className="hidden sm:inline">Saved Successfully</span><span className="sm:hidden">Saved</span></>

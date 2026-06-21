@@ -653,13 +653,13 @@ export default function MessagesPage() {
                           <div className="mt-1 flex items-center gap-2 flex-wrap">
                             <span className={cn(
                               "text-[9px] font-extrabold px-2 py-0.5 rounded-full border shadow-sm capitalize",
-                              matchingApp?.stage?.toLowerCase() === 'hired' && "bg-emerald-50 text-emerald-700 border-emerald-200/60",
-                              matchingApp?.stage?.toLowerCase() === 'screening' && "bg-amber-50 text-amber-700 border-amber-200/60",
-                              matchingApp?.stage?.toLowerCase() === 'interview' && "bg-rose-50 text-rose-700 border-rose-200/60",
-                              matchingApp?.stage?.toLowerCase() === 'assessment' && "bg-violet-50 text-violet-750 border-violet-200/60",
-                              matchingApp?.stage?.toLowerCase() === 'rejected' && "bg-rose-50 text-rose-700 border-rose-200/60",
-                              matchingApp?.stage?.toLowerCase() === 'offer' && "bg-indigo-50 text-indigo-750 border-indigo-200/60",
-                              (!matchingApp || matchingApp?.stage?.toLowerCase() === 'applied') && "bg-blue-50 text-blue-700 border-blue-200/60"
+                              matchingApp?.stage?.toLowerCase() === 'hired' && "bg-[var(--status-success-bg)] text-[var(--status-success-fg)] border-[var(--status-success-fg)]/20",
+                              matchingApp?.stage?.toLowerCase() === 'screening' && "bg-[var(--status-progress-bg)] text-[var(--status-progress-fg)] border-[var(--status-progress-fg)]/20",
+                              matchingApp?.stage?.toLowerCase() === 'interview' && "bg-[var(--status-progress-bg)] text-[var(--status-progress-fg)] border-[var(--status-progress-fg)]/20",
+                              matchingApp?.stage?.toLowerCase() === 'assessment' && "bg-[var(--status-progress-bg)] text-[var(--status-progress-fg)] border-[var(--status-progress-fg)]/20",
+                              matchingApp?.stage?.toLowerCase() === 'rejected' && "bg-[var(--status-danger-bg)] text-[var(--status-danger-fg)] border-[var(--status-danger-fg)]/20",
+                              matchingApp?.stage?.toLowerCase() === 'offer' && "bg-[var(--status-success-bg)] text-[var(--status-success-fg)] border-[var(--status-success-fg)]/20",
+                              (!matchingApp || matchingApp?.stage?.toLowerCase() === 'applied') && "bg-[var(--status-info-bg)] text-[var(--status-info-fg)] border-[var(--status-info-fg)]/20"
                             )}>
                               {matchingApp?.stage || "Chat Open"}
                             </span>
@@ -904,7 +904,7 @@ export default function MessagesPage() {
                     disabled={startThreadMut.isPending}
                     className="w-full flex items-center gap-3 p-3 border border-border hover:border-primary/30 hover:bg-accent/10 rounded-xl text-left transition-all group"
                   >
-                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-[#C8315A] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-[var(--brand-pink-hover)] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                       {contact.name.slice(0, 2).toUpperCase()}
                     </div>
                     <div className="min-w-0 flex-1">
