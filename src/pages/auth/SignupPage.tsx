@@ -287,7 +287,7 @@ export default function SignupPage() {
           </p>
 
           {/* Role switcher tabs */}
-          <div className="w-full h-11 bg-[#F4F4F6] rounded-[10px] p-1 flex items-center mb-6">
+          <div className="w-full h-11 bg-[#F4F4F6] rounded-[10px] p-1 flex items-center mb-0">
             {(["CANDIDATE", "EMPLOYER"] as Role[]).map(r => (
               <button
                 key={r}
@@ -306,203 +306,320 @@ export default function SignupPage() {
           </div>
 
           {error && !hasFieldSpecificError && (
-            <div className="bg-rose-50 border border-rose-200 rounded-[var(--radius-input)] px-4 py-3 mb-5 text-[12px] text-rose-700 animate-shake">
+            <div className="bg-rose-50 border border-rose-200 rounded-[var(--radius-input)] px-4 py-3 mt-[28px] text-[12px] text-rose-700 animate-shake">
               ⚠ {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+          <form onSubmit={handleSubmit} className="no-scrollbar mt-[28px] space-y-6" noValidate>
             {role === "CANDIDATE" ? (
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="block text-[12px] font-semibold text-[var(--ink-700)] uppercase tracking-[0.04em]">First name</label>
-                  <div className={cn(
-                    "relative flex items-center h-12 bg-white transition-all duration-200 border rounded-[var(--radius-input)]",
-                    getFieldError('fname')
-                      ? "border-[#D92D20] ring-1 ring-[#D92D20]"
-                      : focusedField === 'fname' 
-                        ? "border-[var(--brand-pink)] ring-[3px] ring-[rgba(230,0,126,0.12)]" 
-                        : "border-[var(--auth-border)]"
-                  )}>
-                    <input 
-                      value={fname} 
-                      onChange={e => setFname(e.target.value)}
-                      onFocus={() => setFocusedField('fname')}
-                      onBlur={() => setFocusedField(null)}
-                      placeholder="Ayesha" 
-                      className="w-full h-12 pl-3.5 pr-3.5 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-[var(--ink-400)] focus:outline-none focus:ring-0" 
-                    />
+              <div>
+                {/* ACCOUNT GROUP */}
+                <div>
+                  <h3 className="text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--ink-500)] mb-3">
+                    ACCOUNT
+                  </h3>
+                  <div className="space-y-5">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="block text-[12px] font-semibold text-[var(--ink-700)] uppercase tracking-[0.04em]">First name</label>
+                        <div className={cn(
+                          "relative flex items-center h-12 bg-white transition-all duration-200 border rounded-[var(--radius-input)]",
+                          getFieldError('fname')
+                            ? "border-[#D92D20] ring-1 ring-[#D92D20]"
+                            : focusedField === 'fname' 
+                              ? "border-[var(--brand-pink)] ring-[3px] ring-[rgba(230,0,126,0.12)]" 
+                              : "border-[var(--auth-border)]"
+                        )}>
+                          <input 
+                            value={fname} 
+                            onChange={e => setFname(e.target.value)}
+                            onFocus={() => setFocusedField('fname')}
+                            onBlur={() => setFocusedField(null)}
+                            placeholder="Ayesha" 
+                            className="w-full h-12 pl-3.5 pr-3.5 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-[var(--ink-400)] focus:outline-none focus:ring-0" 
+                          />
+                        </div>
+                        {getFieldError('fname') && (
+                          <p className="text-[12px] text-[#D92D20] mt-1.5">{getFieldError('fname')}</p>
+                        )}
+                      </div>
+                      <div className="space-y-2">
+                        <label className="block text-[12px] font-semibold text-[var(--ink-700)] uppercase tracking-[0.04em]">Last name</label>
+                        <div className={cn(
+                          "relative flex items-center h-12 bg-white transition-all duration-200 border rounded-[var(--radius-input)]",
+                          getFieldError('lname')
+                            ? "border-[#D92D20] ring-1 ring-[#D92D20]"
+                            : focusedField === 'lname' 
+                              ? "border-[var(--brand-pink)] ring-[3px] ring-[rgba(230,0,126,0.12)]" 
+                              : "border-[var(--auth-border)]"
+                        )}>
+                          <input 
+                            value={lname} 
+                            onChange={e => setLname(e.target.value)}
+                            onFocus={() => setFocusedField('lname')}
+                            onBlur={() => setFocusedField(null)}
+                            placeholder="Khan" 
+                            className="w-full h-12 pl-3.5 pr-3.5 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-[var(--ink-400)] focus:outline-none focus:ring-0" 
+                          />
+                        </div>
+                        {getFieldError('lname') && (
+                          <p className="text-[12px] text-[#D92D20] mt-1.5">{getFieldError('lname')}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="block text-[12px] font-semibold text-[var(--ink-700)] uppercase tracking-[0.04em]">
+                        Email address
+                      </label>
+                      <div className={cn(
+                        "relative flex items-center h-12 bg-white transition-all duration-200 border rounded-[var(--radius-input)]",
+                        getFieldError('email')
+                          ? "border-[#D92D20] ring-1 ring-[#D92D20]"
+                          : focusedField === 'email' 
+                            ? "border-[var(--brand-pink)] ring-[3px] ring-[rgba(230,0,126,0.12)]" 
+                            : "border-[var(--auth-border)]"
+                      )}>
+                        <Mail className="absolute left-3.5 text-[var(--ink-500)]" size={18} />
+                        <input 
+                          type="email" 
+                          value={email} 
+                          onChange={e => setEmail(e.target.value)}
+                          onFocus={() => setFocusedField('email')}
+                          onBlur={() => setFocusedField(null)}
+                          placeholder="you@example.com"
+                          autoComplete="email"
+                          className="w-full h-12 pl-11 pr-3.5 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-[var(--ink-400)] focus:outline-none focus:ring-0" 
+                        />
+                      </div>
+                      {getFieldError('email') && (
+                        <p className="text-[12px] text-[#D92D20] mt-1.5">{getFieldError('email')}</p>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="block text-[12px] font-semibold text-[var(--ink-700)] uppercase tracking-[0.04em]">Password</label>
+                      <div className={cn(
+                        "relative flex items-center h-12 bg-white transition-all duration-200 border rounded-[var(--radius-input)]",
+                        getFieldError('pwd')
+                          ? "border-[#D92D20] ring-1 ring-[#D92D20]"
+                          : focusedField === 'pwd' 
+                            ? "border-[var(--brand-pink)] ring-[3px] ring-[rgba(230,0,126,0.12)]" 
+                            : "border-[var(--auth-border)]"
+                      )}>
+                        <Lock className="absolute left-3.5 text-[var(--ink-500)]" size={18} />
+                        <input 
+                          type={showPwd ? "text" : "password"} 
+                          value={pwd} 
+                          onChange={e => setPwd(e.target.value)}
+                          onFocus={() => setFocusedField('pwd')}
+                          onBlur={() => setFocusedField(null)}
+                          placeholder="Min. 8 characters"
+                          autoComplete="new-password"
+                          className="w-full h-12 pl-11 pr-11 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-[var(--ink-400)] focus:outline-none focus:ring-0" 
+                        />
+                        <button 
+                          type="button" 
+                          onClick={() => setShowPwd(v => !v)}
+                          aria-label={showPwd ? "Hide password" : "Show password"}
+                          className="absolute right-3.5 w-8 h-8 rounded-md flex items-center justify-center text-[var(--ink-500)] hover:text-[var(--brand-pink)] transition-colors"
+                        >
+                          {showPwd ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                      </div>
+                      {getFieldError('pwd') && (
+                        <p className="text-[12px] text-[#D92D20] mt-1.5">{getFieldError('pwd')}</p>
+                      )}
+                      <PwdStrength pwd={pwd} />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="block text-[12px] font-semibold text-[var(--ink-700)] uppercase tracking-[0.04em]">Confirm password</label>
+                      <div className={cn(
+                        "relative flex items-center h-12 bg-white transition-all duration-200 border rounded-[var(--radius-input)]",
+                        getFieldError('confirm')
+                          ? "border-[#D92D20] ring-1 ring-[#D92D20]"
+                          : focusedField === 'confirm' 
+                            ? "border-[var(--brand-pink)] ring-[3px] ring-[rgba(230,0,126,0.12)]" 
+                            : "border-[var(--auth-border)]"
+                      )}>
+                        <input 
+                          type="password" 
+                          value={confirm} 
+                          onChange={e => setConfirm(e.target.value)}
+                          onFocus={() => setFocusedField('confirm')}
+                          onBlur={() => setFocusedField(null)}
+                          placeholder="Repeat password"
+                          autoComplete="new-password"
+                          className="w-full h-12 pl-3.5 pr-3.5 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-[var(--ink-400)] focus:outline-none focus:ring-0" 
+                        />
+                      </div>
+                      {getFieldError('confirm') && (
+                        <p className="text-[12px] text-[#D92D20] mt-1.5">{getFieldError('confirm')}</p>
+                      )}
+                    </div>
                   </div>
-                  {getFieldError('fname') && (
-                    <p className="text-[12px] text-[#D92D20] mt-1.5">{getFieldError('fname')}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <label className="block text-[12px] font-semibold text-[var(--ink-700)] uppercase tracking-[0.04em]">Last name</label>
-                  <div className={cn(
-                    "relative flex items-center h-12 bg-white transition-all duration-200 border rounded-[var(--radius-input)]",
-                    getFieldError('lname')
-                      ? "border-[#D92D20] ring-1 ring-[#D92D20]"
-                      : focusedField === 'lname' 
-                        ? "border-[var(--brand-pink)] ring-[3px] ring-[rgba(230,0,126,0.12)]" 
-                        : "border-[var(--auth-border)]"
-                  )}>
-                    <input 
-                      value={lname} 
-                      onChange={e => setLname(e.target.value)}
-                      onFocus={() => setFocusedField('lname')}
-                      onBlur={() => setFocusedField(null)}
-                      placeholder="Khan" 
-                      className="w-full h-12 pl-3.5 pr-3.5 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-[var(--ink-400)] focus:outline-none focus:ring-0" 
-                    />
-                  </div>
-                  {getFieldError('lname') && (
-                    <p className="text-[12px] text-[#D92D20] mt-1.5">{getFieldError('lname')}</p>
-                  )}
                 </div>
               </div>
             ) : (
-              <>
-                <div className="space-y-2">
-                  <label className="block text-[12px] font-semibold text-[var(--ink-700)] uppercase tracking-[0.04em]">Company name</label>
-                  <div className={cn(
-                    "relative flex items-center h-12 bg-white transition-all duration-200 border rounded-[var(--radius-input)]",
-                    getFieldError('companyName')
-                      ? "border-[#D92D20] ring-1 ring-[#D92D20]"
-                      : focusedField === 'companyName' 
-                        ? "border-[var(--brand-pink)] ring-[3px] ring-[rgba(230,0,126,0.12)]" 
-                        : "border-[var(--auth-border)]"
-                  )}>
-                    <Building2 className="absolute left-3.5 text-[var(--ink-500)]" size={18} />
-                    <input 
-                      value={companyName} 
-                      onChange={e => setCompanyName(e.target.value)}
-                      onFocus={() => setFocusedField('companyName')}
-                      onBlur={() => setFocusedField(null)}
-                      placeholder="Acme Inc." 
-                      className="w-full h-12 pl-11 pr-3.5 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-[var(--ink-400)] focus:outline-none focus:ring-0" 
-                    />
+              <div className="space-y-8">
+                {/* COMPANY GROUP */}
+                <div>
+                  <h3 className="text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--ink-500)] mb-3">
+                    COMPANY
+                  </h3>
+                  <div className="space-y-5">
+                    <div className="space-y-2">
+                      <label className="block text-[12px] font-semibold text-[var(--ink-700)] uppercase tracking-[0.04em]">Company name</label>
+                      <div className={cn(
+                        "relative flex items-center h-12 bg-white transition-all duration-200 border rounded-[var(--radius-input)]",
+                        getFieldError('companyName')
+                          ? "border-[#D92D20] ring-1 ring-[#D92D20]"
+                          : focusedField === 'companyName' 
+                            ? "border-[var(--brand-pink)] ring-[3px] ring-[rgba(230,0,126,0.12)]" 
+                            : "border-[var(--auth-border)]"
+                      )}>
+                        <Building2 className="absolute left-3.5 text-[var(--ink-500)]" size={18} />
+                        <input 
+                          value={companyName} 
+                          onChange={e => setCompanyName(e.target.value)}
+                          onFocus={() => setFocusedField('companyName')}
+                          onBlur={() => setFocusedField(null)}
+                          placeholder="Acme Inc." 
+                          className="w-full h-12 pl-11 pr-3.5 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-[var(--ink-400)] focus:outline-none focus:ring-0" 
+                        />
+                      </div>
+                      {getFieldError('companyName') && (
+                        <p className="text-[12px] text-[#D92D20] mt-1.5">{getFieldError('companyName')}</p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <label className="block text-[12px] font-semibold text-[var(--ink-700)] uppercase tracking-[0.04em]">Company size</label>
+                      <div className={cn(
+                        "relative flex items-center h-12 bg-white transition-all duration-200 border rounded-[var(--radius-input)]",
+                        focusedField === 'companySize' 
+                          ? "border-[var(--brand-pink)] ring-[3px] ring-[rgba(230,0,126,0.12)]" 
+                          : "border-[var(--auth-border)]"
+                      )}>
+                        <select 
+                          value={companySize} 
+                          onChange={e => setCompanySize(e.target.value)} 
+                          onFocus={() => setFocusedField('companySize')}
+                          onBlur={() => setFocusedField(null)}
+                          className="w-full h-12 pl-3.5 pr-10 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] focus:outline-none focus:ring-0 cursor-pointer appearance-none"
+                        >
+                          {COMPANY_SIZES.map(s => <option key={s} value={s}>{s} employees</option>)}
+                        </select>
+                        <ChevronDown className="absolute right-3.5 text-[var(--ink-500)] pointer-events-none" size={18} />
+                      </div>
+                    </div>
                   </div>
-                  {getFieldError('companyName') && (
-                    <p className="text-[12px] text-[#D92D20] mt-1.5">{getFieldError('companyName')}</p>
-                  )}
                 </div>
-                <div className="space-y-2">
-                  <label className="block text-[12px] font-semibold text-[var(--ink-700)] uppercase tracking-[0.04em]">Company size</label>
-                  <div className={cn(
-                    "relative flex items-center h-12 bg-white transition-all duration-200 border rounded-[var(--radius-input)]",
-                    focusedField === 'companySize' 
-                      ? "border-[var(--brand-pink)] ring-[3px] ring-[rgba(230,0,126,0.12)]" 
-                      : "border-[var(--auth-border)]"
-                  )}>
-                    <select 
-                      value={companySize} 
-                      onChange={e => setCompanySize(e.target.value)} 
-                      onFocus={() => setFocusedField('companySize')}
-                      onBlur={() => setFocusedField(null)}
-                      className="w-full h-12 pl-3.5 pr-10 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] focus:outline-none focus:ring-0 cursor-pointer appearance-none"
-                    >
-                      {COMPANY_SIZES.map(s => <option key={s} value={s}>{s} employees</option>)}
-                    </select>
-                    <ChevronDown className="absolute right-3.5 text-[var(--ink-500)] pointer-events-none" size={18} />
+
+                {/* ACCOUNT GROUP */}
+                <div>
+                  <h3 className="text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--ink-500)] mb-3">
+                    ACCOUNT
+                  </h3>
+                  <div className="space-y-5">
+                    <div className="space-y-2">
+                      <label className="block text-[12px] font-semibold text-[var(--ink-700)] uppercase tracking-[0.04em]">
+                        Work email
+                      </label>
+                      <div className={cn(
+                        "relative flex items-center h-12 bg-white transition-all duration-200 border rounded-[var(--radius-input)]",
+                        getFieldError('email')
+                          ? "border-[#D92D20] ring-1 ring-[#D92D20]"
+                          : focusedField === 'email' 
+                            ? "border-[var(--brand-pink)] ring-[3px] ring-[rgba(230,0,126,0.12)]" 
+                            : "border-[var(--auth-border)]"
+                      )}>
+                        <Mail className="absolute left-3.5 text-[var(--ink-500)]" size={18} />
+                        <input 
+                          type="email" 
+                          value={email} 
+                          onChange={e => setEmail(e.target.value)}
+                          onFocus={() => setFocusedField('email')}
+                          onBlur={() => setFocusedField(null)}
+                          placeholder="you@company.com"
+                          autoComplete="email"
+                          className="w-full h-12 pl-11 pr-3.5 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-[var(--ink-400)] focus:outline-none focus:ring-0" 
+                        />
+                      </div>
+                      {getFieldError('email') && (
+                        <p className="text-[12px] text-[#D92D20] mt-1.5">{getFieldError('email')}</p>
+                      )}
+                      {!getFieldError('email') && (
+                        <p className="text-[10px] text-muted-foreground/80 mt-1">We verify employers via your work email domain.</p>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="block text-[12px] font-semibold text-[var(--ink-700)] uppercase tracking-[0.04em]">Password</label>
+                      <div className={cn(
+                        "relative flex items-center h-12 bg-white transition-all duration-200 border rounded-[var(--radius-input)]",
+                        getFieldError('pwd')
+                          ? "border-[#D92D20] ring-1 ring-[#D92D20]"
+                          : focusedField === 'pwd' 
+                            ? "border-[var(--brand-pink)] ring-[3px] ring-[rgba(230,0,126,0.12)]" 
+                            : "border-[var(--auth-border)]"
+                      )}>
+                        <Lock className="absolute left-3.5 text-[var(--ink-500)]" size={18} />
+                        <input 
+                          type={showPwd ? "text" : "password"} 
+                          value={pwd} 
+                          onChange={e => setPwd(e.target.value)}
+                          onFocus={() => setFocusedField('pwd')}
+                          onBlur={() => setFocusedField(null)}
+                          placeholder="Min. 8 characters"
+                          autoComplete="new-password"
+                          className="w-full h-12 pl-11 pr-11 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-[var(--ink-400)] focus:outline-none focus:ring-0" 
+                        />
+                        <button 
+                          type="button" 
+                          onClick={() => setShowPwd(v => !v)}
+                          aria-label={showPwd ? "Hide password" : "Show password"}
+                          className="absolute right-3.5 w-8 h-8 rounded-md flex items-center justify-center text-[var(--ink-500)] hover:text-[var(--brand-pink)] transition-colors"
+                        >
+                          {showPwd ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                      </div>
+                      {getFieldError('pwd') && (
+                        <p className="text-[12px] text-[#D92D20] mt-1.5">{getFieldError('pwd')}</p>
+                      )}
+                      <PwdStrength pwd={pwd} />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="block text-[12px] font-semibold text-[var(--ink-700)] uppercase tracking-[0.04em]">Confirm password</label>
+                      <div className={cn(
+                        "relative flex items-center h-12 bg-white transition-all duration-200 border rounded-[var(--radius-input)]",
+                        getFieldError('confirm')
+                          ? "border-[#D92D20] ring-1 ring-[#D92D20]"
+                          : focusedField === 'confirm' 
+                            ? "border-[var(--brand-pink)] ring-[3px] ring-[rgba(230,0,126,0.12)]" 
+                            : "border-[var(--auth-border)]"
+                      )}>
+                        <input 
+                          type="password" 
+                          value={confirm} 
+                          onChange={e => setConfirm(e.target.value)}
+                          onFocus={() => setFocusedField('confirm')}
+                          onBlur={() => setFocusedField(null)}
+                          placeholder="Repeat password"
+                          autoComplete="new-password"
+                          className="w-full h-12 pl-3.5 pr-3.5 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-[var(--ink-400)] focus:outline-none focus:ring-0" 
+                        />
+                      </div>
+                      {getFieldError('confirm') && (
+                        <p className="text-[12px] text-[#D92D20] mt-1.5">{getFieldError('confirm')}</p>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </>
+              </div>
             )}
-
-            <div className="space-y-2">
-              <label className="block text-[12px] font-semibold text-[var(--ink-700)] uppercase tracking-[0.04em]">
-                {role === "EMPLOYER" ? "Work email" : "Email address"}
-              </label>
-              <div className={cn(
-                "relative flex items-center h-12 bg-white transition-all duration-200 border rounded-[var(--radius-input)]",
-                getFieldError('email')
-                  ? "border-[#D92D20] ring-1 ring-[#D92D20]"
-                  : focusedField === 'email' 
-                    ? "border-[var(--brand-pink)] ring-[3px] ring-[rgba(230,0,126,0.12)]" 
-                    : "border-[var(--auth-border)]"
-              )}>
-                <Mail className="absolute left-3.5 text-[var(--ink-500)]" size={18} />
-                <input 
-                  type="email" 
-                  value={email} 
-                  onChange={e => setEmail(e.target.value)}
-                  onFocus={() => setFocusedField('email')}
-                  onBlur={() => setFocusedField(null)}
-                  placeholder={role === "EMPLOYER" ? "you@company.com" : "you@example.com"}
-                  autoComplete="email"
-                  className="w-full h-12 pl-11 pr-3.5 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-[var(--ink-400)] focus:outline-none focus:ring-0" 
-                />
-              </div>
-              {getFieldError('email') && (
-                <p className="text-[12px] text-[#D92D20] mt-1.5">{getFieldError('email')}</p>
-              )}
-              {role === "EMPLOYER" && !getFieldError('email') && (
-                <p className="text-[10px] text-muted-foreground/80 mt-1">We verify employers via your work email domain.</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <label className="block text-[12px] font-semibold text-[var(--ink-700)] uppercase tracking-[0.04em]">Password</label>
-              <div className={cn(
-                "relative flex items-center h-12 bg-white transition-all duration-200 border rounded-[var(--radius-input)]",
-                getFieldError('pwd')
-                  ? "border-[#D92D20] ring-1 ring-[#D92D20]"
-                  : focusedField === 'pwd' 
-                    ? "border-[var(--brand-pink)] ring-[3px] ring-[rgba(230,0,126,0.12)]" 
-                    : "border-[var(--auth-border)]"
-              )}>
-                <Lock className="absolute left-3.5 text-[var(--ink-500)]" size={18} />
-                <input 
-                  type={showPwd ? "text" : "password"} 
-                  value={pwd} 
-                  onChange={e => setPwd(e.target.value)}
-                  onFocus={() => setFocusedField('pwd')}
-                  onBlur={() => setFocusedField(null)}
-                  placeholder="Min. 8 characters"
-                  autoComplete="new-password"
-                  className="w-full h-12 pl-11 pr-11 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-[var(--ink-400)] focus:outline-none focus:ring-0" 
-                />
-                <button 
-                  type="button" 
-                  onClick={() => setShowPwd(v => !v)}
-                  aria-label={showPwd ? "Hide password" : "Show password"}
-                  className="absolute right-3.5 w-8 h-8 rounded-md flex items-center justify-center text-[var(--ink-500)] hover:text-[var(--brand-pink)] transition-colors"
-                >
-                  {showPwd ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-              {getFieldError('pwd') && (
-                <p className="text-[12px] text-[#D92D20] mt-1.5">{getFieldError('pwd')}</p>
-              )}
-              <PwdStrength pwd={pwd} />
-            </div>
-
-            <div className="space-y-2">
-              <label className="block text-[12px] font-semibold text-[var(--ink-700)] uppercase tracking-[0.04em]">Confirm password</label>
-              <div className={cn(
-                "relative flex items-center h-12 bg-white transition-all duration-200 border rounded-[var(--radius-input)]",
-                getFieldError('confirm')
-                  ? "border-[#D92D20] ring-1 ring-[#D92D20]"
-                  : focusedField === 'confirm' 
-                    ? "border-[var(--brand-pink)] ring-[3px] ring-[rgba(230,0,126,0.12)]" 
-                    : "border-[var(--auth-border)]"
-              )}>
-                <input 
-                  type="password" 
-                  value={confirm} 
-                  onChange={e => setConfirm(e.target.value)}
-                  onFocus={() => setFocusedField('confirm')}
-                  onBlur={() => setFocusedField(null)}
-                  placeholder="Repeat password"
-                  autoComplete="new-password"
-                  className="w-full h-12 pl-3.5 pr-3.5 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] placeholder:text-[var(--ink-400)] focus:outline-none focus:ring-0" 
-                />
-              </div>
-              {getFieldError('confirm') && (
-                <p className="text-[12px] text-[#D92D20] mt-1.5">{getFieldError('confirm')}</p>
-              )}
-            </div>
 
             {/* Women-only confirmation */}
             {role === "CANDIDATE" && (
@@ -526,7 +643,7 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full btn-auth-primary press disabled:opacity-50 mt-3"
+              className="w-full btn-auth-primary press disabled:opacity-50 mt-0"
             >
               {loading ? "Creating account…" : <><span>Create account</span> <ArrowRight size={16} /></>}
             </button>
