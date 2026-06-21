@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Sparkles, Download, Copy, Wand2, Check, Plus, Trash2, Sync, RefreshCw, Palette, Type, HelpCircle, Loader2, Settings, Share2 } from "lucide-react";
+import { Sparkles, Download, Copy, Wand2, Check, Plus, Trash2, Sync, RefreshCw, Palette, Type, HelpCircle, Loader2, Code, Share2 } from "lucide-react";
 import { DashboardShell, SectionCard, BtnPrimary, BtnOutline } from "@/components/layout/DashboardShell";
 import { apiAI, apiProfile } from "@/lib/api";
 import { toast } from "sonner";
@@ -250,30 +250,15 @@ export default function CVBuilderPage() {
           >
             <Share2 size={16} strokeWidth={1.75} /> <span className="hidden sm:inline">Share CV link</span><span className="sm:hidden">Share</span>
           </BtnOutline>
-          <BtnPrimary
-            onClick={handleSave}
-            disabled={!activeCv || saveMutation.isPending}
-            className={saved ? "bg-[var(--status-success-fg)] hover:bg-[var(--status-success-fg)]/90 border-[var(--status-success-fg)] text-white" : ""}
-          >
-            {saved ? (
-              <><Check size={16} strokeWidth={1.75} /> <span className="hidden sm:inline">Saved Successfully</span><span className="sm:hidden">Saved</span></>
-            ) : saveMutation.isPending ? (
-              <><Loader2 size={16} className="animate-spin" /> <span className="hidden sm:inline">Saving...</span><span className="sm:hidden">Saving</span></>
-            ) : (
-              <><span className="hidden sm:inline">Save progress</span><span className="sm:hidden">Save</span></>
-            )}
-          </BtnPrimary>
-
           {/* Advanced Settings / Developer Cog Dropdown */}
           <div className="relative">
-            <button
+            <BtnOutline
               type="button"
               onClick={() => setShowDevMenu(!showDevMenu)}
-              className="p-2 border border-border hover:bg-secondary rounded-full text-ink-500 hover:text-foreground transition-all flex items-center justify-center"
-              title="Developer / Advanced Settings"
+              disabled={!activeCv}
             >
-              <Settings size={14} />
-            </button>
+              <Code size={16} strokeWidth={1.75} /> <span className="hidden sm:inline">JSON Settings</span><span className="sm:hidden">JSON</span>
+            </BtnOutline>
 
             {showDevMenu && (
               <>
@@ -300,6 +285,20 @@ export default function CVBuilderPage() {
               </>
             )}
           </div>
+
+          <BtnPrimary
+            onClick={handleSave}
+            disabled={!activeCv || saveMutation.isPending}
+            className={saved ? "bg-[var(--status-success-fg)] hover:bg-[var(--status-success-fg)]/90 border-[var(--status-success-fg)] text-white" : ""}
+          >
+            {saved ? (
+              <><Check size={16} strokeWidth={1.75} /> <span className="hidden sm:inline">Saved Successfully</span><span className="sm:hidden">Saved</span></>
+            ) : saveMutation.isPending ? (
+              <><Loader2 size={16} className="animate-spin" /> <span className="hidden sm:inline">Saving...</span><span className="sm:hidden">Saving</span></>
+            ) : (
+              <><span className="hidden sm:inline">Save progress</span><span className="sm:hidden">Save</span></>
+            )}
+          </BtnPrimary>
         </div>
       }
     >
