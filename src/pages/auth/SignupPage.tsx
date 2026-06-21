@@ -294,7 +294,7 @@ export default function SignupPage() {
                 type="button"
                 onClick={() => { setRole(r); setError(""); }}
                 className={cn(
-                  "flex-1 h-9 rounded-[8px] text-[14px] font-semibold transition-all duration-150 ease-in-out press",
+                  "flex-1 h-9 rounded-[8px] text-[13px] font-semibold transition-all duration-150 ease-in-out press",
                   role === r 
                     ? "bg-white text-[var(--brand-pink)] shadow-[0_1px_2px_rgba(0,0,0,0.06)]" 
                     : "bg-transparent text-[var(--ink-500)] hover:text-[var(--ink-700)]"
@@ -697,12 +697,12 @@ export default function SignupPage() {
             </>
           )}
 
-          <p className="text-center text-[12px] text-muted-foreground mt-6">
+          <p className="text-center text-[13px] font-normal text-[var(--ink-500)] mt-6">
             Already registered?{" "}
-            <Link to="/auth/login" className="text-[var(--brand-pink)] font-bold hover:opacity-85 transition-opacity">Sign in</Link>
+            <Link to="/auth/login" className="text-[var(--brand-pink)] hover:opacity-85 transition-opacity">Sign in</Link>
           </p>
 
-          <div className="text-center text-[10px] text-muted-foreground mt-6 opacity-75">
+          <div className="text-center text-[11px] text-[var(--ink-500)] mt-6">
             By signing up you agree to our <a href="#" className="underline">Terms</a> and <a href="#" className="underline">Privacy Policy</a>.
           </div>
         </div>

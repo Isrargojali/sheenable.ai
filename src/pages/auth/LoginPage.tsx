@@ -278,7 +278,6 @@ export default function LoginPage() {
             {isAdminMode ? "Access the administrator console." : "Sign in to continue your journey."}
           </p>
 
-          {/* Role switcher tabs */}
           {!isAdminMode && (
             <div className="w-full h-11 bg-[#F4F4F6] rounded-[10px] p-1 flex items-center mb-6">
               {([
@@ -290,7 +289,7 @@ export default function LoginPage() {
                   type="button"
                   onClick={() => fillRole(r.key)}
                   className={cn(
-                    "flex-1 h-9 rounded-[8px] text-[14px] font-semibold transition-all duration-150 ease-in-out press",
+                    "flex-1 h-9 rounded-[8px] text-[13px] font-semibold transition-all duration-150 ease-in-out press",
                     role === r.key 
                       ? "bg-white text-[var(--brand-pink)] shadow-[0_1px_2px_rgba(0,0,0,0.06)]" 
                       : "bg-transparent text-[var(--ink-500)] hover:text-[var(--ink-700)]"
@@ -344,7 +343,7 @@ export default function LoginPage() {
                 <label htmlFor="login-pwd" className="text-[12px] font-semibold text-[var(--ink-700)] uppercase tracking-[0.04em]">
                   Password
                 </label>
-                <Link to="/auth/forgot-password" className="text-[11px] font-semibold text-[var(--brand-pink)] hover:opacity-85 transition-opacity">
+                <Link to="/auth/forgot-password" className="text-[12px] font-normal text-[var(--brand-pink)] hover:opacity-85 transition-opacity">
                   Forgot password?
                 </Link>
               </div>
@@ -393,7 +392,7 @@ export default function LoginPage() {
 
           <div className="flex items-center gap-3 my-5">
             <div className="flex-1 h-px bg-[var(--auth-border)]" />
-            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">or continue with</span>
+            <span className="text-[10px] uppercase tracking-wider text-[var(--auth-border)]">or continue with</span>
             <div className="flex-1 h-px bg-[var(--auth-border)]" />
           </div>
 
@@ -444,7 +443,7 @@ export default function LoginPage() {
             </p>
           )}
 
-          <div className="text-center text-[10px] text-muted-foreground mt-8 opacity-75">
+          <div className="text-center text-[11px] text-[var(--ink-500)] mt-8">
             🔒 SHA-256 encrypted · httpOnly cookies · Rate limited
           </div>
         </div>
