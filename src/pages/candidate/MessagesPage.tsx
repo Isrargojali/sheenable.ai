@@ -473,9 +473,9 @@ export default function MessagesPage() {
                   className={cn(
                     "w-full flex items-center gap-3 px-4 py-3.5 border-b border-[var(--ink-300)]/40 text-left transition-all",
                     t.id === activeThread 
-                      ? "bg-accent/50 border-l-4 border-primary" 
+                      ? "bg-accent/50" 
                       : t.unread > 0
-                        ? "bg-primary/[0.04] border-l-4 border-primary/40 hover:bg-primary/[0.08]"
+                        ? "bg-primary/[0.04] hover:bg-primary/[0.08]"
                         : "bg-[var(--surface)] hover:bg-secondary/20"
                   )}
                 >

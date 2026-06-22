@@ -397,9 +397,9 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
                   to={item.to}
                   onClick={onNav}
                   className={({ isActive }) => cn(
-                    "flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[12px] font-medium mb-0.5 transition-all",
+                    "flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[12px] font-medium mb-0.5 transition-all border-l-4 border-transparent",
                     isActive
-                      ? "bg-accent text-accent-foreground font-semibold"
+                      ? "bg-accent text-accent-foreground font-semibold border-l-[var(--brand-pink)] rounded-l-none"
                       : "text-muted-foreground hover:bg-secondary hover:text-foreground"
                   )}
                 >
@@ -412,15 +412,8 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
                   </div>
                   <span className="truncate">{item.label}</span>
                   {badge && (
-                    <span className="ml-auto flex items-center gap-1.5">
-                      <span className={cn(
-                        "text-[9px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center",
-                        badgeVariant === "amber"
-                          ? "bg-amber-500 text-white"
-                          : badgeVariant === "rose"
-                            ? "bg-rose-500 text-white animate-pulse"
-                            : "bg-primary text-primary-foreground"
-                      )}>
+                    <span className="ml-auto flex items-center justify-center flex-shrink-0">
+                      <span className="bg-[var(--brand-pink)] text-white w-[18px] h-[18px] flex items-center justify-center rounded-full text-[11px] font-semibold leading-none">
                         {badge}
                       </span>
                     </span>
