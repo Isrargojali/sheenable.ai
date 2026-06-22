@@ -197,33 +197,26 @@ export default function CVBuilderPage() {
     if (active === "executive") {
       return {
         fontFamily: "'Playfair Display', Georgia, serif",
-        borderTop: `6px solid ${accentColor}`,
       };
     } else if (active === "minimalist") {
       return {
         fontFamily: "system-ui, sans-serif",
-        borderTop: "1px solid #e2e8f0",
       };
     } else if (active === "creative") {
       return {
         fontFamily: "'Inter', sans-serif",
-        borderLeft: `8px solid ${accentColor}`,
-        paddingLeft: "24px",
       };
     } else if (active === "technical") {
       return {
         fontFamily: "monospace, Courier New",
-        borderTop: `4px double ${accentColor}`,
       };
     } else if (active === "elegant") {
       return {
         fontFamily: "Georgia, serif",
-        borderBottom: `4px solid ${accentColor}`,
       };
     } else { // modern
       return {
         fontFamily: "'Inter', sans-serif",
-        borderTop: `6px solid ${accentColor}`,
       };
     }
   };

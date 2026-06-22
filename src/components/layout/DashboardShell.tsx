@@ -872,18 +872,52 @@ export function SectionCard({
 }) {
   const headerActions = actions ?? action;
   return (
-    <section className={cn("bg-card border border-border rounded-token-lg overflow-hidden", className)}>
+    <section className={cn("bg-[var(--surface)] border border-[var(--ink-300)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] overflow-hidden", className)}>
       {(title || headerActions) && (
-        <header className="px-4 py-3 border-b border-border flex items-center justify-between gap-3 flex-wrap">
+        <header className="px-6 pt-6 flex items-center justify-between gap-3 flex-wrap">
           <div className="min-w-0">
-            {title && <h2 className="text-sm font-bold text-foreground">{title}</h2>}
-            {subtitle && <p className="text-[11px] text-muted-foreground mt-0.5">{subtitle}</p>}
+            {title && <h2 className="text-base font-semibold text-[var(--ink-900)]">{title}</h2>}
+            {subtitle && <p className="text-xs text-[var(--ink-500)] mt-0.5">{subtitle}</p>}
           </div>
           {headerActions && <div className="flex items-center gap-2">{headerActions}</div>}
         </header>
       )}
-      <div className={cn(noPad ? "" : "p-4")}>{children}</div>
+      <div className={cn(
+        noPad ? "" : "px-6 pb-6",
+        (title || headerActions) ? (noPad ? "mt-5" : "pt-5") : (noPad ? "" : "pt-6")
+      )}>
+        {children}
+      </div>
     </section>
+  );
+}
+
+export function Banner({
+  icon: Icon,
+  title,
+  description,
+  action,
+  className,
+}: {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  action?: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={cn("bg-[var(--brand-pink-soft)] border border-[var(--ink-300)] rounded-xl px-6 py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4", className)}>
+      <div className="flex items-start gap-4">
+        <div className="flex-shrink-0 mt-0.5">
+          <Icon className="w-5 h-5 text-[var(--brand-pink)]" />
+        </div>
+        <div className="space-y-1">
+          <h4 className="text-sm font-bold text-[var(--ink-900)] uppercase tracking-wider">{title}</h4>
+          <p className="text-sm text-[var(--ink-700)]">{description}</p>
+        </div>
+      </div>
+      {action && <div className="flex-shrink-0">{action}</div>}
+    </div>
   );
 }
 

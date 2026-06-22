@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import {
   Eye, Sparkles, FileText, Award, ArrowRight, MapPin, Briefcase, Calendar, Video, Loader2, Clock, CheckCircle2, X, User
 } from "lucide-react";
-import { DashboardShell, SectionCard, BtnPrimary, BtnOutline } from "@/components/layout/DashboardShell";
+import { DashboardShell, SectionCard, BtnPrimary, BtnOutline, Banner } from "@/components/layout/DashboardShell";
 import { apiProfile, apiJobs, apiApplications, apiMessages } from "@/lib/api";
 import { formatSalary, relativeTime, cn, initials, getCompanyGradient } from "@/lib/utils";
 import { useAuthStore } from "@/store/authStore";
@@ -200,8 +200,7 @@ export default function CandidateDashboard() {
             toast.info("Please scroll to the 'Upcoming interviews' section to accept the invitation.");
           }
         },
-        color: "border-[var(--status-progress-fg)]/20 bg-[var(--status-progress-bg)] text-[var(--status-progress-fg)]",
-        btnColor: "bg-ink-900 text-white hover:bg-ink-700 dark:bg-white dark:text-ink-900 dark:hover:bg-ink-100"
+        icon: Calendar,
       };
     }
 
@@ -222,8 +221,7 @@ export default function CandidateDashboard() {
         description: `Your profile is only ${computedScore}% complete. Profiles above 70% get 3x more recruiter views.`,
         ctaText: "Update Profile",
         link: `/candidate/profile?step=${incompleteStep}`,
-        color: "border-[var(--status-danger-fg)]/20 bg-[var(--status-danger-bg)] text-[var(--status-danger-fg)]",
-        btnColor: "bg-ink-900 text-white hover:bg-ink-700 dark:bg-white dark:text-ink-900 dark:hover:bg-ink-100"
+        icon: FileText,
       };
     }
 
@@ -236,8 +234,7 @@ export default function CandidateDashboard() {
         description: "You haven't submitted any job applications yet. Let's find your first match!",
         ctaText: "Explore Job Openings",
         link: "/candidate/jobs",
-        color: "border-[var(--status-info-fg)]/20 bg-[var(--status-info-bg)] text-[var(--status-info-fg)]",
-        btnColor: "bg-ink-900 text-white hover:bg-ink-700 dark:bg-white dark:text-ink-900 dark:hover:bg-ink-100"
+        icon: Search,
       };
     }
 
@@ -249,8 +246,7 @@ export default function CandidateDashboard() {
       description: "Check out new jobs matched to your professional profile today.",
       ctaText: "Search Jobs",
       link: "/candidate/jobs",
-      color: "border-border bg-card text-foreground",
-      btnColor: "bg-primary hover:bg-[var(--brand-pink-hover)] text-white"
+      icon: Sparkles,
     };
   })();
 
@@ -271,10 +267,7 @@ export default function CandidateDashboard() {
     >
       {/* ── Candidate Profile Hero Card ── */}
       {profileData && (
-        <div className="bg-card border border-border/80 rounded-3xl p-5 mb-6 hover:shadow-md transition-all duration-300 relative overflow-hidden group">
-          {/* Subtle gradient background decoration */}
-          <div className="absolute right-0 top-0 w-64 h-64 bg-gradient-to-bl from-primary/5 via-transparent to-transparent pointer-events-none" />
-          
+        <div className="bg-[var(--surface)] border border-[var(--ink-300)] rounded-[var(--radius-card)] p-6 mb-6 shadow-[var(--shadow-card)] relative overflow-hidden group">
           <div className="flex flex-col md:flex-row gap-5 items-start justify-between relative z-10">
             {/* Left Column: Avatar + Basic Info */}
             <div className="flex gap-4 items-start min-w-0">
@@ -358,7 +351,7 @@ export default function CandidateDashboard() {
 
           {/* Bottom section: Bio & Skills */}
           {((profileData as any)?.bio || (Array.isArray((profileData as any)?.skills) && (profileData as any).skills.length > 0)) && (
-            <div className="border-t border-border/40 mt-4 pt-4 flex flex-col gap-3">
+            <div className="mt-5 flex flex-col gap-3">
               {/* Short Bio */}
               {(profileData as any)?.bio && (
                 <p className="text-[11px] text-ink-500 leading-relaxed max-w-3xl">
@@ -388,66 +381,29 @@ export default function CandidateDashboard() {
       )}
       {/* Contextual Urgent Action Banner */}
       {urgentAction && (
-        <div className={cn(
-          "border rounded-2xl px-4 py-4 sm:px-5 sm:py-4.5 mb-6",
-          "flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4",
-          "transition-all duration-300 shadow-sm relative overflow-hidden group",
-          urgentAction.color
-        )}>
-          {/* Shimmer sweep on hover */}
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none" />
-
-          {/* Left: icon + copy */}
-          <div className="flex items-start gap-3 sm:gap-3.5 relative z-10 min-w-0">
-            <div className="p-2 bg-white/20 dark:bg-black/10 rounded-xl flex-shrink-0 mt-0.5 animate-pulse">
-              <Sparkles size={15} />
-            </div>
-            <div className="min-w-0">
-              <h4 className="text-[11px] sm:text-xs font-black tracking-wide uppercase leading-tight truncate">
-                {urgentAction.title}
-              </h4>
-              <p className="text-[10px] sm:text-[11px] opacity-85 mt-1 font-medium leading-relaxed">
-                {urgentAction.description}
-              </p>
-            </div>
-          </div>
-
-          {/* Right: CTA — full width on mobile, auto on sm+ */}
-          <div className="relative z-10 w-full sm:w-auto flex-shrink-0">
-            {urgentAction.link ? (
-              <Link to={urgentAction.link} className="block w-full sm:w-auto">
-                <button className={cn(
-                  "w-full sm:w-auto inline-flex items-center justify-center gap-1.5",
-                  "px-4 py-2.5 sm:py-2 rounded-xl text-xs font-bold shadow-sm",
-                  "transition-all duration-200 active:scale-[0.97] hover:brightness-105",
-                  urgentAction.btnColor
-                )}>
-                  {urgentAction.ctaText} <ArrowRight size={12} />
-                </button>
+        <Banner
+          icon={urgentAction.icon}
+          title={urgentAction.title}
+          description={urgentAction.description}
+          className="mb-6"
+          action={
+            urgentAction.link ? (
+              <Link to={urgentAction.link}>
+                <BtnPrimary>
+                  {urgentAction.ctaText} <ArrowRight size={16} strokeWidth={1.75} />
+                </BtnPrimary>
               </Link>
             ) : (
-              <button
-                onClick={urgentAction.ctaAction}
-                className={cn(
-                  "w-full sm:w-auto inline-flex items-center justify-center gap-1.5",
-                  "px-4 py-2.5 sm:py-2 rounded-xl text-xs font-bold shadow-sm",
-                  "transition-all duration-200 active:scale-[0.97] hover:brightness-105",
-                  urgentAction.btnColor
-                )}
-              >
-                {urgentAction.ctaText} <ArrowRight size={12} />
-              </button>
-            )}
-          </div>
-        </div>
+              <BtnPrimary onClick={urgentAction.ctaAction}>
+                {urgentAction.ctaText} <ArrowRight size={16} strokeWidth={1.75} />
+              </BtnPrimary>
+            )
+          }
+        />
       )}
 
       {/* Prominent Availability Pill & Scheduling CTA */}
-      <div className={cn(
-        "flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4",
-        "bg-[var(--status-success-bg)] border border-[var(--status-success-fg)]/20",
-        "rounded-2xl px-4 py-4 sm:px-5 sm:py-4 mb-6 shadow-sm animate-fade-in"
-      )}>
+      <div className="bg-[var(--surface)] border border-[var(--ink-300)] rounded-[var(--radius-card)] p-6 mb-6 shadow-[var(--shadow-card)] flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-fade-in">
         {/* Left: live dot + status copy */}
         <div className="flex items-start sm:items-center gap-3 min-w-0">
           {/* Pulsing live indicator */}
@@ -500,7 +456,7 @@ export default function CandidateDashboard() {
           return (
             <div
               key={s.key}
-              className="bg-card border border-border/80 rounded-2xl p-5 flex flex-col justify-between hover:shadow-md hover:border-primary/20 transition-all duration-300 group"
+              className="bg-[var(--surface)] border border-[var(--ink-300)] rounded-[var(--radius-card)] p-6 shadow-[var(--shadow-card)] flex flex-col justify-between hover:border-[var(--ink-500)] transition-all duration-300 group"
             >
               <div className="flex items-center justify-between mb-2">
                 <div className="w-8.5 h-8.5 rounded-xl bg-secondary flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-300">
@@ -714,12 +670,7 @@ export default function CandidateDashboard() {
                   <div
                     key={iv.id}
                     id={`interview-${iv.id}`}
-                    className={cn(
-                      "p-4 rounded-2xl border transition-all duration-300 bg-card flex flex-col gap-2.5",
-                      !iv.isScheduled && !iv.interviewAccepted
-                        ? "border-[var(--status-progress-fg)]/20 bg-[var(--status-progress-bg)] hover:border-[var(--status-progress-fg)]/35"
-                        : "border-border hover:border-primary/20 hover:shadow-sm"
-                    )}
+                    className="p-6 rounded-[var(--radius-card)] border border-[var(--ink-300)] bg-[var(--surface)] flex flex-col gap-2.5 transition-all duration-300"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">

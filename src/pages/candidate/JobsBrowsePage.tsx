@@ -756,7 +756,7 @@ ${candidateName}`;
               >
                 {viewingJobDetails.isSaved ? (
                   <>
-                    <BookmarkCheck size={16} strokeWidth={1.75} className="text-primary fill-primary" /> Saved
+                    <BookmarkCheck size={16} strokeWidth={1.75} className="text-[var(--brand-pink)] fill-[var(--brand-pink)]" /> Saved
                   </>
                 ) : (
                   <>
@@ -945,19 +945,10 @@ function JobCard({ job, profile, appliedDate, onSave, onApply, isLoading, onClic
     <article
       onClick={onClick}
       className={cn(
-        "bg-card border rounded-2xl p-5 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden flex flex-col justify-between group cursor-pointer",
-        hasApplied 
-          ? "opacity-80 border-l-4 border-l-[var(--status-success-fg)] hover:opacity-95" 
-          : job.isFeatured 
-            ? "border-l-4 border-l-[var(--status-info-fg)] border-t-border border-r-border border-b-border hover:border-[var(--status-info-fg)]/50" 
-            : "border-border hover:border-primary/45"
+        "bg-[var(--surface)] border border-[var(--ink-300)] rounded-[var(--radius-card)] p-6 shadow-[var(--shadow-card)] transition-all duration-300 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden flex flex-col justify-between group cursor-pointer",
+        hasApplied && "opacity-80 hover:opacity-95"
       )}
     >
-      {/* Top accent line if featured (only if not applied which overrides it) */}
-      {job.isFeatured && !hasApplied && (
-        <div className="absolute top-0 left-0 right-0 h-1 bg-[var(--status-info-fg)]" />
-      )}
-
       <div>
         {/* Header line: Avatar, Company & Title, Match Score and Bookmark */}
         <div className="flex justify-between items-start gap-2 mb-3">
@@ -988,13 +979,13 @@ function JobCard({ job, profile, appliedDate, onSave, onApply, isLoading, onClic
               disabled={isLoading}
               className={cn(
                 "flex-shrink-0 transition-colors p-1.5 rounded-full hover:bg-secondary/60 disabled:opacity-50",
-                job.isSaved ? "text-primary hover:text-[var(--brand-pink-hover)]" : "text-muted-foreground hover:text-foreground"
+                job.isSaved ? "text-[var(--brand-pink)] hover:text-[var(--brand-pink-hover)]" : "text-muted-foreground hover:text-foreground"
               )}
               title={job.isSaved ? "Saved" : "Save for later"}
               aria-label={job.isSaved ? "Remove bookmark" : "Save job"}
             >
               {job.isSaved ? (
-                <BookmarkCheck size={15} className="text-primary fill-primary" />
+                <BookmarkCheck size={15} className="text-[var(--brand-pink)] fill-[var(--brand-pink)]" />
               ) : (
                 <Bookmark size={15} />
               )}

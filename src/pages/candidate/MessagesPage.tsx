@@ -424,11 +424,11 @@ export default function MessagesPage() {
         </Link>
       }
     >
-      <div className="bg-card border border-border rounded-2xl overflow-hidden flex h-[calc(100vh-210px)] md:h-[calc(100vh-140px)] min-h-[520px] shadow-sm">
+      <div className="bg-[var(--surface)] border border-[var(--ink-300)] rounded-[var(--radius-card)] overflow-hidden flex h-[calc(100vh-210px)] md:h-[calc(100vh-140px)] min-h-[520px] shadow-[var(--shadow-card)]">
         
         {/* Thread sidebar */}
-        <div className={cn("w-full md:w-72 flex-shrink-0 border-r border-border flex flex-col bg-card", mobileShowChat ? "hidden md:flex" : "flex")}>
-          <div className="p-4 border-b border-border flex flex-col gap-3">
+        <div className={cn("w-full md:w-72 flex-shrink-0 border-r border-[var(--ink-300)] flex flex-col bg-[var(--surface)]", mobileShowChat ? "hidden md:flex" : "flex")}>
+          <div className="p-4 border-b border-[var(--ink-300)] flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-foreground">Messages</h3>
               <button
@@ -446,9 +446,9 @@ export default function MessagesPage() {
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
                 placeholder="Search conversations…"
-                className="w-full pl-8 pr-12 py-2 text-xs bg-secondary/50 border border-border rounded-xl focus:outline-none focus:border-primary/45 focus:ring-1 focus:ring-primary/20 transition-all text-foreground"
+                className="w-full pl-8 pr-12 py-2 text-xs bg-secondary/50 border border-[var(--ink-300)] rounded-xl focus:outline-none focus:border-primary/45 focus:ring-1 focus:ring-primary/20 transition-all text-foreground"
               />
-              <kbd className="absolute right-3 hidden sm:inline-flex items-center gap-0.5 text-[9px] font-sans font-bold bg-card border border-border/80 px-1 py-0.2 rounded text-muted-foreground shadow-xs select-none">
+              <kbd className="absolute right-3 hidden sm:inline-flex items-center gap-0.5 text-[9px] font-sans font-bold bg-[var(--surface)] border border-[var(--ink-300)] px-1 py-0.2 rounded text-muted-foreground shadow-xs select-none">
                 <span>{navigator.userAgent.toLowerCase().includes("mac") ? "⌘" : "Ctrl"}</span><span>K</span>
               </kbd>
             </div>
@@ -471,19 +471,19 @@ export default function MessagesPage() {
                     setMobileShowChat(true);
                   }}
                   className={cn(
-                    "w-full flex items-center gap-3 px-4 py-3.5 border-b border-border/40 text-left transition-all",
+                    "w-full flex items-center gap-3 px-4 py-3.5 border-b border-[var(--ink-300)]/40 text-left transition-all",
                     t.id === activeThread 
                       ? "bg-accent/50 border-l-4 border-primary" 
                       : t.unread > 0
                         ? "bg-primary/[0.04] border-l-4 border-primary/40 hover:bg-primary/[0.08]"
-                        : "bg-card hover:bg-secondary/20"
+                        : "bg-[var(--surface)] hover:bg-secondary/20"
                   )}
                 >
                   {t.with.avatarUrl ? (
                     <img 
                       src={t.with.avatarUrl} 
                       alt={t.with.name} 
-                      className="w-9 h-9 rounded-xl object-cover flex-shrink-0 border border-border/50" 
+                      className="w-9 h-9 rounded-xl object-cover flex-shrink-0 border border-[var(--ink-300)]/50" 
                     />
                   ) : (
                     <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center text-white text-xs font-bold flex-shrink-0 bg-gradient-to-br shadow-sm", t.with.color)}>
@@ -532,7 +532,7 @@ export default function MessagesPage() {
         </div>
 
         {/* Chat area */}
-        <div className={cn("flex-1 flex flex-col min-w-0 bg-secondary/5", mobileShowChat ? "flex" : "hidden md:flex")}>
+        <div className={cn("flex-1 flex flex-col min-w-0 bg-[var(--surface)]", mobileShowChat ? "flex" : "hidden md:flex")}>
           {activeThread === "thread_1" || !active ? (
             <div className="flex-1 flex items-center justify-center text-center p-6">
               <div className="max-w-sm">
@@ -548,7 +548,7 @@ export default function MessagesPage() {
           ) : (
             <>
               {/* Chat header */}
-              <div className="flex items-center gap-3 px-4 md:px-6 py-3.5 md:py-4.5 border-b border-border bg-card flex-shrink-0 shadow-sm">
+              <div className="flex items-center gap-3 px-4 md:px-6 py-3.5 md:py-4.5 border-b border-[var(--ink-300)] bg-[var(--surface)] flex-shrink-0 shadow-sm">
                 <button
                   onClick={() => setMobileShowChat(false)}
                   className="p-1.5 mr-1 text-muted-foreground hover:text-foreground hover:bg-secondary/60 rounded-lg transition-all md:hidden"
@@ -560,7 +560,7 @@ export default function MessagesPage() {
                   <img 
                     src={active.with.avatarUrl} 
                     alt={active.with.name} 
-                    className="w-9 h-9 rounded-xl object-cover flex-shrink-0 border border-border/50" 
+                    className="w-9 h-9 rounded-xl object-cover flex-shrink-0 border border-[var(--ink-300)]/50" 
                   />
                 ) : (
                   <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center text-white text-xs font-bold bg-gradient-to-br", active.with.color)}>
@@ -586,8 +586,8 @@ export default function MessagesPage() {
 
               {/* Collapsible sticky context card */}
               {active.jobId && (
-                <div className="bg-card/75 border-b border-border/80 backdrop-blur-sm sticky top-0 z-10 transition-all">
-                  <div className="px-5 py-2 flex items-center justify-between border-b border-border/30">
+                <div className="bg-[var(--surface)]/75 border-b border-[var(--ink-300)] backdrop-blur-sm sticky top-0 z-10 transition-all">
+                  <div className="px-5 py-2 flex items-center justify-between border-b border-[var(--ink-300)]/30">
                     <div className="flex items-center gap-2 min-w-0">
                       <span className="text-[9px] font-bold text-primary uppercase tracking-wider">Job Context</span>
                       <span className="text-muted-foreground text-[10px]">·</span>

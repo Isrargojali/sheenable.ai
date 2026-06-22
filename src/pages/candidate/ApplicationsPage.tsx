@@ -156,10 +156,8 @@ export default function ApplicationsPage() {
             <SectionCard 
               key={app.id}
               className={cn(
-                "transition-all duration-300 relative border",
-                isRejected 
-                  ? "opacity-75 hover:opacity-95 border-l-4 border-l-[var(--status-danger-fg)] bg-[var(--status-danger-bg)]/20"
-                  : "border-border hover:border-primary/20 hover:shadow-sm"
+                "transition-all duration-300",
+                isRejected && "opacity-75 hover:opacity-95"
               )}
             >
               <div className="flex flex-wrap gap-3 items-start justify-between mb-4 relative">
