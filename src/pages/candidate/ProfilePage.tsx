@@ -182,7 +182,7 @@ function Field({
   return (
     <div>
       <div className="flex items-center gap-2 mb-1.5">
-        <label className="block text-[11px] font-bold text-[#3D3656] uppercase tracking-wide">
+        <label className="block text-[11px] font-semibold text-[var(--ink-500)] uppercase tracking-[0.06em]">
           {label} {required && <span className="text-rose-500 font-normal normal-case">*</span>}
         </label>
         {tooltipText && (
@@ -247,7 +247,7 @@ function MiniRing({ score }: { score: number }) {
         <circle cx="24" cy="24" r={r} fill="none" stroke="var(--brand-pink)" strokeWidth="4"
           strokeDasharray={circ} strokeDashoffset={circ * (1 - score / 100)} strokeLinecap="round" />
       </svg>
-      <div className="absolute inset-0 flex items-center justify-center font-serif text-xs text-primary">{score}%</div>
+      <div className="absolute inset-0 flex items-center justify-center font-serif text-xs text-[var(--ink-500)]">{score}%</div>
     </div>
   );
 }
@@ -642,7 +642,7 @@ export default function ProfilePage() {
                 return (
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
-                      <div className="text-3xl font-bold text-primary">{completion.percentage}%</div>
+                      <div className="text-3xl font-bold text-[var(--ink-500)]">{completion.percentage}%</div>
                       <div className="flex-1">
                         <div className="h-1.5 bg-[var(--ink-100)] rounded-full overflow-hidden">
                           <div

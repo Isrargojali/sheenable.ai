@@ -493,8 +493,8 @@ export default function MessagesPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-baseline gap-1">
                       <span className={cn(
-                        "text-[12px] truncate",
-                        t.unread > 0 ? "font-bold text-foreground" : "font-medium text-foreground/80"
+                        "text-[16px] truncate",
+                        t.unread > 0 ? "font-semibold text-[var(--ink-900)]" : "font-semibold text-[var(--ink-700)]"
                       )}>
                         {t.with.name}
                       </span>
@@ -619,7 +619,7 @@ export default function MessagesPage() {
                           <Building size={12} />
                         </div>
                         <div>
-                          <div className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider">Company & Role</div>
+                          <div className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--ink-500)]">Company & Role</div>
                           <div className="font-bold text-foreground mt-0.5 text-[11px] leading-snug">{active.jobId.title}</div>
                           <div className="text-[9px] text-muted-foreground font-semibold mt-0.5">{active.with.name}</div>
                         </div>
@@ -630,7 +630,7 @@ export default function MessagesPage() {
                           <Calendar size={12} />
                         </div>
                         <div>
-                          <div className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider">Application Date</div>
+                          <div className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--ink-500)]">Application Date</div>
                           <div className="font-semibold text-foreground mt-0.5 text-[11px]">
                             {(() => {
                               if (!matchingApp?.appliedAt) return "Not applied yet";
@@ -648,7 +648,7 @@ export default function MessagesPage() {
                           <span className="w-3 h-3 flex items-center justify-center font-bold text-[9px]">✓</span>
                         </div>
                         <div>
-                          <div className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider">Application Status</div>
+                          <div className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--ink-500)]">Application Status</div>
                           <div className="mt-1 flex items-center gap-2 flex-wrap">
                             <span className={cn(
                               "rounded-full px-[10px] py-[4px] text-[12px] font-semibold uppercase tracking-[0.04em] border-none",
@@ -707,10 +707,10 @@ export default function MessagesPage() {
                         )
                       )}
                       <div className={cn(
-                        "max-w-[85%] md:max-w-[75%] px-3.5 py-2 rounded-2xl text-[12px] leading-relaxed shadow-sm transition-all",
+                        "max-w-[85%] md:max-w-[75%] px-3.5 py-2 rounded-2xl text-[14px] font-normal leading-relaxed shadow-sm transition-all",
                         msg.isMe
                           ? "bg-primary text-primary-foreground rounded-br-sm"
-                          : "bg-card text-foreground border border-border rounded-bl-sm"
+                          : "bg-card text-[var(--ink-700)] border border-border rounded-bl-sm"
                       )}>
                         <MessageContent text={msg.text} isMe={msg.isMe} />
                         <div className="flex items-center justify-end gap-1 mt-1.5">

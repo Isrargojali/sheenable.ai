@@ -520,8 +520,8 @@ function Topbar({
           </button>
         )}
         <div className="min-w-0">
-          <h1 className="font-serif text-xl text-foreground leading-tight tracking-tight truncate">{title}</h1>
-          {subtitle && <p className="text-[12px] text-muted-foreground truncate">{subtitle}</p>}
+          <h1 className="text-[28px] font-semibold text-[var(--ink-900)] leading-tight tracking-tight truncate">{title}</h1>
+          {subtitle && <p className="text-[14px] font-normal text-[var(--ink-500)] truncate mt-1">{subtitle}</p>}
         </div>
       </div>
 

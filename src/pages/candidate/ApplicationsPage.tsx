@@ -134,21 +134,21 @@ export default function ApplicationsPage() {
                   </div>
                   <div className="min-w-0">
                     <div className={cn(
-                      "text-[14px] font-bold text-foreground transition-all",
-                      isRejected && "line-through text-muted-foreground"
+                      "text-[16px] font-semibold text-[var(--ink-900)] transition-all",
+                      isRejected && "line-through text-[var(--ink-500)]"
                     )}>
                       {app.job.title}
                     </div>
-                    <div className="text-[12px] text-muted-foreground mt-0.5">{app.job.employer.companyName}</div>
-                    <div className="flex items-center gap-3 mt-2 text-[11px] text-ink-400">
+                    <div className="text-[13px] font-normal text-[var(--ink-500)] mt-0.5">{app.job.employer.companyName}</div>
+                    <div className="flex items-center gap-3 mt-2 text-[13px] font-normal text-[var(--ink-500)]">
                       {app.job.location && (
                         <span className="inline-flex items-center gap-1">
-                          <MapPin size={11} />
+                          <MapPin size={14} className="text-[var(--ink-500)]" />
                           {app.job.location}
                         </span>
                       )}
                       <span className="inline-flex items-center gap-1">
-                        <Calendar size={11} />
+                        <Calendar size={14} className="text-[var(--ink-500)]" />
                         Applied {relativeTime(app.appliedAt)}
                       </span>
                     </div>
@@ -162,29 +162,29 @@ export default function ApplicationsPage() {
                     </span>
                     
                     {/* Normalized salary */}
-                    <div className="text-[12px] font-black text-emerald-600 dark:text-emerald-400 mt-2">
+                    <div className="text-[14px] font-semibold text-[var(--ink-900)] mt-2">
                       {formattedSalaryRange}
                     </div>
 
                     {/* Explanatory AI Match Score & Tooltip or outcome context */}
                     {app.stage === "HIRED" ? (
-                      <div className="text-[10.5px] text-emerald-600 font-extrabold mt-1 inline-flex items-center gap-0.5" title="Final outcome details">
+                      <div className="text-[13px] font-normal text-[var(--ink-500)] mt-1 inline-flex items-center gap-0.5" title="Final outcome details">
                         Selected from {Math.max(app.job.applicationCount || 0, 1)} {Math.max(app.job.applicationCount || 0, 1) === 1 ? 'applicant' : 'applicants'}
                       </div>
                     ) : app.stage === "REJECTED" ? (
-                      <div className="text-[10.5px] text-rose-600 font-medium mt-1 inline-flex items-center gap-0.5" title="Final outcome details">
+                      <div className="text-[13px] font-normal text-[var(--ink-500)] mt-1 inline-flex items-center gap-0.5" title="Final outcome details">
                         Position filled from {Math.max(app.job.applicationCount || 0, 1)} {Math.max(app.job.applicationCount || 0, 1) === 1 ? 'applicant' : 'applicants'}
                       </div>
                     ) : (
                       <div 
                         className={cn(
-                          "text-xs mt-1 inline-flex items-center gap-1 cursor-help",
-                          (app.aiMatchScore || 75) >= 80 ? "text-[var(--status-success-fg)] font-semibold" : "text-[var(--ink-500)]"
+                          "text-[13px] font-medium mt-1 inline-flex items-center gap-1 cursor-help",
+                          (app.aiMatchScore || 75) >= 80 ? "text-[var(--status-success-fg)]" : "text-[var(--ink-500)]"
                         )}
                         title="Based on your skills, experience, and preferences."
                       >
-                        <Sparkles size={9} className={cn("animate-pulse", (app.aiMatchScore || 75) >= 80 ? "text-[var(--status-success-fg)]" : "text-[var(--ink-500)]")} />
-                        AI match: {app.aiMatchScore || 75}%
+                        <Sparkles size={11} className={cn((app.aiMatchScore || 75) >= 80 && "animate-pulse")} />
+                        <span>AI match: {app.aiMatchScore || 75}%</span>
                       </div>
                     )}
                   </div>

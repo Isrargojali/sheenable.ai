@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import {
-  Eye, Sparkles, FileText, Award, ArrowRight, MapPin, Briefcase, Calendar, Video, Loader2, Clock, CheckCircle2, X, User
+  Eye, Sparkles, FileText, Award, ArrowRight, MapPin, Briefcase, Calendar, Video, Loader2, Clock, CheckCircle2, X, User, Phone, Mail
 } from "lucide-react";
 import { DashboardShell, SectionCard, BtnPrimary, BtnOutline, Banner } from "@/components/layout/DashboardShell";
 import { apiProfile, apiJobs, apiApplications, apiMessages } from "@/lib/api";
@@ -309,22 +309,43 @@ export default function CandidateDashboard() {
                 <p className="text-[12px] font-semibold text-muted-foreground mt-1 leading-snug">
                   {(profileData as any)?.title || "Professional Title Not Set"}
                 </p>
-                <div className="text-[10px] text-muted-foreground mt-2 flex flex-wrap gap-x-3 gap-y-1 items-center">
-                  <span>📧 {user?.email || (profileData as any)?.userId?.email || ""}</span>
+                <div className="text-[13px] text-[var(--ink-500)] mt-2 flex flex-wrap gap-x-3 gap-y-1 items-center">
+                  <span className="flex items-center gap-1.5">
+                    <Mail size={14} className="text-[var(--ink-500)]" />
+                    <span className="text-[var(--ink-700)]">{user?.email || (profileData as any)?.userId?.email || ""}</span>
+                  </span>
                   {(profileData as any)?.userId?.phone && (
-                    <span>📞 {(profileData as any).userId.phone}</span>
+                    <span className="flex items-center gap-1.5">
+                      <Phone size={14} className="text-[var(--ink-500)]" />
+                      <span className="text-[var(--ink-700)]">{(profileData as any).userId.phone}</span>
+                    </span>
                   )}
                   {(profileData as any)?.location && (() => {
                     const loc = (profileData as any).location;
                     if (typeof loc === "string") {
-                      return <span className="inline-flex items-center gap-0.5"><MapPin size={10} /> {loc}</span>;
+                      return (
+                        <span className="inline-flex items-center gap-1">
+                          <MapPin size={14} className="text-[var(--ink-500)]" />
+                          <span className="text-[var(--ink-500)]">{loc}</span>
+                        </span>
+                      );
                     }
                     const parts = [loc.city, loc.country].filter(Boolean);
                     if (parts.length > 0) {
-                      return <span className="inline-flex items-center gap-0.5"><MapPin size={10} /> {parts.join(", ")}</span>;
+                      return (
+                        <span className="inline-flex items-center gap-1">
+                          <MapPin size={14} className="text-[var(--ink-500)]" />
+                          <span className="text-[var(--ink-500)]">{parts.join(", ")}</span>
+                        </span>
+                      );
                     }
                     if (loc.remote) {
-                      return <span className="inline-flex items-center gap-0.5"><MapPin size={10} /> Remote</span>;
+                      return (
+                        <span className="inline-flex items-center gap-1">
+                          <MapPin size={14} className="text-[var(--ink-500)]" />
+                          <span className="text-[var(--ink-500)]">Remote</span>
+                        </span>
+                      );
                     }
                     return null;
                   })()}
@@ -516,15 +537,15 @@ export default function CandidateDashboard() {
                           {initials(job.employer?.companyName || "Company")}
                         </div>
                         <div className="min-w-0">
-                          <div className="text-[13px] font-extrabold text-foreground truncate group-hover:text-primary transition-colors leading-snug">
+                          <div className="text-[16px] font-semibold text-[var(--ink-900)] truncate group-hover:text-[var(--brand-pink)] transition-colors leading-snug">
                             {job.title}
                           </div>
-                          <div className="text-[11px] text-muted-foreground mt-1 font-medium flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-1.5">
+                          <div className="text-[13px] text-[var(--ink-500)] mt-1 font-normal flex flex-wrap items-center gap-1.5">
                             <span>{job.employer?.companyName || "Company"}</span>
                             {job.location && (
                               <>
-                                <span className="hidden sm:inline text-muted-foreground/30">·</span>
-                                <span className="inline-flex items-center gap-0.5"><MapPin size={10} /> {job.location}</span>
+                                <span>·</span>
+                                <span className="inline-flex items-center gap-1"><MapPin size={14} className="text-[var(--ink-500)]" /> {job.location}</span>
                               </>
                             )}
                           </div>
@@ -540,7 +561,7 @@ export default function CandidateDashboard() {
                         <div className="text-right flex flex-col items-end mb-2">
                           <div 
                             className={cn(
-                              "text-[12px] font-semibold flex items-center gap-1",
+                              "text-[13px] font-medium flex items-center gap-1",
                               job.aiScore >= 80 ? "text-[var(--status-success-fg)]" : "text-[var(--ink-500)]"
                             )}
                             title={`${job.aiScore}% Match Score`}
@@ -550,10 +571,10 @@ export default function CandidateDashboard() {
                           </div>
                         </div>
 
-                        <div className="text-[12px] font-black text-emerald-600">
+                        <div className="text-[14px] font-semibold text-[var(--ink-900)]">
                           {formatSalary(job.salaryMin, job.salaryMax)}
                         </div>
-                        <div className="text-[10px] text-muted-foreground/60 mt-1 font-medium">{relativeTime(job.createdAt)}</div>
+                        <div className="text-[13px] text-[var(--ink-500)] mt-1 font-normal">{relativeTime(job.createdAt)}</div>
                       </div>
                     </div>
                   </Link>

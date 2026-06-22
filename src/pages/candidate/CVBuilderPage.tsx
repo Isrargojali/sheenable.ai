@@ -323,7 +323,7 @@ export default function CVBuilderPage() {
           >
             <div className="space-y-3.5">
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wide text-ink-300 mb-1.5">Background & Details</label>
+                <label className="block text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--ink-500)] mb-1.5">Background & Details</label>
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
@@ -336,7 +336,7 @@ export default function CVBuilderPage() {
               {/* Tone Selection */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-wide text-ink-300 mb-1.5">Writing Tone</label>
+                  <label className="block text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--ink-500)] mb-1.5">Writing Tone</label>
                   <select
                     value={selectedTone}
                     onChange={(e) => setSelectedTone(e.target.value)}
@@ -383,7 +383,7 @@ export default function CVBuilderPage() {
           >
             <div className="space-y-4">
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wide text-ink-300 mb-1.5">Layout Style</label>
+                <label className="block text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--ink-500)] mb-1.5">Layout Style</label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-1.5">
                   {[
                     { id: "modern", name: "Sleek Modern" },
@@ -473,7 +473,7 @@ export default function CVBuilderPage() {
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wide text-ink-300 mb-2 flex items-center justify-between">
+                <label className="block text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--ink-500)] mb-2 flex items-center justify-between">
                   <span>Accent Color</span>
                   <span className="text-[8px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-1.5 py-0.5 rounded">
                     {accentColor === "#1E293B" ? "ATS Safe Color" : "Contrast Check Passed"}

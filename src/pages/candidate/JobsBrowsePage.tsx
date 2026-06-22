@@ -350,7 +350,7 @@ ${candidateName}`;
       {/* Results header / Sort */}
       {!isLoading && !error && (
         <div className="flex items-center justify-between mb-4 px-2">
-          <span className="text-xs text-muted-foreground font-semibold">
+          <span className="text-[13px] font-normal text-[var(--ink-500)]">
             {total} {total === 1 ? 'match' : 'matches'}
           </span>
           <div className="flex items-center gap-1.5">
@@ -568,10 +568,10 @@ ${candidateName}`;
                 </div>
 
                 <div className="bg-secondary/20 border border-border/50 rounded-xl p-3 text-center col-span-2 sm:col-span-2">
-                  <div className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground flex items-center justify-center gap-1 mb-1">
-                    <DollarSign size={11} className="text-emerald-500" /> Compensation
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--ink-500)] flex items-center justify-center gap-1 mb-1">
+                    <DollarSign size={11} className="text-[var(--ink-500)]" /> Compensation
                   </div>
-                  <div className="text-xs font-black text-emerald-600 dark:text-emerald-400">
+                  <div className="text-[14px] font-semibold text-[var(--ink-900)]">
                     {formatSalary(viewingJobDetails.salaryMin, viewingJobDetails.salaryMax, viewingJobDetails.salaryCurrency || undefined)}
                   </div>
                 </div>
@@ -698,11 +698,11 @@ ${candidateName}`;
 
               {/* Job Description */}
               <div>
-                <h4 className="text-[11px] font-bold uppercase tracking-wider text-ink-300 mb-2.5">
+                <h4 className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--ink-500)] mb-2.5">
                   Job Description & Scope
                 </h4>
                 <div 
-                  className="text-xs text-foreground/90 space-y-3 font-sans max-h-[250px] overflow-y-auto pr-2 border-l-2 border-border/40 pl-3 leading-relaxed whitespace-pre-wrap"
+                  className="text-[14px] font-normal text-[var(--ink-700)] space-y-3 font-sans max-h-[250px] overflow-y-auto pr-2 border-l-2 border-border/40 pl-3 leading-relaxed whitespace-pre-wrap"
                 >
                   {viewingJobDetails.description || "No description provided by the employer."}
                 </div>
@@ -955,10 +955,10 @@ function JobCard({ job, profile, appliedDate, onSave, onApply, isLoading, onClic
               {job.employer.companyName.slice(0, 2).toUpperCase()}
             </div>
             <div className="min-w-0">
-              <div className="text-[13px] font-extrabold text-foreground truncate group-hover:text-primary transition-colors duration-200">
+              <div className="text-[16px] font-semibold text-[var(--ink-900)] truncate group-hover:text-[var(--brand-pink)] transition-colors duration-200">
                 {job.title}
               </div>
-              <div className="text-[11px] text-muted-foreground truncate mt-0.5 font-medium">
+              <div className="text-[13px] font-normal text-[var(--ink-500)] truncate mt-0.5">
                 {job.employer.companyName}
               </div>
             </div>
@@ -1004,7 +1004,7 @@ function JobCard({ job, profile, appliedDate, onSave, onApply, isLoading, onClic
           {/* AI Match percentage text only */}
           <div 
             className={cn(
-              "text-[12px] font-semibold flex items-center gap-1",
+              "text-[13px] font-medium flex items-center gap-1",
               isHighMatch ? "text-[var(--status-success-fg)]" : "text-[var(--ink-500)]"
             )}
             title={`${matchScore}% Match Score`}
@@ -1028,7 +1028,7 @@ function JobCard({ job, profile, appliedDate, onSave, onApply, isLoading, onClic
         </div>
 
         {/* Clean Job Description */}
-        <p className="text-[11.5px] text-muted-foreground leading-relaxed mb-4 min-h-[34px]">
+        <p className="text-[14px] font-normal text-[var(--ink-700)] leading-relaxed mb-4 min-h-[34px]">
           {formatJobDescription(job.description, job.skills)}
         </p>
 
@@ -1050,11 +1050,18 @@ function JobCard({ job, profile, appliedDate, onSave, onApply, isLoading, onClic
       {/* Footer block */}
       <div className="flex items-center justify-between pt-3.5 border-t border-border mt-auto">
         <div className="min-w-0">
-          <div className="text-[12px] font-black text-emerald-600 dark:text-emerald-400 truncate leading-none">
+          <div className="text-[14px] font-semibold text-[var(--ink-900)] truncate leading-none">
             {formatSalary(job.salaryMin, job.salaryMax, job.salaryCurrency || undefined)}
           </div>
-          <div className="text-[9.5px] text-ink-300 inline-flex items-center gap-1 mt-1 font-medium">
-            {job.location && <><MapPin size={9} className="text-ink-300" /> {job.location} ·</>} {relativeTime(job.createdAt)}
+          <div className="text-[13px] text-[var(--ink-500)] font-normal inline-flex items-center gap-1.5 mt-1 flex-wrap">
+            {job.location && (
+              <>
+                <MapPin size={14} className="text-[var(--ink-500)]" />
+                <span>{job.location}</span>
+                <span>·</span>
+              </>
+            )}
+            <span>{relativeTime(job.createdAt)}</span>
           </div>
         </div>
         
