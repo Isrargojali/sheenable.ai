@@ -572,11 +572,11 @@ export default function MessagesPage() {
                   <div className="flex items-center gap-1.5 mt-0.5">
                     <span className={cn(
                       "w-1.5 h-1.5 rounded-full",
-                      matchingApp?.stage?.toLowerCase() === 'rejected' ? "bg-muted-foreground" : "bg-emerald-500"
+                      matchingApp?.stage?.toLowerCase() === 'rejected' ? "bg-muted-foreground" : "bg-[var(--status-success-fg)]"
                     )} />
                     <span className={cn(
                       "text-[9px] font-bold",
-                      matchingApp?.stage?.toLowerCase() === 'rejected' ? "text-muted-foreground" : "text-emerald-600"
+                      matchingApp?.stage?.toLowerCase() === 'rejected' ? "text-muted-foreground" : "text-[var(--status-success-fg)]"
                     )}>
                       {getHeaderStatusText()}
                     </span>
@@ -626,7 +626,7 @@ export default function MessagesPage() {
                       </div>
 
                       <div className="flex items-start gap-2">
-                        <div className="p-1 bg-amber-500/10 rounded-lg text-amber-600 mt-0.5">
+                        <div className="p-1 bg-[var(--status-progress-bg)] rounded-lg text-[var(--status-progress-fg)] mt-0.5">
                           <Calendar size={12} />
                         </div>
                         <div>
@@ -644,7 +644,7 @@ export default function MessagesPage() {
                       </div>
 
                       <div className="flex items-start gap-2">
-                        <div className="p-1 bg-emerald-500/10 rounded-lg text-emerald-600 mt-0.5">
+                        <div className="p-1 bg-[var(--status-success-bg)] rounded-lg text-[var(--status-success-fg)] mt-0.5">
                           <span className="w-3 h-3 flex items-center justify-center font-bold text-[9px]">✓</span>
                         </div>
                         <div>
@@ -721,7 +721,7 @@ export default function MessagesPage() {
                             <CheckCheck 
                               size={11} 
                               className={cn(
-                                msg.isRead ? "text-sky-300" : "text-primary-foreground/40"
+                                msg.isRead ? "text-white" : "text-white/40"
                               )} 
                             />
                           )}

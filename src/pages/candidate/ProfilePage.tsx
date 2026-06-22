@@ -535,7 +535,7 @@ export default function ProfilePage() {
       actions={
         <div className="flex items-center gap-3">
           {completion.percentage < 100 && (
-            <div className="text-right text-xs font-semibold text-rose-600">
+            <div className="text-right text-xs font-semibold text-[var(--status-danger-fg)]">
               {missingFieldText}
             </div>
           )}
@@ -585,10 +585,10 @@ export default function ProfilePage() {
                           setPhoneValid(isValidPakistaniPhone(formatted));
                         }}
                         placeholder="+92 300 1234567"
-                        className={cn(inp, phoneValid && phone ? "border-emerald-300 bg-emerald-50/30" : "")}
+                        className={cn(inp, phoneValid && phone ? "border-[var(--status-success-fg)]/30 bg-[var(--status-success-bg)]" : "")}
                       />
                       {phoneValid && phone && (
-                        <Check size={18} className="flex-shrink-0 text-emerald-500" />
+                        <Check size={18} className="flex-shrink-0 text-[var(--status-success-fg)]" />
                       )}
                     </div>
                   </Field>
@@ -849,7 +849,7 @@ export default function ProfilePage() {
                     <input type="date" value={exp.to} disabled={exp.isCurrent} onChange={e => setExps(es => es.map(x => x.id === exp.id ? { ...x, to: e.target.value } : x))} className={cn(inp, exp.isCurrent && "opacity-40")} />
                   </Field>
                   <label className="flex items-center gap-2 pb-2 cursor-pointer">
-                    <input type="checkbox" checked={exp.isCurrent} onChange={e => setExps(es => es.map(x => x.id === exp.id ? { ...x, isCurrent: e.target.checked } : x))} className="accent-rose-500" />
+                    <input type="checkbox" checked={exp.isCurrent} onChange={e => setExps(es => es.map(x => x.id === exp.id ? { ...x, isCurrent: e.target.checked } : x))} className="accent-[var(--brand-pink)]" />
                     <span className="text-xs font-semibold">Current</span>
                   </label>
                 </div>

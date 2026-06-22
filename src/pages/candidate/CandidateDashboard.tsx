@@ -745,7 +745,7 @@ export default function CandidateDashboard() {
             <header className="px-6 py-4 border-b border-border flex items-center justify-between">
               <div>
                 <h3 className="font-serif text-base text-foreground font-bold flex items-center gap-1.5">
-                  <Calendar size={16} className="text-emerald-500 animate-pulse" />
+                  <Calendar size={16} className="text-[var(--status-success-fg)] animate-pulse" />
                   Set Interview Availability
                 </h3>
                 <p className="text-[11px] text-muted-foreground mt-0.5">Define your general weekly hours for recruiter meetings</p>

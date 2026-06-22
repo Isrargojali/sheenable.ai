@@ -315,7 +315,7 @@ ${candidateName}`;
           {hasActiveFilters && (
             <button 
               onClick={handleClearAll}
-              className="inline-flex items-center gap-1.5 text-[11px] font-bold text-rose-500 hover:text-rose-700 transition-colors bg-rose-500/5 px-2.5 py-1 rounded-full border border-rose-500/10 hover:bg-rose-500/10"
+              className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[var(--status-danger-fg)] hover:opacity-85 transition-opacity bg-[var(--status-danger-bg)] px-2.5 py-1 rounded-full border border-[var(--status-danger-fg)]/10"
             >
               <X size={11} /> Clear all filters
             </button>
@@ -668,7 +668,7 @@ ${candidateName}`;
                         <div className="font-extrabold text-sm flex items-center justify-center sm:justify-start gap-1">
                           {matchesWell ? (
                             <>
-                              <Sparkles size={14} className="text-emerald-500 animate-pulse" />
+                              <Sparkles size={14} className="text-[var(--status-success-fg)] animate-pulse" />
                               Excellent Candidate Compatibility Match!
                             </>
                           ) : (

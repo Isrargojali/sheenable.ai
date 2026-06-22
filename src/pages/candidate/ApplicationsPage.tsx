@@ -231,7 +231,7 @@ export default function ApplicationsPage() {
                                 setOpenMenuId(null);
                                 toast.success("Date coordination calendar opened!");
                               }}
-                              className="w-full text-left px-4 py-2 text-[11px] font-semibold text-emerald-600 hover:bg-emerald-500/5 transition-colors border-t border-border/40 mt-1 pt-2"
+                              className="w-full text-left px-4 py-2 text-[11px] font-semibold text-[var(--status-success-fg)] hover:bg-[var(--status-success-bg)] transition-colors border-t border-border/40 mt-1 pt-2"
                             >
                               Schedule start date
                             </button>
@@ -244,7 +244,7 @@ export default function ApplicationsPage() {
                                   setOpenMenuId(null);
                                   toast.success("Request for feedback submitted successfully!");
                                 }}
-                                className="w-full text-left px-4 py-2 text-[11px] font-semibold text-rose-600 hover:bg-rose-500/5 transition-colors border-t border-border/40 mt-1 pt-2"
+                                className="w-full text-left px-4 py-2 text-[11px] font-semibold text-foreground hover:bg-secondary/45 transition-colors border-t border-border/40 mt-1 pt-2"
                               >
                                 Request feedback
                               </button>
@@ -266,7 +266,7 @@ export default function ApplicationsPage() {
                                   toast.success("Application successfully withdrawn.");
                                 }
                               }}
-                              className="w-full text-left px-4 py-2 text-[11px] font-semibold text-rose-600 hover:bg-rose-500/5 transition-colors border-t border-border/40 mt-1"
+                              className="w-full text-left px-4 py-2 text-[11px] font-semibold text-[var(--status-danger-fg)] hover:bg-[var(--status-danger-bg)] transition-colors border-t border-border/40 mt-1"
                             >
                               Withdraw application
                             </button>

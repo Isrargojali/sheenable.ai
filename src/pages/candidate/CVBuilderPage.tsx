@@ -475,7 +475,7 @@ export default function CVBuilderPage() {
               <div>
                 <label className="block text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--ink-500)] mb-2 flex items-center justify-between">
                   <span>Accent Color</span>
-                  <span className="text-[8px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-1.5 py-0.5 rounded">
+                  <span className="text-[8px] font-bold text-[var(--status-success-fg)] bg-[var(--status-success-bg)] px-1.5 py-0.5 rounded">
                     {accentColor === "#1E293B" ? "ATS Safe Color" : "Contrast Check Passed"}
                   </span>
                 </label>
@@ -501,7 +501,7 @@ export default function CVBuilderPage() {
                       >
                         {accentColor === c.hex && <Check size={12} className="text-white" />}
                         {c.ats && (
-                          <span className="absolute -bottom-1 -right-1 bg-emerald-500 text-white rounded-full p-0.5" title="ATS Safe Color">
+                          <span className="absolute -bottom-1 -right-1 bg-[var(--status-success-fg)] text-white rounded-full p-0.5" title="ATS Safe Color">
                             <Check size={6} className="stroke-[4]" />
                           </span>
                         )}
