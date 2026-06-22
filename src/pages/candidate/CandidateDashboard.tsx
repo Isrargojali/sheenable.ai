@@ -424,7 +424,7 @@ export default function CandidateDashboard() {
       )}
 
       {/* Prominent Availability Pill & Scheduling CTA */}
-      <div className="bg-[var(--surface)] border border-[var(--ink-300)] rounded-[var(--radius-card)] p-6 mb-6 shadow-[var(--shadow-card)] flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-fade-in">
+      <div className="bg-[var(--brand-pink-soft)] border border-[var(--ink-300)] rounded-[var(--radius-card)] p-6 mb-6 shadow-[var(--shadow-card)] flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-fade-in">
         {/* Left: live dot + status copy */}
         <div className="flex items-start sm:items-center gap-3 min-w-0">
           {/* Pulsing live indicator */}

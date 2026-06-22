@@ -993,7 +993,7 @@ function JobCard({ job, profile, appliedDate, onSave, onApply, isLoading, onClic
           {/* Applied Status Badge in header */}
           {hasApplied && (
             <span 
-              className="bg-[var(--status-info-bg)] text-[var(--status-info-fg)] rounded-full px-[10px] py-[4px] text-[12px] font-semibold uppercase tracking-[0.04em] border-none"
+              className="bg-[var(--status-success-bg)] text-[var(--status-success-fg)] rounded-full px-[10px] py-[4px] text-[12px] font-semibold uppercase tracking-[0.04em] border-none"
               title={appliedDate ? `Applied on ${appliedDate}` : "Applied"}
               onClick={(e) => e.stopPropagation()}
             >

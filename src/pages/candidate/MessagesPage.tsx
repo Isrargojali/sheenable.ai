@@ -471,9 +471,9 @@ export default function MessagesPage() {
                     setMobileShowChat(true);
                   }}
                   className={cn(
-                    "w-full flex items-center gap-3 px-4 py-3.5 border-b border-[var(--ink-300)]/40 text-left transition-all",
+                    "w-full flex items-center gap-3 px-4 py-3.5 border-b border-[var(--ink-300)]/40 text-left transition-all border-l-[3px] border-transparent",
                     t.id === activeThread 
-                      ? "bg-accent/50" 
+                      ? "bg-accent/50 border-l-[var(--brand-pink)] rounded-l-none" 
                       : t.unread > 0
                         ? "bg-primary/[0.04] hover:bg-primary/[0.08]"
                         : "bg-[var(--surface)] hover:bg-secondary/20"
@@ -589,7 +589,7 @@ export default function MessagesPage() {
                 <div className="bg-[var(--surface)]/75 border-b border-[var(--ink-300)] backdrop-blur-sm sticky top-0 z-10 transition-all">
                   <div className="px-5 py-2 flex items-center justify-between border-b border-[var(--ink-300)]/30">
                     <div className="flex items-center gap-2 min-w-0">
-                      <span className="text-[9px] font-bold text-primary uppercase tracking-wider">Job Context</span>
+                      <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--ink-500)]">Job Context</span>
                       <span className="text-muted-foreground text-[10px]">·</span>
                       <span className="text-[10px] font-bold text-foreground truncate">
                         Re: {active.jobId.title} at {active.with.name}
@@ -707,10 +707,10 @@ export default function MessagesPage() {
                         )
                       )}
                       <div className={cn(
-                        "max-w-[85%] md:max-w-[75%] px-3.5 py-2 rounded-2xl text-[14px] font-normal leading-relaxed shadow-sm transition-all",
+                        "max-w-[85%] md:max-w-[75%] px-3.5 py-2 rounded-xl text-[14px] font-normal leading-relaxed shadow-sm transition-all",
                         msg.isMe
-                          ? "bg-primary text-primary-foreground rounded-br-sm"
-                          : "bg-card text-[var(--ink-700)] border border-border rounded-bl-sm"
+                          ? "bg-[var(--brand-pink)] text-white"
+                          : "bg-[var(--ink-100)] text-[var(--ink-900)] border border-border"
                       )}>
                         <MessageContent text={msg.text} isMe={msg.isMe} />
                         <div className="flex items-center justify-end gap-1 mt-1.5">

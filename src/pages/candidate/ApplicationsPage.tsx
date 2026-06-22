@@ -289,8 +289,13 @@ export default function ApplicationsPage() {
 
               {/* Contextual Banner for Interview Invitation */}
               {app.stage === "INTERVIEW" && (
-                <div className="mt-4 pt-3 border-t border-border flex flex-wrap gap-2.5 justify-between items-center bg-[var(--status-progress-bg)]/80 backdrop-blur-md -mx-4 -mb-4 px-4 py-3 rounded-b-2xl">
-                  <div className="text-[11px] text-[var(--status-progress-fg)] font-bold">
+                <div className={cn(
+                  "mt-4 pt-3 border-t border-border flex flex-wrap gap-2.5 justify-between items-center -mx-4 -mb-4 px-4 py-3 rounded-b-2xl",
+                  app.interviewAccepted
+                    ? "bg-[var(--status-info-bg)] text-[var(--status-info-fg)]"
+                    : "bg-[var(--status-progress-bg)] text-[var(--status-progress-fg)]"
+                )}>
+                  <div className="text-[11px] font-bold">
                     {app.interviewAccepted
                       ? "✓ You have accepted the interview invitation! The employer will schedule the interview soon."
                       : "You have been selected for an interview! Please accept the invitation to proceed."}
