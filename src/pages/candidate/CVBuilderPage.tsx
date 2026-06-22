@@ -656,8 +656,7 @@ export default function CVBuilderPage() {
                       {activeCv.skills.map((skill, index) => (
                         <span
                           key={index}
-                          className="text-[10px] px-2.5 py-1 rounded-full font-semibold inline-flex items-center gap-1 group/skill transition-all animate-fade-in border"
-                          style={{ backgroundColor: `${accentColor}12`, color: accentColor, borderColor: `${accentColor}30` }}
+                          className="bg-[var(--ink-100)] text-[var(--ink-700)] rounded-full px-[10px] py-[4px] text-[12px] font-medium border-none normal-case inline-flex items-center gap-1 group/skill transition-all animate-fade-in hover:bg-[var(--ink-300)]/50"
                         >
                           {skill}
                           <button
@@ -666,7 +665,7 @@ export default function CVBuilderPage() {
                               const newSkills = activeCv.skills?.filter((_, i) => i !== index);
                               setActiveCv({ ...activeCv, skills: newSkills });
                             }}
-                            className="text-muted-foreground hover:text-red-500 font-bold ml-0.5 transition-colors opacity-60 group-hover/skill:opacity-100 print:hidden"
+                            className="text-[var(--ink-500)] hover:text-red-500 font-bold ml-0.5 transition-colors opacity-65 group-hover/skill:opacity-100 print:hidden"
                           >
                             ×
                           </button>

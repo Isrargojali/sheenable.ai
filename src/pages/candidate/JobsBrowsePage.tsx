@@ -720,12 +720,7 @@ ${candidateName}`;
                       return (
                         <span 
                           key={s} 
-                          className={cn(
-                            "text-[10px] px-3 py-1 rounded-full font-bold transition-all border",
-                            candidateHasIt 
-                              ? "bg-[var(--status-success-bg)] border-[var(--status-success-fg)]/20 text-[var(--status-success-fg)]" 
-                              : "bg-secondary border-border/40 text-ink-500"
-                          )}
+                          className="bg-[var(--ink-100)] text-[var(--ink-700)] rounded-full px-[10px] py-[4px] text-[12px] font-medium border-none normal-case"
                           title={candidateHasIt ? "Skill present on your profile ✓" : undefined}
                         >
                           {s} {candidateHasIt && "✓"}
@@ -998,42 +993,36 @@ function JobCard({ job, profile, appliedDate, onSave, onApply, isLoading, onClic
           {/* Applied Status Badge in header */}
           {hasApplied && (
             <span 
-              className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-[var(--status-success-bg)] text-[var(--status-success-fg)] inline-flex items-center gap-0.5 border border-[var(--status-success-fg)]/20 shadow-sm"
+              className="bg-[var(--status-info-bg)] text-[var(--status-info-fg)] rounded-full px-[10px] py-[4px] text-[12px] font-semibold uppercase tracking-[0.04em] border-none"
               title={appliedDate ? `Applied on ${appliedDate}` : "Applied"}
               onClick={(e) => e.stopPropagation()}
             >
-              ✓ Applied {appliedDate}
+              ✓ Applied {appliedDate ? appliedDate : ""}
             </span>
           )}
 
-          {/* AI Match percentage pill */}
-          {isHighMatch ? (
-            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-[var(--status-success-bg)] text-[var(--status-success-fg)] inline-flex items-center gap-0.5 border border-[var(--status-success-fg)]/20">
-              <Sparkles size={9} className="text-[var(--status-success-fg)] animate-pulse" />
-              {matchScore}% match
-            </span>
-          ) : (
-            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-secondary/80 border border-border/40" title={`${matchScore}% Match Score`}>
-              <span className="text-[9px] font-bold text-muted-foreground">{matchScore}% match</span>
-              <div className="w-8 bg-border rounded-full h-1 overflow-hidden">
-                <div 
-                  className="h-full bg-muted-foreground/60 rounded-full" 
-                  style={{ width: `${matchScore}%` }}
-                />
-              </div>
-            </div>
-          )}
+          {/* AI Match percentage text only */}
+          <div 
+            className={cn(
+              "text-[12px] font-semibold flex items-center gap-1",
+              isHighMatch ? "text-[var(--status-success-fg)]" : "text-[var(--ink-500)]"
+            )}
+            title={`${matchScore}% Match Score`}
+          >
+            <Sparkles size={11} className={cn(isHighMatch && "animate-pulse")} />
+            <span>{matchScore}% match</span>
+          </div>
 
           {job.isFeatured && (
-            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-[var(--status-info-bg)] text-[var(--status-info-fg)] inline-flex items-center gap-1 border border-[var(--status-info-fg)]/20 animate-pulse">
-              ★ FEATURED
+            <span className="bg-[var(--ink-100)] text-[var(--ink-700)] rounded-full px-[10px] py-[4px] text-[12px] font-medium border-none normal-case">
+              ★ featured
             </span>
           )}
           
-          <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-[var(--status-neutral-bg)] text-[var(--status-neutral-fg)] capitalize">
+          <span className="bg-[var(--ink-100)] text-[var(--ink-700)] rounded-full px-[10px] py-[4px] text-[12px] font-medium border-none normal-case">
             {job.type.toLowerCase().replace("time", "-time")}
           </span>
-          <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-[var(--status-neutral-bg)] text-[var(--status-neutral-fg)] capitalize">
+          <span className="bg-[var(--ink-100)] text-[var(--ink-700)] rounded-full px-[10px] py-[4px] text-[12px] font-medium border-none normal-case">
             {job.mode.toLowerCase()}
           </span>
         </div>
@@ -1046,12 +1035,12 @@ function JobCard({ job, profile, appliedDate, onSave, onApply, isLoading, onClic
         {/* Skills Required */}
         <div className="flex flex-wrap gap-1 mb-4">
           {job.skills.slice(0, 3).map((s: string) => (
-            <span key={s} className="text-[9px] px-2.5 py-0.5 rounded-full bg-secondary text-ink-500 font-bold transition-all hover:bg-secondary/80">
+            <span key={s} className="bg-[var(--ink-100)] text-[var(--ink-700)] rounded-full px-[10px] py-[4px] text-[12px] font-medium border-none normal-case">
               {s}
             </span>
           ))}
           {job.skills.length > 3 && (
-            <span className="text-[9px] px-2 py-0.5 rounded-full bg-secondary text-ink-300 font-bold" title={job.skills.slice(3).join(", ")}>
+            <span className="bg-[var(--ink-100)] text-[var(--ink-700)] rounded-full px-[10px] py-[4px] text-[12px] font-medium border-none normal-case" title={job.skills.slice(3).join(", ")}>
               +{job.skills.length - 3}
             </span>
           )}

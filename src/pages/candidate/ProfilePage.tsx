@@ -5,7 +5,7 @@ import { X, Plus, Check, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { apiProfile, apiUpload } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
-import { DashboardShell, SectionCard, BtnPrimary, BtnOutline } from "@/components/layout/DashboardShell";
+import { DashboardShell, SectionCard, BtnPrimary, BtnOutline, Stepper } from "@/components/layout/DashboardShell";
 import { maskCnic, formatCnicInput } from "@/lib/formatCnic";
 import { formatPhone, isValidPakistaniPhone } from "@/lib/formatPhone";
 import { calculateCompletion, getPrimaryMissingField } from "@/lib/formCompletion";
@@ -136,65 +136,28 @@ function StepIndicator({ current, total, onChange }: { current: number; total: n
       {/* Completion percentage bar */}
       <div className="mb-4">
         <div className="flex items-center justify-between mb-2">
-          <div className="text-xs font-semibold text-foreground">
+          <div className="text-xs font-semibold text-[var(--ink-900)]">
             Step {current + 1} of {total}
           </div>
-          <div className="text-xs font-semibold text-primary">
+          <div className="text-xs font-medium text-[var(--ink-500)]">
             {Math.round(percentage)}% complete
           </div>
         </div>
-        <div className="h-1.5 bg-[var(--brand-pink-soft)] rounded-full overflow-hidden">
+        <div className="h-[6px] bg-[var(--ink-100)] rounded-full overflow-hidden">
           <div
-            className="h-full bg-primary rounded-full transition-all duration-300"
+            className="h-full bg-[var(--brand-pink)] rounded-full transition-all duration-300"
             style={{ width: `${percentage}%` }}
           />
         </div>
       </div>
 
       {/* Stepper steps */}
-      <div className="flex items-center gap-0">
-        {STEPS.map((s, i) => (
-          <div key={s} className="flex items-center flex-1">
-            <button
-              onClick={() => onChange(i)}
-              className="flex flex-col items-center gap-1 flex-shrink-0 group"
-              disabled={i > current + 1}
-            >
-              <div
-                className={cn(
-                  "w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold transition-all relative",
-                  i < current
-                    ? "bg-[var(--status-success-fg)] text-white shadow-sm"
-                    : i === current
-                      ? "bg-primary text-white ring-4 ring-primary/20 shadow-sm"
-                      : "bg-secondary text-ink-300 group-hover:bg-secondary/80 group-disabled:cursor-not-allowed"
-                )}
-              >
-                {i < current ? (
-                  <Check size={16} />
-                ) : (
-                  i + 1
-                )}
-              </div>
-              <span
-                className={cn(
-                  "text-[10px] font-semibold whitespace-nowrap transition-colors",
-                  i === current
-                    ? "text-primary"
-                    : i < current
-                      ? "text-[var(--status-success-fg)]"
-                      : "text-ink-300 group-disabled:opacity-50"
-                )}
-              >
-                {s}
-              </span>
-            </button>
-            {i < STEPS.length - 1 && (
-              <div className={cn("flex-1 h-0.5 mx-2 mb-4 transition-colors", i < current ? "bg-[var(--status-success-fg)]" : "bg-secondary")} />
-            )}
-          </div>
-        ))}
-      </div>
+      <Stepper
+        steps={STEPS}
+        currentStep={current}
+        onChange={onChange}
+        disabledStepCheck={(i) => i > current + 1}
+      />
     </div>
   );
 }
@@ -259,8 +222,11 @@ function SkillInput({ chips, onAdd, onRemove }: { chips: string[]; onAdd: (v: st
     <div onClick={e => (e.currentTarget.querySelector("input") as HTMLInputElement)?.focus()}
       className="min-h-[44px] w-full px-3 py-2 border border-border rounded-xl cursor-text flex flex-wrap gap-1.5 items-center focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10 transition-all">
       {chips.map((c, i) => (
-        <span key={c} className="flex items-center gap-1 bg-[var(--brand-pink-soft)] border border-primary/20 text-primary text-[11px] font-semibold px-2.5 py-0.5 rounded-full">
-          {c}<button type="button" onClick={() => onRemove(i)}><X size={10} /></button>
+        <span key={c} className="flex items-center gap-1 bg-[var(--ink-100)] text-[var(--ink-700)] rounded-full px-[10px] py-[4px] text-[12px] font-medium border-none normal-case hover:bg-[var(--ink-300)]/50 transition-colors">
+          {c}
+          <button type="button" onClick={(e) => { e.stopPropagation(); onRemove(i); }} className="text-[var(--ink-500)] hover:text-[var(--ink-900)] transition-colors">
+            <X size={10} />
+          </button>
         </span>
       ))}
       <input value={val} onChange={e => setVal(e.target.value)}
@@ -678,9 +644,9 @@ export default function ProfilePage() {
                     <div className="flex items-center gap-3">
                       <div className="text-3xl font-bold text-primary">{completion.percentage}%</div>
                       <div className="flex-1">
-                        <div className="h-2 bg-[var(--brand-pink-soft)] rounded-full overflow-hidden">
+                        <div className="h-1.5 bg-[var(--ink-100)] rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-primary rounded-full transition-all duration-500"
+                            className="h-full bg-[var(--brand-pink)] rounded-full transition-all duration-500"
                             style={{ width: `${completion.percentage}%` }}
                           />
                         </div>
@@ -919,8 +885,13 @@ export default function ProfilePage() {
                 <div className="flex gap-2 flex-wrap">
                   {[["REMOTE", "Remote"], ["HYBRID", "Hybrid"], ["ONSITE", "On-site"]].map(([v, l]) => (
                     <button key={v} onClick={() => setPrefMode(v)}
-                      className={cn("flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold border transition-all",
-                        prefMode === v ? "bg-primary border-primary text-white" : "bg-secondary border-border text-ink-500 hover:border-primary/45")}>
+                      className={cn(
+                        "flex items-center gap-1.5 px-[10px] py-[4px] rounded-full text-[12px] transition-all border-none normal-case",
+                        prefMode === v 
+                          ? "bg-[var(--brand-pink)] text-white font-semibold" 
+                          : "bg-[var(--ink-100)] text-[var(--ink-700)] font-medium hover:bg-[var(--ink-300)]/50"
+                      )}
+                    >
                       {l}
                     </button>
                   ))}
@@ -935,7 +906,7 @@ export default function ProfilePage() {
               <div className="flex flex-wrap gap-1.5 mt-3">
                 {["Urdu", "Punjabi", "Sindhi", "Pashto"].filter(l => !langs.includes(l)).map(l => (
                   <button key={l} onClick={() => setLangs(ls => [...ls, l])}
-                    className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold border">
+                    className="flex items-center gap-1 bg-[var(--ink-100)] text-[var(--ink-700)] rounded-full px-[10px] py-[4px] text-[12px] font-medium border-none normal-case hover:bg-[var(--ink-300)]/50 transition-colors">
                     <Plus size={9} /> {l}
                   </button>
                 ))}

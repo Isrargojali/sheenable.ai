@@ -6,6 +6,7 @@ import {
   LayoutDashboard, Briefcase, FileText, User, MessageSquare, FilePlus,
   Search, Users, ShieldCheck, ScrollText, ShieldAlert, UserCog, Activity,
   Bell, LogOut, Menu, X, Heart, Settings, Loader2, Moon, Sun, ArrowUpRight,
+  Check,
   type LucideIcon,
 } from "lucide-react";
 import logo from "../../assets/sheEnableAI-removebg-preview.png";
@@ -917,6 +918,84 @@ export function Banner({
         </div>
       </div>
       {action && <div className="flex-shrink-0">{action}</div>}
+    </div>
+  );
+}
+
+export function Stepper({
+  steps,
+  currentStep,
+  isRejected = false,
+  onChange,
+  disabledStepCheck,
+}: {
+  steps: readonly string[] | string[];
+  currentStep: number;
+  isRejected?: boolean;
+  onChange?: (step: number) => void;
+  disabledStepCheck?: (step: number) => boolean;
+}) {
+  return (
+    <div className="flex items-center w-full overflow-x-auto pb-4 pt-2 scrollbar-thin">
+      {steps.map((label, i) => {
+        const isCompleted = !isRejected && i < currentStep;
+        const isCurrent = !isRejected && i === currentStep;
+        const isUpcoming = isRejected || i > currentStep;
+        const isDisabled = disabledStepCheck ? disabledStepCheck(i) : false;
+
+        return (
+          <div key={label} className="flex items-center flex-1 last:flex-none">
+            <button
+              type="button"
+              disabled={isDisabled || !onChange}
+              onClick={() => onChange?.(i)}
+              className={cn(
+                "flex flex-col items-center focus:outline-none transition-all flex-shrink-0 group",
+                onChange && !isDisabled ? "cursor-pointer hover:scale-105" : "cursor-default disabled:opacity-50"
+              )}
+            >
+              {/* Circle */}
+              <div
+                className={cn(
+                  "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-200",
+                  isCompleted && "bg-[var(--status-success-fg)] text-white shadow-sm",
+                  isCurrent && "bg-[var(--brand-pink)] text-white shadow-sm",
+                  isUpcoming && "border border-[var(--ink-300)] bg-[var(--surface)] text-[var(--ink-500)]"
+                )}
+              >
+                {isCompleted ? (
+                  <Check className="w-4 h-4 stroke-[2.5px] text-white" />
+                ) : (
+                  <span>{i + 1}</span>
+                )}
+              </div>
+              
+              {/* Label */}
+              <span
+                className={cn(
+                  "text-[10px] mt-2 whitespace-nowrap transition-all duration-200 capitalize",
+                  isRejected && "line-through text-[var(--ink-500)]",
+                  !isRejected && isCompleted && "text-[var(--ink-900)] font-medium",
+                  !isRejected && isCurrent && "text-[var(--brand-pink)] font-semibold",
+                  !isRejected && isUpcoming && "text-[var(--ink-500)] font-medium"
+                )}
+              >
+                {label.toLowerCase()}
+              </span>
+            </button>
+
+            {/* Connector Line */}
+            {i < steps.length - 1 && (
+              <div
+                className={cn(
+                  "flex-1 h-0.5 mx-2 mb-6 min-w-[20px] transition-all duration-200",
+                  !isRejected && i < currentStep ? "bg-[var(--status-success-fg)]" : "bg-[var(--ink-300)]"
+                )}
+              />
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }

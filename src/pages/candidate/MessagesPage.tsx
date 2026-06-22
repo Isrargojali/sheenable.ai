@@ -651,14 +651,14 @@ export default function MessagesPage() {
                           <div className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider">Application Status</div>
                           <div className="mt-1 flex items-center gap-2 flex-wrap">
                             <span className={cn(
-                              "text-[9px] font-extrabold px-2 py-0.5 rounded-full border shadow-sm capitalize",
-                              matchingApp?.stage?.toLowerCase() === 'hired' && "bg-[var(--status-success-bg)] text-[var(--status-success-fg)] border-[var(--status-success-fg)]/20",
-                              matchingApp?.stage?.toLowerCase() === 'screening' && "bg-[var(--status-progress-bg)] text-[var(--status-progress-fg)] border-[var(--status-progress-fg)]/20",
-                              matchingApp?.stage?.toLowerCase() === 'interview' && "bg-[var(--status-progress-bg)] text-[var(--status-progress-fg)] border-[var(--status-progress-fg)]/20",
-                              matchingApp?.stage?.toLowerCase() === 'assessment' && "bg-[var(--status-progress-bg)] text-[var(--status-progress-fg)] border-[var(--status-progress-fg)]/20",
-                              matchingApp?.stage?.toLowerCase() === 'rejected' && "bg-[var(--status-danger-bg)] text-[var(--status-danger-fg)] border-[var(--status-danger-fg)]/20",
-                              matchingApp?.stage?.toLowerCase() === 'offer' && "bg-[var(--status-success-bg)] text-[var(--status-success-fg)] border-[var(--status-success-fg)]/20",
-                              (!matchingApp || matchingApp?.stage?.toLowerCase() === 'applied') && "bg-[var(--status-info-bg)] text-[var(--status-info-fg)] border-[var(--status-info-fg)]/20"
+                              "rounded-full px-[10px] py-[4px] text-[12px] font-semibold uppercase tracking-[0.04em] border-none",
+                              matchingApp?.stage?.toLowerCase() === 'hired' && "bg-[var(--status-success-bg)] text-[var(--status-success-fg)]",
+                              matchingApp?.stage?.toLowerCase() === 'screening' && "bg-[var(--status-info-bg)] text-[var(--status-info-fg)]",
+                              matchingApp?.stage?.toLowerCase() === 'interview' && "bg-[var(--status-progress-bg)] text-[var(--status-progress-fg)]",
+                              matchingApp?.stage?.toLowerCase() === 'assessment' && "bg-[var(--status-progress-bg)] text-[var(--status-progress-fg)]",
+                              matchingApp?.stage?.toLowerCase() === 'rejected' && "bg-[var(--status-danger-bg)] text-[var(--status-danger-fg)]",
+                              matchingApp?.stage?.toLowerCase() === 'offer' && "bg-[var(--status-neutral-bg)] text-[var(--status-neutral-fg)]",
+                              (!matchingApp || matchingApp?.stage?.toLowerCase() === 'applied') && "bg-[var(--status-info-bg)] text-[var(--status-info-fg)]"
                             )}>
                               {matchingApp?.stage || "Chat Open"}
                             </span>

@@ -361,13 +361,13 @@ export default function CandidateDashboard() {
               {/* Skills Tags */}
               {Array.isArray((profileData as any)?.skills) && (profileData as any).skills.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 items-center">
-                  <span className="text-[10px] font-bold text-ink-300 uppercase tracking-wider mr-1">Skills:</span>
+                  <span className="text-[10px] font-bold text-[var(--ink-300)] uppercase tracking-wider mr-1">Skills:</span>
                   {(profileData as any).skills.map((skill: any, idx: number) => {
                     const skillName = typeof skill === 'object' && skill !== null && 'name' in skill ? skill.name : String(skill);
                     return (
                       <span
                         key={idx}
-                        className="text-[9px] px-2 py-0.5 rounded-full font-bold bg-secondary/50 text-muted-foreground border border-border/60 hover:border-primary/20 hover:text-primary transition-colors cursor-default"
+                        className="bg-[var(--ink-100)] text-[var(--ink-700)] rounded-full px-[10px] py-[4px] text-[12px] font-medium border-none normal-case"
                       >
                         {skillName}
                       </span>
@@ -530,23 +530,23 @@ export default function CandidateDashboard() {
                           </div>
                           <div className="flex flex-wrap gap-1.5 mt-3">
                             {job.skills.slice(0, 3).map(s => (
-                              <span key={s} className="text-[9px] px-2.5 py-0.5 rounded-full bg-accent/65 text-accent-foreground font-bold tracking-wide uppercase">{s}</span>
+                              <span key={s} className="bg-[var(--ink-100)] text-[var(--ink-700)] rounded-full px-[10px] py-[4px] text-[12px] font-medium border-none normal-case">{s}</span>
                             ))}
                           </div>
                         </div>
                       </div>
                       <div className="text-right flex-shrink-0 flex flex-col items-end">
-                        {/* Match % shows real number with animated fill bar */}
+                        {/* Match % shows real number with unified styling */}
                         <div className="text-right flex flex-col items-end mb-2">
-                          <div className="text-[10px] font-black text-[var(--status-success-fg)] inline-flex items-center gap-1">
-                            <Sparkles size={10} className="text-[var(--status-success-fg)] animate-pulse" />
-                            {job.aiScore}% Match
-                          </div>
-                          <div className="w-20 bg-[var(--status-success-bg)] rounded-full h-1.5 mt-1 overflow-hidden relative border border-[var(--status-success-fg)]/10">
-                            <div
-                              className="h-full bg-[var(--status-success-fg)] rounded-full origin-left transition-all duration-1000 ease-out"
-                              style={{ width: `${job.aiScore}%` }}
-                            />
+                          <div 
+                            className={cn(
+                              "text-[12px] font-semibold flex items-center gap-1",
+                              job.aiScore >= 80 ? "text-[var(--status-success-fg)]" : "text-[var(--ink-500)]"
+                            )}
+                            title={`${job.aiScore}% Match Score`}
+                          >
+                            <Sparkles size={11} className={cn(job.aiScore >= 80 && "animate-pulse")} />
+                            <span>{job.aiScore}% match</span>
                           </div>
                         </div>
 
@@ -678,7 +678,7 @@ export default function CandidateDashboard() {
                         <div className="text-[11px] text-muted-foreground mt-0.5 font-medium">{iv.company}</div>
                       </div>
                       <span className={cn(
-                        "text-[8px] font-black px-2.5 py-0.5 rounded-full whitespace-nowrap uppercase tracking-wider",
+                        "rounded-full px-[10px] py-[4px] text-[12px] font-semibold uppercase tracking-[0.04em] border-none whitespace-nowrap",
                         iv.status === "CONFIRMED" || iv.status === "ACCEPTED" 
                           ? "bg-[var(--status-success-bg)] text-[var(--status-success-fg)]" 
                           : "bg-[var(--status-progress-bg)] text-[var(--status-progress-fg)]"

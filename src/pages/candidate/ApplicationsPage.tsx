@@ -6,7 +6,7 @@ import {
   CheckCircle2, MapPin, Calendar, Loader2, MoreHorizontal, 
   ArrowRight, Sparkles, HelpCircle, AlertCircle, XCircle 
 } from "lucide-react";
-import { DashboardShell, SectionCard, BtnPrimary } from "@/components/layout/DashboardShell";
+import { DashboardShell, SectionCard, BtnPrimary, Stepper } from "@/components/layout/DashboardShell";
 import { apiApplications } from "@/lib/api";
 import { formatSalary, relativeTime, cn, initials, getCompanyGradient } from "@/lib/utils";
 import { toast } from "sonner";
@@ -15,51 +15,13 @@ const STAGES = ["APPLIED", "SCREENING", "INTERVIEW", "OFFER", "HIRED"] as const;
 
 const FILTER_STAGES = ["ALL", "APPLIED", "SCREENING", "INTERVIEW", "OFFER", "HIRED", "REJECTED"] as const;
 
-const FILTER_STYLES: Record<string, { label: string; activeClass: string; badgeClass: string }> = {
-  ALL: { 
-    label: "All", 
-    activeClass: "bg-ink-900 text-white border-ink-900 shadow-sm",
-    badgeClass: "bg-white/20 text-white"
-  },
-  APPLIED: { 
-    label: "Applied", 
-    activeClass: "bg-ink-900 text-white border-ink-900 shadow-sm",
-    badgeClass: "bg-white/20 text-white"
-  },
-  SCREENING: { 
-    label: "Screening", 
-    activeClass: "bg-ink-900 text-white border-ink-900 shadow-sm",
-    badgeClass: "bg-white/20 text-white"
-  },
-  INTERVIEW: { 
-    label: "Interview", 
-    activeClass: "bg-ink-900 text-white border-ink-900 shadow-sm",
-    badgeClass: "bg-white/20 text-white"
-  },
-  OFFER: { 
-    label: "Offer", 
-    activeClass: "bg-ink-900 text-white border-ink-900 shadow-sm",
-    badgeClass: "bg-white/20 text-white"
-  },
-  HIRED: { 
-    label: "Hired", 
-    activeClass: "bg-ink-900 text-white border-ink-900 shadow-sm",
-    badgeClass: "bg-white/20 text-white"
-  },
-  REJECTED: { 
-    label: "Rejected", 
-    activeClass: "bg-ink-900 text-white border-ink-900 shadow-sm",
-    badgeClass: "bg-white/20 text-white"
-  }
-};
-
 const STAGE_COLOR: Record<string, string> = {
-  APPLIED:   "bg-[var(--status-info-bg)] text-[var(--status-info-fg)] border border-[var(--status-info-fg)]/10",
-  SCREENING: "bg-[var(--status-progress-bg)] text-[var(--status-progress-fg)] border border-[var(--status-progress-fg)]/10",
-  INTERVIEW: "bg-[var(--status-progress-bg)] text-[var(--status-progress-fg)] border border-[var(--status-progress-fg)]/10",
-  OFFER:     "bg-[var(--status-success-bg)] text-[var(--status-success-fg)] border border-[var(--status-success-fg)]/10",
-  HIRED:     "bg-[var(--status-success-bg)] text-[var(--status-success-fg)] border border-[var(--status-success-fg)]/10",
-  REJECTED:  "bg-[var(--status-danger-bg)] text-[var(--status-danger-fg)] border border-[var(--status-danger-fg)]/10",
+  APPLIED:   "bg-[var(--status-info-bg)] text-[var(--status-info-fg)] border-none rounded-full px-[10px] py-[4px] text-[12px] font-semibold uppercase tracking-[0.04em]",
+  SCREENING: "bg-[var(--status-info-bg)] text-[var(--status-info-fg)] border-none rounded-full px-[10px] py-[4px] text-[12px] font-semibold uppercase tracking-[0.04em]",
+  INTERVIEW: "bg-[var(--status-progress-bg)] text-[var(--status-progress-fg)] border-none rounded-full px-[10px] py-[4px] text-[12px] font-semibold uppercase tracking-[0.04em]",
+  OFFER:     "bg-[var(--status-neutral-bg)] text-[var(--status-neutral-fg)] border-none rounded-full px-[10px] py-[4px] text-[12px] font-semibold uppercase tracking-[0.04em]",
+  HIRED:     "bg-[var(--status-success-bg)] text-[var(--status-success-fg)] border-none rounded-full px-[10px] py-[4px] text-[12px] font-semibold uppercase tracking-[0.04em]",
+  REJECTED:  "bg-[var(--status-danger-bg)] text-[var(--status-danger-fg)] border-none rounded-full px-[10px] py-[4px] text-[12px] font-semibold uppercase tracking-[0.04em]",
 };
 
 
@@ -118,7 +80,6 @@ export default function ApplicationsPage() {
       {/* Filter Tabs Status Dashboard */}
       <div className="flex flex-wrap gap-2 mb-6">
         {FILTER_STAGES.map(s => {
-          const style = FILTER_STYLES[s];
           const count = getStageCount(s);
           const active = filter === s;
           return (
@@ -126,16 +87,18 @@ export default function ApplicationsPage() {
               key={s} 
               onClick={() => setFilter(s)}
               className={cn(
-                "px-3.5 py-1.5 rounded-full text-[11px] font-bold transition-all duration-200 border flex items-center gap-1.5 active:scale-95",
+                "px-[14px] py-[6px] rounded-full text-[12px] font-semibold transition-all duration-200 flex items-center gap-1.5 active:scale-95 border border-transparent outline-none",
                 active
-                  ? style.activeClass
-                  : "bg-card text-ink-500 border-border hover:border-primary/45 hover:bg-secondary/35"
+                  ? "bg-[var(--brand-pink)] text-white"
+                  : "bg-transparent text-[var(--ink-700)] border-[var(--ink-300)] hover:bg-secondary/35"
               )}
             >
-              <span>{style.label}</span>
+              <span>{s === "ALL" ? "All" : s.charAt(0) + s.slice(1).toLowerCase()}</span>
               <span className={cn(
-                "text-[9px] px-1.5 py-0.2 rounded-full font-bold ml-0.5 shadow-sm leading-none",
-                active ? style.badgeClass : "bg-secondary text-ink-300"
+                "text-[10px] px-1.5 py-0.5 rounded-full font-bold ml-0.5 shadow-none leading-none",
+                active
+                  ? "bg-white/12 text-white"
+                  : "bg-[var(--ink-100)] text-[var(--ink-700)]"
               )}>
                 {count}
               </span>
@@ -194,7 +157,7 @@ export default function ApplicationsPage() {
 
                 <div className="flex items-start gap-3">
                   <div className="text-right">
-                    <span className={cn("text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider", STAGE_COLOR[app.stage] ?? "bg-secondary")}>
+                    <span className={STAGE_COLOR[app.stage] ?? "bg-secondary text-ink-750 px-2 py-0.5 rounded-full text-[12px]"}>
                       {app.stage}
                     </span>
                     
@@ -214,10 +177,13 @@ export default function ApplicationsPage() {
                       </div>
                     ) : (
                       <div 
-                        className="text-[10.5px] text-ink-300 mt-1 inline-flex items-center gap-1 cursor-help border-b border-dashed border-ink-300/40 pb-0.5"
+                        className={cn(
+                          "text-xs mt-1 inline-flex items-center gap-1 cursor-help",
+                          (app.aiMatchScore || 75) >= 80 ? "text-[var(--status-success-fg)] font-semibold" : "text-[var(--ink-500)]"
+                        )}
                         title="Based on your skills, experience, and preferences."
                       >
-                        <Sparkles size={9} className="text-primary animate-pulse" />
+                        <Sparkles size={9} className={cn("animate-pulse", (app.aiMatchScore || 75) >= 80 ? "text-[var(--status-success-fg)]" : "text-[var(--ink-500)]")} />
                         AI match: {app.aiMatchScore || 75}%
                       </div>
                     )}
@@ -313,52 +279,12 @@ export default function ApplicationsPage() {
               </div>
 
               {/* Pipeline Tracker */}
-              <div className="flex items-center gap-0 mt-5 mb-2 overflow-x-auto pb-2">
-                {STAGES.map((s, i) => {
-                  const isActive = !isRejected && i === stageIdx;
-                  const isCompleted = !isRejected && i < stageIdx;
-                  
-                  return (
-                    <div key={s} className="flex items-center flex-1 last:flex-none">
-                      <div className="flex flex-col items-center">
-                        <div className={cn(
-                          "w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold transition-all",
-                          isRejected
-                            ? "bg-secondary/60 text-ink-300/60 line-through"
-                            : isCompleted
-                              ? "bg-[var(--status-success-fg)] text-white"
-                              : isActive
-                                ? "bg-primary text-primary-foreground ring-4 ring-primary/15"
-                                : "bg-secondary text-ink-300"
-                        )}>
-                          {isCompleted ? <CheckCircle2 size={12} /> : i + 1}
-                        </div>
-                        <span className={cn(
-                          "text-[9px] font-bold mt-1.5 whitespace-nowrap capitalize",
-                          isRejected 
-                            ? "text-ink-300/50 line-through"
-                            : isActive 
-                              ? "text-primary" 
-                              : isCompleted 
-                                ? "text-[var(--status-success-fg)]" 
-                                : "text-ink-300"
-                        )}>
-                          {s.toLowerCase()}
-                        </span>
-                      </div>
-                      {i < STAGES.length - 1 && (
-                        <div className={cn(
-                          "flex-1 h-0.5 mx-1 mb-4 min-w-[20px]",
-                          isRejected 
-                            ? "bg-secondary/40"
-                            : i < stageIdx 
-                              ? "bg-[var(--status-success-fg)]" 
-                              : "bg-secondary"
-                        )} />
-                      )}
-                    </div>
-                  );
-                })}
+              <div className="mt-5 mb-2">
+                <Stepper
+                  steps={STAGES}
+                  currentStep={stageIdx}
+                  isRejected={isRejected}
+                />
               </div>
 
               {/* Contextual Banner for Interview Invitation */}
