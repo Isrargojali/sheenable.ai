@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   Search, Eye, Sparkles, FileText, Award, ArrowRight, MapPin, Briefcase, Calendar, Video, Loader2, Clock, CheckCircle2, X, User, Phone, Mail
 } from "lucide-react";
@@ -52,9 +52,6 @@ const STAT_ICONS: StatIcon[] = [
 export default function CandidateDashboard() {
   const user = useAuthStore((s) => s.user);
   const qc = useQueryClient();
-  const navigate = useNavigate();
-
-  const [searchQuery, setSearchQuery] = useState("");
 
   // Interactive scheduling modal states
   const [isSchedulingOpen, setIsSchedulingOpen] = useState(false);
@@ -253,75 +250,41 @@ export default function CandidateDashboard() {
     };
   })();
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/candidate/jobs?q=${encodeURIComponent(searchQuery.trim())}`);
-    } else {
-      navigate("/candidate/jobs");
-    }
-  };
-
   const displayName = `${user?.firstName || (profileData as any)?.userId?.firstName || ""} ${user?.lastName || (profileData as any)?.userId?.lastName || ""}`.trim() || "Candidate";
   const avatarUrl = user?.avatarUrl || (profileData as any)?.userId?.avatarUrl || (profileData as any)?.avatarUrl || null;
 
   return (
-    <DashboardShell
-      title={`Welcome back, ${user?.firstName ?? "there"}`}
-      subtitle="Here's what's happening with your she-enable job search today"
-    >
+    <DashboardShell>
+      {/* Welcome header in page body */}
+      <div className="mb-6">
+        <h2 className="text-2xl font-serif font-black text-[var(--ink-900)] leading-none tracking-tight">
+          Welcome back, {user?.firstName ?? "there"}
+        </h2>
+        <p className="text-sm text-[var(--ink-500)] mt-1.5 font-normal">
+          Here's what's happening with your she-enable job search today
+        </p>
+      </div>
       {/* Contextual Urgent Action Banner */}
       {urgentAction && (
-        urgentAction.type === "default" ? (
-          <div className="bg-[var(--brand-pink-soft)] border border-[var(--ink-300)] rounded-xl px-6 py-5 flex flex-col md:flex-row md:items-center justify-between gap-5 mb-6 animate-fade-in">
-            <div className="flex items-start gap-4 flex-1">
-              <div className="flex-shrink-0 mt-1">
-                <Sparkles className="w-5 h-5 text-[var(--brand-pink)]" />
-              </div>
-              <div className="space-y-1.5 flex-1">
-                <h4 className="text-sm font-bold text-[var(--ink-900)] uppercase tracking-wider">{urgentAction.title}</h4>
-                <p className="text-sm text-[var(--ink-700)]">{urgentAction.description}</p>
-                
-                {/* Search Form Option */}
-                <form onSubmit={handleSearchSubmit} className="flex gap-2 mt-3.5 max-w-xl">
-                  <div className="relative flex-1">
-                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-[var(--ink-500)]" />
-                    <input
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Enter job title, company name, or skills..."
-                      className="w-full h-11 pl-10 pr-4 bg-[var(--surface)] border border-[var(--ink-300)] rounded-[var(--radius-control)] text-sm focus:outline-none focus:ring-2 focus:ring-[rgba(230,0,126,0.2)] focus:border-[var(--brand-pink)] text-foreground placeholder:text-[var(--ink-400)] transition-all duration-200"
-                    />
-                  </div>
-                  <BtnPrimary type="submit">
-                    Search Jobs <ArrowRight size={16} strokeWidth={1.75} />
-                  </BtnPrimary>
-                </form>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <Banner
-            icon={urgentAction.icon}
-            title={urgentAction.title}
-            description={urgentAction.description}
-            className="mb-6"
-            action={
-              urgentAction.link ? (
-                <Link to={urgentAction.link}>
-                  <BtnPrimary>
-                    {urgentAction.ctaText} <ArrowRight size={16} strokeWidth={1.75} />
-                  </BtnPrimary>
-                </Link>
-              ) : (
-                <BtnPrimary onClick={urgentAction.ctaAction}>
+        <Banner
+          icon={urgentAction.icon}
+          title={urgentAction.title}
+          description={urgentAction.description}
+          className="mb-6"
+          action={
+            urgentAction.link ? (
+              <Link to={urgentAction.link}>
+                <BtnPrimary>
                   {urgentAction.ctaText} <ArrowRight size={16} strokeWidth={1.75} />
                 </BtnPrimary>
-              )
-            }
-          />
-        )
+              </Link>
+            ) : (
+              <BtnPrimary onClick={urgentAction.ctaAction}>
+                {urgentAction.ctaText} <ArrowRight size={16} strokeWidth={1.75} />
+              </BtnPrimary>
+            )
+          }
+        />
       )}
 
       {/* Prominent Availability Banner & Scheduling CTA */}

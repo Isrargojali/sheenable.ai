@@ -482,12 +482,30 @@ type NotificationItem = {
 };
 
 function Topbar({
-  title, subtitle, actions, onMenu, onSettingsClick, onSearchClick, showHamburger = true, available,
-}: { title: string; subtitle?: string; actions?: ReactNode; onMenu: () => void; onSettingsClick?: () => void; onSearchClick?: () => void; showHamburger?: boolean; available: boolean }) {
+  title = "", subtitle = "", actions, onMenu, onSettingsClick, onSearchClick, showHamburger = true, available,
+}: { title?: string; subtitle?: string; actions?: ReactNode; onMenu: () => void; onSettingsClick?: () => void; onSearchClick?: () => void; showHamburger?: boolean; available: boolean }) {
   const qc = useQueryClient();
   const { user } = useAuthStore();
   const role = user?.role ?? "CANDIDATE";
   const [showNotif, setShowNotif] = useState(false);
+
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [navSearchQuery, setNavSearchQuery] = useState("");
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    setNavSearchQuery(params.get("q") ?? "");
+  }, [location.search]);
+
+  const handleNavSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (navSearchQuery.trim()) {
+      navigate(`/candidate/jobs?q=${encodeURIComponent(navSearchQuery.trim())}`);
+    } else {
+      navigate("/candidate/jobs");
+    }
+  };
 
   const { data: realNotifs } = useQuery<NotificationItem[]>({
     queryKey: ["notifications"],
@@ -536,11 +554,28 @@ function Topbar({
             <Menu size={18} />
           </button>
         )}
-        <div className="min-w-0">
-          <h1 className="text-[20px] font-semibold text-[var(--ink-900)] leading-tight tracking-tight truncate">{title}</h1>
-          {subtitle && <p className="text-[14px] font-normal text-[var(--ink-500)] truncate mt-1">{subtitle}</p>}
-        </div>
+        {(title || subtitle) && (
+          <div className="min-w-0">
+            {title && <h1 className="text-[20px] font-semibold text-[var(--ink-900)] leading-tight tracking-tight truncate">{title}</h1>}
+            {subtitle && <p className="text-[14px] font-normal text-[var(--ink-500)] truncate mt-1">{subtitle}</p>}
+          </div>
+        )}
       </div>
+
+      {role === "CANDIDATE" && (
+        <form onSubmit={handleNavSearchSubmit} className="hidden md:flex items-center gap-2 max-w-sm flex-1 mx-4">
+          <div className="relative w-full">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--ink-500)]" />
+            <input
+              type="text"
+              value={navSearchQuery}
+              onChange={(e) => setNavSearchQuery(e.target.value)}
+              placeholder="Search jobs..."
+              className="w-full h-9 pl-9 pr-3 bg-secondary hover:bg-ink-100 border border-border/80 focus:border-[var(--brand-pink)] rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[rgba(230,0,126,0.15)] text-foreground placeholder:text-[var(--ink-400)] transition-all duration-200"
+            />
+          </div>
+        </form>
+      )}
 
       <div className="flex items-center ml-auto">
         {actions}
@@ -674,8 +709,8 @@ function DarkModeToggle() {
 // SHELL
 //
 export function DashboardShell({
-  title, subtitle, actions, children,
-}: { title: string; subtitle?: string; actions?: ReactNode; children: ReactNode }) {
+  title = "", subtitle = "", actions, children,
+}: { title?: string; subtitle?: string; actions?: ReactNode; children: ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showSearch, setShowSearch] = useState(false);

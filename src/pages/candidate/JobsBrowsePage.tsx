@@ -92,6 +92,12 @@ export default function JobsBrowsePage() {
     return () => clearTimeout(timer);
   }, [search]);
 
+  // Sync search state if URL query param 'q' changes externally (e.g. from navbar search)
+  const urlQuery = searchParams.get("q");
+  useEffect(() => {
+    setSearch(urlQuery ?? "");
+  }, [urlQuery]);
+
   const [category, setCategory] = useState(() => {
     const cat = searchParams.get("category");
     return cat && CATEGORIES.includes(cat as any) ? cat : "All";
