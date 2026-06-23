@@ -423,46 +423,22 @@ export default function CandidateDashboard() {
         />
       )}
 
-      {/* Prominent Availability Pill & Scheduling CTA */}
-      <div className="bg-[var(--brand-pink-soft)] border border-[var(--ink-300)] rounded-[var(--radius-card)] p-6 mb-6 shadow-[var(--shadow-card)] flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-fade-in">
-        {/* Left: live dot + status copy */}
-        <div className="flex items-start sm:items-center gap-3 min-w-0">
-          {/* Pulsing live indicator */}
-          <div className="relative flex h-3.5 w-3.5 flex-shrink-0 mt-1 sm:mt-0">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--status-success-fg)] opacity-75" />
-            <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-[var(--status-success-fg)] shadow-sm" />
-          </div>
-
-          <div className="min-w-0">
-            {/* Title row */}
-            <div className="flex items-center flex-wrap gap-x-2 gap-y-1">
-              <span className="text-[13px] sm:text-sm font-extrabold text-foreground leading-tight">
-                Available for Hire
-              </span>
-              <span className={cn(
-                "text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider flex-shrink-0",
-                "bg-[var(--status-success-bg)] text-[var(--status-success-fg)] border border-[var(--status-success-fg)]/25"
-              )}>
-                Immediate
-              </span>
-            </div>
-            {/* Sub-text */}
-            <p className="text-[10px] sm:text-[11px] text-muted-foreground mt-0.5 font-medium leading-relaxed">
-              Your profile is visible to recruiters looking to hire immediately.{" "}
-              <span className="hidden xs:inline">Change your availability at any time.</span>
-            </p>
-          </div>
-        </div>
-
-        {/* Right: CTA — full width on mobile, auto on sm+ */}
-        <BtnPrimary
-          onClick={() => setIsSchedulingOpen(true)}
-          className="w-full sm:w-auto flex-shrink-0"
-        >
-          <Calendar size={16} strokeWidth={1.75} />
-          Schedule Availability
-        </BtnPrimary>
-      </div>
+      {/* Prominent Availability Banner & Scheduling CTA */}
+      <Banner
+        icon={Calendar}
+        title="Available for Hire"
+        description="Your profile is visible to recruiters looking to hire immediately. Change your availability at any time."
+        className="mb-6"
+        action={
+          <BtnPrimary
+            onClick={() => setIsSchedulingOpen(true)}
+            className="w-full sm:w-auto flex-shrink-0"
+          >
+            <Calendar size={16} strokeWidth={1.75} />
+            Schedule Availability
+          </BtnPrimary>
+        }
+      />
 
       {/* Stat Grid: Standardized and Unified */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
@@ -780,7 +756,7 @@ export default function CandidateDashboard() {
                           "py-2 rounded-xl text-[10px] font-bold transition-all border text-center",
                           isSelected
                             ? "bg-primary border-primary text-white"
-                            : "bg-[#F7F4F9] dark:bg-secondary/40 border-border hover:border-primary/30 text-foreground"
+                            : "bg-[var(--ink-100)] dark:bg-secondary/40 border-border hover:border-primary/30 text-foreground"
                         )}
                       >
                         {day.slice(0, 3)}
@@ -807,7 +783,7 @@ export default function CandidateDashboard() {
                           "flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all duration-200",
                           isSelected
                             ? "border-primary bg-primary/5"
-                            : "border-border hover:border-primary/30 bg-[#F7F4F9]/30 dark:bg-transparent"
+                            : "border-border hover:border-primary/30 bg-[var(--ink-100)]/30 dark:bg-transparent"
                         )}
                       >
                         <span className="text-xs font-semibold text-foreground">{slot}</span>

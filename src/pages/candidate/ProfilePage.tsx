@@ -189,7 +189,7 @@ function Field({
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <AlertCircle size={14} className="text-[#A89EC0] hover:text-[#7B6E96] cursor-help" />
+                <AlertCircle size={14} className="text-[var(--ink-400)] hover:text-[var(--ink-500)] cursor-help" />
               </TooltipTrigger>
               <TooltipContent className="max-w-xs text-xs">
                 {tooltipText}
@@ -208,7 +208,7 @@ function Field({
       </div>
       {children}
       {error && <p className="text-[11px] text-red-500 mt-1">{error}</p>}
-      {!error && hint && <p className="text-[10px] text-[#A89EC0] mt-1">{hint}</p>}
+      {!error && hint && <p className="text-[10px] text-[var(--ink-400)] mt-1">{hint}</p>}
     </div>
   );
 }
@@ -565,7 +565,7 @@ export default function ProfilePage() {
                   <div className="flex items-center gap-2">
                     <input value={cnic} onChange={e => setCnic(formatCnicInput(e.target.value))} placeholder="e.g. 12345-1234567-1" className={inp} type={showCnic ? "text" : "password"} />
                     {cnic && (
-                      <button type="button" onClick={() => setShowCnic(!showCnic)} className="flex-shrink-0 p-2 text-[#A89EC0] hover:text-[#6B6480] transition-colors" title={showCnic ? "Hide CNIC" : "Show CNIC"}>
+                      <button type="button" onClick={() => setShowCnic(!showCnic)} className="flex-shrink-0 p-2 text-[var(--ink-400)] hover:text-[var(--ink-500)] transition-colors" title={showCnic ? "Hide CNIC" : "Show CNIC"}>
                         {showCnic ? <EyeOff size={18} /> : <Eye size={18} />}
                       </button>
                     )}
@@ -739,8 +739,8 @@ export default function ProfilePage() {
           <div>
             <div className="flex items-center justify-between mb-3">
               <div>
-                <h3 className="text-sm font-bold text-[#3D3656]">Certifications</h3>
-                <p className="text-[11px] text-[#A89EC0] mt-0.5">Add any professional certifications you hold</p>
+                <h3 className="text-sm font-bold text-[var(--ink-700)]">Certifications</h3>
+                <p className="text-[11px] text-[var(--ink-400)] mt-0.5">Add any professional certifications you hold</p>
               </div>
             </div>
             <div className="space-y-3">
@@ -917,7 +917,7 @@ export default function ProfilePage() {
       )}
 
       {/* Navigation */}
-      <div className="flex justify-between mt-8 pt-5 border-t border-[#E8E1F0]">
+      <div className="flex justify-between mt-8 pt-5 border-t border-[var(--ink-300)]">
         <BtnOutline onClick={() => setStep(s => Math.max(0, s - 1))} className={step === 0 ? "invisible" : ""}>
           ← Previous
         </BtnOutline>

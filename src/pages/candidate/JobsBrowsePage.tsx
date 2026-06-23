@@ -1069,11 +1069,9 @@ function JobCard({ job, profile, appliedDate, onSave, onApply, isLoading, onClic
           <Link 
             to="/candidate/applications" 
             onClick={(e) => e.stopPropagation()}
-            className="inline-block animate-fade-in"
+            className="inline-flex items-center gap-1 text-xs font-bold text-[var(--brand-pink)] hover:text-[var(--brand-pink-hover)] transition-colors animate-fade-in mr-2"
           >
-            <BtnOutline>
-              View status <ArrowRight size={16} strokeWidth={1.75} />
-            </BtnOutline>
+            View status <ArrowRight size={14} strokeWidth={1.75} />
           </Link>
         ) : (
           <div onClick={(e) => e.stopPropagation()}>

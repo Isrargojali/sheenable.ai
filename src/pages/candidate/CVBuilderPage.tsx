@@ -312,13 +312,14 @@ export default function CVBuilderPage() {
             title="AI CV Prompt & Settings"
             subtitle="Describe your experience or sync directly from profile"
             actions={
-              <BtnOutline
+              <button
                 type="button"
                 onClick={handlePrepopulate}
                 disabled={isProfileLoading}
+                className="h-9 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--radius-control)] text-xs font-semibold text-[var(--ink-500)] bg-transparent hover:bg-secondary/60 hover:text-[var(--ink-900)] border-none focus:outline-none transition-all duration-150 shadow-none disabled:opacity-50 select-none"
               >
-                <RefreshCw size={16} strokeWidth={1.75} className={isProfileLoading ? "animate-spin" : ""} /> Sync from Profile
-              </BtnOutline>
+                <RefreshCw size={14} strokeWidth={1.75} className={cn(isProfileLoading && "animate-spin")} /> Sync from Profile
+              </button>
             }
           >
             <div className="space-y-3.5">
