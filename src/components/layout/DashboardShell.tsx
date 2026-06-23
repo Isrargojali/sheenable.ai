@@ -1093,7 +1093,7 @@ export function BtnOutline({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "h-11 inline-flex items-center justify-center gap-1.5 px-[18px] py-3 rounded-[var(--radius-control)] text-sm font-medium text-[var(--ink-900)] bg-[var(--surface)] border border-[var(--ink-300)] hover:border-[var(--ink-500)] hover:bg-[var(--surface-alt)] focus:outline-none focus:ring-2 focus:ring-[rgba(230,0,126,0.4)] focus:ring-offset-2 transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none select-none shadow-none",
+        "h-11 inline-flex items-center justify-center gap-1.5 px-[18px] py-3 rounded-[var(--radius-control)] text-sm font-medium text-[var(--ink-900)] bg-white border border-[var(--ink-300)] hover:border-[var(--ink-500)] hover:bg-[var(--ink-100)] focus:outline-none focus:ring-2 focus:ring-[rgba(230,0,126,0.4)] focus:ring-offset-2 transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none select-none shadow-none",
         className,
       )}
     >

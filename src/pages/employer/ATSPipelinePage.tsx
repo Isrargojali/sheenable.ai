@@ -9,12 +9,12 @@ import { toast } from "sonner";
 import { Loader2, GripVertical, MoreVertical, UserX, MessageSquare, Eye, Check, ChevronDown, Briefcase, MapPin, Calendar, AlertCircle } from "lucide-react";
 
 const STAGES = [
-  { key: "APPLIED", label: "Applied", subtitle: "Review CV & match score", color: "bg-blue-500", light: "bg-blue-50 text-blue-600" },
-  { key: "SCREENING", label: "Screening", subtitle: "Phone screen & skills check", color: "bg-amber-500", light: "bg-amber-50 text-amber-600" },
-  { key: "INTERVIEW", label: "Interview", subtitle: "Schedule & conduct interview", color: "bg-rose-500", light: "bg-rose-50 text-rose-500" },
-  { key: "ASSESSMENT", label: "Assessment", subtitle: "Skills test & coding check", color: "bg-violet-500", light: "bg-violet-50 text-violet-600" },
-  { key: "OFFER", label: "Offer", subtitle: "Prepare & send offer letter", color: "bg-emerald-500", light: "bg-emerald-50 text-emerald-600" },
-  { key: "HIRED", label: "Hired", subtitle: "Offer accepted & onboarding", color: "bg-emerald-700", light: "bg-emerald-100 text-emerald-700" },
+  { key: "APPLIED",    label: "Applied",    subtitle: "Review CV & match score",          color: "bg-[var(--status-info-fg)]",    light: "bg-[var(--status-info-bg)] text-[var(--status-info-fg)]" },
+  { key: "SCREENING",  label: "Screening",  subtitle: "Phone screen & skills check",       color: "bg-[var(--status-progress-fg)]", light: "bg-[var(--status-progress-bg)] text-[var(--status-progress-fg)]" },
+  { key: "INTERVIEW",  label: "Interview",  subtitle: "Schedule & conduct interview",      color: "bg-[var(--status-info-fg)]",    light: "bg-[var(--status-info-bg)] text-[var(--status-info-fg)]" },
+  { key: "ASSESSMENT", label: "Assessment", subtitle: "Skills test & coding check",        color: "bg-[var(--brand-pink)]",         light: "bg-[var(--brand-pink-soft)] text-[var(--brand-pink)]" },
+  { key: "OFFER",      label: "Offer",      subtitle: "Prepare & send offer letter",       color: "bg-[var(--status-success-fg)]", light: "bg-[var(--status-success-bg)] text-[var(--status-success-fg)]" },
+  { key: "HIRED",      label: "Hired",      subtitle: "Offer accepted & onboarding",      color: "bg-[var(--status-success-fg)]", light: "bg-[var(--status-success-bg)] text-[var(--status-success-fg)]" },
 ];
 
 const NEXT_STAGE: Record<string, string> = {
@@ -121,7 +121,7 @@ function ApplicantCard({
     <div 
       draggable
       onDragStart={handleDragStart}
-      className="bg-card border border-[#E8E1F0] rounded-xl p-3 mb-2.5 hover:border-primary/45 hover:shadow-md transition-all duration-300 cursor-grab active:cursor-grabbing relative group"
+      className="bg-card border border-[var(--ink-300)] rounded-xl p-3 mb-2.5 hover:border-[var(--brand-pink)]/40 hover:shadow-md transition-all duration-300 cursor-grab active:cursor-grabbing relative group"
     >
       <div className="flex items-start gap-1.5 mb-2">
         {/* Grip Handle */}
@@ -164,7 +164,7 @@ function ApplicantCard({
 
       <div className="flex flex-wrap gap-1 mb-2.5 ml-4">
         {app.cand.skills.slice(0, 2).map(s => (
-          <span key={s} className="text-[8.5px] bg-[#F7F4F9] text-ink-500 border border-border/30 px-1.5 py-0.5 rounded-full font-bold capitalize">{s}</span>
+          <span key={s} className="text-[8.5px] bg-[var(--ink-100)] text-[var(--ink-700)] border border-[var(--ink-300)] px-1.5 py-0.5 rounded-full font-bold capitalize">{s}</span>
         ))}
       </div>
 
@@ -223,7 +223,7 @@ function ApplicantCard({
                 }}
                 className="w-full text-left px-3.5 py-2 text-[10px] font-bold text-foreground hover:bg-secondary flex items-center gap-2 transition-colors"
               >
-                <Calendar size={12} className="text-emerald-500" />
+                <Calendar size={12} className="text-[var(--status-success-fg)]" />
                 <span>Schedule Interview</span>
               </button>
               <button
@@ -233,7 +233,7 @@ function ApplicantCard({
                 }}
                 className="w-full text-left px-3.5 py-2 text-[10px] font-bold text-foreground hover:bg-secondary flex items-center gap-2 transition-colors"
               >
-                <MessageSquare size={12} className="text-blue-500" />
+                <MessageSquare size={12} className="text-[var(--ink-500)]" />
                 <span>Send Message</span>
               </button>
               <div className="h-px bg-border my-1" />
@@ -555,13 +555,13 @@ export default function ATSPipelinePage() {
 
                 {/* Column cards container */}
                 <div className={cn(
-                  "bg-[#F7F4F9]/60 backdrop-blur-md border rounded-2xl p-2.5 min-h-[350px] transition-all duration-200",
+                  "bg-[var(--ink-100)] border rounded-2xl p-2.5 min-h-[350px] transition-all duration-200",
                   isDraggedOver 
-                    ? "border-primary bg-primary/5 shadow-inner ring-2 ring-primary/15" 
-                    : "border-border/40"
+                    ? "border-[var(--brand-pink)] bg-[var(--brand-pink-soft)] shadow-inner ring-2 ring-[var(--brand-pink)]/15" 
+                    : "border-[var(--ink-300)]/40"
                 )}>
                   {stageApps.length === 0 ? (
-                    <div className="text-center py-16 px-2 text-[#C4BEDD] flex flex-col items-center gap-1.5 justify-center h-full">
+                    <div className="text-center py-16 px-2 text-[var(--ink-300)] flex flex-col items-center gap-1.5 justify-center h-full">
                       <div className="text-lg opacity-40">📥</div>
                       <div className="text-[10px] font-bold">No candidates here</div>
                       <p className="text-[9px] opacity-80 leading-normal">Drag candidates here or use AI Search to find compatibility matches</p>
@@ -587,8 +587,8 @@ export default function ATSPipelinePage() {
       )}
 
       {/* Legend */}
-      <div className="mt-5 flex items-center gap-6 text-[10px] text-[#A89EC0] font-semibold">
-        <span>Click <strong className="text-primary">→ Stage name</strong> or <strong className="text-primary">drag candidate card</strong> to advance stages</span>
+      <div className="mt-5 flex items-center gap-6 text-[10px] text-[var(--ink-300)] font-semibold">
+        <span>Click <strong className="text-[var(--brand-pink)]">→ Stage name</strong> or <strong className="text-[var(--brand-pink)]">drag candidate card</strong> to advance stages</span>
         <span>Open three-dot menu on card to View Profile, Schedule, Message, or Reject</span>
         <span className="ml-auto font-mono text-[10px]">{apps.length} total applicants</span>
       </div>

@@ -49,11 +49,11 @@ interface MatchedCandidate {
 // ── Constants ────────────────────────────────────────────────────────────────
 
 const STATS = [
-  { key: "activeJobs", label: "Active jobs", icon: Briefcase, color: "from-rose-500 to-rose-700" },
-  { key: "totalApplicants", label: "Total applicants", icon: Users, color: "from-violet-500 to-violet-700" },
-  { key: "interviews", label: "Interviews booked", icon: MessageSquare, color: "from-blue-500 to-blue-700" },
-  { key: "aiMatches", label: "AI matches", icon: Sparkles, color: "from-emerald-500 to-emerald-700" },
-] as const satisfies ReadonlyArray<{ key: keyof EmployerStats; label: string; icon: React.ElementType; color: string }>;
+  { key: "activeJobs", label: "Active jobs", icon: Briefcase },
+  { key: "totalApplicants", label: "Total applicants", icon: Users },
+  { key: "interviews", label: "Interviews booked", icon: MessageSquare },
+  { key: "aiMatches", label: "AI matches", icon: Sparkles },
+] as const satisfies ReadonlyArray<{ key: keyof EmployerStats; label: string; icon: React.ElementType }>;
 
 // ── Component ────────────────────────────────────────────────────────────────
 
@@ -157,31 +157,31 @@ export default function EmployerDashboard() {
 
   // Premium status tag helper for stat cards
   const getStatBadge = (key: keyof EmployerStats) => {
-    if (key === "activeJobs") return { label: "Live board", style: "bg-rose-50 text-rose-700" };
-    if (key === "totalApplicants") return { label: "Active", style: "bg-violet-50 text-violet-700" };
-    if (key === "interviews") return { label: "Scheduled", style: "bg-blue-50 text-blue-700" };
-    return { label: "98% Match", style: "bg-emerald-50 text-emerald-700" };
+    if (key === "activeJobs") return { label: "Live board", style: "bg-[var(--ink-100)] text-[var(--ink-700)]" };
+    if (key === "totalApplicants") return { label: "Active", style: "bg-[var(--ink-100)] text-[var(--ink-700)]" };
+    if (key === "interviews") return { label: "Scheduled", style: "bg-[var(--ink-100)] text-[var(--ink-700)]" };
+    return { label: "98% Match", style: "bg-[var(--brand-pink-soft)] text-[var(--brand-pink)]" };
   };
 
   const getUrgencyChip = (jobId: string) => {
     const code = jobId.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0) || 0;
     if (code % 6 === 0) {
       return (
-        <span className="text-[9px] font-bold px-2.5 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-100 dark:bg-red-950/20 dark:text-red-400 dark:border-red-950/30 flex items-center gap-0.5 leading-none">
+        <span className="text-[9px] font-bold px-2.5 py-0.5 rounded-full bg-[var(--status-danger-bg)] text-[var(--status-danger-fg)] border border-[var(--status-danger-bg)] flex items-center gap-0.5 leading-none">
           <Clock size={9} /> Closes tomorrow
         </span>
       );
     }
     if (code % 6 === 2 || code % 6 === 4) {
       return (
-        <span className="text-[9px] font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-100 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-950/30 flex items-center gap-0.5 leading-none animate-pulse">
+        <span className="text-[9px] font-bold px-2.5 py-0.5 rounded-full bg-[var(--status-progress-bg)] text-[var(--status-progress-fg)] border border-[var(--status-progress-bg)] flex items-center gap-0.5 leading-none">
           <Clock size={9} /> Closes in 3 days
         </span>
       );
     }
     if (code % 6 === 5) {
       return (
-        <span className="text-[9px] font-bold px-2.5 py-0.5 rounded-full bg-gray-50 text-gray-500 border border-gray-200 dark:bg-gray-900/40 dark:text-gray-400 dark:border-gray-900/50 flex items-center gap-0.5 leading-none">
+        <span className="text-[9px] font-bold px-2.5 py-0.5 rounded-full bg-[var(--ink-100)] text-[var(--ink-500)] border border-[var(--ink-300)] flex items-center gap-0.5 leading-none">
           <Clock size={9} /> Expired
         </span>
       );
@@ -204,15 +204,15 @@ export default function EmployerDashboard() {
       {/* Elevated AI Matches Hero Stat + Tighter Secondary Stat Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-6 animate-fade-in">
         {/* Hero Stat: AI Matches */}
-        <div className="lg:col-span-1 bg-gradient-to-br from-[#7C3AED] to-[#C8315A] text-white rounded-3xl p-6 shadow-lg shadow-purple-500/10 hover:shadow-purple-500/20 hover:-translate-y-0.5 transition-all duration-300 group relative overflow-hidden flex flex-col justify-between min-h-[170px]">
-          {/* Accent decoration glow */}
+        <div className="lg:col-span-1 bg-[var(--brand-pink)] text-white rounded-3xl p-6 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 group relative overflow-hidden flex flex-col justify-between min-h-[170px]">
+          {/* Subtle radial overlay */}
           <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/5 rounded-full blur-2xl group-hover:scale-110 transition-transform duration-500" />
           <div className="relative z-10 flex flex-col h-full justify-between">
             <div className="flex items-start justify-between">
-              <div className="w-11 h-11 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform duration-300">
+              <div className="w-11 h-11 rounded-2xl bg-white/15 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform duration-300">
                 <Sparkles size={18} className="text-white animate-pulse" />
               </div>
-              <span className="text-[9px] font-black px-2.5 py-0.5 rounded-full bg-white/20 text-white backdrop-blur-sm uppercase tracking-wider leading-none">
+              <span className="text-[9px] font-black px-2.5 py-0.5 rounded-full bg-white/20 text-white uppercase tracking-wider leading-none">
                 98% Accuracy
               </span>
             </div>
@@ -224,10 +224,10 @@ export default function EmployerDashboard() {
                   {stats?.aiMatches ?? 0}
                 </div>
               )}
-              <div className="text-[10px] text-purple-100 mt-1.5 font-bold uppercase tracking-widest leading-none">
+              <div className="text-[10px] text-white/80 mt-1.5 font-bold uppercase tracking-widest leading-none">
                 AI Matches Available
               </div>
-              <p className="text-[10px] text-purple-100/90 mt-2 leading-normal font-medium">
+              <p className="text-[10px] text-white/70 mt-2 leading-normal font-medium">
                 {stats?.aiMatches ?? 6} candidates ready to interview — 98% compatibility match. Review before others do.
               </p>
             </div>
@@ -241,31 +241,22 @@ export default function EmployerDashboard() {
               key: "activeJobs", 
               label: "Active Jobs", 
               icon: Briefcase, 
-              iconBg: "bg-emerald-500/10 dark:bg-emerald-500/25 text-emerald-600 dark:text-emerald-450",
-              badge: "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-450 dark:border-emerald-950/30", 
               delta: "LIVE BOARD", 
-              trend: "+1 this week",
-              trendColor: "text-emerald-600 dark:text-emerald-400"
+              trend: "+1 this week"
             },
             { 
               key: "totalApplicants", 
               label: "Total Applicants", 
               icon: Users, 
-              iconBg: "bg-teal-500/10 dark:bg-teal-500/25 text-teal-600 dark:text-teal-450",
-              badge: "bg-teal-50 text-teal-700 border-teal-100 dark:bg-teal-950/20 dark:text-teal-450 dark:border-teal-950/30", 
               delta: "ACTIVE", 
-              trend: "+2 this week",
-              trendColor: "text-teal-600 dark:text-teal-400"
+              trend: "+2 this week"
             },
             { 
               key: "interviews", 
               label: "Interviews Booked", 
               icon: MessageSquare, 
-              iconBg: "bg-blue-500/10 dark:bg-blue-500/25 text-blue-600 dark:text-blue-450",
-              badge: "bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-950/20 dark:text-blue-450 dark:border-blue-950/30", 
               delta: "SCHEDULED", 
-              trend: "+1 booked today",
-              trendColor: "text-blue-600 dark:text-blue-400"
+              trend: "+1 booked today"
             }
           ].map((s) => {
             const Icon = s.icon;
@@ -273,13 +264,13 @@ export default function EmployerDashboard() {
             return (
               <div
                 key={s.key}
-                className="bg-card border border-border/80 rounded-2xl p-4 flex flex-col justify-between hover:shadow-md hover:border-primary/20 transition-all duration-300 group"
+                className="bg-card border border-[var(--ink-300)] rounded-2xl p-4 flex flex-col justify-between hover:shadow-md hover:border-[var(--brand-pink)]/30 transition-all duration-300 group"
               >
                 <div className="flex items-center justify-between mb-2">
-                  <div className={cn("w-8.5 h-8.5 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform duration-300", s.iconBg)}>
+                  <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-[var(--ink-100)] text-[var(--ink-500)] group-hover:bg-[var(--brand-pink-soft)] group-hover:text-[var(--brand-pink)] transition-all duration-300">
                     <Icon size={14} />
                   </div>
-                  <span className={cn("text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider leading-none border", s.badge)}>
+                  <span className="text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider leading-none border bg-[var(--ink-100)] text-[var(--ink-700)] border-[var(--ink-300)]">
                     {s.delta}
                   </span>
                 </div>
@@ -289,7 +280,7 @@ export default function EmployerDashboard() {
                   ) : (
                     <>
                       <div className="font-serif text-2.5xl font-black text-foreground leading-none tracking-tight">{value}</div>
-                      <div className={cn("text-[10px] font-bold mt-1 leading-none", s.trendColor)}>
+                      <div className="text-[10px] font-bold mt-1 leading-none text-[var(--brand-pink)]">
                         {s.trend}
                       </div>
                     </>
@@ -329,12 +320,9 @@ export default function EmployerDashboard() {
                 const targetCount = 15;
                 const percentage = Math.min(Math.round((currentCount / targetCount) * 100), 100);
 
-                const getCategoryStyles = (cat: string) => {
-                  const c = cat.toLowerCase();
-                  if (c.includes("design") || c.includes("ux")) return "bg-pink-50 text-pink-700 border-pink-100 dark:bg-pink-950/20 dark:text-pink-400 dark:border-pink-950/30";
-                  if (c.includes("finance")) return "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-950/30";
-                  if (c.includes("sales") || c.includes("market")) return "bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-950/30";
-                  return "bg-indigo-50 text-indigo-700 border-indigo-100 dark:bg-indigo-950/20 dark:text-indigo-400 dark:border-indigo-950/30";
+                const getCategoryStyles = (_cat: string) => {
+                  // All category chips are neutral per design spec — no decorative colors
+                  return "bg-[var(--ink-100)] text-[var(--ink-700)] border-[var(--ink-300)]";
                 };
 
                 return (
@@ -355,12 +343,12 @@ export default function EmployerDashboard() {
                           )}>
                             {jobCategory}
                           </span>
-                          {/* Job Status Badge - ACTIVE is teal */}
+                          {/* Job Status Badge */}
                           <span className={cn(
                             "text-[9px] font-extrabold px-2 py-0.5 rounded-full border uppercase tracking-wider leading-none",
                             j.status === "ACTIVE"
-                              ? "bg-teal-50 text-teal-700 border-teal-100 dark:bg-teal-950/20 dark:text-teal-400 dark:border-teal-950/30"
-                              : "bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-950/30"
+                              ? "bg-[var(--status-success-bg)] text-[var(--status-success-fg)] border-[var(--status-success-bg)]"
+                              : "bg-[var(--status-progress-bg)] text-[var(--status-progress-fg)] border-[var(--status-progress-bg)]"
                           )}>
                             {j.status}
                           </span>
@@ -491,9 +479,9 @@ export default function EmployerDashboard() {
                           ({percentage}%)
                         </span>
                       </div>
-                      <div className="w-full bg-secondary dark:bg-secondary/40 rounded-full h-1.5 overflow-hidden">
+                      <div className="w-full bg-[var(--ink-100)] rounded-full h-1.5 overflow-hidden">
                         <div
-                          className="h-full bg-gradient-to-r from-[#7C3AED] to-[#C8315A] rounded-full transition-all duration-1000 ease-out"
+                          className="h-full bg-[var(--brand-pink)] rounded-full transition-all duration-1000 ease-out"
                           style={{ width: `${percentage}%` }}
                         />
                       </div>
@@ -507,17 +495,17 @@ export default function EmployerDashboard() {
 
         {/* AI-Matched Candidates with subtle search banner, skills tags, and shortlist/message buttons */}
         <SectionCard title="AI-matched candidates" noPad>
-          {/* Subtle gradient search banner, not competing with candidate list */}
-          <div className="mx-4 mt-4 p-3 bg-gradient-to-r from-purple-500/5 to-pink-500/5 dark:from-purple-500/10 dark:to-pink-500/10 border border-purple-500/10 rounded-2xl flex items-center justify-between gap-4 animate-fade-in">
+          {/* Semantic search banner */}
+          <div className="mx-4 mt-4 p-3 bg-[var(--brand-pink-soft)] border border-[var(--brand-pink)]/20 rounded-2xl flex items-center justify-between gap-4 animate-fade-in">
             <div className="flex items-center gap-2">
-              <Sparkles size={14} className="text-[#7C3AED] animate-pulse flex-shrink-0" />
+              <Sparkles size={14} className="text-[var(--brand-pink)] animate-pulse flex-shrink-0" />
               <div className="min-w-0">
                 <span className="text-xs font-bold text-foreground">Unlock Semantic Search</span>{" "}
                 <span className="text-[10px] text-muted-foreground block sm:inline">Query candidate index using natural language matching terms.</span>
               </div>
             </div>
             <Link to="/employer/ai-search" className="flex-shrink-0">
-              <button className="px-3 py-1.5 bg-[#7C3AED] hover:bg-[#6b32cb] text-white rounded-xl text-[10px] font-bold shadow-sm transition-all active:scale-95 whitespace-nowrap">
+              <button className="px-3 py-1.5 bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white rounded-xl text-[10px] font-bold shadow-sm transition-all active:scale-95 whitespace-nowrap">
                 AI Search
               </button>
             </Link>
@@ -559,11 +547,8 @@ export default function EmployerDashboard() {
                           />
                         )}
                         <div
-                          className="w-11 h-11 rounded-xl flex items-center justify-center text-white text-xs font-black"
-                          style={{
-                            background: "linear-gradient(135deg,#7C3AED,#C8315A)",
-                            display: c.avatarUrl ? "none" : "flex",
-                          }}
+                          className="w-11 h-11 rounded-xl flex items-center justify-center text-white text-xs font-black bg-[var(--brand-pink)]"
+                          style={{ display: c.avatarUrl ? "none" : "flex" }}
                         >
                           {c.firstName?.[0].toUpperCase() ?? "C"}
                           {c.lastName?.[0].toUpperCase() ?? ""}
@@ -577,28 +562,28 @@ export default function EmployerDashboard() {
                           >
                             {c.firstName} {c.lastName}
                           </Link>
-                          {/* Availability Pill - Unified badge sizing */}
+                          {/* Availability Pill */}
                           <span className={cn(
                             "text-[9px] font-extrabold px-2 py-0.5 rounded-full border uppercase tracking-wider leading-none",
                             c.isAvailable !== false
-                              ? "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-950/30"
-                              : "bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-950/30"
+                              ? "bg-[var(--status-success-bg)] text-[var(--status-success-fg)] border-[var(--status-success-bg)]"
+                              : "bg-[var(--ink-100)] text-[var(--ink-500)] border-[var(--ink-300)]"
                           )}>
                             {c.isAvailable !== false ? "Available Now" : "Unavailable"}
                           </span>
-                          {/* Match Score Badge - Unified teal badge */}
-                          <span className="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-100 dark:bg-teal-950/20 dark:text-teal-400 dark:border-teal-950/30 leading-none uppercase tracking-wider">
+                          {/* Match Score Badge */}
+                          <span className="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-[var(--brand-pink-soft)] text-[var(--brand-pink)] border border-[var(--brand-pink)]/20 leading-none uppercase tracking-wider">
                             {c.aiMatchScore}% Match
                           </span>
                         </div>
                         <div className="text-[11px] text-muted-foreground truncate mt-1 font-medium">{c.title || "Professional Developer"}</div>
                         
-                        {/* Skills Tags - Dynamic 2-3 skills using top-tier density */}
+                        {/* Skills Tags */}
                         <div className="flex flex-wrap gap-1 mt-2">
                           {getTopSkills(c.title || "", c.skills).map((skill: string) => (
                             <span
                               key={skill}
-                              className="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100 dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-950/30 uppercase tracking-wider"
+                              className="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-[var(--ink-100)] text-[var(--ink-700)] border border-[var(--ink-300)] uppercase tracking-wider"
                             >
                               {skill}
                             </span>

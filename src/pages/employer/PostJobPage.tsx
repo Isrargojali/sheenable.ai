@@ -236,7 +236,7 @@ export default function PostJobPage() {
         </div>
         <div className="flex-1 max-w-md bg-secondary dark:bg-secondary/40 rounded-full h-2.5 overflow-hidden border border-border/40">
           <div
-            className="h-full bg-gradient-to-r from-primary to-[#C8315A] rounded-full transition-all duration-500"
+            className="h-full bg-[var(--brand-pink)] rounded-full transition-all duration-500"
             style={{ width: `${percentageComplete}%` }}
           />
         </div>
@@ -256,7 +256,7 @@ export default function PostJobPage() {
                   activeSection === s.step
                     ? "bg-primary text-white border-primary shadow-sm"
                     : "bg-card text-muted-foreground border-border hover:border-primary/20",
-                  s.valid && activeSection !== s.step ? "border-emerald-500/30 text-emerald-600 dark:text-emerald-450" : ""
+                  s.valid && activeSection !== s.step ? "border-[var(--ink-300)] text-[var(--ink-700)]" : ""
                 )}
               >
                 <span className={cn(
@@ -264,7 +264,7 @@ export default function PostJobPage() {
                   activeSection === s.step 
                     ? "bg-white text-primary" 
                     : s.valid 
-                      ? "bg-emerald-500 text-white" 
+                      ? "bg-[var(--brand-pink)] text-white" 
                       : "bg-secondary text-ink-300"
                 )}>
                   {s.valid && activeSection !== s.step ? <Check size={8} /> : s.step}
@@ -405,7 +405,7 @@ export default function PostJobPage() {
                 {/* Formatted Salary Display */}
                 <div className="text-[11px] font-bold text-muted-foreground border-t border-border/40 pt-3">
                   Salary Display Preview:{" "}
-                  <span className="text-emerald-600 dark:text-emerald-450 uppercase font-extrabold tracking-wider">
+                  <span className="text-[var(--status-success-fg)] uppercase font-extrabold tracking-wider">
                     {isCompetitive 
                       ? "Competitive (PKR Market Rate)" 
                       : minVal > 0 || maxVal > 0 
@@ -473,8 +473,8 @@ export default function PostJobPage() {
           <div className="bg-card border border-border/80 rounded-2xl p-4 shadow-sm animate-fade-in flex items-center justify-between text-[11px] font-bold text-muted-foreground">
             <div className="flex items-center gap-1.5">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--brand-pink)] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--brand-pink)]"></span>
               </span>
               <span>Workspace Draft</span>
             </div>
@@ -610,7 +610,7 @@ function Field({ label, required, subtitle, isValid, children }: { label: string
     <div>
       <label className="block text-[11px] font-bold text-ink-500 uppercase tracking-wide mb-1.5">
         {label} {required && <span className="text-primary normal-case font-normal">*</span>}
-        {isValid && <CheckCircle size={10} className="text-emerald-500 inline-block ml-1.5 align-middle" />}
+        {isValid && <CheckCircle size={10} className="text-[var(--brand-pink)] inline-block ml-1.5 align-middle" />}
       </label>
       {children}
       {subtitle && <p className="text-[10px] text-muted-foreground mt-1">{subtitle}</p>}

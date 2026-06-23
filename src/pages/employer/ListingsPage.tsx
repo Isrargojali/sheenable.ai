@@ -208,13 +208,13 @@ export default function ListingsPage() {
     let color = "text-muted-foreground";
     if (mid > marketMedian * 1.15) {
       label = "Highly Competitive";
-      color = "text-emerald-600 dark:text-emerald-450 bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-100 dark:border-emerald-950/30";
+      color = "text-[var(--status-success-fg)] bg-[var(--status-success-bg)] border-[var(--status-success-bg)]";
     } else if (mid < marketMedian * 0.85) {
       label = "Below Market Avg";
-      color = "text-amber-600 dark:text-amber-450 bg-amber-50/50 dark:bg-amber-950/20 border-amber-100 dark:border-amber-950/30";
+      color = "text-[var(--status-progress-fg)] bg-[var(--status-progress-bg)] border-[var(--status-progress-bg)]";
     } else {
       label = "Market Average Match";
-      color = "text-blue-600 dark:text-blue-450 bg-blue-50/50 dark:bg-blue-950/20 border-blue-100 dark:border-blue-950/30";
+      color = "text-[var(--ink-500)] bg-[var(--ink-100)] border-[var(--ink-300)]";
     }
 
     return { left, width, avgPos, label, color };
@@ -501,11 +501,11 @@ export default function ListingsPage() {
                   const currentCount = j.applicationCount || 0;
                   const percentage = Math.min(Math.round((currentCount / targetCount) * 100), 100);
                   
-                  let applicantColor = "text-red-500 bg-red-50 dark:bg-red-950/20 border-red-105 dark:border-red-950/30";
+                  let applicantColor = "text-[var(--status-danger-fg)] bg-[var(--status-danger-bg)] border-[var(--status-danger-bg)]";
                   if (currentCount >= 8) {
-                    applicantColor = "text-emerald-600 bg-emerald-50 dark:bg-emerald-950/20 border-emerald-100 dark:border-emerald-950/30";
+                    applicantColor = "text-[var(--status-success-fg)] bg-[var(--status-success-bg)] border-[var(--status-success-bg)]";
                   } else if (currentCount >= 3) {
-                    applicantColor = "text-amber-600 bg-amber-50 dark:bg-amber-950/20 border-amber-100 dark:border-amber-950/30";
+                    applicantColor = "text-[var(--status-progress-fg)] bg-[var(--status-progress-bg)] border-[var(--status-progress-bg)]";
                   }
                   
                   // Views calculation
@@ -545,13 +545,13 @@ export default function ListingsPage() {
                           </Link>
                           {fresh && (
                             <span className="relative flex h-2 w-2">
-                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" title="Freshly posted listing"></span>
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--status-success-fg)] opacity-75"></span>
+                              <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--status-success-fg)]" title="Freshly posted listing"></span>
                             </span>
                           )}
                         </div>
                         <div className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1.5 flex-wrap font-medium">
-                          <span className="bg-blue-50 text-blue-700 dark:bg-blue-950/20 dark:text-blue-400 px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-wider">
+                          <span className="bg-[var(--ink-100)] text-[var(--ink-700)] px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-wider">
                             {j.type || j.jobType}
                           </span>
                           <span className="inline-flex items-center gap-0.5"><MapPin size={9} /> {j.location || "Remote"}</span>
@@ -566,9 +566,9 @@ export default function ListingsPage() {
                         <div className="flex flex-col">
                           <div className="font-bold text-foreground text-[11px]">{formatSalary(j.salaryMin, j.salaryMax)}</div>
                           {/* Visual Gauge */}
-                          <div className="relative w-28 h-1 bg-secondary rounded-full mt-1.5 overflow-hidden">
+                          <div className="relative w-28 h-1 bg-[var(--ink-100)] rounded-full mt-1.5 overflow-hidden">
                             <div 
-                              className="absolute h-full bg-emerald-500 rounded-full" 
+                              className="absolute h-full bg-[var(--brand-pink)] rounded-full" 
                               style={{ left: `${left}%`, width: `${width}%` }}
                             />
                             <div 
@@ -614,8 +614,8 @@ export default function ListingsPage() {
                         <span className={cn(
                           "text-[9px] font-extrabold px-2.5 py-0.5 rounded-full border uppercase tracking-wider leading-none",
                           jobStatus === "ACTIVE"
-                            ? "bg-teal-50 text-teal-700 border-teal-100 dark:bg-teal-950/20 dark:text-teal-400 dark:border-teal-950/30"
-                            : "bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-950/30"
+                            ? "bg-[var(--status-success-bg)] text-[var(--status-success-fg)] border-[var(--status-success-bg)]"
+                            : "bg-[var(--status-progress-bg)] text-[var(--status-progress-fg)] border-[var(--status-progress-bg)]"
                         )}>
                           {statusText}
                         </span>
@@ -675,7 +675,7 @@ export default function ListingsPage() {
                                   }}
                                   className="w-full text-left px-3.5 py-2 text-[11px] font-semibold text-foreground hover:bg-secondary flex items-center gap-2 transition-colors"
                                 >
-                                  <Share2 size={12} className="text-emerald-500" />
+                                  <Share2 size={12} className="text-[var(--ink-500)]" />
                                   <span>Copy Share Link</span>
                                 </button>
                                 <button
@@ -685,7 +685,7 @@ export default function ListingsPage() {
                                   }}
                                   className="w-full text-left px-3.5 py-2 text-[11px] font-semibold text-foreground hover:bg-secondary flex items-center gap-2 transition-colors"
                                 >
-                                  <Copy size={12} className="text-blue-500" />
+                                  <Copy size={12} className="text-[var(--ink-500)]" />
                                   <span>Duplicate Listing</span>
                                 </button>
                                 <button
@@ -695,7 +695,7 @@ export default function ListingsPage() {
                                   }}
                                   className="w-full text-left px-3.5 py-2 text-[11px] font-semibold text-foreground hover:bg-secondary flex items-center gap-2 transition-colors"
                                 >
-                                  <Sparkles size={12} className="text-amber-500" />
+                                  <Sparkles size={12} className="text-[var(--ink-500)]" />
                                   <span>AI Boost Listing</span>
                                 </button>
                                 <button
@@ -705,7 +705,7 @@ export default function ListingsPage() {
                                   }}
                                   className="w-full text-left px-3.5 py-2 text-[11px] font-semibold text-foreground hover:bg-secondary flex items-center gap-2 transition-colors"
                                 >
-                                  <BarChart2 size={12} className="text-purple-500" />
+                                  <BarChart2 size={12} className="text-[var(--ink-500)]" />
                                   <span>View Performance</span>
                                 </button>
                                 <div className="h-px bg-border my-1" />
@@ -735,9 +735,9 @@ export default function ListingsPage() {
 
           {/* Bottom Nudge Banner for 1-3 listings */}
           {jobs.length > 0 && jobs.length <= 3 && (
-            <div className="mx-4 p-4 bg-gradient-to-r from-purple-500/5 to-pink-500/5 dark:from-purple-500/10 dark:to-pink-500/10 border border-purple-500/10 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 animate-fade-in shadow-sm">
+            <div className="mx-4 p-4 bg-[var(--brand-pink-soft)] border border-[var(--brand-pink)]/20 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 animate-fade-in shadow-sm">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-[var(--brand-pink-soft)] flex items-center justify-center text-[var(--brand-pink)] flex-shrink-0">
                   <Sparkles size={16} />
                 </div>
                 <div>
@@ -910,11 +910,11 @@ export default function ListingsPage() {
                     const appCountVal = analyticsJob.applicationCount || 0;
 
                     return [
-                      { label: "Views", val: viewCountVal, pct: 100, color: "bg-muted-foreground/35" },
-                      { label: "Applicants", val: appCountVal, pct: viewCountVal ? Math.round((appCountVal / viewCountVal) * 100) : 0, color: "bg-[#7C3AED]" },
-                      { label: "Shortlisted", val: screeningCount, pct: appCountVal ? Math.round((screeningCount / appCountVal) * 100) : 0, color: "bg-amber-500" },
-                      { label: "Interviewing", val: interviewingCount, pct: screeningCount ? Math.round((interviewingCount / screeningCount) * 100) : 0, color: "bg-blue-500" },
-                      { label: "Offers Extended", val: offeredCount, pct: interviewingCount ? Math.round((offeredCount / interviewingCount) * 100) : 0, color: "bg-[#C8315A]" }
+                      { label: "Views", val: viewCountVal, pct: 100, color: "bg-[var(--ink-300)]" },
+                      { label: "Applicants", val: appCountVal, pct: viewCountVal ? Math.round((appCountVal / viewCountVal) * 100) : 0, color: "bg-[var(--brand-pink)]" },
+                      { label: "Shortlisted", val: screeningCount, pct: appCountVal ? Math.round((screeningCount / appCountVal) * 100) : 0, color: "bg-[var(--status-progress-fg)]" },
+                      { label: "Interviewing", val: interviewingCount, pct: screeningCount ? Math.round((interviewingCount / screeningCount) * 100) : 0, color: "bg-[var(--status-info-fg)]" },
+                      { label: "Offers Extended", val: offeredCount, pct: interviewingCount ? Math.round((offeredCount / interviewingCount) * 100) : 0, color: "bg-[var(--status-success-fg)]" }
                     ].map(f => (
                       <div key={f.label} className="space-y-1">
                         <div className="flex items-center justify-between text-[10px] font-semibold text-muted-foreground">
