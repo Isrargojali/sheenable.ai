@@ -238,16 +238,8 @@ export default function CandidateDashboard() {
       };
     }
 
-    // Default: Check recommendations
-    return {
-      id: "default",
-      type: "default",
-      title: "Discover Opportunities",
-      description: "Check out new jobs matched to your professional profile today.",
-      ctaText: "Search Jobs",
-      link: "/candidate/jobs",
-      icon: Sparkles,
-    };
+    // Default: no urgent action needed
+    return null;
   })();
 
   const displayName = `${user?.firstName || (profileData as any)?.userId?.firstName || ""} ${user?.lastName || (profileData as any)?.userId?.lastName || ""}`.trim() || "Candidate";
@@ -255,15 +247,6 @@ export default function CandidateDashboard() {
 
   return (
     <DashboardShell>
-      {/* Welcome header in page body */}
-      <div className="mb-6">
-        <h2 className="text-2xl font-serif font-black text-[var(--ink-900)] leading-none tracking-tight">
-          Welcome back, {user?.firstName ?? "there"}
-        </h2>
-        <p className="text-sm text-[var(--ink-500)] mt-1.5 font-normal">
-          Here's what's happening with your she-enable job search today
-        </p>
-      </div>
       {/* Contextual Urgent Action Banner */}
       {urgentAction && (
         <Banner
