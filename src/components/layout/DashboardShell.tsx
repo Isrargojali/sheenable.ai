@@ -269,24 +269,17 @@ function Sidebar({
 
 
 
-  function handleLogout() {
-    logout();
-    navigate("/auth/login");
-  }
-
   return (
     <aside className="w-[240px] flex-shrink-0 bg-card border-r border-border flex flex-col h-full">
       {/* Brand */}
-      <div className="px-4 py-4 border-b border-border flex items-center gap-2.5">
-        <Link to="/" className="relative z-10 flex items-center gap-2.5 group" aria-label="SheEnableAI home">
+      <div className="px-4 h-[64px] border-b border-border flex items-center justify-start gap-2.5">
+        <Link to="/" className="relative z-10 flex items-center group" aria-label="SheEnableAI home">
           <img
             src={logo}
             alt="SheEnableAI logo"
-            className="w-48 h-24 object-contain transition-transform group-hover:scale-105"
+            className="w-32 h-8 object-contain transition-transform group-hover:scale-105"
           />
         </Link>
-        <div>
-        </div>
       </div>
 
       {/* User block */}
@@ -425,16 +418,7 @@ function Sidebar({
         ))}
       </nav>
 
-      {/* Footer */}
-      <div className="p-3 border-t border-border">
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center gap-2 px-2.5 py-2 rounded-lg text-[12px] font-medium text-muted-foreground hover:bg-red-50 hover:text-red-600 transition-colors"
-        >
-          <LogOut size={14} />
-          Sign out
-        </button>
-      </div>
+
     </aside>
   );
 }
