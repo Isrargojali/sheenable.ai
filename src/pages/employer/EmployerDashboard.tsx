@@ -203,32 +203,30 @@ export default function EmployerDashboard() {
     >
       {/* Elevated AI Matches Hero Stat + Tighter Secondary Stat Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-6 animate-fade-in">
-        {/* Hero Stat: AI Matches */}
-        <div className="lg:col-span-1 bg-[var(--brand-pink)] text-white rounded-3xl p-6 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 group relative overflow-hidden flex flex-col justify-between min-h-[170px]">
-          {/* Subtle radial overlay */}
-          <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/5 rounded-full blur-2xl group-hover:scale-110 transition-transform duration-500" />
+        {/* Hero Stat: AI Matches — white card, pink number accent */}
+        <div className="lg:col-span-1 bg-white border border-[var(--ink-300)] rounded-3xl p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group relative overflow-hidden flex flex-col justify-between min-h-[170px]">
           <div className="relative z-10 flex flex-col h-full justify-between">
             <div className="flex items-start justify-between">
-              <div className="w-11 h-11 rounded-2xl bg-white/15 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform duration-300">
-                <Sparkles size={18} className="text-white animate-pulse" />
+              <div className="w-11 h-11 rounded-2xl bg-[var(--brand-pink-soft)] flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+                <Sparkles size={18} className="text-[var(--brand-pink)] animate-pulse" />
               </div>
-              <span className="text-[9px] font-black px-2.5 py-0.5 rounded-full bg-white/20 text-white uppercase tracking-wider leading-none">
+              <span className="text-[9px] font-black px-2.5 py-0.5 rounded-full bg-[var(--brand-pink-soft)] text-[var(--brand-pink)] uppercase tracking-wider leading-none">
                 98% Accuracy
               </span>
             </div>
             <div className="mt-4">
               {statsLoading ? (
-                <div className="h-10 w-20 bg-white/20 animate-pulse rounded-md" />
+                <div className="h-10 w-20 bg-[var(--ink-100)] animate-pulse rounded-md" />
               ) : (
-                <div className="font-serif text-5.5xl font-black leading-none tracking-tight text-white select-none">
+                <div className="font-serif text-5xl font-black leading-none tracking-tight text-[var(--brand-pink)] select-none">
                   {stats?.aiMatches ?? 0}
                 </div>
               )}
-              <div className="text-[10px] text-white/80 mt-1.5 font-bold uppercase tracking-widest leading-none">
+              <div className="text-[10px] text-[var(--ink-500)] mt-1.5 font-bold uppercase tracking-widest leading-none">
                 AI Matches Available
               </div>
-              <p className="text-[10px] text-white/70 mt-2 leading-normal font-medium">
-                {stats?.aiMatches ?? 6} candidates ready to interview — 98% compatibility match. Review before others do.
+              <p className="text-[10px] text-[var(--ink-500)] mt-2 leading-normal font-medium">
+                {stats?.aiMatches ?? 6} candidates ready — 98% match. Review before others do.
               </p>
             </div>
           </div>
@@ -547,7 +545,7 @@ export default function EmployerDashboard() {
                           />
                         )}
                         <div
-                          className="w-11 h-11 rounded-xl flex items-center justify-center text-white text-xs font-black bg-[var(--brand-pink)]"
+                          className="w-11 h-11 rounded-xl flex items-center justify-center text-white text-xs font-black bg-[var(--ink-900)]"
                           style={{ display: c.avatarUrl ? "none" : "flex" }}
                         >
                           {c.firstName?.[0].toUpperCase() ?? "C"}
@@ -603,8 +601,8 @@ export default function EmployerDashboard() {
                         className={cn(
                           "w-8 h-8 rounded-xl flex items-center justify-center border transition-all duration-200",
                           isCandShortlisted
-                            ? "bg-rose-500 border-rose-500 text-white shadow-sm"
-                            : "bg-background border-border text-ink-400 hover:text-rose-500 hover:border-rose-200"
+                            ? "bg-[var(--brand-pink)] border-[var(--brand-pink)] text-white shadow-sm"
+                            : "bg-background border-[var(--ink-300)] text-[var(--ink-500)] hover:text-[var(--brand-pink)] hover:border-[var(--brand-pink)]/30"
                         )}
                         title="Shortlist candidate"
                       >
@@ -679,7 +677,7 @@ export default function EmployerDashboard() {
                 type="button"
                 disabled={startThreadMutation.isPending || !msgText.trim()}
                 onClick={() => startThreadMutation.mutate({ recipientId: msgCandidate.id, initialMessage: msgText })}
-                className="px-5 py-2 bg-primary hover:bg-mauve-600 text-white rounded-full text-[11px] font-bold shadow-sm transition-all active:scale-95 flex items-center gap-1 disabled:opacity-50"
+                className="px-5 py-2 bg-primary hover:bg-[var(--brand-pink-hover)] text-white rounded-full text-[11px] font-bold shadow-sm transition-all active:scale-95 flex items-center gap-1 disabled:opacity-50"
               >
                 {startThreadMutation.isPending ? <Loader2 size={11} className="animate-spin" /> : "Send Message"}
               </button>

@@ -15,10 +15,10 @@ import { cn, getDownloadUrl } from "@/lib/utils";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 const SKILL_LEVEL_COLOR: Record<string, string> = {
-  beginner:     "bg-sky-50 text-sky-600 border-sky-200 dark:bg-sky-950/20 dark:text-sky-400 dark:border-sky-800",
-  intermediate: "bg-violet-50 text-violet-600 border-violet-200 dark:bg-violet-950/20 dark:text-violet-400 dark:border-violet-800",
-  advanced:     "bg-rose-50 text-rose-600 border-rose-200 dark:bg-rose-950/20 dark:text-rose-400 dark:border-rose-800",
-  expert:       "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-800",
+  beginner:     "bg-[var(--ink-100)] text-[var(--ink-700)] border-[var(--ink-300)]",
+  intermediate: "bg-[var(--ink-100)] text-[var(--ink-700)] border-[var(--ink-300)]",
+  advanced:     "bg-[var(--brand-pink-soft)] text-[var(--brand-pink)] border-[var(--brand-pink)]/20",
+  expert:       "bg-[var(--brand-pink)] text-white border-[var(--brand-pink)]",
 };
 
 const formatDate = (d?: string | Date) => {
@@ -33,13 +33,13 @@ function SectionHeader({ icon: Icon, title, badge }: { icon: React.ElementType; 
   return (
     <div className="flex items-center justify-between mb-4 border-b border-border/60 pb-3">
       <div className="flex items-center gap-2.5">
-        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-rose-500 flex items-center justify-center flex-shrink-0">
-          <Icon size={14} className="text-white" />
+        <div className="w-8 h-8 rounded-xl bg-[var(--brand-pink-soft)] flex items-center justify-center flex-shrink-0">
+          <Icon size={14} className="text-[var(--brand-pink)]" />
         </div>
         <h3 className="text-sm font-bold text-foreground">{title}</h3>
       </div>
       {badge && (
-        <span className="text-[9px] bg-primary/10 text-primary font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+        <span className="text-[9px] bg-[var(--brand-pink-soft)] text-[var(--brand-pink)] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
           {badge}
         </span>
       )}
@@ -193,17 +193,12 @@ export default function CandidateProfileViewPage() {
     >
       {/* ── HERO SECTION ─────────────────────────────────────────────────── */}
       <div
-        className="relative rounded-3xl overflow-hidden mb-5 p-6 shadow-md"
-        style={{ background: "linear-gradient(135deg,#13091F,#1E0E35,#2C0D24)" }}
+        className="relative rounded-3xl overflow-hidden mb-5 p-6 shadow-md bg-[var(--ink-900)]"
       >
-        {/* Decorative glow */}
+        {/* Subtle pink glow top-right */}
         <div
           className="absolute top-0 right-0 w-72 h-72 pointer-events-none"
-          style={{ background: "radial-gradient(circle,rgba(200,49,90,.22),transparent 65%)", filter: "blur(50px)" }}
-        />
-        <div
-          className="absolute bottom-0 left-0 w-56 h-56 pointer-events-none"
-          style={{ background: "radial-gradient(circle,rgba(124,58,237,.18),transparent 65%)", filter: "blur(40px)" }}
+          style={{ background: "radial-gradient(circle,rgba(230,0,126,.18),transparent 65%)", filter: "blur(50px)" }}
         />
 
         <div className="relative flex flex-col md:flex-row gap-6 items-start md:items-center">
@@ -222,9 +217,8 @@ export default function CandidateProfileViewPage() {
               />
             ) : null}
             <div
-              className="w-24 h-24 rounded-2xl flex items-center justify-center text-white text-2xl font-bold border-2 border-white/20 shadow-xl"
+              className="w-24 h-24 rounded-2xl flex items-center justify-center text-white text-2xl font-bold border-2 border-white/20 shadow-xl bg-[var(--ink-700)]"
               style={{
-                background: "linear-gradient(135deg,#7C3AED,#C8315A)",
                 display: avatarUrl ? "none" : "flex",
               }}
             >
@@ -235,11 +229,11 @@ export default function CandidateProfileViewPage() {
             <div
               className={`absolute -bottom-2 -right-2 px-2.5 py-1 rounded-full text-[9px] font-bold flex items-center gap-1 border ${
                 p.isAvailable
-                  ? "bg-emerald-900/80 text-emerald-300 border-emerald-700"
-                  : "bg-amber-900/80 text-amber-300 border-amber-700"
+                  ? "bg-[var(--status-success-bg)] text-[var(--status-success-fg)] border-[var(--status-success-bg)]"
+                  : "bg-[var(--ink-100)] text-[var(--ink-500)] border-[var(--ink-300)]"
               }`}
             >
-              <span className={`w-1.5 h-1.5 rounded-full ${p.isAvailable ? "bg-emerald-400" : "bg-amber-400"}`} />
+              <span className={`w-1.5 h-1.5 rounded-full ${p.isAvailable ? "bg-[var(--status-success-fg)]" : "bg-[var(--ink-300)]"}`} />
               {p.isAvailable ? "Available Now" : "Busy"}
             </div>
           </div>
@@ -280,7 +274,7 @@ export default function CandidateProfileViewPage() {
             <button
               onClick={() => startChatMut.mutate()}
               disabled={startChatMut.isPending}
-              className="w-full md:w-auto inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-bold bg-[#C8315A] hover:bg-[#C8315A]/90 text-white transition-all active:scale-95 shadow-md disabled:opacity-50"
+              className="w-full md:w-auto inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-bold bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white transition-all active:scale-95 shadow-md disabled:opacity-50"
             >
               {startChatMut.isPending ? (
                 <>
@@ -298,12 +292,12 @@ export default function CandidateProfileViewPage() {
                   <span className={cn(
                     "text-[9px] font-bold px-3 py-1.5 rounded-full border shadow-sm inline-flex items-center gap-1.5 leading-none transition-all duration-300",
                     p.profileViews > 10
-                      ? "bg-violet-950/40 text-violet-300 border-violet-700/50"
-                      : "bg-emerald-950/40 text-emerald-300 border-emerald-700/50"
+                      ? "bg-[var(--brand-pink-soft)] text-[var(--brand-pink)] border-[var(--brand-pink)]/20"
+                      : "bg-[var(--status-success-bg)] text-[var(--status-success-fg)] border-[var(--status-success-bg)]"
                   )}>
                     <span className={cn(
                       "w-1.5 h-1.5 rounded-full animate-pulse",
-                      p.profileViews > 10 ? "bg-violet-400" : "bg-emerald-400"
+                      p.profileViews > 10 ? "bg-[var(--brand-pink)]" : "bg-[var(--status-success-fg)]"
                     )} />
                     {p.profileViews > 10 ? "🔥 Highly Active" : "⚡ Fast Responder"}
                   </span>
@@ -334,7 +328,7 @@ export default function CandidateProfileViewPage() {
                 href={p.linkedinUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[11px] font-semibold bg-blue-500/20 text-blue-300 border border-blue-500/30 hover:bg-blue-500/30 transition-all"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[11px] font-semibold bg-white/[0.08] text-white/70 border border-white/15 hover:bg-white/15 hover:text-white transition-all"
               >
                 <Linkedin size={11} /> LinkedIn <ExternalLink size={9} />
               </a>
@@ -354,7 +348,7 @@ export default function CandidateProfileViewPage() {
                 href={p.portfolioUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[11px] font-semibold bg-rose-500/20 text-rose-300 border border-rose-500/30 hover:bg-rose-500/30 transition-all"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[11px] font-semibold bg-white/[0.08] text-white/70 border border-white/15 hover:bg-white/15 hover:text-white transition-all"
               >
                 <Globe size={11} /> Portfolio <ExternalLink size={9} />
               </a>
@@ -370,35 +364,32 @@ export default function CandidateProfileViewPage() {
         <div className="lg:col-span-1 flex flex-col gap-4">
 
           {/* AI Talent Map Diagnostic Widget */}
-          <Card className="bg-[#FAF8FC] border border-[#E8DDF0]">
+          <Card className="bg-[var(--ink-100)] border border-[var(--ink-300)]">
             <SectionHeader icon={Brain} title="AI Cognitive Talent Map" badge="neural core" />
             <div className="space-y-4">
               <div>
                 <div className="flex justify-between text-[11px] font-bold text-foreground mb-1">
                   <span>Technical Capacity</span>
-                  <span className="font-mono text-primary font-bold">92%</span>
+                  <span className="font-mono text-[var(--brand-pink)] font-bold">92%</span>
                 </div>
-                <div className="h-1.5 bg-border rounded-full overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-primary to-violet-500 rounded-full" style={{ width: "92%" }} />
+                <div className="h-1.5 bg-[var(--ink-300)] rounded-full overflow-hidden">
+                  <div className="h-full bg-[var(--brand-pink)] rounded-full" style={{ width: "92%" }} />
                 </div>
               </div>
 
               <div>
                 <div className="flex justify-between text-[11px] font-bold text-foreground mb-1">
                   <span>Soft Skills & Collaboration</span>
-                  <span className="font-mono text-[#7C3AED] font-bold">85%</span>
+                  <span className="font-mono text-[var(--ink-500)] font-bold">85%</span>
                 </div>
-                <div className="h-1.5 bg-border rounded-full overflow-hidden">
-                  <div className="h-full bg-[#7C3AED] rounded-full" style={{ width: "85%" }} />
+                <div className="h-1.5 bg-[var(--ink-300)] rounded-full overflow-hidden">
+                  <div className="h-full bg-[var(--ink-500)] rounded-full" style={{ width: "85%" }} />
                 </div>
               </div>
 
               <div>
                 <div className="flex justify-between text-[11px] font-bold text-foreground mb-1">
                   <span>Adaptability & Agility</span>
-                  <span className="font-mono text-emerald-600 font-bold">88%</span>
-                </div>
-                <div className="h-1.5 bg-border rounded-full overflow-hidden">
                   <div className="h-full bg-emerald-500 rounded-full" style={{ width: "88%" }} />
                 </div>
               </div>
@@ -498,7 +489,7 @@ export default function CandidateProfileViewPage() {
                 {p.experience.map((exp: any, i: number) => (
                   <div key={i} className="relative">
                     {/* Timeline dot connector */}
-                    <div className="absolute -left-[21px] top-1.5 w-3 h-3 rounded-full bg-gradient-to-br from-violet-500 to-rose-500 border-2 border-card ring-2 ring-primary/10 shadow-xs" />
+                    <div className="absolute -left-[21px] top-1.5 w-3 h-3 rounded-full bg-[var(--brand-pink)] border-2 border-card ring-2 ring-[var(--brand-pink)]/20 shadow-xs" />
 
                     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1">
                       <div>
@@ -509,7 +500,7 @@ export default function CandidateProfileViewPage() {
                         <Calendar size={10} className="text-primary" />
                         {formatDate(exp.from)} – {exp.current ? "Present" : formatDate(exp.to)}
                         {exp.current && (
-                          <span className="ml-1.5 px-1.5 py-0.5 bg-emerald-50 text-emerald-600 rounded-full text-[8px] font-extrabold border border-emerald-100">
+                          <span className="ml-1.5 px-1.5 py-0.5 bg-[var(--status-success-bg)] text-[var(--status-success-fg)] rounded-full text-[8px] font-extrabold border border-[var(--status-success-bg)]">
                             Current
                           </span>
                         )}
@@ -535,7 +526,7 @@ export default function CandidateProfileViewPage() {
                 {p.education.map((ed: any, i: number) => (
                   <div key={i} className="relative">
                     {/* Timeline dot */}
-                    <div className="absolute -left-[21px] top-1.5 w-3 h-3 rounded-full bg-gradient-to-br from-blue-500 to-violet-500 border-2 border-card ring-2 ring-blue-500/10 shadow-xs" />
+                    <div className="absolute -left-[21px] top-1.5 w-3 h-3 rounded-full bg-[var(--brand-pink)] border-2 border-card ring-2 ring-[var(--brand-pink)]/20 shadow-xs" />
                     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1">
                       <div>
                         <div className="text-[13px] font-bold text-foreground">
@@ -545,7 +536,7 @@ export default function CandidateProfileViewPage() {
                       </div>
                       {ed.year && (
                         <div className="text-[11px] text-muted-foreground flex items-center gap-1 bg-secondary/60 px-2 py-0.5 rounded-lg border border-border/40 font-medium flex-shrink-0">
-                          <Calendar size={10} className="text-blue-500" /> {ed.year}
+                          <Calendar size={10} className="text-[var(--brand-pink)]" /> {ed.year}
                         </div>
                       )}
                     </div>
@@ -562,7 +553,7 @@ export default function CandidateProfileViewPage() {
               <div className="grid sm:grid-cols-2 gap-3.5">
                 {p.certifications.map((cert: any, i: number) => (
                   <div key={i} className="flex items-start gap-3 p-3 bg-secondary/15 rounded-xl border border-border/40">
-                    <CheckCircle size={14} className="text-emerald-500 mt-0.5 flex-shrink-0" />
+                    <CheckCircle size={14} className="text-[var(--status-success-fg)] mt-0.5 flex-shrink-0" />
                     <div className="min-w-0">
                       <div className="text-[13px] font-bold text-foreground truncate">{cert.name}</div>
                       <div className="text-[11px] text-muted-foreground truncate mt-0.5">
@@ -637,7 +628,7 @@ export default function CandidateProfileViewPage() {
           <button
             onClick={() => startChatMut.mutate()}
             disabled={startChatMut.isPending}
-            className="inline-flex items-center justify-center gap-1.5 px-5 py-2 rounded-xl text-[12px] font-bold bg-[#C8315A] text-white hover:opacity-95 transition-opacity disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-1.5 px-5 py-2 rounded-xl text-[12px] font-bold bg-[var(--brand-pink)] text-white hover:bg-[var(--brand-pink-hover)] transition-all disabled:opacity-50"
           >
             {startChatMut.isPending ? "Connecting…" : "💬 Message Her"}
           </button>

@@ -1,4 +1,4 @@
-﻿// src/pages/employer/AISearchPage.tsx
+// src/pages/employer/AISearchPage.tsx
 import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router-dom";
@@ -36,7 +36,7 @@ function ThinkingDots() {
   return (
     <span className="inline-flex gap-1 items-center">
       {[0, 1, 2].map(i => (
-        <span key={i} className="w-1.5 h-1.5 bg-[#F0C96A] rounded-full animate-bounce"
+        <span key={i} className="w-1.5 h-1.5 bg-[var(--brand-pink)] rounded-full animate-bounce"
               style={{ animationDelay: `${i * 0.15}s` }} />
       ))}
     </span>
@@ -69,8 +69,8 @@ function AIScreeningQuestions({ cand, query }: { cand: any; query: string }) {
   return (
     <div className="mt-4 pt-3 border-t border-border bg-secondary/10 -mx-5 -mb-5 px-5 py-4 rounded-b-2xl transition-all">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-[10px] font-bold text-primary flex items-center gap-1">
-          <Brain size={12} className="text-[#C8315A]" /> AI ASSESSMENT CO-PILOT
+        <span className="text-[10px] font-bold text-[var(--brand-pink)] flex items-center gap-1">
+          <Brain size={12} className="text-[var(--brand-pink)]" /> AI ASSESSMENT CO-PILOT
         </span>
         {questions.length === 0 ? (
           <button
@@ -162,20 +162,20 @@ function MatchBreakdown({ cand, query }: { cand: any; query: string }) {
       <div>
         <div className="flex justify-between text-[10px] font-semibold text-foreground mb-1">
           <span>Role & Experience Fit</span>
-          <span className="font-mono text-violet-600">{scores.exp}%</span>
+          <span className="font-mono text-[var(--ink-500)]">{scores.exp}%</span>
         </div>
         <div className="h-1.5 bg-border rounded-full overflow-hidden">
-          <div className="h-full bg-violet-500 rounded-full transition-all duration-700" style={{ width: `${scores.exp}%` }} />
+          <div className="h-full bg-[var(--ink-500)] rounded-full transition-all duration-700" style={{ width: `${scores.exp}%` }} />
         </div>
       </div>
 
       <div>
         <div className="flex justify-between text-[10px] font-semibold text-foreground mb-1">
           <span>Response & Availability Rate</span>
-          <span className="font-mono text-emerald-600">{scores.avail}%</span>
+          <span className="font-mono text-[var(--status-success-fg)]">{scores.avail}%</span>
         </div>
         <div className="h-1.5 bg-border rounded-full overflow-hidden">
-          <div className="h-full bg-emerald-500 rounded-full transition-all duration-700" style={{ width: `${scores.avail}%` }} />
+          <div className="h-full bg-[var(--status-success-fg)] rounded-full transition-all duration-700" style={{ width: `${scores.avail}%` }} />
         </div>
       </div>
     </div>
@@ -227,7 +227,7 @@ function CandidateCard({
     )}>
       <div>
         {rank <= 3 && (
-          <div className="absolute -top-3 left-4 text-[9px] font-bold px-3 py-1 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-black flex items-center gap-1 shadow-sm">
+          <div className="absolute -top-3 left-4 text-[9px] font-bold px-3 py-1 rounded-full bg-[var(--brand-pink-soft)] text-[var(--brand-pink)] border border-[var(--brand-pink)]/20 flex items-center gap-1 shadow-sm">
             <Sparkles size={8} /> #{rank} Best Match
           </div>
         )}
@@ -262,7 +262,7 @@ function CandidateCard({
               />
             ) : null}
             <div
-              className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#7C3AED] to-[#C8315A] flex items-center justify-center text-white text-sm font-bold border border-border"
+              className="w-11 h-11 rounded-xl bg-[var(--ink-900)] flex items-center justify-center text-white text-sm font-bold border border-border"
               style={{ display: cand.avatarUrl ? 'none' : 'flex' }}
             >
               {cand.firstName[0]}{cand.lastName[0]}
@@ -280,8 +280,10 @@ function CandidateCard({
 
         <div className="flex gap-2 mb-3">
           <span className={cn("text-[9px] font-bold px-2.5 py-1 rounded-full inline-flex items-center gap-1.5",
-            cand.isAvailable ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-400" : "bg-amber-50 text-amber-600 dark:bg-amber-950/20 dark:text-amber-400")}>
-            <span className="w-1.5 h-1.5 rounded-full" style={{ background: cand.isAvailable ? "#059669" : "#D97706" }} />
+            cand.isAvailable
+              ? "bg-[var(--status-success-bg)] text-[var(--status-success-fg)]"
+              : "bg-[var(--ink-100)] text-[var(--ink-500)]")}>
+            <span className="w-1.5 h-1.5 rounded-full" style={{ background: cand.isAvailable ? "var(--status-success-fg)" : "var(--ink-300)" }} />
             {cand.isAvailable ? "Available Now" : "Unavailable"}
           </span>
 
@@ -298,7 +300,7 @@ function CandidateCard({
         </div>
 
         {cand.aiReason && (
-          <div className="bg-[#FAF8FC] border border-[#E8DDF0] rounded-xl px-3.5 py-2.5 mb-3 text-[11px] text-muted-foreground leading-relaxed">
+          <div className="bg-[var(--ink-100)] border border-[var(--ink-300)] rounded-xl px-3.5 py-2.5 mb-3 text-[11px] text-muted-foreground leading-relaxed">
             🤖 <strong className="text-foreground/90 font-bold">AI Rationale:</strong> {cand.aiReason}
           </div>
         )}
@@ -308,7 +310,7 @@ function CandidateCard({
 
         <div className="flex flex-wrap gap-1.5 mb-4 mt-3">
           {cand.skills.slice(0, 5).map((s: string) => (
-            <span key={s} className="text-[10px] bg-rose-50 text-rose-500 dark:bg-rose-950/20 dark:text-rose-400 px-2.5 py-0.5 rounded-full font-semibold border border-rose-100/30">
+            <span key={s} className="text-[10px] bg-[var(--ink-100)] text-[var(--ink-700)] px-2.5 py-0.5 rounded-full font-semibold border border-[var(--ink-300)]">
               {s}
             </span>
           ))}
@@ -375,9 +377,10 @@ function CandidateCompareModal({ list, onClose }: { list: any[]; onClose: () => 
                 {list.map(c => (
                   <th key={c.id} className="py-3 px-4 font-bold text-foreground bg-secondary/5 text-center">
                     <div className="flex flex-col items-center">
-                      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-violet-500 text-white font-bold flex items-center justify-center text-xs mb-1">
-                        {c.firstName[0]}{c.lastName[0]}
-                      </div>
+                      <div
+                  className="w-9 h-9 rounded-xl bg-[var(--brand-pink)] text-white font-bold flex items-center justify-center text-xs mb-1">
+                  {c.firstName[0]}{c.lastName[0]}
+                </div>
                       <span className="text-[12px] font-bold block">{c.firstName} {c.lastName}</span>
                       <span className="text-[10px] text-muted-foreground font-medium truncate max-w-[150px]">{c.title}</span>
                     </div>
@@ -400,7 +403,9 @@ function CandidateCompareModal({ list, onClose }: { list: any[]; onClose: () => 
                 {list.map(c => (
                   <td key={c.id} className="py-3.5 px-4 text-center">
                     <span className={cn("text-[9px] font-bold px-2.5 py-0.5 rounded-full inline-flex items-center gap-1",
-                      c.isAvailable ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-400" : "bg-amber-50 text-amber-600 dark:bg-amber-950/20 dark:text-amber-400")}>
+                      c.isAvailable
+                        ? "bg-[var(--status-success-bg)] text-[var(--status-success-fg)]"
+                        : "bg-[var(--ink-100)] text-[var(--ink-500)]")}>
                       {c.isAvailable ? "Available" : "Busy"}
                     </span>
                   </td>
@@ -582,7 +587,7 @@ function RecentlyViewedGrid({ query }: { query: string }) {
                   />
                 ) : null}
                 <div
-                  className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#7C3AED] to-[#C8315A] flex items-center justify-center text-white font-bold text-xs border border-border"
+                  className="w-10 h-10 rounded-xl bg-[var(--ink-900)] flex items-center justify-center text-white font-bold text-xs border border-border"
                   style={{ display: c.avatarUrl ? "none" : "flex" }}
                 >
                   {(c.firstName?.[0] ?? "?")}{(c.lastName?.[0] ?? "")}
@@ -603,8 +608,8 @@ function RecentlyViewedGrid({ query }: { query: string }) {
               <span className={cn(
                 "text-[8.5px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1",
                 c.isAvailable
-                  ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-400"
-                  : "bg-amber-50 text-amber-600 dark:bg-amber-950/20 dark:text-amber-400"
+                  ? "bg-[var(--status-success-bg)] text-[var(--status-success-fg)]"
+                  : "bg-[var(--ink-100)] text-[var(--ink-500)]"
               )}>
                 <span className="w-1 h-1 rounded-full" style={{ background: c.isAvailable ? "#059669" : "#D97706" }} />
                 {c.isAvailable ? "Available" : "Busy"}
@@ -615,7 +620,7 @@ function RecentlyViewedGrid({ query }: { query: string }) {
                 </span>
               )}
               {isFromLocalStorage && (
-                <span className="text-[8px] font-bold px-2 py-0.5 rounded-full bg-violet-50 text-violet-600 dark:bg-violet-950/20 dark:text-violet-400 inline-flex items-center gap-1">
+                <span className="text-[8px] font-bold px-2 py-0.5 rounded-full bg-[var(--ink-100)] text-[var(--ink-700)] border border-[var(--ink-300)] inline-flex items-center gap-1">
                   <Clock size={7} /> Viewed
                 </span>
               )}
@@ -623,7 +628,7 @@ function RecentlyViewedGrid({ query }: { query: string }) {
 
             {/* AI Reason */}
             {c.aiReason && (
-              <p className="text-[10px] text-muted-foreground line-clamp-2 leading-relaxed bg-[#FAF8FC] dark:bg-secondary/30 border border-[#E8DDF0] dark:border-border rounded-lg px-2.5 py-2 mb-2.5">
+              <p className="text-[10px] text-muted-foreground line-clamp-2 leading-relaxed bg-[var(--ink-100)] dark:bg-secondary/30 border border-[var(--ink-300)] dark:border-border rounded-lg px-2.5 py-2 mb-2.5">
                 🤖 {c.aiReason}
               </p>
             )}
@@ -631,7 +636,7 @@ function RecentlyViewedGrid({ query }: { query: string }) {
             {/* Skills */}
             <div className="flex flex-wrap gap-1 mb-1">
               {c.skills.slice(0, 3).map((s: string) => (
-                <span key={s} className="text-[9px] bg-rose-50 text-rose-500 dark:bg-rose-950/20 dark:text-rose-400 px-2.5 py-0.5 rounded-full font-semibold border border-rose-100/30">
+                <span key={s} className="text-[9px] bg-[var(--ink-100)] text-[var(--ink-700)] px-2.5 py-0.5 rounded-full font-semibold border border-[var(--ink-300)]">
                   {s}
                 </span>
               ))}
@@ -728,11 +733,11 @@ function SuggestedArchetypes({ listings, useQuick }: SuggestedArchetypesProps) {
         <button
           key={arch.title}
           onClick={() => useQuick(arch.description)}
-          className="group relative bg-card border border-border/80 hover:border-[#C8315A] hover:bg-secondary/5 rounded-xl p-4 text-left transition-all duration-300 active:scale-98 flex flex-col justify-between shadow-xs hover:shadow-md"
+          className="group relative bg-card border border-border/80 hover:border-[var(--brand-pink)] hover:bg-secondary/5 rounded-xl p-4 text-left transition-all duration-300 active:scale-98 flex flex-col justify-between shadow-xs hover:shadow-md"
         >
           <div>
-            <div className="flex items-center gap-1 text-[11.5px] font-bold text-foreground mb-1 group-hover:text-[#C8315A] transition-colors">
-              <Zap size={11} className="text-[#C8315A]" /> {arch.title}
+            <div className="flex items-center gap-1 text-[11.5px] font-bold text-foreground mb-1 group-hover:text-[var(--brand-pink)] transition-colors">
+              <Zap size={11} className="text-[var(--brand-pink)]" /> {arch.title}
             </div>
             <p className="text-[10.5px] text-muted-foreground leading-relaxed line-clamp-2 mb-3">
               "{arch.description}"
@@ -914,7 +919,7 @@ export default function AISearchPage() {
 
         {/* Header */}
         <div className="flex items-start gap-2 mb-2 relative">
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#7C3AED] to-[#C8315A] font-serif font-black text-sm select-none">✦</span>
+          <span className="text-[var(--brand-pink)] font-serif font-black text-sm select-none">✦</span>
           <Sparkles size={16} className="text-[#F0C96A] mt-0.5 flex-shrink-0 animate-pulse" />
           <div>
             <div className="font-serif text-lg text-white leading-tight">Advanced AI Candidate Matching Console</div>
@@ -1073,7 +1078,7 @@ export default function AISearchPage() {
             </div>
           </div>
           <div className="bg-card border border-border rounded-2xl p-4 flex items-center gap-3 shadow-xs">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-600">
+            <div className="w-10 h-10 rounded-xl bg-[var(--brand-pink-soft)] flex items-center justify-center text-[var(--brand-pink)]">
               <UserCheck size={20} />
             </div>
             <div>
@@ -1084,7 +1089,7 @@ export default function AISearchPage() {
             </div>
           </div>
           <div className="bg-card border border-border rounded-2xl p-4 flex items-center gap-3 shadow-xs">
-            <div className="w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center text-violet-600">
+            <div className="w-10 h-10 rounded-xl bg-[var(--brand-pink-soft)] flex items-center justify-center text-[var(--brand-pink)]">
               <Brain size={20} />
             </div>
             <div>
@@ -1197,7 +1202,7 @@ export default function AISearchPage() {
             <div>
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-violet-500/10 flex items-center justify-center">
+                  <div className="w-7 h-7 rounded-lg bg-[var(--brand-pink-soft)] flex items-center justify-center">
                     <Clock size={13} className="text-violet-600" />
                   </div>
                   <div>

@@ -601,8 +601,8 @@ export default function ListingsPage() {
                           <span className="text-[11px] font-bold text-foreground leading-none">{viewsCount} views</span>
                           <span className="text-[8px] text-muted-foreground uppercase font-extrabold tracking-wider mt-0.5">applicant velocity</span>
                         </div>
-                        <div className="flex-shrink-0 bg-secondary/20 p-1 rounded-lg border border-border/40">
-                          <svg className="w-14 h-5 text-primary stroke-current" fill="none" strokeWidth="1.5">
+                        <div className="flex-shrink-0 bg-[var(--ink-100)] p-1 rounded-lg border border-[var(--ink-300)]/40">
+                          <svg className="w-14 h-5 text-[var(--ink-500)] stroke-current" fill="none" strokeWidth="1.5">
                             <polyline points={sparkPoints} />
                           </svg>
                         </div>
@@ -935,7 +935,7 @@ export default function ListingsPage() {
               <button
                 type="button"
                 onClick={() => setAnalyticsJob(null)}
-                className="px-5 py-2 bg-primary hover:bg-mauve-600 text-white rounded-full text-[11px] font-bold shadow-sm transition-all active:scale-95"
+                className="px-5 py-2 bg-primary hover:bg-[var(--brand-pink-hover)] text-white rounded-full text-[11px] font-bold shadow-sm transition-all active:scale-95"
               >
                 Close Insights
               </button>
