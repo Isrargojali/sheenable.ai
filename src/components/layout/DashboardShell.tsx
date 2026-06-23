@@ -24,6 +24,66 @@ import { ProfileDropdown } from "../ui/ProfileDropdown";
 type NavItem = { to: string; label: string; icon: LucideIcon; badge?: string };
 type NavGroup = { label: string; items: NavItem[] };
 
+interface Thread {
+  unreadCandidate: number;
+  unreadEmployer: number;
+}
+
+type ThreadsQueryData = Thread[] | { results?: Thread[] };
+
+interface ApplicationData {
+  updatedAt?: string;
+  appliedAt?: string;
+  createdAt?: string;
+  stage?: string;
+  status?: string;
+}
+
+interface ListingData {
+  status?: string;
+  expiresAt?: string;
+  deadline?: string;
+}
+
+interface NotificationBadgeCounts {
+  unreadMessagesCount: number;
+  appsCount: number;
+  atsPendingCount: number;
+  expiringListingsCount: number;
+}
+
+interface SidebarProps {
+  onNav?: () => void;
+  available: boolean;
+  setAvailable: (avail: boolean) => void;
+}
+
+interface AuditLogEntry {
+  createdAt: string;
+  [key: string]: unknown;
+}
+
+interface SecurityInfo {
+  recentFailedLogins?: number;
+  accountsLockedToday?: number;
+  unverifiedAccounts?: number;
+  suspendedUsers?: number;
+  [key: string]: unknown;
+}
+
+interface AdminUser {
+  id?: string;
+  email?: string;
+  role?: string;
+  name?: string;
+  [key: string]: unknown;
+}
+
+interface EmployerProfile {
+  companyName?: string;
+  companyLogoUrl?: string;
+}
+
 const NAV: Record<UserRole, NavGroup[]> = {
   CANDIDATE: [
     {
@@ -112,10 +172,7 @@ const applyThemeVars = () => {
 };
 
 // Hook to fetch notification/message badges
-function useNotificationBadges(role: UserRole) {
-  type Thread = { unreadCandidate: number; unreadEmployer: number };
-  type ThreadsQueryData = Thread[] | { results: Thread[] };
-
+function useNotificationBadges(role: UserRole): NotificationBadgeCounts {
   const { data: threadsData } = useQuery<ThreadsQueryData>({
     queryKey: ["threadsBadge", role],
     queryFn: apiMessages.getThreads,
@@ -137,19 +194,6 @@ function useNotificationBadges(role: UserRole) {
     enabled: role === "CANDIDATE"
   });
   const appsCount = Array.isArray(myAppsData) ? myAppsData.length : 0;
-
-  type ApplicationData = {
-    updatedAt?: string;
-    appliedAt?: string;
-    createdAt?: string;
-    stage?: string;
-    status?: string;
-  };
-  type ListingData = {
-    status?: string;
-    expiresAt?: string;
-    deadline?: string;
-  };
 
   // Employer: ATS pipeline — candidates pending action (stuck >3 days in a stage)
   const { data: pipelineApps } = useQuery<unknown, unknown, ApplicationData[]>({
@@ -206,11 +250,7 @@ function Sidebar({
   onNav,
   available,
   setAvailable,
-}: {
-  onNav?: () => void;
-  available: boolean;
-  setAvailable: (avail: boolean) => void;
-}) {
+}: SidebarProps) {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
   const role = user?.role ?? "CANDIDATE";
@@ -270,14 +310,14 @@ function Sidebar({
 
 
   return (
-    <aside className="w-[240px] flex-shrink-0 bg-card border-r border-border flex flex-col h-full">
+    <aside className="w-[240px] flex-shrink-0 bg-card flex flex-col h-full">
       {/* Brand */}
-      <div className="px-4 h-[64px] border-b border-border flex items-center justify-start gap-2.5">
+      <div className="px-4 h-[64px] flex items-center justify-start gap-2.5">
         <Link to="/" className="relative z-10 flex items-center group" aria-label="SheEnableAI home">
           <img
             src={logo}
             alt="SheEnableAI logo"
-            className="w-32 h-8 object-contain transition-transform group-hover:scale-105"
+            className="w-[165px] h-[42px] object-contain transition-transform group-hover:scale-105"
           />
         </Link>
       </div>
@@ -314,7 +354,7 @@ function Sidebar({
 
         {role === "CANDIDATE" && (
           <button
-            onClick={() => setAvailable(v => !v)}
+            onClick={() => setAvailable(!available)}
             className={cn(
               "w-full flex items-center gap-2 px-2.5 py-2 rounded-[var(--radius-control)] transition-colors",
               available 
@@ -333,7 +373,7 @@ function Sidebar({
       {/* Nav groups */}
       <nav className="flex-1 overflow-y-auto px-2 py-2 scrollbar-thin">
         {groups.map((g, gi) => (
-          <div key={g.label} className={cn(gi > 0 && "mt-2 pt-2 border-t border-border")}>
+          <div key={g.label} className={cn(gi > 0 && "mt-4")}>
             <div className="text-[9px] font-bold uppercase tracking-[1.2px] text-ink-200 px-2.5 pt-1.5 pb-1">
               {g.label}
             </div>
@@ -484,7 +524,7 @@ function Topbar({
   const unreadCount = notifsList.filter(n => n.unread).length;
 
   return (
-    <header className="bg-card border-b border-border px-5 lg:px-6 py-3 flex items-center justify-between gap-3 flex-wrap">
+    <header className="bg-card px-5 lg:px-6 py-3 flex items-center justify-between gap-3 flex-wrap">
       <div className="flex items-center gap-3 min-w-0">
         {/* Hamburger — hidden when bottom nav handles mobile navigation */}
         {showHamburger && (
@@ -497,7 +537,7 @@ function Topbar({
           </button>
         )}
         <div className="min-w-0">
-          <h1 className="text-[28px] font-semibold text-[var(--ink-900)] leading-tight tracking-tight truncate">{title}</h1>
+          <h1 className="text-[20px] font-semibold text-[var(--ink-900)] leading-tight tracking-tight truncate">{title}</h1>
           {subtitle && <p className="text-[14px] font-normal text-[var(--ink-500)] truncate mt-1">{subtitle}</p>}
         </div>
       </div>
