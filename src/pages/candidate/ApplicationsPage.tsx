@@ -67,8 +67,6 @@ export default function ApplicationsPage() {
 
   return (
     <DashboardShell
-      title="My applications"
-      subtitle="Track every job you've applied to"
       actions={
         <Link to="/candidate/jobs">
           <BtnPrimary>

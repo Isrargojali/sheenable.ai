@@ -223,8 +223,6 @@ export default function CVBuilderPage() {
 
   return (
     <DashboardShell
-      title="Professional CV Builder"
-      subtitle="Smart, AI-powered ATS resume compiler with direct in-line editing"
       actions={
         <div className="flex flex-wrap sm:flex-nowrap items-center gap-1.5 sm:gap-2 relative">
           <BtnOutline

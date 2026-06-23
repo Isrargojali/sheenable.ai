@@ -289,8 +289,6 @@ ${candidateName}`;
 
   return (
     <DashboardShell
-      title="Browse jobs"
-      subtitle={`${total} opportunities matching your profile`}
       actions={
         <Link to="/candidate/cv">
           <BtnPrimary>

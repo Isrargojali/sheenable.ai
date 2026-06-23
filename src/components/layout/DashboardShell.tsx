@@ -574,7 +574,7 @@ function Topbar({
       </div>
 
       {role === "CANDIDATE" && (
-        <form onSubmit={handleNavSearchSubmit} className="w-full md:max-w-sm md:w-auto md:flex-1 mx-0 md:mx-4 order-3 md:order-none mt-2 md:mt-0 flex items-center gap-2">
+        <form onSubmit={handleNavSearchSubmit} className="w-full md:max-w-sm md:w-auto md:flex-1 mx-0 md:ml-8 md:mr-4 order-3 md:order-none mt-2 md:mt-0 flex items-center gap-2">
           <div className="relative w-full">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--ink-500)]" />
             <input

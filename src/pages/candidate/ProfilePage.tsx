@@ -530,8 +530,6 @@ export default function ProfilePage() {
 
   return (
     <DashboardShell
-      title="My Profile"
-      subtitle="Complete your profile to get 3× more matches"
       actions={
         <div className="flex items-center gap-3">
           {completion.percentage < 100 && (
