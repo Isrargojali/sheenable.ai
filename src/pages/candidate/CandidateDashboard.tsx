@@ -257,13 +257,6 @@ export default function CandidateDashboard() {
     <DashboardShell
       title={`Welcome back, ${user?.firstName ?? "there"}`}
       subtitle="Here's what's happening with your she-enable job search today"
-      actions={
-        <Link to="/candidate/jobs">
-          <BtnPrimary>
-            Browse jobs <ArrowRight size={16} strokeWidth={1.75} />
-          </BtnPrimary>
-        </Link>
-      }
     >
       {/* Contextual Urgent Action Banner */}
       {urgentAction && (

@@ -8,7 +8,7 @@ import {
 import { cn, initials, getCompanyGradient } from "@/lib/utils";
 import FileAttachment from "@/components/ui/FileAttachment";
 import { apiMessages, apiApplications, apiAI, apiUpload } from "@/lib/api";
-import { DashboardShell, BtnPrimary } from "@/components/layout/DashboardShell";
+import { DashboardShell } from "@/components/layout/DashboardShell";
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "sonner";
 import { useLocation, Link } from "react-router-dom";
@@ -416,13 +416,6 @@ export default function MessagesPage() {
     <DashboardShell
       title="Messages"
       subtitle={user?.role === "CANDIDATE" ? "Your conversations with employers" : "Your conversations with candidates"}
-      actions={
-        <Link to="/candidate/jobs">
-          <BtnPrimary>
-            Browse Jobs
-          </BtnPrimary>
-        </Link>
-      }
     >
       <div className="bg-[var(--surface)] border border-[var(--ink-300)] rounded-[var(--radius-card)] overflow-hidden flex h-[calc(100vh-210px)] md:h-[calc(100vh-140px)] min-h-[520px] shadow-[var(--shadow-card)]">
         
