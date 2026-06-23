@@ -16,6 +16,7 @@ import { useNotifStore } from "@/store/notifStore";
 import { apiNotifications, apiProfile, apiMessages, apiApplications, apiJobs, apiAdmin } from "@/lib/api";
 import { toast } from "sonner";
 import { MOCK_USERS } from "@/mock/data";
+import { ProfileDropdown } from "../ui/ProfileDropdown";
 
 //
 // NAV CONFIG per role
@@ -201,7 +202,15 @@ function useNotificationBadges(role: UserRole) {
 }
 
 
-function Sidebar({ onNav }: { onNav?: () => void }) {
+function Sidebar({
+  onNav,
+  available,
+  setAvailable,
+}: {
+  onNav?: () => void;
+  available: boolean;
+  setAvailable: (avail: boolean) => void;
+}) {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
   const role = user?.role ?? "CANDIDATE";
@@ -258,7 +267,7 @@ function Sidebar({ onNav }: { onNav?: () => void }) {
       : user?.email?.split("@")[0] ?? "User");
   const avatarUrl = (role === "EMPLOYER" ? employerProfile.companyLogoUrl : null) || user?.avatarUrl || null;
 
-  const [available, setAvailable] = useState(true);
+
 
   function handleLogout() {
     logout();
@@ -449,8 +458,8 @@ type NotificationItem = {
 };
 
 function Topbar({
-  title, subtitle, actions, onMenu, onSettingsClick, onSearchClick, showHamburger = true,
-}: { title: string; subtitle?: string; actions?: ReactNode; onMenu: () => void; onSettingsClick?: () => void; onSearchClick?: () => void; showHamburger?: boolean }) {
+  title, subtitle, actions, onMenu, onSettingsClick, onSearchClick, showHamburger = true, available,
+}: { title: string; subtitle?: string; actions?: ReactNode; onMenu: () => void; onSettingsClick?: () => void; onSearchClick?: () => void; showHamburger?: boolean; available: boolean }) {
   const qc = useQueryClient();
   const { user } = useAuthStore();
   const role = user?.role ?? "CANDIDATE";
@@ -587,14 +596,11 @@ function Topbar({
           {/* Quick Dark Toggle */}
           <QuickDarkModeToggle />
 
-          {/* Settings */}
-          <button
-            onClick={onSettingsClick}
-            aria-label="Open settings"
-            className="w-10 h-10 rounded-full flex items-center justify-center bg-[var(--surface)] border border-[var(--ink-300)] hover:bg-[var(--surface-alt)] hover:border-[var(--ink-500)] transition-all cursor-pointer shadow-none select-none"
-          >
-            <Settings size={18} className="text-[var(--ink-700)]" />
-          </button>
+          {/* Profile Dropdown */}
+          <ProfileDropdown
+            available={available}
+            onSettingsClick={onSettingsClick}
+          />
         </div>
       </div>
     </header>
@@ -649,6 +655,7 @@ export function DashboardShell({
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [available, setAvailable] = useState(true);
   const location = useLocation();
 
   // Close mobile drawer on route change
@@ -733,7 +740,7 @@ export function DashboardShell({
     <div className="min-h-screen w-full flex bg-background">
       {/* Desktop sidebar */}
       <div className="hidden lg:flex h-screen sticky top-0">
-        <Sidebar />
+        <Sidebar available={available} setAvailable={setAvailable} />
       </div>
 
       {/* Mobile drawer — Admin/SuperAdmin only (bottom nav handles Candidate/Employer) */}
@@ -741,7 +748,7 @@ export function DashboardShell({
         <>
           <div className="fixed inset-0 bg-foreground/40 z-40 lg:hidden" onClick={() => setMobileOpen(false)} />
           <div className="fixed inset-y-0 left-0 z-50 lg:hidden animate-fade-in">
-            <Sidebar onNav={() => setMobileOpen(false)} />
+            <Sidebar onNav={() => setMobileOpen(false)} available={available} setAvailable={setAvailable} />
             <button
               onClick={() => setMobileOpen(false)}
               aria-label="Close navigation"
@@ -763,6 +770,7 @@ export function DashboardShell({
           onSettingsClick={() => setShowSettings(true)}
           onSearchClick={() => setShowSearch(true)}
           showHamburger={!hasBottomNav}
+          available={available}
         />
         {/* Extra bottom padding on mobile to clear the bottom nav bar */}
         <div
