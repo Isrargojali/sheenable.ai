@@ -351,7 +351,7 @@ export default function CandidateDashboard() {
                     to={`/candidate/jobs?applyJobId=${job.id}`}
                     className="block p-5 hover:bg-secondary/35 transition-all duration-200 group cursor-pointer"
                   >
-                    <div className="flex items-start justify-between gap-4">
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                       <div className="flex gap-4 min-w-0">
                         <div className={cn(
                           "w-11 h-11 rounded-xl flex items-center justify-center text-xs font-black flex-shrink-0 shadow-sm bg-gradient-to-br transition-all duration-300 group-hover:shadow-md",
@@ -379,25 +379,26 @@ export default function CandidateDashboard() {
                           </div>
                         </div>
                       </div>
-                      <div className="text-right flex-shrink-0 flex flex-col items-end">
-                        {/* Match % shows real number with unified styling */}
-                        <div className="text-right flex flex-col items-end mb-2">
-                          <div 
+                      
+                      {/* Stats / Salary / Time - fully responsive to prevent overlap on small screens */}
+                      <div className="flex flex-wrap sm:flex-col items-center sm:items-end justify-start sm:justify-start gap-x-4 gap-y-1 mt-1 sm:mt-0 pt-2 sm:pt-0 border-t border-border/30 sm:border-t-0 text-left sm:text-right">
+                        <div className="flex items-center gap-1">
+                          <span 
                             className={cn(
-                              "text-[13px] font-medium flex items-center gap-1",
+                              "text-[13px] font-semibold flex items-center gap-1",
                               job.aiScore >= 80 ? "text-[var(--status-success-fg)]" : "text-[var(--ink-500)]"
                             )}
                             title={`${job.aiScore}% Match Score`}
                           >
                             <Sparkles size={11} className={cn(job.aiScore >= 80 && "animate-pulse")} />
                             <span>{job.aiScore}% match</span>
-                          </div>
+                          </span>
                         </div>
 
-                        <div className="text-[14px] font-semibold text-[var(--ink-900)]">
+                        <div className="text-[14px] font-bold text-[var(--ink-900)]">
                           {formatSalary(job.salaryMin, job.salaryMax)}
                         </div>
-                        <div className="text-[13px] text-[var(--ink-500)] mt-1 font-normal">{relativeTime(job.createdAt)}</div>
+                        <div className="text-[13px] text-[var(--ink-500)] font-normal">{relativeTime(job.createdAt)}</div>
                       </div>
                     </div>
                   </Link>
