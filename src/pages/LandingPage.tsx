@@ -45,12 +45,7 @@ export default function LandingPage() {
   const [aiStatus, setAiStatus] = useState<string | null>(null);
   const [loadingText, setLoadingText] = useState("");
 
-  const SUGGESTIONS = [
-    "Remote UX Lead",
-    "Staff Backend Engineer",
-    "Product VP in Karachi",
-    "Hybrid HR Business Partner"
-  ];
+
 
   const handleMatchSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -185,20 +180,6 @@ export default function LandingPage() {
                   </button>
                 </div>
 
-                {/* Pre-fill suggestion chips */}
-                <div className="flex flex-wrap justify-center items-center gap-2 text-[10px]">
-                  <span className="text-white/50 font-medium">Or try suggested:</span>
-                  {SUGGESTIONS.map((s) => (
-                    <button
-                      key={s}
-                      type="button"
-                      onClick={() => setPrompt(s)}
-                      className="px-3 py-1.5 rounded-full border border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white hover:border-white/20 transition-all press font-medium"
-                    >
-                      {s}
-                    </button>
-                  ))}
-                </div>
               </form>
             )}
 
