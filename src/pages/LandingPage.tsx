@@ -15,23 +15,10 @@ import Testimonials    from "@/components/landing/Testimonials";
 import EmployerCTA     from "@/components/landing/EmployerCTA";
 import Footer          from "@/components/landing/Footer";
 
-const PARTNERS = [
-  { name: "Techflow", element: <div className="flex items-center gap-1.5 font-sans font-black tracking-tight text-[18px] uppercase"><span className="w-5 h-5 rounded-md bg-white/20 flex items-center justify-center text-[10px] text-white font-sans font-bold">TF</span>tech<span className="text-white/60">flow</span></div> },
-  { name: "NorthStar", element: <div className="flex items-center gap-1 font-serif italic font-extrabold text-[20px] tracking-tight"><span>✦</span> NorthStar</div> },
-  { name: "Atlas Bank", element: <div className="flex items-center gap-1.5 font-sans font-extrabold tracking-[0.15em] text-[16px] uppercase"><span className="w-1 h-5 bg-white/40 rounded-full" />ATLAS<span className="font-light text-white/60">BANK</span></div> },
-  { name: "Helix Health", element: <div className="flex items-center gap-1 font-sans font-bold tracking-tighter text-[19px] lowercase"><span className="text-white/80 font-black">helix</span><span className="text-[12px] py-0.5 px-1 bg-white/10 rounded-sm font-semibold tracking-normal uppercase">health</span></div> },
-  { name: "Cobalt Labs", element: <div className="flex items-center gap-1 font-mono font-bold tracking-tight text-[17px] uppercase">[COBALT<span className="text-white/60 font-light">labs</span>]</div> },
-  { name: "Lumen", element: <div className="flex items-center gap-1 font-sans font-black tracking-[0.2em] text-[18px] uppercase">◇ LUMEN</div> },
-  { name: "Orbit", element: <div className="flex items-center gap-1.5 font-sans font-medium tracking-tight text-[19px]"><span className="w-4 h-4 rounded-full border-2 border-white/40 flex items-center justify-center"><span className="w-1.5 h-1.5 rounded-full bg-white" /></span>orbit</div> },
-  { name: "Vertex", element: <div className="flex items-center gap-1.5 font-serif font-black tracking-tight text-[20px] uppercase">▲ Vertex</div> },
-  { name: "Pioneer", element: <div className="flex items-center gap-1 font-sans font-black tracking-tighter text-[20px] uppercase italic">PIO<span className="text-white/50">NEER</span></div> },
-  { name: "Beacon", element: <div className="flex items-center gap-1.5 font-sans font-extrabold tracking-widest text-[16px] uppercase"><span>⚲</span> BEACON</div> }
-];
 
-const MARQUEE_PARTNERS = [...PARTNERS, ...PARTNERS, ...PARTNERS, ...PARTNERS];
 
 const STATS = [
-  { v: 12400, suffix: "+", label: "Careers Accelerated",      desc: "Exceptional women placed in trajectory-defining roles" },
+  { v: 1400,  suffix: "+", label: "Careers Accelerated",      desc: "Exceptional women placed in trajectory-defining roles" },
   { v: 98,    suffix: "%", label: "Retention Rate",           desc: "Securing thriving long-term matches for both parties" },
   { v: 500,   suffix: "+", label: "Verified Partners",        desc: "Top-tier enterprises committed to equitable workplaces" },
   { v: 47,    suffix: "",  label: "Sector Specialties",       desc: "From pioneering FinTech to advanced research" },
@@ -201,29 +188,6 @@ export default function LandingPage() {
           </motion.div>
         </div>
 
-        {/* Trust bar */}
-        <div className="relative w-full border-t border-white/8 py-8 z-20 mt-auto bg-[var(--ink-900)]">
-          <div className="max-w-[1280px] mx-auto px-5 lg:px-8">
-            <div className="text-center text-[13px] font-black uppercase tracking-[0.25em] text-white/50 mb-4 font-sans">
-              Backed by leading companies
-            </div>
-            <div 
-              className="relative overflow-hidden h-24 flex items-center w-full"
-              style={{ maskImage: "linear-gradient(90deg, transparent, black 15%, black 85%, transparent)", WebkitMaskImage: "linear-gradient(90deg, transparent, black 15%, black 85%, transparent)" }}
-            >
-              <div className="flex gap-20 w-max animate-ticker">
-                {MARQUEE_PARTNERS.map((p, idx) => (
-                  <div 
-                    key={idx} 
-                    className="h-9 flex items-center text-white/35 hover:text-white/85 transition-all duration-300 flex-shrink-0 cursor-default select-none"
-                  >
-                    {p.element}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
       </section>
 
       {/* Job Ticker below the fold */}
