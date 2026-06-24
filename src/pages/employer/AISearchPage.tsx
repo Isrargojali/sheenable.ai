@@ -927,7 +927,7 @@ export default function AISearchPage() {
 
         {/* Matching Mode Selector (Segmented Control) */}
         <div className="flex flex-col gap-3 mt-6 pb-6 border-b border-[var(--ink-300)] relative">
-          <span className="text-[11px] font-bold text-[var(--ink-500)] uppercase tracking-wider flex items-center gap-1 select-none">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-500)] flex items-center gap-1 select-none">
             Matching Mode:
           </span>
           <div className="bg-[var(--ink-100)] rounded-[var(--radius-pill)] p-1 flex w-full max-w-xl">
@@ -1036,7 +1036,7 @@ export default function AISearchPage() {
         {/* Instant Search Templates */}
         {!results && !mutation.isPending && (
           <div className="mt-5 relative">
-            <div className="text-[9px] font-bold text-[var(--ink-500)] uppercase tracking-[1.2px] mb-2.5">Instant Search Templates</div>
+            <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-500)] mb-2.5">Instant Search Templates</div>
             <div className="flex flex-wrap gap-2">
               {QUICK_SUGGESTIONS.map(item => (
                 <button

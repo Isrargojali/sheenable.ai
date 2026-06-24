@@ -374,7 +374,7 @@ function Sidebar({
       <nav className="flex-1 overflow-y-auto px-2 py-2 scrollbar-thin">
         {groups.map((g, gi) => (
           <div key={g.label} className={cn(gi > 0 && "mt-4")}>
-            <div className="text-[9px] font-bold uppercase tracking-[1.2px] text-ink-200 px-2.5 pt-1.5 pb-1">
+            <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-500)] px-2.5 pt-1.5 pb-1">
               {g.label}
             </div>
             {g.items.map(item => {
@@ -430,14 +430,14 @@ function Sidebar({
                   to={item.to}
                   onClick={onNav}
                   className={({ isActive }) => cn(
-                    "flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[12px] font-medium mb-0.5 transition-all border-l-4 border-transparent",
+                    "flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[12px] font-medium mb-0.5 transition-all border-l-[3px] border-transparent",
                     isActive
-                      ? "bg-accent text-accent-foreground font-semibold border-l-[var(--brand-pink)] rounded-l-none"
-                      : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                      ? "bg-[var(--brand-pink-soft)] text-[var(--brand-pink)] font-semibold border-l-[var(--brand-pink)] rounded-l-none"
+                      : "text-[var(--ink-700)] bg-transparent hover:bg-[var(--ink-100)] hover:text-[var(--ink-900)]"
                   )}
                 >
                   <div className="relative flex-shrink-0">
-                    <Icon size={15} className="opacity-80" />
+                    <Icon size={15} className={cn("transition-colors", isActive ? "text-[var(--brand-pink)]" : "text-[var(--ink-500)]")} />
                     {/* Ambient dot for Dashboard */}
                     {showDot && (
                       <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[var(--accent-green)] animate-pulse ring-2 ring-card" />

@@ -397,7 +397,7 @@ export default function ATSPipelinePage() {
       {/* Job selector dropdown popover */}
       <div className="bg-card border border-border rounded-2xl p-5 mb-5 shadow-sm">
         <div className="relative" ref={selectorRef}>
-          <label className="block text-[10px] font-bold uppercase tracking-wider text-ink-300 mb-1.5">
+          <label className="block text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-500)] mb-1.5">
             Active Job Listing context
           </label>
           <button
@@ -480,7 +480,7 @@ export default function ATSPipelinePage() {
           className={cn(
             "px-3.5 py-1.5 rounded-full text-[11px] font-bold border transition-all active:scale-95",
             filter === "ALL" 
-              ? "bg-[var(--brand-pink)] border-[var(--brand-pink)] text-white" 
+              ? "bg-[var(--ink-100)] border-[var(--ink-300)] text-[var(--brand-pink)] font-extrabold" 
               : "bg-white border-[var(--ink-300)] text-[var(--ink-700)] hover:bg-[var(--ink-100)]"
           )}
         >
@@ -496,7 +496,7 @@ export default function ATSPipelinePage() {
               className={cn(
                 "px-3.5 py-1.5 rounded-full text-[11px] font-bold border transition-all active:scale-95",
                 active 
-                  ? "bg-[var(--brand-pink)] border-[var(--brand-pink)] text-white" 
+                  ? "bg-[var(--ink-100)] border-[var(--ink-300)] text-[var(--brand-pink)] font-extrabold" 
                   : "bg-white border-[var(--ink-300)] text-[var(--ink-700)] hover:bg-[var(--ink-100)]",
                 !active && count === 0 && "opacity-55"
               )}
