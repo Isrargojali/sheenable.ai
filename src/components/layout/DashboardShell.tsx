@@ -436,20 +436,24 @@ function Sidebar({
                       : "text-[var(--ink-700)] bg-transparent hover:bg-[var(--ink-100)] hover:text-[var(--ink-900)]"
                   )}
                 >
-                  <div className="relative flex-shrink-0">
-                    <Icon size={15} className={cn("transition-colors", isActive ? "text-[var(--brand-pink)]" : "text-[var(--ink-500)]")} />
-                    {/* Ambient dot for Dashboard */}
-                    {showDot && (
-                      <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[var(--accent-green)] animate-pulse ring-2 ring-card" />
-                    )}
-                  </div>
-                  <span className="truncate">{item.label}</span>
-                  {badge && (
-                    <span className="ml-auto flex items-center justify-center flex-shrink-0">
-                      <span className="bg-[var(--brand-pink)] text-white w-[18px] h-[18px] flex items-center justify-center rounded-full text-[11px] font-semibold leading-none">
-                        {badge}
-                      </span>
-                    </span>
+                  {({ isActive }) => (
+                    <>
+                      <div className="relative flex-shrink-0">
+                        <Icon size={15} className={cn("transition-colors", isActive ? "text-[var(--brand-pink)]" : "text-[var(--ink-500)]")} />
+                        {/* Ambient dot for Dashboard */}
+                        {showDot && (
+                          <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[var(--accent-green)] animate-pulse ring-2 ring-card" />
+                        )}
+                      </div>
+                      <span className="truncate">{item.label}</span>
+                      {badge && (
+                        <span className="ml-auto flex items-center justify-center flex-shrink-0">
+                          <span className="bg-[var(--brand-pink)] text-white w-[18px] h-[18px] flex items-center justify-center rounded-full text-[11px] font-semibold leading-none">
+                            {badge}
+                          </span>
+                        </span>
+                      )}
+                    </>
                   )}
                 </NavLink>
               );

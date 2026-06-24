@@ -84,6 +84,43 @@ const STATS_CONFIG = [
   }
 ] as const;
 
+interface StatCardProps {
+  label: string;
+  value: number;
+  icon: any;
+  delta: string;
+  isPink?: boolean;
+  isLoading?: boolean;
+}
+
+function StatCard({ label, value, icon: Icon, delta, isPink, isLoading }: StatCardProps) {
+  return (
+    <div className="bg-[var(--surface)] border border-[var(--ink-300)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] p-6 flex flex-col justify-between min-h-[160px] transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 group">
+      <div className="flex flex-col items-start gap-3">
+        <Icon size={20} className="text-[var(--ink-500)]" />
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-500)]">
+          {label}
+        </span>
+      </div>
+      <div className="mt-4">
+        {isLoading ? (
+          <div className="h-[40px] w-16 bg-[var(--ink-100)] animate-pulse rounded-md" />
+        ) : (
+          <div className={cn(
+            "text-[40px] font-semibold leading-none tracking-tight",
+            isPink ? "text-[var(--brand-pink)]" : "text-[var(--ink-900)]"
+          )}>
+            {value}
+          </div>
+        )}
+        <div className="text-[13px] text-[var(--ink-500)] mt-1.5 leading-none">
+          {delta}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Component ────────────────────────────────────────────────────────────────
 
 export default function EmployerDashboard() {
@@ -228,35 +265,17 @@ export default function EmployerDashboard() {
       {/* Unified 4-column Hero Stat Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-6 animate-fade-in">
         {STATS_CONFIG.map((c) => {
-          const Icon = c.icon;
           const value = stats?.[c.key as keyof EmployerStats] ?? c.defaultValue;
           return (
-            <div
+            <StatCard
               key={c.key}
-              className="bg-[var(--surface)] border border-[var(--ink-300)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] p-6 flex flex-col justify-between min-h-[160px] transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 group"
-            >
-              <div className="flex flex-col items-start gap-3">
-                <Icon size={20} className="text-[var(--ink-500)]" />
-                <span className="text-[11px] font-bold uppercase tracking-[0.04em] text-[var(--ink-500)]">
-                  {c.label}
-                </span>
-              </div>
-              <div className="mt-4">
-                {statsLoading ? (
-                  <div className="h-[40px] w-16 bg-[var(--ink-100)] animate-pulse rounded-md" />
-                ) : (
-                  <div className={cn(
-                    "text-[40px] font-semibold leading-none tracking-tight",
-                    c.isPink ? "text-[var(--brand-pink)]" : "text-[var(--ink-900)]"
-                  )}>
-                    {value}
-                  </div>
-                )}
-                <div className="text-[13px] text-[var(--ink-500)] mt-1.5 leading-none">
-                  {c.delta}
-                </div>
-              </div>
-            </div>
+              label={c.label}
+              value={value}
+              icon={c.icon}
+              delta={c.delta}
+              isPink={c.isPink}
+              isLoading={statsLoading}
+            />
           );
         })}
       </div>
