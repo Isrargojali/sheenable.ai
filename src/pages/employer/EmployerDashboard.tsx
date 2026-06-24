@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { 
   Briefcase, Users, MessageSquare, Sparkles, ArrowRight, MapPin, Loader2, 
-  Heart, MoreVertical, Eye, Copy, Trash2, Clock, X, Pencil, Pause, Play
+  Heart, MoreVertical, Eye, Copy, Trash2, Clock, X, Pencil, Pause, Play,
+  Calendar
 } from "lucide-react";
 import { DashboardShell, SectionCard, BtnPrimary, BtnOutline } from "@/components/layout/DashboardShell";
 import { apiProfile, apiJobs, apiAI, apiMessages } from "@/lib/api";
@@ -48,12 +49,40 @@ interface MatchedCandidate {
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
-const STATS = [
-  { key: "activeJobs", label: "Active jobs", icon: Briefcase },
-  { key: "totalApplicants", label: "Total applicants", icon: Users },
-  { key: "interviews", label: "Interviews booked", icon: MessageSquare },
-  { key: "aiMatches", label: "AI matches", icon: Sparkles },
-] as const satisfies ReadonlyArray<{ key: keyof EmployerStats; label: string; icon: React.ElementType }>;
+const STATS_CONFIG = [
+  {
+    key: "aiMatches",
+    label: "AI Matches",
+    icon: Sparkles,
+    delta: "+1 this week",
+    isPink: true,
+    defaultValue: 6
+  },
+  {
+    key: "activeJobs",
+    label: "Active Jobs",
+    icon: Briefcase,
+    delta: "+1 this week",
+    isPink: false,
+    defaultValue: 0
+  },
+  {
+    key: "totalApplicants",
+    label: "Total Applicants",
+    icon: Users,
+    delta: "+2 this week",
+    isPink: false,
+    defaultValue: 0
+  },
+  {
+    key: "interviews",
+    label: "Interviews Booked",
+    icon: Calendar,
+    delta: "+1 booked today",
+    isPink: false,
+    defaultValue: 0
+  }
+] as const;
 
 // ── Component ────────────────────────────────────────────────────────────────
 
@@ -155,13 +184,7 @@ export default function EmployerDashboard() {
     })
     .slice(0, 3);
 
-  // Premium status tag helper for stat cards
-  const getStatBadge = (key: keyof EmployerStats) => {
-    if (key === "activeJobs") return { label: "Live board", style: "bg-[var(--ink-100)] text-[var(--ink-700)]" };
-    if (key === "totalApplicants") return { label: "Active", style: "bg-[var(--ink-100)] text-[var(--ink-700)]" };
-    if (key === "interviews") return { label: "Scheduled", style: "bg-[var(--ink-100)] text-[var(--ink-700)]" };
-    return { label: "98% Match", style: "bg-[var(--brand-pink-soft)] text-[var(--brand-pink)]" };
-  };
+
 
   const getUrgencyChip = (jobId: string) => {
     const code = jobId.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0) || 0;
@@ -201,96 +224,40 @@ export default function EmployerDashboard() {
         </Link>
       }
     >
-      {/* Elevated AI Matches Hero Stat + Tighter Secondary Stat Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-6 animate-fade-in">
-        {/* Hero Stat: AI Matches — white card, pink number accent */}
-        <div className="lg:col-span-1 bg-white border border-[var(--ink-300)] rounded-3xl p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group relative overflow-hidden flex flex-col justify-between min-h-[170px]">
-          <div className="relative z-10 flex flex-col h-full justify-between">
-            <div className="flex items-start justify-between">
-              <div className="w-11 h-11 rounded-2xl bg-[var(--brand-pink-soft)] flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
-                <Sparkles size={18} className="text-[var(--brand-pink)] animate-pulse" />
+      {/* Unified 4-column Hero Stat Row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-6 animate-fade-in">
+        {STATS_CONFIG.map((c) => {
+          const Icon = c.icon;
+          const value = stats?.[c.key as keyof EmployerStats] ?? c.defaultValue;
+          return (
+            <div
+              key={c.key}
+              className="bg-[var(--surface)] border border-[var(--ink-300)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] p-6 flex flex-col justify-between min-h-[160px] transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 group"
+            >
+              <div className="flex flex-col items-start gap-3">
+                <Icon size={20} className="text-[var(--ink-500)]" />
+                <span className="text-[11px] font-bold uppercase tracking-[0.04em] text-[var(--ink-500)]">
+                  {c.label}
+                </span>
               </div>
-              <span className="text-[9px] font-black px-2.5 py-0.5 rounded-full bg-[var(--brand-pink-soft)] text-[var(--brand-pink)] uppercase tracking-wider leading-none">
-                98% Accuracy
-              </span>
-            </div>
-            <div className="mt-4">
-              {statsLoading ? (
-                <div className="h-10 w-20 bg-[var(--ink-100)] animate-pulse rounded-md" />
-              ) : (
-                <div className="font-serif text-5xl font-black leading-none tracking-tight text-[var(--brand-pink)] select-none">
-                  {stats?.aiMatches ?? 0}
-                </div>
-              )}
-              <div className="text-[10px] text-[var(--ink-500)] mt-1.5 font-bold uppercase tracking-widest leading-none">
-                AI Matches Available
-              </div>
-              <p className="text-[10px] text-[var(--ink-500)] mt-2 leading-normal font-medium">
-                {stats?.aiMatches ?? 6} candidates ready — 98% match. Review before others do.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Secondary Stats in tighter row */}
-        <div className="lg:col-span-2 grid grid-cols-3 gap-4">
-          {[
-            { 
-              key: "activeJobs", 
-              label: "Active Jobs", 
-              icon: Briefcase, 
-              delta: "LIVE BOARD", 
-              trend: "+1 this week"
-            },
-            { 
-              key: "totalApplicants", 
-              label: "Total Applicants", 
-              icon: Users, 
-              delta: "ACTIVE", 
-              trend: "+2 this week"
-            },
-            { 
-              key: "interviews", 
-              label: "Interviews Booked", 
-              icon: MessageSquare, 
-              delta: "SCHEDULED", 
-              trend: "+1 booked today"
-            }
-          ].map((s) => {
-            const Icon = s.icon;
-            const value = stats?.[s.key as keyof EmployerStats] ?? 0;
-            return (
-              <div
-                key={s.key}
-                className="bg-card border border-[var(--ink-300)] rounded-2xl p-4 flex flex-col justify-between hover:shadow-md hover:border-[var(--brand-pink)]/30 transition-all duration-300 group"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-[var(--ink-100)] text-[var(--ink-500)] group-hover:bg-[var(--brand-pink-soft)] group-hover:text-[var(--brand-pink)] transition-all duration-300">
-                    <Icon size={14} />
+              <div className="mt-4">
+                {statsLoading ? (
+                  <div className="h-[40px] w-16 bg-[var(--ink-100)] animate-pulse rounded-md" />
+                ) : (
+                  <div className={cn(
+                    "text-[40px] font-semibold leading-none tracking-tight",
+                    c.isPink ? "text-[var(--brand-pink)]" : "text-[var(--ink-900)]"
+                  )}>
+                    {value}
                   </div>
-                  <span className="text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider leading-none border bg-[var(--ink-100)] text-[var(--ink-700)] border-[var(--ink-300)]">
-                    {s.delta}
-                  </span>
-                </div>
-                <div>
-                  {statsLoading ? (
-                    <div className="h-8 w-12 bg-muted animate-pulse rounded-md" />
-                  ) : (
-                    <>
-                      <div className="font-serif text-2.5xl font-black text-foreground leading-none tracking-tight">{value}</div>
-                      <div className="text-[10px] font-bold mt-1 leading-none text-[var(--brand-pink)]">
-                        {s.trend}
-                      </div>
-                    </>
-                  )}
-                  <div className="text-[10px] text-muted-foreground mt-1.5 font-bold uppercase tracking-wider text-ink-300 truncate">
-                    {s.label}
-                  </div>
+                )}
+                <div className="text-[13px] text-[var(--ink-500)] mt-1.5 leading-none">
+                  {c.delta}
                 </div>
               </div>
-            );
-          })}
-        </div>
+            </div>
+          );
+        })}
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
