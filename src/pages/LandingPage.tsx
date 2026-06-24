@@ -18,10 +18,10 @@ import Footer          from "@/components/landing/Footer";
 
 
 const STATS = [
-  { v: 1400,  suffix: "+", label: "Careers Accelerated",      desc: "Exceptional women placed in trajectory-defining roles" },
-  { v: 98,    suffix: "%", label: "Retention Rate",           desc: "Securing thriving long-term matches for both parties" },
-  { v: 500,   suffix: "+", label: "Verified Partners",        desc: "Top-tier enterprises committed to equitable workplaces" },
-  { v: 47,    suffix: "",  label: "Sector Specialties",       desc: "From pioneering FinTech to advanced research" },
+  { v: 560,   suffix: "+", label: "Careers Accelerated",      desc: "Exceptional women placed in trajectory-defining roles" },
+  { v: 94,    suffix: "%", label: "Retention Rate",           desc: "Securing thriving long-term matches for both parties" },
+  { v: 60,    suffix: "+", label: "Verified Partners",        desc: "Top-tier enterprises committed to equitable workplaces" },
+  { v: 22,    suffix: "",  label: "Sector Specialties",       desc: "From pioneering FinTech to advanced research" },
 ];
 
 export default function LandingPage() {
@@ -228,7 +228,7 @@ export default function LandingPage() {
                   style={{ animationDelay: `${i * 80}ms` }}
                 >
                   <div>
-                    <div className="text-[40px] font-bold text-[var(--brand-pink)] leading-none font-sans whitespace-nowrap">
+                    <div className="text-[32px] font-bold text-[var(--brand-pink)] leading-none font-sans whitespace-nowrap">
                       <CountUp end={s.v} suffix={s.suffix} duration={1200} />
                     </div>
                     <div className="text-[13px] font-bold uppercase tracking-[0.08em] text-[var(--ink-500)] mt-2 font-sans">
