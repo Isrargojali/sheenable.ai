@@ -6,7 +6,7 @@ import {
   Zap, X, Sparkles, Sliders, Search, Award, Activity,
   GitCompare, UserCheck, Brain, HelpCircle,
   ChevronDown, ChevronUp, Loader2,
-  Clock, Eye, Target, Compass
+  Clock, Eye, Target, Compass, Bookmark
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { apiAI, apiMessages, apiJobs } from "@/lib/api";
@@ -903,6 +903,16 @@ export default function AISearchPage() {
     <DashboardShell
       title="AI Talent Search"
       subtitle="Describe your ideal candidate in plain English"
+      actions={
+        <button
+          type="button"
+          onClick={() => toast.info("Saved searches feature coming soon!")}
+          className="h-10 px-4 bg-white border border-[var(--ink-300)] text-[var(--ink-900)] hover:bg-[var(--ink-100)] rounded-full text-xs font-bold transition-all active:scale-95 flex items-center gap-1.5 shadow-sm"
+        >
+          <Bookmark size={14} className="text-[var(--ink-700)]" />
+          <span>Saved Searches</span>
+        </button>
+      }
     >
       {/* ── Standard AI Search Console Card ─────────────────────────────────── */}
       <div className="bg-[var(--surface)] border border-[var(--ink-300)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] p-8 mb-5 relative overflow-hidden">

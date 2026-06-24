@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { 
   Briefcase, Users, MessageSquare, Sparkles, ArrowRight, MapPin, Loader2, 
   Heart, MoreVertical, Eye, Copy, Trash2, Clock, X, Pencil, Pause, Play,
-  Calendar
+  Calendar, Plus
 } from "lucide-react";
 import { DashboardShell, SectionCard, BtnPrimary, BtnOutline } from "@/components/layout/DashboardShell";
 import { apiProfile, apiJobs, apiAI, apiMessages } from "@/lib/api";
@@ -218,8 +218,9 @@ export default function EmployerDashboard() {
       subtitle={`${companyName} · ${activeCount} active opportunities listed`}
       actions={
         <Link to="/employer/post-job">
-          <BtnPrimary className="px-5 py-2.5 shadow-sm text-xs font-bold flex items-center gap-2">
-            Post a job <ArrowRight size={13} />
+          <BtnPrimary className="h-10 px-4 text-xs font-bold flex items-center gap-1.5 shadow-sm">
+            <Plus size={16} />
+            <span>Post a job</span>
           </BtnPrimary>
         </Link>
       }

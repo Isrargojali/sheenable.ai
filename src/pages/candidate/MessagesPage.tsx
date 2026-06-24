@@ -8,7 +8,7 @@ import {
 import { cn, initials, getCompanyGradient } from "@/lib/utils";
 import FileAttachment from "@/components/ui/FileAttachment";
 import { apiMessages, apiApplications, apiAI, apiUpload } from "@/lib/api";
-import { DashboardShell, BtnOutline } from "@/components/layout/DashboardShell";
+import { DashboardShell, BtnOutline, BtnPrimary } from "@/components/layout/DashboardShell";
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "sonner";
 import { useLocation, Link } from "react-router-dom";
@@ -412,8 +412,24 @@ export default function MessagesPage() {
     }
   })();
 
+  const isEmployer = user?.role === "EMPLOYER";
+
   return (
-    <DashboardShell>
+    <DashboardShell
+      title="Messages"
+      subtitle={isEmployer ? "Coordinate and chat with matching candidates" : "Coordinate and chat with employers"}
+      actions={
+        isEmployer ? (
+          <BtnPrimary 
+            onClick={() => setShowNewChatModal(true)}
+            className="h-10 px-4 text-xs font-bold flex items-center gap-1.5 shadow-sm"
+          >
+            <Plus size={16} />
+            <span>New message</span>
+          </BtnPrimary>
+        ) : undefined
+      }
+    >
       <div className="bg-[var(--surface)] border border-[var(--ink-300)] rounded-[var(--radius-card)] overflow-hidden flex h-[calc(100vh-210px)] md:h-[calc(100vh-140px)] min-h-[520px] shadow-[var(--shadow-card)]">
         
         {/* Thread sidebar */}

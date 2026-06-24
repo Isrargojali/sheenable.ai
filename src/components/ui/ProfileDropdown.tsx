@@ -57,7 +57,7 @@ export function ProfileDropdown({
         <button
           type="button"
           aria-haspopup="true"
-          className="relative w-9 h-9 rounded-full flex items-center justify-center bg-[var(--surface)] border border-[var(--ink-300)] hover:border-[var(--brand-pink)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-pink)] focus:border-[var(--brand-pink)] transition-all cursor-pointer select-none group"
+          className="relative w-9 h-9 rounded-full flex items-center justify-center bg-transparent border border-[var(--ink-300)] hover:border-[var(--brand-pink)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-pink)] focus:border-[var(--brand-pink)] transition-all cursor-pointer select-none group"
         >
           {avatarUrl ? (
             <img

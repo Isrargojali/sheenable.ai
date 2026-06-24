@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { 
   MoreVertical, MapPin, Users, Share2, Trash2, Search, X, Pause, Play, 
   Pencil, Copy, Sparkles, BarChart2, CheckSquare, Square, 
-  Calendar, Clock, ArrowRight, Loader2, ArrowDown, ArrowUp, Minus
+  Calendar, Clock, ArrowRight, Loader2, ArrowDown, ArrowUp, Minus, Plus
 } from "lucide-react";
 import { DashboardShell, SectionCard, BtnPrimary } from "@/components/layout/DashboardShell";
 import { apiJobs, apiPipeline } from "@/lib/api";
@@ -338,8 +338,9 @@ export default function ListingsPage() {
       subtitle={`${jobs.length} active opportunities`}
       actions={
         <Link to="/employer/post-job">
-          <BtnPrimary className="px-5 py-2.5 shadow-sm text-xs font-bold flex items-center gap-1.5">
-            + New listing
+          <BtnPrimary className="h-10 px-4 text-xs font-bold flex items-center gap-1.5 shadow-sm">
+            <Plus size={16} />
+            <span>New listing</span>
           </BtnPrimary>
         </Link>
       }

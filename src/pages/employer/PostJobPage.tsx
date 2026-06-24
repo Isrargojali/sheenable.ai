@@ -237,6 +237,24 @@ export default function PostJobPage() {
         </div>
       }
       subtitle={`Workspace Draft · ${lastSaved}`}
+      actions={
+        <div className="flex items-center gap-2">
+          <BtnOutline 
+            onClick={handleSaveDraft} 
+            className="h-10 px-4 text-xs font-bold bg-white border border-[var(--ink-300)] text-[var(--ink-900)] hover:bg-[var(--ink-100)]"
+          >
+            Save draft
+          </BtnOutline>
+          <BtnPrimary 
+            onClick={() => document.getElementById("hidden-submit-btn")?.click()}
+            disabled={create.isPending || validCount < 6} 
+            className="h-10 px-4 text-xs font-bold"
+            title={validCount < 6 ? "Complete all required fields before publishing" : "Publish job"}
+          >
+            {create.isPending ? "Publishing…" : "Publish listing"}
+          </BtnPrimary>
+        </div>
+      }
     >
       {/* Horizontal Step Wizard Stepper */}
       <div className="bg-[var(--surface)] border border-[var(--ink-300)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] p-6 mb-6 animate-fade-in">
@@ -248,6 +266,7 @@ export default function PostJobPage() {
       </div>
 
       <form onSubmit={submit} className="grid lg:grid-cols-3 gap-5">
+        <button id="hidden-submit-btn" type="submit" className="hidden" />
         <div className="lg:col-span-2 space-y-5">
 
           {/* Stepper Card 1: Basic Info */}

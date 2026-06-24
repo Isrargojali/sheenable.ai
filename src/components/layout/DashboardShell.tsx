@@ -612,7 +612,7 @@ function Topbar({
             <button
               onClick={() => setShowNotif(v => !v)}
               aria-label="Open notifications"
-              className="relative w-10 h-10 rounded-full flex items-center justify-center bg-[var(--surface)] border border-[var(--ink-300)] hover:bg-[var(--surface-alt)] hover:border-[var(--ink-500)] transition-all cursor-pointer shadow-none select-none"
+              className="relative w-9 h-9 rounded-full flex items-center justify-center bg-transparent border border-[var(--ink-300)] hover:bg-[var(--ink-100)]/30 hover:border-[var(--ink-500)] transition-all cursor-pointer shadow-none select-none"
             >
               <Bell size={18} className="text-[var(--ink-700)]" />
               {unreadCount > 0 && (
@@ -1479,7 +1479,7 @@ function QuickDarkModeToggle() {
       type="button"
       onClick={toggleMode}
       aria-label="Toggle dark appearance"
-      className="w-10 h-10 rounded-full flex items-center justify-center bg-[var(--surface)] border border-[var(--ink-300)] hover:bg-[var(--surface-alt)] hover:border-[var(--ink-500)] transition-all cursor-pointer shadow-none select-none"
+      className="w-9 h-9 rounded-full flex items-center justify-center bg-transparent border border-[var(--ink-300)] hover:bg-[var(--ink-100)]/30 hover:border-[var(--ink-500)] transition-all cursor-pointer shadow-none select-none"
     >
       {darkMode ? <Sun size={18} className="text-[var(--ink-700)]" /> : <Moon size={18} className="text-[var(--ink-700)]" />}
     </button>

@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { apiApplications, apiJobs } from "@/lib/api";
 import { DashboardShell, SectionCard, BtnPrimary, BtnOutline } from "@/components/layout/DashboardShell";
 import { toast } from "sonner";
-import { Loader2, GripVertical, MoreVertical, UserX, MessageSquare, Eye, Check, ChevronDown, Briefcase, MapPin, Calendar, AlertCircle } from "lucide-react";
+import { Loader2, GripVertical, MoreVertical, UserX, MessageSquare, Eye, Check, ChevronDown, Briefcase, MapPin, Calendar, AlertCircle, Plus } from "lucide-react";
 
 const STAGES = [
   { key: "APPLIED",    label: "Applied",    subtitle: "Review CV & match score",          color: "bg-[var(--status-neutral)]" },
@@ -385,6 +385,14 @@ export default function ATSPipelinePage() {
     <DashboardShell
       title="ATS Pipeline"
       subtitle="Track and manage candidates through the hiring stages"
+      actions={
+        <Link to="/employer/post-job">
+          <BtnPrimary className="h-10 px-4 text-xs font-bold flex items-center gap-1.5 shadow-sm">
+            <Plus size={16} />
+            <span>Post a job</span>
+          </BtnPrimary>
+        </Link>
+      }
     >
       {/* Job selector dropdown popover */}
       <div className="bg-card border border-border rounded-2xl p-5 mb-5 shadow-sm">
