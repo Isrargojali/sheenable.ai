@@ -228,7 +228,7 @@ export default function LandingPage() {
                   style={{ animationDelay: `${i * 80}ms` }}
                 >
                   <div>
-                    <div className="text-[32px] font-bold text-[var(--brand-pink)] leading-none font-sans whitespace-nowrap">
+                    <div className="text-[32px] font-black text-[var(--brand-pink)] leading-none font-sans whitespace-nowrap">
                       <CountUp end={s.v} suffix={s.suffix} duration={1200} />
                     </div>
                     <div className="text-[13px] font-bold uppercase tracking-[0.08em] text-[var(--ink-500)] mt-2 font-sans">
