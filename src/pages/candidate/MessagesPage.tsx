@@ -492,7 +492,7 @@ export default function MessagesPage() {
                       className="w-9 h-9 rounded-xl object-cover flex-shrink-0 border border-[var(--ink-300)]/50" 
                     />
                   ) : (
-                    <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center text-white text-xs font-bold flex-shrink-0 bg-gradient-to-br shadow-sm", t.with.color)}>
+                    <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center text-white text-xs flex-shrink-0 shadow-sm", t.with.color)}>
                       {t.with.initials}
                     </div>
                   )}
@@ -569,7 +569,7 @@ export default function MessagesPage() {
                     className="w-9 h-9 rounded-xl object-cover flex-shrink-0 border border-[var(--ink-300)]/50" 
                   />
                 ) : (
-                  <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center text-white text-xs font-bold bg-gradient-to-br", active.with.color)}>
+                  <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center text-white text-xs", active.with.color)}>
                     {active.with.initials}
                   </div>
                 )}
@@ -707,7 +707,7 @@ export default function MessagesPage() {
                             className="w-6 h-6 rounded-lg object-cover flex-shrink-0 border border-border/50" 
                           />
                         ) : (
-                          <div className={cn("w-6 h-6 rounded-lg flex items-center justify-center text-white text-[8px] font-bold bg-gradient-to-br flex-shrink-0", active.with.color)}>
+                          <div className={cn("w-6 h-6 rounded-lg flex items-center justify-center text-white text-[8px] flex-shrink-0", active.with.color)}>
                             {active.with.initials}
                           </div>
                         )

@@ -335,7 +335,7 @@ function Sidebar({
           ) : null}
           <div
             className={cn(
-              "w-10 h-10 rounded-xl flex items-center justify-center text-white text-sm font-bold flex-shrink-0 bg-gradient-to-br shadow-sm",
+              "w-10 h-10 rounded-xl flex items-center justify-center text-white text-sm flex-shrink-0 shadow-sm",
               getCompanyGradient(displayName)
             )}
             style={{ display: avatarUrl ? 'none' : 'flex' }}
@@ -345,7 +345,7 @@ function Sidebar({
           <div className="min-w-0 flex-1">
             <div className="text-[13px] font-semibold text-foreground truncate leading-tight">{displayName}</div>
             <div className="mt-1">
-              <span className="inline-block text-[9px] font-extrabold px-2 py-0.5 rounded-full border border-[var(--ink-300)] bg-[var(--ink-100)] text-[var(--ink-700)] uppercase tracking-wider leading-none">
+              <span className="inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full border border-[var(--ink-300)] bg-[var(--ink-100)] text-[var(--ink-700)] uppercase tracking-wider leading-none">
                 {ROLE_LABEL[role]}
               </span>
             </div>

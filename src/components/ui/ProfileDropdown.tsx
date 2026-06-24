@@ -72,7 +72,7 @@ export function ProfileDropdown({
           ) : null}
           <div
             className={cn(
-              "w-full h-full flex items-center justify-center text-white text-xs font-bold rounded-full bg-gradient-to-br",
+              "w-full h-full flex items-center justify-center text-white text-xs rounded-full",
               getCompanyGradient(displayName)
             )}
             style={{ display: avatarUrl ? 'none' : 'flex' }}
@@ -102,7 +102,7 @@ export function ProfileDropdown({
             ) : null}
             <div
               className={cn(
-                "w-full h-full flex items-center justify-center text-white text-sm font-bold bg-gradient-to-br",
+                "w-full h-full flex items-center justify-center text-white text-sm rounded-full",
                 getCompanyGradient(displayName)
               )}
               style={{ display: avatarUrl ? 'none' : 'flex' }}

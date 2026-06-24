@@ -82,17 +82,7 @@ export function initials(name: string): string {
 }
 
 export function getCompanyGradient(name: string): string {
-  if (!name) return "from-violet-500 to-violet-700 text-white";
-  const charCode = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) || 0;
-  const gradients = [
-    "from-pink-500 to-rose-500 text-white",
-    "from-violet-500 to-indigo-500 text-white",
-    "from-cyan-500 to-blue-500 text-white",
-    "from-emerald-500 to-teal-500 text-white",
-    "from-amber-500 to-orange-500 text-white",
-    "from-fuchsia-500 to-purple-500 text-white"
-  ];
-  return gradients[charCode % gradients.length];
+  return "bg-[var(--ink-900)] text-white font-semibold";
 }
 
 export function truncate(str: string, max = 60): string {

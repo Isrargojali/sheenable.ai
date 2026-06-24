@@ -144,7 +144,7 @@ function ApplicantCard({
             />
           )}
           <div
-            className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary-foreground flex items-center justify-center text-white text-[10px] font-bold"
+            className="w-8 h-8 rounded-lg bg-[var(--ink-900)] flex items-center justify-center text-white text-[10px] font-semibold"
             style={{ display: app.cand.avatarUrl ? 'none' : 'flex' }}
           >
             {app.cand.firstName[0]}{app.cand.lastName[0]}
