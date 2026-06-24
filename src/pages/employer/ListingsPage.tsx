@@ -1,16 +1,133 @@
 // src/pages/employer/ListingsPage.tsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router-dom";
 import { 
   MoreVertical, MapPin, Users, Share2, Trash2, Search, X, Pause, Play, 
   Pencil, Copy, Sparkles, BarChart2, CheckSquare, Square, 
-  Calendar, Clock, ArrowRight, Loader2, ArrowDown, ArrowUp, Minus, Plus
+  Calendar, Clock, ArrowRight, Loader2, ArrowDown, ArrowUp, Minus, Plus,
+  ChevronDown, Activity, Layers, Check
 } from "lucide-react";
 import { DashboardShell, SectionCard, BtnPrimary } from "@/components/layout/DashboardShell";
 import { apiJobs, apiPipeline } from "@/lib/api";
 import { formatSalary, relativeTime, cn } from "@/lib/utils";
 import { toast } from "sonner";
+
+/* ─────────────────────────────────────────────────────────
+   Premium custom dropdown – no native <select>
+───────────────────────────────────────────────────────── */
+type DropdownOption = { value: string; label: string; dot?: string };
+
+function FilterDropdown({
+  value,
+  onChange,
+  options,
+  icon: Icon,
+  placeholder,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  options: DropdownOption[];
+  icon: React.ElementType;
+  placeholder: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const selected = options.find(o => o.value === value);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  return (
+    <div ref={ref} className="relative select-none">
+      {/* Trigger button */}
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className={cn(
+          "flex items-center gap-2 px-3.5 py-2.5 rounded-xl border text-xs font-semibold transition-all duration-200 min-w-[130px] group",
+          open
+            ? "border-primary bg-primary/5 text-primary shadow-sm ring-2 ring-primary/20"
+            : "border-border bg-background text-foreground hover:border-primary/40 hover:bg-secondary/40"
+        )}
+      >
+        <Icon size={13} className={cn("flex-shrink-0 transition-colors", open ? "text-primary" : "text-ink-400 group-hover:text-primary/70")} />
+        <span className="flex-1 text-left truncate">
+          {selected?.value === "ALL" ? placeholder : (selected?.label ?? placeholder)}
+        </span>
+        {value !== "ALL" && (
+          <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+        )}
+        <ChevronDown
+          size={12}
+          className={cn(
+            "flex-shrink-0 text-ink-400 transition-transform duration-200",
+            open && "rotate-180 text-primary"
+          )}
+        />
+      </button>
+
+      {/* Dropdown panel */}
+      {open && (
+        <div
+          className="absolute top-full left-0 mt-1.5 w-48 rounded-2xl border border-border/80 bg-card/95 backdrop-blur-md shadow-2xl z-50 overflow-hidden"
+          style={{ animation: "fadeSlideIn 0.15s ease" }}
+        >
+          <div className="p-1.5 space-y-0.5">
+            {options.map(opt => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => { onChange(opt.value); setOpen(false); }}
+                className={cn(
+                  "w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[11px] font-semibold transition-all duration-150 text-left",
+                  value === opt.value
+                    ? "bg-primary/10 text-primary"
+                    : "text-foreground hover:bg-secondary/60"
+                )}
+              >
+                {opt.dot && (
+                  <span
+                    className="w-2 h-2 rounded-full flex-shrink-0"
+                    style={{ background: opt.dot }}
+                  />
+                )}
+                <span className="flex-1">{opt.label}</span>
+                {value === opt.value && <Check size={11} className="text-primary flex-shrink-0" />}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes fadeSlideIn {
+          from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+          to   { opacity: 1; transform: translateY(0)  scale(1); }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+const STATUS_OPTIONS: DropdownOption[] = [
+  { value: "ALL",    label: "All Status" },
+  { value: "ACTIVE", label: "Active",  dot: "#22c55e" },
+  { value: "PAUSED", label: "Paused",  dot: "#f59e0b" },
+];
+
+const TYPE_OPTIONS: DropdownOption[] = [
+  { value: "ALL",        label: "All Types" },
+  { value: "FULLTIME",   label: "Full-time" },
+  { value: "PARTTIME",   label: "Part-time" },
+  { value: "CONTRACT",   label: "Contract"  },
+  { value: "INTERNSHIP", label: "Internship" },
+];
 
 const inp = "w-full px-3.5 py-2.5 border border-border rounded-xl text-sm bg-card text-foreground placeholder:text-ink-300 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all";
 
@@ -380,26 +497,21 @@ export default function ListingsPage() {
                   </button>
                 )}
               </div>
-              <div className="flex items-center gap-2.5">
-                <select
+              <div className="flex items-center gap-2">
+                <FilterDropdown
                   value={statusFilter}
-                  onChange={e => setStatusFilter(e.target.value)}
-                  className="px-3.5 py-2.5 border border-border rounded-xl text-xs bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all font-semibold"
-                >
-                  <option value="ALL">All Status</option>
-                  <option value="ACTIVE">Active</option>
-                  <option value="PAUSED">Paused</option>
-                </select>
-                <select
+                  onChange={setStatusFilter}
+                  options={STATUS_OPTIONS}
+                  icon={Activity}
+                  placeholder="All Status"
+                />
+                <FilterDropdown
                   value={typeFilter}
-                  onChange={e => setTypeFilter(e.target.value)}
-                  className="px-3.5 py-2.5 border border-border rounded-xl text-xs bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all font-semibold"
-                >
-                  <option value="ALL">All Types</option>
-                  {["FULLTIME","PARTTIME","CONTRACT","INTERNSHIP"].map(t => (
-                    <option key={t} value={t}>{t}</option>
-                  ))}
-                </select>
+                  onChange={setTypeFilter}
+                  options={TYPE_OPTIONS}
+                  icon={Layers}
+                  placeholder="All Types"
+                />
               </div>
             </div>
 
