@@ -483,7 +483,7 @@ type NotificationItem = {
 
 function Topbar({
   title = "", subtitle = "", actions, onMenu, onSettingsClick, onSearchClick, showHamburger = true, available,
-}: { title?: string; subtitle?: string; actions?: ReactNode; onMenu: () => void; onSettingsClick?: () => void; onSearchClick?: () => void; showHamburger?: boolean; available: boolean }) {
+}: { title?: ReactNode; subtitle?: ReactNode; actions?: ReactNode; onMenu: () => void; onSettingsClick?: () => void; onSearchClick?: () => void; showHamburger?: boolean; available: boolean }) {
   const qc = useQueryClient();
   const { user } = useAuthStore();
   const role = user?.role ?? "CANDIDATE";
@@ -721,7 +721,7 @@ function DarkModeToggle() {
 //
 export function DashboardShell({
   title = "", subtitle = "", actions, children,
-}: { title?: string; subtitle?: string; actions?: ReactNode; children: ReactNode }) {
+}: { title?: ReactNode; subtitle?: ReactNode; actions?: ReactNode; children: ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
@@ -1019,14 +1019,14 @@ export function Stepper({
               {/* Circle */}
               <div
                 className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-200",
-                  isCompleted && "bg-[var(--status-success-fg)] text-white shadow-sm",
-                  isCurrent && "bg-[var(--brand-pink)] text-white shadow-sm",
-                  isUpcoming && "border border-[var(--ink-300)] bg-[var(--surface)] text-[var(--ink-500)]"
+                  "w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-200",
+                  isCompleted && "bg-[var(--brand-pink)] text-white shadow-sm border border-[var(--brand-pink)]",
+                  isCurrent && "bg-[var(--surface)] border-2 border-[var(--brand-pink)] text-[var(--brand-pink)] shadow-sm",
+                  isUpcoming && "bg-[var(--ink-100)] text-[var(--ink-500)] border border-transparent"
                 )}
               >
                 {isCompleted ? (
-                  <Check className="w-4 h-4 stroke-[2.5px] text-white" />
+                  <Check className="w-3.5 h-3.5 stroke-[2.5px] text-white" />
                 ) : (
                   <span>{i + 1}</span>
                 )}
@@ -1038,7 +1038,7 @@ export function Stepper({
                   "text-[10px] mt-2 whitespace-nowrap transition-all duration-200 capitalize",
                   isRejected && "line-through text-[var(--ink-500)]",
                   !isRejected && isCompleted && "text-[var(--ink-900)] font-medium",
-                  !isRejected && isCurrent && "text-[var(--brand-pink)] font-semibold",
+                  !isRejected && isCurrent && "text-[var(--ink-900)] font-semibold",
                   !isRejected && isUpcoming && "text-[var(--ink-500)] font-medium"
                 )}
               >
@@ -1049,10 +1049,7 @@ export function Stepper({
             {/* Connector Line */}
             {i < steps.length - 1 && (
               <div
-                className={cn(
-                  "flex-1 h-0.5 mx-2 mb-6 min-w-[20px] transition-all duration-200",
-                  !isRejected && i < currentStep ? "bg-[var(--status-success-fg)]" : "bg-[var(--ink-300)]"
-                )}
+                className="flex-1 h-[1px] mx-2 mb-6 min-w-[20px] transition-all duration-200 bg-[var(--ink-300)]"
               />
             )}
           </div>

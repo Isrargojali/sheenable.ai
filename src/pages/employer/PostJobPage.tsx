@@ -6,7 +6,7 @@ import {
   X, Plus, Sparkles, Loader2, CheckCircle, AlertCircle, HelpCircle, 
   Check, ArrowRight, DollarSign, Calendar, Target, Award
 } from "lucide-react";
-import { DashboardShell, SectionCard, BtnPrimary, BtnOutline } from "@/components/layout/DashboardShell";
+import { DashboardShell, SectionCard, BtnPrimary, BtnOutline, Stepper } from "@/components/layout/DashboardShell";
 import { apiJobs, apiAI } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -32,13 +32,13 @@ export default function PostJobPage() {
   const [isCompetitive, setIsCompetitive] = useState(false);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [activeSection, setActiveSection] = useState(1);
-  const [lastSaved, setLastSaved] = useState("Draft status: Saved 2s ago ✓");
+  const [lastSaved, setLastSaved] = useState("Auto-saved just now");
 
   // Simulated auto-save updates
   useEffect(() => {
     const interval = setInterval(() => {
       const timeStr = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit' });
-      setLastSaved(`Draft status: Auto-saved at ${timeStr} ✓`);
+      setLastSaved(`Auto-saved at ${timeStr}`);
     }, 15000);
     return () => clearInterval(interval);
   }, []);
@@ -176,6 +176,11 @@ export default function PostJobPage() {
     if (t.includes("teacher") || t.includes("tutor") || t.includes("education") || t.includes("professor") || t.includes("teach")) return "Education";
     return null;
   };
+  const applyRecommendedCategory = (cat: string) => {
+    setCategory(cat);
+    toast.success(`Category updated to ${cat}!`);
+  };
+
   const suggestedCategory = getSuggestedCategory(title);
 
   // Dynamic Impact Metrics
@@ -223,56 +228,27 @@ export default function PostJobPage() {
 
   return (
     <DashboardShell
-      title="Post a job"
-      subtitle="Fill in the details — AI will help score and rank applicants"
+      title={
+        <div className="flex items-center gap-2">
+          <span>Post a job</span>
+          <span className="text-[14px] text-[var(--ink-500)] font-sans font-medium normal-case">
+            ({percentageComplete}% complete)
+          </span>
+        </div>
+      }
+      subtitle={`Workspace Draft · ${lastSaved}`}
     >
-      {/* Visual Form Completion Progress */}
-      <div className="bg-card border border-border/80 rounded-2xl p-4 mb-5 shadow-sm animate-fade-in flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="min-w-0">
-          <span className="text-[11px] font-black uppercase tracking-widest text-ink-400">Listing Completeness</span>
-          <div className="text-xs text-muted-foreground mt-0.5 font-bold">
-            {validCount} / 6 required fields complete ({percentageComplete}%)
-          </div>
-        </div>
-        <div className="flex-1 max-w-md bg-secondary dark:bg-secondary/40 rounded-full h-2.5 overflow-hidden border border-border/40">
-          <div
-            className="h-full bg-[var(--brand-pink)] rounded-full transition-all duration-500"
-            style={{ width: `${percentageComplete}%` }}
-          />
-        </div>
+      {/* Horizontal Step Wizard Stepper */}
+      <div className="bg-[var(--surface)] border border-[var(--ink-300)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] p-6 mb-6 animate-fade-in">
+        <Stepper
+          steps={steps.map(s => s.label)}
+          currentStep={activeSection - 1}
+          onChange={(stepIdx) => scrollToSection(steps[stepIdx].id, stepIdx + 1)}
+        />
       </div>
 
       <form onSubmit={submit} className="grid lg:grid-cols-3 gap-5">
         <div className="lg:col-span-2 space-y-5">
-          {/* Sticky Stepper Bar */}
-          <div className="sticky top-0 bg-background/95 backdrop-blur-sm z-30 py-3 border-b border-border/60 flex items-center justify-between gap-2 shadow-sm rounded-xl px-2">
-            {steps.map(s => (
-              <button
-                key={s.step}
-                type="button"
-                onClick={() => scrollToSection(s.id, s.step)}
-                className={cn(
-                  "flex items-center gap-1 text-[10px] font-bold px-3 py-1.5 rounded-full transition-all border",
-                  activeSection === s.step
-                    ? "bg-primary text-white border-primary shadow-sm"
-                    : "bg-card text-muted-foreground border-border hover:border-primary/20",
-                  s.valid && activeSection !== s.step ? "border-[var(--ink-300)] text-[var(--ink-700)]" : ""
-                )}
-              >
-                <span className={cn(
-                  "w-3.5 h-3.5 rounded-full flex items-center justify-center text-[9px] font-black leading-none",
-                  activeSection === s.step 
-                    ? "bg-white text-primary" 
-                    : s.valid 
-                      ? "bg-[var(--brand-pink)] text-white" 
-                      : "bg-secondary text-ink-300"
-                )}>
-                  {s.valid && activeSection !== s.step ? <Check size={8} /> : s.step}
-                </span>
-                <span className="hidden sm:inline">{s.label}</span>
-              </button>
-            ))}
-          </div>
 
           {/* Stepper Card 1: Basic Info */}
           <div id="sec-basic">
@@ -469,33 +445,12 @@ export default function PostJobPage() {
 
         {/* Sidebar Column */}
         <div className="space-y-4">
-          {/* Active Auto-Save Status */}
-          <div className="bg-card border border-border/80 rounded-2xl p-4 shadow-sm animate-fade-in flex items-center justify-between text-[11px] font-bold text-muted-foreground">
-            <div className="flex items-center gap-1.5">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--brand-pink)] opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--brand-pink)]"></span>
-              </span>
-              <span>Workspace Draft</span>
-            </div>
-            <span className="text-[10px] font-medium">{lastSaved}</span>
-          </div>
+
 
           {/* Reactive AI Assist Sidebar Card */}
-          <div className={cn(
-            "bg-card border rounded-2xl p-4 transition-all duration-300",
-            desc.trim().length > 10 ? "border-primary/50 shadow-md shadow-primary/5 ring-1 ring-primary/20" : "border-border/80"
-          )}>
+          <div className="bg-[var(--surface)] border border-[var(--ink-300)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] p-4 flex flex-col transition-all duration-300">
             <div className="text-center py-3">
-              <div className="relative inline-block mb-2">
-                <Sparkles 
-                  size={26} 
-                  className={cn(
-                    "mx-auto transition-all duration-300", 
-                    desc.trim().length > 10 ? "text-primary animate-pulse scale-110" : "text-ink-300"
-                  )} 
-                />
-              </div>
+              <Sparkles size={20} className="text-[var(--ink-500)] mx-auto mb-2" />
               <h3 className="text-[12px] font-bold text-foreground mb-1 uppercase tracking-wide">AI Assistant</h3>
               
               <p className="text-[11px] text-muted-foreground mb-4 leading-normal px-2">
@@ -521,22 +476,19 @@ export default function PostJobPage() {
               )}
 
               <BtnOutline
-                className={cn(
-                  "w-full justify-center gap-1.5 transition-all text-xs",
-                  desc.trim().length > 10 ? "bg-primary/5 border-primary/30 text-primary hover:bg-primary/10" : ""
-                )}
+                className="w-full justify-center gap-1.5 text-xs bg-white border border-[var(--ink-300)] rounded-[var(--radius-control)] hover:bg-[var(--ink-100)]"
                 type="button"
                 onClick={() => aiAssist.mutate()}
                 disabled={aiAssist.isPending || desc.trim().length === 0}
               >
                 {aiAssist.isPending ? (
                   <>
-                    <Loader2 size={13} className="animate-spin text-primary" />
+                    <Loader2 size={13} className="animate-spin text-[var(--ink-500)]" />
                     Optimizing...
                   </>
                 ) : (
                   <>
-                    <Sparkles size={13} className="text-primary" />
+                    <Sparkles size={13} className="text-[var(--ink-500)]" />
                     Run AI assist
                   </>
                 )}
