@@ -9,12 +9,12 @@ import { toast } from "sonner";
 import { Loader2, GripVertical, MoreVertical, UserX, MessageSquare, Eye, Check, ChevronDown, Briefcase, MapPin, Calendar, AlertCircle } from "lucide-react";
 
 const STAGES = [
-  { key: "APPLIED",    label: "Applied",    subtitle: "Review CV & match score",          color: "bg-[var(--status-info-fg)]",    light: "bg-[var(--status-info-bg)] text-[var(--status-info-fg)]" },
-  { key: "SCREENING",  label: "Screening",  subtitle: "Phone screen & skills check",       color: "bg-[var(--status-progress-fg)]", light: "bg-[var(--status-progress-bg)] text-[var(--status-progress-fg)]" },
-  { key: "INTERVIEW",  label: "Interview",  subtitle: "Schedule & conduct interview",      color: "bg-[var(--status-info-fg)]",    light: "bg-[var(--status-info-bg)] text-[var(--status-info-fg)]" },
-  { key: "ASSESSMENT", label: "Assessment", subtitle: "Skills test & coding check",        color: "bg-[var(--brand-pink)]",         light: "bg-[var(--brand-pink-soft)] text-[var(--brand-pink)]" },
-  { key: "OFFER",      label: "Offer",      subtitle: "Prepare & send offer letter",       color: "bg-[var(--status-success-fg)]", light: "bg-[var(--status-success-bg)] text-[var(--status-success-fg)]" },
-  { key: "HIRED",      label: "Hired",      subtitle: "Offer accepted & onboarding",      color: "bg-[var(--status-success-fg)]", light: "bg-[var(--status-success-bg)] text-[var(--status-success-fg)]" },
+  { key: "APPLIED",    label: "Applied",    subtitle: "Review CV & match score",          color: "bg-[var(--status-neutral)]" },
+  { key: "SCREENING",  label: "Screening",  subtitle: "Phone screen & skills check",       color: "bg-[var(--status-warning)]" },
+  { key: "INTERVIEW",  label: "Interview",  subtitle: "Schedule & conduct interview",      color: "bg-[var(--status-info)]" },
+  { key: "ASSESSMENT", label: "Assessment", subtitle: "Skills test & coding check",        color: "bg-[var(--ink-500)]" },
+  { key: "OFFER",      label: "Offer",      subtitle: "Prepare & send offer letter",       color: "bg-[var(--status-success)]" },
+  { key: "HIRED",      label: "Hired",      subtitle: "Offer accepted & onboarding",      color: "bg-[var(--status-success)]" },
 ];
 
 const NEXT_STAGE: Record<string, string> = {
@@ -157,7 +157,7 @@ function ApplicantCard({
         </div>
 
         {/* Dynamic Match Score */}
-        <div className="text-[11px] font-extrabold font-sans text-primary bg-primary/5 border border-primary/10 px-1.5 py-0.5 rounded-lg flex-shrink-0">
+        <div className="text-[11px] font-extrabold font-sans text-[var(--ink-900)] bg-[var(--ink-100)] border border-[var(--ink-300)] px-1.5 py-0.5 rounded-lg flex-shrink-0">
           {matchScore}%
         </div>
       </div>
@@ -394,13 +394,13 @@ export default function ATSPipelinePage() {
           </label>
           <button
             onClick={() => setSelectorOpen(!selectorOpen)}
-            className="w-full md:w-96 px-4 py-2.5 border border-border rounded-xl text-xs bg-background text-foreground hover:bg-secondary/40 transition-all flex items-center justify-between font-bold"
+            className="w-full md:w-96 px-4 py-2.5 border border-[var(--ink-300)] rounded-xl text-xs bg-white text-[var(--ink-700)] hover:bg-[var(--ink-100)] transition-all flex items-center justify-between font-bold"
           >
             <div className="flex items-center gap-2 truncate">
-              <span className="w-2.5 h-2.5 rounded-full bg-primary flex-shrink-0 animate-pulse" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[var(--ink-500)] flex-shrink-0" />
               <span className="truncate capitalize">{activeJob ? activeJob.title : "Select job listing…"}</span>
             </div>
-            <ChevronDown size={14} className={cn("text-ink-300 transition-transform duration-200 flex-shrink-0", selectorOpen ? "transform rotate-180" : "")} />
+            <ChevronDown size={14} className={cn("text-[var(--ink-400)] transition-transform duration-200 flex-shrink-0", selectorOpen ? "transform rotate-180" : "")} />
           </button>
 
           {selectorOpen && (
@@ -425,20 +425,20 @@ export default function ATSPipelinePage() {
                         className={cn(
                           "w-full text-left p-3 rounded-xl transition-all border flex flex-col gap-1 active:scale-[0.99]",
                           isSelected 
-                            ? "bg-primary/5 border-primary text-foreground" 
-                            : "bg-transparent border-transparent hover:bg-secondary/50 text-foreground"
+                            ? "bg-[var(--ink-100)] border-[var(--ink-300)] text-[var(--ink-900)]" 
+                            : "bg-transparent border-transparent hover:bg-[var(--ink-100)]/50 text-[var(--ink-700)]"
                         )}
                       >
                         <div className="flex justify-between items-start w-full gap-2">
                           <span className="text-xs font-extrabold capitalize truncate">{j.title}</span>
-                          {isSelected && <Check size={12} className="text-primary flex-shrink-0 mt-0.5" />}
+                          {isSelected && <Check size={12} className="text-[var(--ink-700)] flex-shrink-0 mt-0.5" />}
                         </div>
-                        <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-semibold flex-wrap">
+                        <div className="flex items-center gap-2 text-[10px] text-[var(--ink-500)] font-semibold flex-wrap">
                           <span className="inline-flex items-center gap-0.5"><Briefcase size={9} /> {j.jobType || j.type}</span>
                           <span>·</span>
                           <span className="inline-flex items-center gap-0.5"><MapPin size={9} /> {j.location || "Remote"}</span>
                           <span>·</span>
-                          <span className="text-primary">{j.applicationCount || 0} applicants</span>
+                          <span className="text-[var(--ink-700)] font-bold">{j.applicationCount || 0} applicants</span>
                         </div>
                       </button>
                     );
@@ -465,24 +465,34 @@ export default function ATSPipelinePage() {
         )}
       </div>
 
-      {/* Stage filter pills */}
+      {/* Stage filter tabs */}
       <div className="flex gap-2 flex-wrap mb-5">
-        <button onClick={() => setFilter("ALL")}
-          className={cn("px-3.5 py-1.5 rounded-full text-[11px] font-bold border transition-all active:scale-95",
-            filter === "ALL" ? "bg-primary border-primary text-primary-foreground" : "bg-card border-border text-ink-500 hover:border-primary/40")}>
+        <button 
+          onClick={() => setFilter("ALL")}
+          className={cn(
+            "px-3.5 py-1.5 rounded-full text-[11px] font-bold border transition-all active:scale-95",
+            filter === "ALL" 
+              ? "bg-[var(--brand-pink)] border-[var(--brand-pink)] text-white" 
+              : "bg-white border-[var(--ink-300)] text-[var(--ink-700)] hover:bg-[var(--ink-100)]"
+          )}
+        >
           All ({apps.length})
         </button>
         {STAGES.map(s => {
           const count = totalByStage(s.key);
           const active = filter === s.key;
           return (
-            <button key={s.key} onClick={() => setFilter(s.key)}
-              className={cn("px-3.5 py-1.5 rounded-full text-[11px] font-bold border transition-all active:scale-95",
+            <button 
+              key={s.key} 
+              onClick={() => setFilter(s.key)}
+              className={cn(
+                "px-3.5 py-1.5 rounded-full text-[11px] font-bold border transition-all active:scale-95",
                 active 
-                  ? "bg-primary border-primary text-primary-foreground" 
-                  : count === 0
-                    ? "bg-[#F7F4F9]/20 border-border/40 text-muted-foreground opacity-55 hover:opacity-80"
-                    : "bg-card border-border text-ink-500 hover:border-primary/40")}>
+                  ? "bg-[var(--brand-pink)] border-[var(--brand-pink)] text-white" 
+                  : "bg-white border-[var(--ink-300)] text-[var(--ink-700)] hover:bg-[var(--ink-100)]",
+                !active && count === 0 && "opacity-55"
+              )}
+            >
               {s.label} ({count})
             </button>
           );
@@ -546,7 +556,7 @@ export default function ATSPipelinePage() {
                       <div className={cn("w-2.5 h-2.5 rounded-full flex-shrink-0", stage.color)} />
                       <span className="text-[11px] font-bold text-foreground uppercase tracking-[.5px]">{stage.label}</span>
                     </div>
-                    <span className={cn("text-[9px] font-bold w-5 h-5 flex items-center justify-center rounded-full", stage.light)}>
+                    <span className="text-[9px] font-bold w-5 h-5 flex items-center justify-center rounded-full bg-[var(--ink-100)] text-[var(--ink-700)] flex-shrink-0">
                       {stageApps.length}
                     </span>
                   </div>

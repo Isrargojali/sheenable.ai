@@ -35,6 +35,12 @@
     --status-neutral-bg: #F1F1F3;
     --status-neutral-fg: #2A2A33;
 
+    --status-neutral: var(--status-neutral-fg);
+    --status-warning: var(--status-progress-fg);
+    --status-info: var(--status-info-fg);
+    --status-success: var(--status-success-fg);
+    --status-danger: var(--status-danger-fg);
+
     /* Radii / shadow / spacing */
     --radius-card: 12px;
     --radius-control: 10px;
