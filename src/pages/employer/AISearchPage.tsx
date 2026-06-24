@@ -6,7 +6,7 @@ import {
   Zap, X, Sparkles, Sliders, Search, Award, Activity,
   GitCompare, UserCheck, Brain, HelpCircle,
   ChevronDown, ChevronUp, Loader2,
-  Clock, Eye
+  Clock, Eye, Target, Compass
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { apiAI, apiMessages, apiJobs } from "@/lib/api";
@@ -904,75 +904,70 @@ export default function AISearchPage() {
       title="AI Talent Search"
       subtitle="Describe your ideal candidate in plain English"
     >
-      {/* ── Dark Console Card ───────────────────────────────────────────── */}
-      <div
-        className="rounded-2xl p-6 mb-5 relative overflow-hidden"
-        style={{
-          background: "linear-gradient(#0A0712, #0A0712) padding-box, linear-gradient(135deg, #7C3AED, #C8315A) border-box",
-          border: "1px solid transparent",
-        }}
-      >
-        <div className="absolute top-0 right-0 w-64 h-64 rounded-full pointer-events-none"
-          style={{ background: "radial-gradient(circle, rgba(200,49,90,0.2), transparent 70%)", filter: "blur(45px)" }} />
-        <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full pointer-events-none"
-          style={{ background: "radial-gradient(circle, rgba(124,58,237,0.12), transparent 70%)", filter: "blur(45px)" }} />
-
+      {/* ── Standard AI Search Console Card ─────────────────────────────────── */}
+      <div className="bg-[var(--surface)] border border-[var(--ink-300)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] p-8 mb-5 relative overflow-hidden">
         {/* Header */}
-        <div className="flex items-start gap-2 mb-2 relative">
-          <span className="text-[var(--brand-pink)] font-serif font-black text-sm select-none">✦</span>
-          <Sparkles size={16} className="text-[#F0C96A] mt-0.5 flex-shrink-0 animate-pulse" />
+        <div className="flex items-start gap-3 mb-6 relative">
+          <Sparkles size={20} className="text-[var(--ink-500)] mt-0.5 flex-shrink-0" />
           <div>
-            <div className="font-serif text-lg text-white leading-tight">Advanced AI Candidate Matching Console</div>
-            <div className="text-[11px] text-white/50 mt-1">Our intelligent neural matching core scores, ranks, and maps candidates on-the-fly.</div>
+            <h2 className="text-[20px] text-[var(--ink-900)] font-semibold leading-tight">Advanced AI Candidate Matching Console</h2>
+            <p className="text-[14px] text-[var(--ink-500)] mt-1.5 font-medium">Our intelligent neural matching core scores, ranks, and maps candidates on-the-fly.</p>
           </div>
         </div>
 
-        {/* Matching Mode Selector */}
-        <div className="flex flex-col md:flex-row md:items-center gap-3.5 mt-4 border-b border-white/10 pb-4 relative">
-          <span className="text-[10px] font-bold text-white/40 uppercase tracking-wider flex items-center gap-1 select-none">
-            <Sliders size={12} /> Matching Mode:
+        {/* Matching Mode Selector (Segmented Control) */}
+        <div className="flex flex-col gap-3 mt-6 pb-6 border-b border-[var(--ink-300)] relative">
+          <span className="text-[11px] font-bold text-[var(--ink-500)] uppercase tracking-wider flex items-center gap-1 select-none">
+            Matching Mode:
           </span>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 w-full md:w-auto">
+          <div className="bg-[var(--ink-100)] rounded-[var(--radius-pill)] p-1 flex w-full max-w-xl">
             {[
-              { mode: "precision", title: "Best fit",      subtitle: "Precision Match (slower, accurate)",   icon: "🌟", tooltip: "Precision Match → Best fit. Cognitive embedding matching." },
-              { mode: "speed",     title: "Quick hire",    subtitle: "Speed Recruit (faster, broad net)",    icon: "⚡", tooltip: "Speed Recruit → Quick hire. Priority matching for available candidates." },
-              { mode: "explorer",  title: "Explore skills",subtitle: "Semantic Explorer (unconventional)",   icon: "🧠", tooltip: "Semantic Explorer → Explore skills. Deep semantics beyond job titles." },
-            ].map((item) => (
-              <button
-                key={item.mode}
-                onClick={() => { setMatchMode(item.mode as MatchMode); toast.success(`Search engine configured to ${item.title} mode!`); }}
-                className={cn(
-                  "flex flex-col items-start px-3.5 py-2 rounded-xl border text-left transition-all active:scale-95 w-full sm:w-[195px] gap-0.5",
-                  matchMode === item.mode
-                    ? "bg-white/[0.08] border-[#C8315A] text-white"
-                    : "border-white/10 bg-white/[0.03] text-white/60 hover:bg-white/10 hover:border-white/20"
-                )}
-                title={item.tooltip}
-              >
-                <span className="text-[11px] font-bold flex items-center gap-1 text-white leading-none">
-                  <span>{item.icon}</span> {item.title}
-                </span>
-                <span className="text-[9px] text-white/40 font-medium block leading-none truncate w-full mt-0.5">
-                  {item.subtitle}
-                </span>
-              </button>
-            ))}
+              { mode: "precision", title: "Best fit", icon: Target, subtitle: "Precision Match (slower, accurate)", tooltip: "Precision Match → Best fit. Cognitive embedding matching." },
+              { mode: "speed", title: "Quick hire", icon: Zap, subtitle: "Speed Recruit (faster, broad net)", tooltip: "Speed Recruit → Quick hire. Priority matching for available candidates." },
+              { mode: "explorer", title: "Explore skills", icon: Compass, subtitle: "Semantic Explorer (unconventional)", tooltip: "Semantic Explorer → Explore skills. Deep semantics beyond job titles." },
+            ].map((item) => {
+              const ModeIcon = item.icon;
+              const isActive = matchMode === item.mode;
+              return (
+                <button
+                  key={item.mode}
+                  type="button"
+                  onClick={() => { setMatchMode(item.mode as MatchMode); toast.success(`Search engine configured to ${item.title} mode!`); }}
+                  className={cn(
+                    "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-[var(--radius-pill)] text-xs font-semibold transition-all duration-200",
+                    isActive
+                      ? "bg-[var(--surface)] text-[var(--brand-pink)] shadow-[var(--shadow-card)]"
+                      : "bg-transparent text-[var(--ink-700)] hover:text-[var(--brand-pink)]/80"
+                  )}
+                  title={item.tooltip}
+                >
+                  <ModeIcon size={16} strokeWidth={1.5} className="current-color" />
+                  <span>{item.title}</span>
+                </button>
+              );
+            })}
           </div>
+          {/* Subtitle helper text below segmented control */}
+          <p className="text-[13px] text-[var(--ink-500)] font-medium mt-1 leading-normal">
+            {matchMode === "precision" && "Precision Match: Cognitive embedding matching (slower, accurate)."}
+            {matchMode === "speed" && "Speed Recruit: Priority matching for available candidates (faster, broad net)."}
+            {matchMode === "explorer" && "Semantic Explorer: Deep semantics beyond job titles (unconventional)."}
+          </p>
         </div>
 
-        {/* Search Input */}
-        <div className="flex gap-2.5 mt-4 relative">
+        {/* Search Input and Primary Button Row */}
+        <div className="flex flex-col sm:flex-row gap-3 mt-6 relative items-stretch sm:items-center">
           <div className="flex-1 relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" size={15} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--ink-500)]" size={15} />
             <input
               value={query}
               onChange={e => setQuery(e.target.value)}
               onKeyDown={e => { if (e.key === "Enter") handleSearch(); }}
-              className="w-full pl-11 pr-16 py-3 rounded-full text-xs text-white bg-white/[0.08] border border-white/15 focus:outline-none focus:border-[#C8315A] focus:bg-white/12 transition-all shadow-inner"
+              className="w-full h-12 pl-11 pr-16 rounded-[var(--radius-card)] text-xs text-[var(--ink-900)] bg-[var(--surface)] border border-[var(--ink-300)] focus:outline-none focus:border-[var(--brand-pink)] transition-all shadow-sm"
             />
             {!query && (
               <div className={cn(
-                "absolute left-11 top-1/2 -translate-y-1/2 text-xs pointer-events-none select-none text-white/30 transition-opacity duration-300",
+                "absolute left-11 top-1/2 -translate-y-1/2 text-xs pointer-events-none select-none text-[var(--ink-500)] transition-opacity duration-300",
                 placeholderFade ? "opacity-100" : "opacity-0"
               )}>
                 {PLACEHOLDERS[placeholderIdx]}
@@ -980,16 +975,16 @@ export default function AISearchPage() {
             )}
             <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
               {query && (
-                <button onClick={() => { setQuery(""); setResults(null); }} className="text-white/30 hover:text-white/60 transition-colors">
+                <button onClick={() => { setQuery(""); setResults(null); }} className="text-[var(--ink-500)] hover:text-[var(--ink-700)] transition-colors">
                   <X size={14} />
                 </button>
               )}
               <div className="group relative">
-                <HelpCircle size={14} className="text-white/30 hover:text-white/60 cursor-help transition-colors" />
-                <div className="absolute right-0 bottom-full mb-2 w-64 p-3 bg-[#0A0712] border border-white/10 rounded-xl shadow-xl text-[10px] text-white/80 leading-relaxed pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50">
-                  💡 <strong className="text-white">Format Guidance:</strong> Describe skills, seniority, and location in simple English.
+                <HelpCircle size={14} className="text-[var(--ink-500)] hover:text-[var(--ink-700)] cursor-help transition-colors" />
+                <div className="absolute right-0 bottom-full mb-2 w-64 p-3 bg-[var(--surface)] border border-[var(--ink-300)] rounded-[var(--radius-card)] shadow-xl text-[10px] text-[var(--ink-700)] leading-relaxed pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50">
+                  💡 <strong className="text-[var(--ink-900)]">Format Guidance:</strong> Describe skills, seniority, and location in simple English.
                   <br />
-                  <span className="text-white/50 mt-1 block">Example: "React developer, 3+ years experience, Karachi with Figma fluency."</span>
+                  <span className="text-[var(--ink-500)] mt-1 block">Example: "React developer, 3+ years experience, Karachi with Figma fluency."</span>
                 </div>
               </div>
             </div>
@@ -997,31 +992,31 @@ export default function AISearchPage() {
           <button
             onClick={handleSearch}
             disabled={!query.trim() || mutation.isPending}
-            className="px-6 py-3 bg-gradient-to-r from-[#7C3AED] to-[#C8315A] hover:from-[#8B5CF6] hover:to-[#EC4899] text-white text-xs font-bold rounded-full transition-all duration-300 disabled:opacity-50 flex-shrink-0 flex items-center gap-2 active:scale-95 shadow-[0_0_20px_rgba(124,58,237,0.4)] hover:shadow-[0_0_25px_rgba(200,49,90,0.65)]"
+            className="h-10 px-6 bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white text-xs font-bold rounded-[var(--radius-card)] transition-all duration-300 disabled:opacity-50 flex-shrink-0 flex items-center justify-center gap-2 active:scale-95 shadow-sm"
           >
             {mutation.isPending ? (
               <><Loader2 size={12} className="animate-spin" /> Querying Neural Core…</>
             ) : (
-              <><Zap size={12} className="animate-pulse" /> Neural Match Candidates</>
+              <><Zap size={12} /> Neural Match Candidates</>
             )}
           </button>
         </div>
 
         {/* Thinking Overlay */}
         {mutation.isPending && (
-          <div className="mt-3 flex items-center gap-3 bg-white/[0.06] rounded-xl px-4 py-3 relative border border-white/5 animate-pulse">
+          <div className="mt-4 flex items-center gap-3 bg-[var(--ink-100)] rounded-xl px-4 py-3 relative border border-[var(--ink-300)] animate-pulse">
             <ThinkingDots />
-            <span className="text-[11px] text-white/70 font-medium">AI is parsing query vectors, indexing skills, and mapping real-time Mongoose data…</span>
+            <span className="text-[11px] text-[var(--ink-700)] font-medium">AI is parsing query vectors, indexing skills, and mapping real-time Mongoose data…</span>
           </div>
         )}
 
         {/* AI Insight Box */}
         {results && !mutation.isPending && (
-          <div className="mt-4 bg-white/[0.06] border border-white/10 rounded-xl px-4 py-3 relative">
-            <span className="text-[11.5px] text-white/75 leading-relaxed flex items-start gap-1.5">
+          <div className="mt-4 bg-[var(--brand-pink-soft)] border border-[var(--brand-pink)]/20 rounded-xl px-4 py-3 relative">
+            <span className="text-[11.5px] text-[var(--ink-700)] leading-relaxed flex items-start gap-1.5">
               <span className="text-base flex-shrink-0 leading-none">💡</span>
               <div>
-                <strong className="text-white font-bold uppercase tracking-wider text-[10px] block mb-0.5">Neural Match Insight</strong>
+                <strong className="text-[var(--brand-pink)] font-bold uppercase tracking-wider text-[10px] block mb-0.5">Neural Match Insight</strong>
                 {results.summary}
               </div>
             </span>
@@ -1031,15 +1026,16 @@ export default function AISearchPage() {
         {/* Instant Search Templates */}
         {!results && !mutation.isPending && (
           <div className="mt-5 relative">
-            <div className="text-[9px] font-bold text-white/30 uppercase tracking-[1.2px] mb-2.5">Instant Search Templates</div>
+            <div className="text-[9px] font-bold text-[var(--ink-500)] uppercase tracking-[1.2px] mb-2.5">Instant Search Templates</div>
             <div className="flex flex-wrap gap-2">
               {QUICK_SUGGESTIONS.map(item => (
                 <button
                   key={item.text}
+                  type="button"
                   onClick={() => useQuick(item.text)}
-                  className="text-[10.5px] text-white/70 bg-white/[0.05] border border-white/8 px-3.5 py-1.5 rounded-full hover:bg-white/10 hover:text-white/95 transition-all flex items-center gap-1.5"
+                  className="text-[10.5px] text-[var(--ink-700)] bg-[var(--ink-100)] px-3 py-2 rounded-[var(--radius-pill)] hover:bg-[var(--ink-300)]/40 hover:text-[var(--ink-900)] transition-all flex items-center justify-center font-medium"
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary" /> {item.text}
+                  {item.text}
                 </button>
               ))}
             </div>

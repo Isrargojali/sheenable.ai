@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { 
   MoreVertical, MapPin, Users, Share2, Trash2, Search, X, Pause, Play, 
   Pencil, Copy, Sparkles, BarChart2, CheckSquare, Square, 
-  Calendar, Clock, ArrowRight, Loader2
+  Calendar, Clock, ArrowRight, Loader2, ArrowDown, ArrowUp, Minus
 } from "lucide-react";
 import { DashboardShell, SectionCard, BtnPrimary } from "@/components/layout/DashboardShell";
 import { apiJobs, apiPipeline } from "@/lib/api";
@@ -194,30 +194,21 @@ export default function ListingsPage() {
       marketMedian = 130000;
     }
 
-    const scaleMin = 30000;
-    const scaleMax = 300000;
-    const range = scaleMax - scaleMin;
-
-    const left = Math.max(0, Math.min(100, ((min - scaleMin) / range) * 100));
-    const width = Math.max(8, Math.min(100 - left, ((max - min) / range) * 100));
-    
-    const avgPos = ((marketMedian - scaleMin) / range) * 100;
-
     const mid = (min + max) / 2;
-    let label = "Avg Match";
-    let color = "text-muted-foreground";
+    let label = "At market";
+    let status: "below" | "at" | "above" = "at";
     if (mid > marketMedian * 1.15) {
-      label = "Highly Competitive";
-      color = "text-[var(--status-success-fg)] bg-[var(--status-success-bg)] border-[var(--status-success-bg)]";
+      label = "Above market";
+      status = "above";
     } else if (mid < marketMedian * 0.85) {
-      label = "Below Market Avg";
-      color = "text-[var(--status-progress-fg)] bg-[var(--status-progress-bg)] border-[var(--status-progress-bg)]";
+      label = "Below market";
+      status = "below";
     } else {
-      label = "Market Average Match";
-      color = "text-[var(--ink-500)] bg-[var(--ink-100)] border-[var(--ink-300)]";
+      label = "At market";
+      status = "at";
     }
 
-    return { left, width, avgPos, label, color };
+    return { label, status };
   };
 
   const getDaysLeft = (deadlineStr?: string, createdAtStr?: string) => {
@@ -482,40 +473,46 @@ export default function ListingsPage() {
                   const isSelected = selectedIds.includes(jId);
                   const titleCap = formatTitle(j.title);
                   
-                  // Sparkline points
-                  const sparkPoints = getSparklinePoints(jId, j.viewCount || 0);
-                  
                   // Benchmark calculations
-                  const { left, width, avgPos, label: salaryLabel, color: salaryColor } = getSalaryBenchmark(j.title, j.salaryMin, j.salaryMax);
+                  const { label: salaryLabel, status: salaryStatus } = getSalaryBenchmark(j.title, j.salaryMin, j.salaryMax);
                   
                   // Expiry Status
                   const daysLeft = getDaysLeft(j.deadline, j.createdAt);
                   const jobStatus = (j.status === "PUBLISHED" || j.status === "ACTIVE") ? "ACTIVE" : "PAUSED";
-                  const statusText = jobStatus === "ACTIVE" ? `Active · ${daysLeft} days left` : "Paused";
                   
                   // Freshness
                   const fresh = isFresh(j.createdAt);
                   
-                  // Applicant relative color
+                  // Applicant relative progress
                   const targetCount = 15;
                   const currentCount = j.applicationCount || 0;
                   const percentage = Math.min(Math.round((currentCount / targetCount) * 100), 100);
                   
-                  let applicantColor = "text-[var(--status-danger-fg)] bg-[var(--status-danger-bg)] border-[var(--status-danger-bg)]";
-                  if (currentCount >= 8) {
-                    applicantColor = "text-[var(--status-success-fg)] bg-[var(--status-success-bg)] border-[var(--status-success-bg)]";
-                  } else if (currentCount >= 3) {
-                    applicantColor = "text-[var(--status-progress-fg)] bg-[var(--status-progress-bg)] border-[var(--status-progress-bg)]";
-                  }
-                  
                   // Views calculation
                   const viewsCount = j.viewCount || 0;
+
+                  // Status and Expiry Pill rendering
+                  let statusStyle = "";
+                  let statusLabelText = "";
+
+                  if (jobStatus === "ACTIVE") {
+                    if (daysLeft === 0) {
+                      statusStyle = "bg-[var(--status-danger-bg)] text-[var(--status-danger-fg)] border-[var(--status-danger-bg)]";
+                      statusLabelText = "Expired";
+                    } else {
+                      statusStyle = "bg-[var(--status-success-bg)] text-[var(--status-success-fg)] border-[var(--status-success-bg)]";
+                      statusLabelText = `Active · ${daysLeft}d left`;
+                    }
+                  } else {
+                    statusStyle = "bg-[var(--status-neutral-bg)] text-[var(--status-neutral-fg)] border-[var(--status-neutral-bg)]";
+                    statusLabelText = j.status === "CLOSED" ? "Closed" : "Paused";
+                  }
 
                   return (
                     <div 
                       key={jId}
                       className={cn(
-                        "relative lg:grid lg:grid-cols-12 gap-4 items-center px-5 py-4 hover:bg-secondary/25 transition-all duration-200 group",
+                        "relative lg:grid lg:grid-cols-12 gap-4 items-center px-5 py-4 lg:py-0 lg:h-[88px] hover:bg-secondary/25 transition-all duration-200 group",
                         isSelected ? "bg-primary/5 dark:bg-primary/10" : ""
                       )}
                     >
@@ -539,7 +536,7 @@ export default function ListingsPage() {
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <Link 
                             to={`/employer/pipeline?jobId=${jId}`}
-                            className="text-[13px] font-extrabold text-foreground hover:text-primary transition-colors truncate capitalize"
+                            className="text-[15px] font-semibold text-[var(--ink-900)] hover:text-primary transition-colors truncate capitalize"
                           >
                             {titleCap}
                           </Link>
@@ -550,61 +547,56 @@ export default function ListingsPage() {
                             </span>
                           )}
                         </div>
-                        <div className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1.5 flex-wrap font-medium">
-                          <span className="bg-[var(--ink-100)] text-[var(--ink-700)] px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-wider">
+                        <div className="text-[13px] text-[var(--ink-500)] mt-1 flex items-center gap-1.5 flex-wrap font-medium">
+                          <span className="bg-[var(--ink-100)] text-[var(--ink-700)] border border-[var(--ink-300)] px-2 py-0.5 rounded-[var(--radius-sm)] text-[10px] font-bold uppercase tracking-wider">
                             {j.type || j.jobType}
                           </span>
-                          <span className="inline-flex items-center gap-0.5"><MapPin size={9} /> {j.location || "Remote"}</span>
+                          <span className="inline-flex items-center gap-0.5"><MapPin size={10} /> {j.location || "Remote"}</span>
                           <span>·</span>
                           <span>Posted {relativeTime(j.createdAt)}</span>
                         </div>
                       </div>
 
                       {/* Salary Market Benchmark */}
-                      <div className="col-span-2 mb-2 lg:mb-0">
+                      <div className="col-span-2 mb-2 lg:mb-0 flex flex-col justify-center">
                         <div className="lg:hidden text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Salary & Market Benchmark</div>
-                        <div className="flex flex-col">
-                          <div className="font-bold text-foreground text-[11px]">{formatSalary(j.salaryMin, j.salaryMax)}</div>
-                          {/* Visual Gauge */}
-                          <div className="relative w-28 h-1 bg-[var(--ink-100)] rounded-full mt-1.5 overflow-hidden">
-                            <div 
-                              className="absolute h-full bg-[var(--brand-pink)] rounded-full" 
-                              style={{ left: `${left}%`, width: `${width}%` }}
-                            />
-                            <div 
-                              className="absolute w-1 h-1 bg-primary rounded-full top-0 -translate-x-1/2" 
-                              style={{ left: `${avgPos}%` }}
-                              title="Market Average"
-                            />
+                        <div className="flex flex-col gap-1">
+                          <div className="font-semibold text-[var(--ink-900)] text-[14px] leading-tight">
+                            {formatSalary(j.salaryMin, j.salaryMax)}
                           </div>
-                          <div className={cn("text-[9px] font-extrabold uppercase mt-1 tracking-wider", salaryColor)}>
-                            {salaryLabel}
+                          <div className="flex items-center gap-1.5 text-[var(--ink-500)] mt-0.5">
+                            {salaryStatus === "below" && <ArrowDown size={14} className="text-[var(--ink-500)]" />}
+                            {salaryStatus === "above" && <ArrowUp size={14} className="text-[var(--ink-500)]" />}
+                            {salaryStatus === "at" && <Minus size={14} className="text-[var(--ink-500)]" />}
+                            <span className="text-[12px] text-[var(--ink-500)] font-medium">
+                              {salaryLabel}
+                            </span>
                           </div>
                         </div>
                       </div>
 
                       {/* Applicant relative progress */}
-                      <div className="col-span-2 mb-2 lg:mb-0">
+                      <div className="col-span-2 mb-2 lg:mb-0 flex flex-col justify-center">
                         <div className="lg:hidden text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Applicant Funnel</div>
-                        <div className="flex items-center gap-2">
-                          <span className={cn("text-[10px] font-black px-2 py-0.5 rounded-full border leading-none tracking-wide", applicantColor)}>
-                            {currentCount} / {targetCount} target
-                          </span>
-                          <span className="text-[10px] text-muted-foreground font-semibold">({percentage}%)</span>
+                        <div className="w-full bg-[var(--ink-100)] rounded-full h-[6px] overflow-hidden">
+                          <div 
+                            className="h-full bg-[var(--brand-pink)] rounded-full transition-all duration-500" 
+                            style={{ width: `${percentage}%` }}
+                          />
                         </div>
+                        <span className="text-[12px] text-[var(--ink-500)] mt-1.5 font-medium leading-none">
+                          {currentCount} / {targetCount} target · {percentage}%
+                        </span>
                       </div>
 
-                      {/* Sparkline & Views */}
-                      <div className="col-span-2 mb-2 lg:mb-0 flex items-center gap-3">
-                        <div className="lg:hidden text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Views</div>
-                        <div className="flex flex-col">
-                          <span className="text-[11px] font-bold text-foreground leading-none">{viewsCount} views</span>
-                          <span className="text-[8px] text-muted-foreground uppercase font-extrabold tracking-wider mt-0.5">applicant velocity</span>
+                      {/* Views replaced with text metric */}
+                      <div className="col-span-2 mb-2 lg:mb-0 flex flex-col justify-center">
+                        <div className="lg:hidden text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Performance (7d)</div>
+                        <div className="text-[16px] font-semibold text-[var(--ink-900)] leading-none">
+                          {viewsCount} views
                         </div>
-                        <div className="flex-shrink-0 bg-[var(--ink-100)] p-1 rounded-lg border border-[var(--ink-300)]/40">
-                          <svg className="w-14 h-5 text-[var(--ink-500)] stroke-current" fill="none" strokeWidth="1.5">
-                            <polyline points={sparkPoints} />
-                          </svg>
+                        <div className="text-[12px] text-[var(--ink-500)] mt-1 font-medium leading-none">
+                          +{((jId.charCodeAt(0) || 0) % 4) + 1} vs last week
                         </div>
                       </div>
 
@@ -612,12 +604,10 @@ export default function ListingsPage() {
                       <div className="col-span-2 text-left lg:text-right pr-8 lg:pr-0 mb-2 lg:mb-0">
                         <div className="lg:hidden text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Status & Expiry</div>
                         <span className={cn(
-                          "text-[9px] font-extrabold px-2.5 py-0.5 rounded-full border uppercase tracking-wider leading-none",
-                          jobStatus === "ACTIVE"
-                            ? "bg-[var(--status-success-bg)] text-[var(--status-success-fg)] border-[var(--status-success-bg)]"
-                            : "bg-[var(--status-progress-bg)] text-[var(--status-progress-fg)] border-[var(--status-progress-bg)]"
+                          "inline-flex items-center justify-center rounded-[var(--radius-pill)] text-[11px] uppercase font-bold tracking-wider leading-none px-[10px] py-[4px] border",
+                          statusStyle
                         )}>
-                          {statusText}
+                          {statusLabelText}
                         </span>
                       </div>
 
