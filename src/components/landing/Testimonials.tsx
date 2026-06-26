@@ -10,7 +10,7 @@ const TESTIMONIALS = [
   },
   {
     quote: "Returning after a caregiving break is challenging, but SheEnable's ATS toolkit reframed my trajectory as a major strategic asset.",
-    name: "Maria Gomez",
+    name: "Natasha Ali",
     title: "UX Lead",
     company: "Helix Health",
     avatar: "MG",
