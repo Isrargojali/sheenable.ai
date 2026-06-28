@@ -87,7 +87,7 @@ interface EmployerProfile {
 const NAV: Record<UserRole, NavGroup[]> = {
   CANDIDATE: [
     {
-      label: "Workspace",    
+      label: "Workspace",
       items: [
         { to: "/candidate/dashboard", label: "Dashboard", icon: LayoutDashboard },
         { to: "/candidate/jobs", label: "Browse Jobs", icon: Briefcase },
@@ -101,7 +101,7 @@ const NAV: Record<UserRole, NavGroup[]> = {
         { to: "/candidate/profile", label: "My Profile", icon: User },
         { to: "/candidate/cv", label: "CV Builder", icon: FilePlus },
       ],
-    },  
+    },
   ],
   EMPLOYER: [
     {
@@ -357,8 +357,8 @@ function Sidebar({
             onClick={() => setAvailable(!available)}
             className={cn(
               "w-full flex items-center gap-2 px-2.5 py-2 rounded-[var(--radius-control)] transition-colors",
-              available 
-                ? "bg-[var(--status-success-bg)] text-[var(--status-success-fg)]" 
+              available
+                ? "bg-[var(--status-success-bg)] text-[var(--status-success-fg)]"
                 : "bg-[var(--status-progress-bg)] text-[var(--status-progress-fg)]"
             )}
           >
@@ -1050,7 +1050,7 @@ export function Stepper({
                   <span>{i + 1}</span>
                 )}
               </div>
-              
+
               {/* Label */}
               <span
                 className={cn(
