@@ -471,7 +471,7 @@ function Sidebar({
             <img
               src={logo}
               alt="SheEnableAI logo"
-              className="w-[180px] h-[48px] object-contain transition-transform group-hover:scale-105"
+              className="w-[182px] h-[50px] object-contain transition-transform group-hover:scale-105"
             />
           </Link>
           <div className="text-[9px] font-sans font-bold tracking-wider text-[var(--ink-500)] uppercase">
