@@ -175,7 +175,10 @@ const applyThemeVars = () => {
 function useNotificationBadges(role: UserRole): NotificationBadgeCounts {
   const { data: threadsData } = useQuery<ThreadsQueryData>({
     queryKey: ["threadsBadge", role],
-    queryFn: apiMessages.getThreads,
+    queryFn: async () => {
+      const res = await apiMessages.getThreads();
+      return res as ThreadsQueryData;
+    },
     refetchInterval: 10000,
     enabled: role === "CANDIDATE" || role === "EMPLOYER"
   });
@@ -189,7 +192,10 @@ function useNotificationBadges(role: UserRole): NotificationBadgeCounts {
   // Candidate: my applications count
   const { data: myAppsData } = useQuery<unknown[]>({
     queryKey: ["myAppsBadge", role],
-    queryFn: apiApplications.getApplications,
+    queryFn: async () => {
+      const res = await apiApplications.getApplications();
+      return (res ?? []) as unknown[];
+    },
     refetchInterval: 10000,
     enabled: role === "CANDIDATE"
   });
@@ -529,19 +535,26 @@ function Topbar({
 
   const { data: realNotifs } = useQuery<NotificationItem[]>({
     queryKey: ["notifications"],
-    queryFn: () => apiNotifications.getAll(),
+    queryFn: async () => {
+      const res = await apiNotifications.getAll();
+      return (res ?? []) as NotificationItem[];
+    },
     refetchInterval: 10000, // Real-time poll every 10s
   });
 
   const markAllReadMut = useMutation({
-    mutationFn: () => apiNotifications.markAllRead(),
+    mutationFn: async () => {
+      await apiNotifications.markAllRead();
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["notifications"] });
     }
   });
 
   const markReadMut = useMutation({
-    mutationFn: (id: string) => apiNotifications.markRead(id),
+    mutationFn: async (id: string) => {
+      await apiNotifications.markRead(id);
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["notifications"] });
     }
@@ -1195,7 +1208,10 @@ function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
   // Fetch full profile when modal opens
   const { data: profile, isLoading } = useQuery<ProfileQueryData>({
     queryKey: ["settingsProfile"],
-    queryFn: () => apiProfile.getMe(),
+    queryFn: async () => {
+      const res = await apiProfile.getMe();
+      return res as ProfileQueryData;
+    },
     enabled: isOpen,
   });
 
@@ -1233,7 +1249,10 @@ function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
   };
 
   const updateProfileMut = useMutation<UpdateProfileResponse, unknown, UpdateProfileData>({
-    mutationFn: (data: UpdateProfileData) => apiProfile.updateMe(data),
+    mutationFn: async (data: UpdateProfileData) => {
+      const res = await apiProfile.updateMe(data);
+      return res as UpdateProfileResponse;
+    },
     onSuccess: (res) => {
       qc.invalidateQueries({ queryKey: ["settingsProfile"] });
       qc.invalidateQueries({ queryKey: ["employerProfile"] });
@@ -1536,19 +1555,28 @@ function CommandPaletteModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
 
   const { data: users = [] } = useQuery<{ id?: string; _id?: string; email: string; role: string; profile?: { firstName?: string; lastName?: string } }[]>({
     queryKey: ["commandPaletteUsers"],
-    queryFn: () => apiAdmin.getUsers(),
+    queryFn: async () => {
+      const res = await apiAdmin.getUsers();
+      return (res ?? []) as { id?: string; _id?: string; email: string; role: string; profile?: { firstName?: string; lastName?: string } }[];
+    },
     enabled: isOpen,
   });
 
   const { data: auditLogs = [] } = useQuery<{ id?: string; _id?: string; action: string; userId?: string; detail: string }[]>({
     queryKey: ["commandPaletteAudits"],
-    queryFn: () => apiAdmin.getAuditLogs(),
+    queryFn: async () => {
+      const res = await apiAdmin.getAuditLogs();
+      return (res ?? []) as { id?: string; _id?: string; action: string; userId?: string; detail: string }[];
+    },
     enabled: isOpen,
   });
 
   const { data: jobs = [] } = useQuery<{ id?: string; _id?: string; title: string; companyName?: string; status: string }[]>({
     queryKey: ["commandPaletteJobs"],
-    queryFn: () => apiAdmin.getJobs(),
+    queryFn: async () => {
+      const res = await apiAdmin.getJobs();
+      return (res ?? []) as { id?: string; _id?: string; title: string; companyName?: string; status: string }[];
+    },
     enabled: isOpen,
   });
 
