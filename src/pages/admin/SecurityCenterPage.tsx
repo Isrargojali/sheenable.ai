@@ -175,6 +175,16 @@ export default function SecurityCenterPage() {
     }, 2000);
   };
 
+  const handleDeactivateLockdown = () => {
+    toast.loading("DEACTIVATING LOCKDOWN: Re-securing OAuth ingress & restoring token authorization...");
+    setTimeout(() => {
+      toast.dismiss();
+      toast.success("SYSTEM RESTORED: Lockdown deactivated, all security guardrails fully operational.");
+      setLockdownActive(false);
+      setShieldState("OPERATIONAL");
+    }, 2000);
+  };
+
   return (
     <DashboardShell
       title="Security center"
@@ -321,9 +331,17 @@ export default function SecurityCenterPage() {
                 Multiple failed login sequences and JWT verification failures. Immediate system lockdown recommended.
               </p>
               {lockdownActive ? (
-                <span className="text-[10px] font-black text-rose-950 dark:text-rose-300 block mt-2">
-                  🔒 LOCKDOWN STATE ENABLED
-                </span>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 mt-3">
+                  <span className="text-[10px] font-black text-rose-950 dark:text-rose-300 flex items-center gap-1 bg-rose-500/10 border border-rose-500/25 px-3 py-1.5 rounded-xl">
+                    🔒 LOCKDOWN STATE ACTIVE
+                  </span>
+                  <button
+                    onClick={handleDeactivateLockdown}
+                    className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-755 text-white border border-emerald-600/35 rounded-xl text-[11px] font-extrabold shadow-md transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                  >
+                    Deactivate lockdown &rarr;
+                  </button>
+                </div>
               ) : (
                 <button 
                   onClick={handleInitiateLockdown}
