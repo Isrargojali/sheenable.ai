@@ -1,5 +1,4 @@
-// src/pages/admin/SecurityCenterPage.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { 
   ShieldCheck, AlertTriangle, Activity, Lock, RefreshCw, 
@@ -88,9 +87,26 @@ export default function SecurityCenterPage() {
 
   const { data, isLoading } = useQuery<ThreatData>({
     queryKey: ["threats"],
-    queryFn: apiAdmin.getSecurityInfo,
+    queryFn: async () => {
+      const res = await apiAdmin.getThreatData();
+      return res as ThreatData;
+    },
     refetchInterval: 12000
   });
+
+  // Sync simulated shield state with backend threat level initially
+  useEffect(() => {
+    if (data?.threatLevel) {
+      const level = data.threatLevel.toUpperCase();
+      if (level === "CRITICAL") {
+        setShieldState("CRITICAL");
+      } else if (level === "ELEVATED") {
+        setShieldState("DEGRADED");
+      } else {
+        setShieldState("OPERATIONAL");
+      }
+    }
+  }, [data?.threatLevel]);
 
   // Calculate dynamics based on simulated shield state
   const mockSessions = [
@@ -119,24 +135,24 @@ export default function SecurityCenterPage() {
   });
 
   const safeData = data ? {
-    threatLevel: shieldState === "CRITICAL" ? "CRITICAL" : shieldState === "DEGRADED" ? "ELEVATED" : "LOW",
-    blockedIPs: (data as any).suspendedUsers || 0,
-    failedLogins24h: (data as any).recentFailedLogins || 0,
-    activeSessions: 12,
-    uptime: "99.98%",
-    apiP95: "142ms",
-    bruteBlocks24h: (data as any).accountsLockedToday || 0,
-    rateLimitHits: 14,
-    xssAttempts: 0
+    threatLevel: shieldState === "CRITICAL" ? "CRITICAL" : shieldState === "DEGRADED" ? "ELEVATED" : (data.threatLevel || "LOW"),
+    blockedIPs: data.blockedIPs || 0,
+    failedLogins24h: data.failedLogins24h || 0,
+    activeSessions: data.activeSessions || 1,
+    uptime: data.uptime || "99.98%",
+    apiP95: data.apiP95 || "142ms",
+    bruteBlocks24h: data.bruteBlocks24h || 0,
+    rateLimitHits: data.rateLimitHits || 0,
+    xssAttempts: data.xssAttempts || 0
   } : {
     threatLevel: shieldState === "CRITICAL" ? "CRITICAL" : shieldState === "DEGRADED" ? "ELEVATED" : "LOW",
     blockedIPs: 0,
     failedLogins24h: 0,
-    activeSessions: 12,
+    activeSessions: 1,
     uptime: "99.98%",
     apiP95: "142ms",
     bruteBlocks24h: 0,
-    rateLimitHits: 14,
+    rateLimitHits: 0,
     xssAttempts: 0
   };
 

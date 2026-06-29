@@ -5,6 +5,7 @@ import { DashboardShell, SectionCard } from "@/components/layout/DashboardShell"
 import { toast } from "sonner";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiAdmin } from "@/lib/api";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 
 interface AdminUser {
   id: string;
@@ -35,7 +36,7 @@ interface NewAdmin { name: string; email: string; perms: string[]; role: string 
 export default function ManageAdminsPage() {
   const qc = useQueryClient();
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState<NewAdmin>({ name: "", email: "", perms: [], role: "ADMIN" });
+  const [form, setForm] = useState<NewAdmin>({ name: "", email: "", perms: [], role: "Full Admin" });
   
   // Search & Filters
   const [searchQuery, setSearchQuery] = useState("");
@@ -171,8 +172,31 @@ export default function ManageAdminsPage() {
     setEditingAdmin(null);
   };
 
+  const createAdminMutation = useMutation({
+    mutationFn: async (payload: { name: string; email: string; role: string }) => {
+      return apiAdmin.createAdminUser(payload);
+    },
+    onSuccess: () => {
+      toast.success("Admin account created successfully ✓");
+      setShowForm(false);
+      setForm({ name: "", email: "", perms: [], role: "Full Admin" });
+      qc.invalidateQueries({ queryKey: ["adminUsersList"] });
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || "Failed to create admin");
+    }
+  });
+
   const createAdmin = () => {
-    toast.error("Admins must be registered through the standard registration endpoint with ADMIN role seeds");
+    if (!form.name.trim() || !form.email.trim()) {
+      toast.error("Name and Email are required");
+      return;
+    }
+    createAdminMutation.mutate({
+      name: form.name.trim(),
+      email: form.email.trim(),
+      role: form.role
+    });
   };
 
   return (
@@ -201,11 +225,16 @@ export default function ManageAdminsPage() {
               </div>
               <div>
                 <label className="block text-[11px] font-bold text-[#3D3656] uppercase tracking-wide mb-1.5">System Role</label>
-                <select value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value }))} className="w-full px-3.5 py-2.5 border border-[#E8E1F0] rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/10 focus:border-purple-400 transition-all text-foreground">
-                  <option value="Full Admin">Full Admin</option>
-                  <option value="Moderator">Moderator</option>
-                  <option value="Support">Support</option>
-                </select>
+                <Select value={form.role} onValueChange={val => setForm(f => ({ ...f, role: val }))}>
+                  <SelectTrigger className="w-full px-3.5 py-2.5 border border-[#E8E1F0] rounded-xl text-sm bg-white focus:ring-2 focus:ring-purple-500/10 focus:border-purple-400 transition-all text-foreground cursor-pointer h-[42px]">
+                    <SelectValue placeholder="Select System Role" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover border border-border rounded-xl shadow-xl min-w-[200px] p-1">
+                    <SelectItem value="Full Admin" className="text-xs font-semibold text-foreground focus:bg-accent focus:text-accent-foreground rounded-lg cursor-pointer py-2 pl-8 pr-2">Full Admin</SelectItem>
+                    <SelectItem value="Moderator" className="text-xs font-semibold text-foreground focus:bg-accent focus:text-accent-foreground rounded-lg cursor-pointer py-2 pl-8 pr-2">Moderator</SelectItem>
+                    <SelectItem value="Support" className="text-xs font-semibold text-foreground focus:bg-accent focus:text-accent-foreground rounded-lg cursor-pointer py-2 pl-8 pr-2">Support</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             <div>
@@ -421,19 +450,22 @@ export default function ManageAdminsPage() {
               </div>
 
               {/* System Role Selector */}
-              <div>
-                <label className="block text-[10px] font-bold text-[#3D3656] uppercase tracking-wider mb-2">Change Role</label>
-                <select 
-                  value={editingAdmin.role}
-                  onChange={e => setEditingAdmin(prev => prev ? ({ ...prev, role: e.target.value }) : null)}
-                  className="w-full px-3 py-2 border border-border rounded-xl text-xs bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-500/10 focus:border-purple-400 transition-all text-foreground"
-                >
-                  <option value="Full Admin">Full Admin</option>
-                  <option value="Moderator">Moderator</option>
-                  <option value="Support">Support</option>
-                  <option value="Custom Admin">Custom Admin</option>
-                </select>
-              </div>
+              {editingAdmin && (
+                <div>
+                  <label className="block text-[10px] font-bold text-[#3D3656] uppercase tracking-wider mb-2">Change Role</label>
+                  <Select value={editingAdmin.role} onValueChange={val => setEditingAdmin(prev => prev ? ({ ...prev, role: val }) : null)}>
+                    <SelectTrigger className="w-full px-3 py-2 border border-border rounded-xl text-xs bg-card focus:ring-2 focus:ring-purple-500/10 focus:border-purple-400 transition-all text-foreground cursor-pointer">
+                      <SelectValue placeholder="Select Role" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-popover border border-border rounded-xl shadow-xl min-w-[200px] p-1">
+                      <SelectItem value="Full Admin" className="text-xs font-semibold text-foreground focus:bg-accent focus:text-accent-foreground rounded-lg cursor-pointer py-2 pl-8 pr-2">Full Admin</SelectItem>
+                      <SelectItem value="Moderator" className="text-xs font-semibold text-foreground focus:bg-accent focus:text-accent-foreground rounded-lg cursor-pointer py-2 pl-8 pr-2">Moderator</SelectItem>
+                      <SelectItem value="Support" className="text-xs font-semibold text-foreground focus:bg-accent focus:text-accent-foreground rounded-lg cursor-pointer py-2 pl-8 pr-2">Support</SelectItem>
+                      <SelectItem value="Custom Admin" className="text-xs font-semibold text-foreground focus:bg-accent focus:text-accent-foreground rounded-lg cursor-pointer py-2 pl-8 pr-2">Custom Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
               {/* Permissions Matrix list */}
               <div className="space-y-2">

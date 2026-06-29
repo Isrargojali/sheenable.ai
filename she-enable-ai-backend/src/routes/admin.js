@@ -5,7 +5,7 @@ const { authorize } = require('../middleware/roles');
 const {
   getStats, getUsers, getUserById, updateUserRole, updateUserStatus, deleteUser,
   getAuditLogs, getSecurityInfo, getAnalytics, getJobsAdmin, updateJobStatusAdmin, getThreatData,
-  getSystemHealth
+  getSystemHealth, createAdminUser
 } = require('../controllers/adminController');
 
 router.use(protect);
@@ -15,6 +15,7 @@ router.get('/stats', getStats);
 router.get('/security-threats', getThreatData);
 router.get('/system-health', getSystemHealth);
 router.get('/users', getUsers);
+router.post('/users', authorize('SUPER_ADMIN'), createAdminUser);
 router.get('/users/:id', getUserById);
 router.patch('/users/:id/role', authorize('SUPER_ADMIN'), updateUserRole); // Bug 6 fix: Only SUPER_ADMIN can change roles
 router.patch('/users/:id/status', updateUserStatus);

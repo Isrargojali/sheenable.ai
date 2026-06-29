@@ -206,6 +206,7 @@ export const apiAdmin = {
   getStats:         ()                               => api.get('/admin/stats').then(unwrap),
   getUsers:         (params?: object)                => api.get('/admin/users', { params }).then(unwrap),
   getUserById:      (id: string)                     => api.get(`/admin/users/${id}`).then(unwrap),
+  createAdminUser:  (data: object)                   => api.post('/admin/users', data).then(unwrap),
   updateUserRole:   (id: string, role: string)       => api.patch(`/admin/users/${id}/role`, { role }).then(unwrap),
   updateUserStatus: (id: string, data: { isActive?: boolean; isVerified?: boolean }) => api.patch(`/admin/users/${id}/status`, data).then(unwrap),
   deleteUser:       (id: string)                     => api.delete(`/admin/users/${id}`).then(unwrap),

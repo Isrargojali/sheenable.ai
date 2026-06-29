@@ -10,6 +10,7 @@ import { apiAdmin } from "@/lib/api";
 import { DashboardShell, SectionCard } from "@/components/layout/DashboardShell";
 import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 
 type AuditLogEntry = {
   id: string;
@@ -382,37 +383,39 @@ export default function AuditLogPage() {
 
         <div className="flex items-center gap-2.5 flex-wrap">
           {/* Action Filter with Counts */}
-          <div className="flex items-center gap-2 bg-card border border-border px-3 py-2 rounded-xl text-xs font-semibold text-ink-400">
+          <div className="flex items-center gap-2 bg-card border border-border px-3 py-1.5 rounded-xl text-xs font-semibold text-ink-400 h-[38px]">
             <Filter size={12} className="text-primary" />
-            <select 
-              value={actionType} 
-              onChange={e => handleSetActionType(e.target.value)}
-              className="bg-transparent border-0 focus:outline-none focus:ring-0 text-foreground cursor-pointer text-xs font-bold"
-            >
-              {ACTION_TYPES.map(a => {
-                const count = allLogs.filter(l => a === "All Actions" || l.action === a).length;
-                return (
-                  <option key={a} value={a}>
-                    {a === "All Actions" ? `All Actions (${count})` : `${a.replace(/_/g, " ")} (${count})`}
-                  </option>
-                );
-              })}
-            </select>
+            <Select value={actionType} onValueChange={handleSetActionType}>
+              <SelectTrigger className="border-0 bg-transparent p-0 text-xs font-bold text-foreground focus:ring-0 focus:ring-offset-0 focus:outline-none shadow-none h-auto w-auto cursor-pointer gap-1.5 select-none [&>svg]:hidden">
+                <SelectValue placeholder="Select Action" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover border border-border rounded-xl shadow-xl min-w-[220px] p-1 max-h-80 overflow-y-auto">
+                {ACTION_TYPES.map(a => {
+                  const count = allLogs.filter(l => a === "All Actions" || l.action === a).length;
+                  return (
+                    <SelectItem key={a} value={a} className="text-[11px] font-bold text-foreground focus:bg-accent focus:text-accent-foreground rounded-lg cursor-pointer py-1.5 pl-8 pr-2">
+                      {a === "All Actions" ? `All Actions (${count})` : `${a.replace(/_/g, " ")} (${count})`}
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Timeframe Filter */}
-          <div className="flex items-center gap-2 bg-card border border-border px-3 py-2 rounded-xl text-xs font-semibold text-ink-400">
+          <div className="flex items-center gap-2 bg-card border border-border px-3 py-1.5 rounded-xl text-xs font-semibold text-ink-400 h-[38px]">
             <Calendar size={12} className="text-primary" />
-            <select 
-              value={timeRange} 
-              onChange={e => setTimeRange(e.target.value as any)}
-              className="bg-transparent border-0 focus:outline-none focus:ring-0 text-foreground cursor-pointer text-xs font-bold"
-            >
-              <option value="ALL">All Time</option>
-              <option value="24H">Last 24 Hours</option>
-              <option value="7D">Last 7 Days</option>
-              <option value="30D">Last 30 Days</option>
-            </select>
+            <Select value={timeRange} onValueChange={(val: any) => setTimeRange(val)}>
+              <SelectTrigger className="border-0 bg-transparent p-0 text-xs font-bold text-foreground focus:ring-0 focus:ring-offset-0 focus:outline-none shadow-none h-auto w-auto cursor-pointer gap-1.5 select-none [&>svg]:hidden">
+                <SelectValue placeholder="Select Timeframe" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover border border-border rounded-xl shadow-xl min-w-[140px] p-1">
+                <SelectItem value="ALL" className="text-[11px] font-bold text-foreground focus:bg-accent focus:text-accent-foreground rounded-lg cursor-pointer py-1.5 pl-8 pr-2">All Time</SelectItem>
+                <SelectItem value="24H" className="text-[11px] font-bold text-foreground focus:bg-accent focus:text-accent-foreground rounded-lg cursor-pointer py-1.5 pl-8 pr-2">Last 24 Hours</SelectItem>
+                <SelectItem value="7D" className="text-[11px] font-bold text-foreground focus:bg-accent focus:text-accent-foreground rounded-lg cursor-pointer py-1.5 pl-8 pr-2">Last 7 Days</SelectItem>
+                <SelectItem value="30D" className="text-[11px] font-bold text-foreground focus:bg-accent focus:text-accent-foreground rounded-lg cursor-pointer py-1.5 pl-8 pr-2">Last 30 Days</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <span className="inline-flex items-center gap-1.5 px-3 py-2 bg-secondary border border-border rounded-xl text-xs font-bold text-foreground">

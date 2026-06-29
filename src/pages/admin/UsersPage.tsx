@@ -11,6 +11,7 @@ import { DashboardShell, SectionCard, BtnPrimary } from "@/components/layout/Das
 import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 import { toast } from "sonner";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 
 interface User {
   id: string;
@@ -634,15 +635,19 @@ export default function UsersPage() {
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-bold text-ink-400 uppercase tracking-wider block">New Role</label>
-                <select
+                <Select
                   value={roleModal.newRole}
-                  onChange={e => setRoleModal(prev => prev ? { ...prev, newRole: e.target.value } : null)}
-                  className="w-full px-3 py-2.5 bg-card border border-border rounded-xl text-xs font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  onValueChange={val => setRoleModal(prev => prev ? { ...prev, newRole: val } : null)}
                 >
-                  {["CANDIDATE", "EMPLOYER", "ADMIN", "SUPER_ADMIN"].map(r => (
-                    <option key={r} value={r}>{r}</option>
-                  ))}
-                </select>
+                  <SelectTrigger className="w-full px-3 py-2.5 bg-card border border-border rounded-xl text-xs font-bold text-foreground focus:ring-2 focus:ring-primary/20 focus:ring-offset-0 focus:outline-none cursor-pointer">
+                    <SelectValue placeholder="Select New Role" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover border border-border rounded-xl shadow-xl min-w-[200px] p-1">
+                    {["CANDIDATE", "EMPLOYER", "ADMIN", "SUPER_ADMIN"].map(r => (
+                      <SelectItem key={r} value={r} className="text-xs font-semibold text-foreground focus:bg-accent focus:text-accent-foreground rounded-lg cursor-pointer py-2 pl-8 pr-2">{r}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <button
                 onClick={() => roleMut.mutate({ id: roleModal.userId, role: roleModal.newRole })}

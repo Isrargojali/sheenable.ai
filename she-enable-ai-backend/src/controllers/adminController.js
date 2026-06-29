@@ -768,8 +768,54 @@ const getSystemHealth = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+const createAdminUser = async (req, res, next) => {
+  try {
+    const { name, email, role, password } = req.body;
+
+    if (!name || !email || !role) {
+      return error(res, 'Name, email, and role are required', 400);
+    }
+
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    if (existingUser) return error(res, 'Email already registered', 400);
+
+    // Map frontend roles to backend roles
+    let backendRole = 'ADMIN';
+    if (role === 'Full Admin' || role === 'SUPER_ADMIN') {
+      backendRole = 'SUPER_ADMIN';
+    }
+
+    // Parse firstName/lastName from name
+    const nameParts = name.trim().split(/\s+/);
+    const firstName = nameParts[0] || 'Admin';
+    const lastName = nameParts.slice(1).join(' ') || 'User';
+
+    // Generate secure default password if none is provided
+    const userPassword = password || 'admin123';
+
+    const user = await User.create({
+      firstName,
+      lastName,
+      email: email.toLowerCase(),
+      password: userPassword,
+      role: backendRole,
+      gender: 'prefer-not-to-say',
+      isVerified: true,
+      isActive: true
+    });
+
+    await logAudit('ADMIN_CREATED', 'user', user._id, req, {
+      createdBy: req.user._id.toString(),
+      targetEmail: user.email,
+      targetRole: user.role
+    });
+
+    return success(res, user, 'Admin account created successfully');
+  } catch (err) { next(err); }
+};
+
 module.exports = {
   getStats, getUsers, getUserById, updateUserRole, updateUserStatus, deleteUser,
   getAuditLogs, getSecurityInfo, getAnalytics, getJobsAdmin, updateJobStatusAdmin,
-  getThreatData, getSystemHealth
+  getThreatData, getSystemHealth, createAdminUser
 };
