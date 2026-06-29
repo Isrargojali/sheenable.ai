@@ -104,7 +104,7 @@ export default function FeaturedJobs() {
   };
 
   return (
-    <section id="jobs" className="max-w-[1280px] mx-auto px-5 lg:px-8 py-16 lg:py-24 bg-[var(--ink-100)] border-y border-[var(--ink-300)] relative">
+    <section id="jobs" className="max-w-[1280px] mx-auto px-5 lg:px-8 py-16 lg:py-24 bg-[var(--ink-100)] relative">
       <div className="flex items-end justify-between flex-wrap gap-4 mb-12">
         <div>
           <div className="inline-block px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] bg-[var(--surface)] text-[var(--ink-700)] mb-3 font-sans border border-[var(--ink-300)]">

@@ -191,14 +191,14 @@ export default function LandingPage() {
       </section>
 
       {/* Job Ticker below the fold */}
-      <div className="bg-[var(--ink-900)] py-4 border-b border-[var(--ink-300)]">
+      <div className="bg-[var(--ink-900)] py-4">
         <div className="max-w-[1280px] mx-auto px-5 lg:px-8">
           <JobTicker />
         </div>
       </div>
 
       {/*  STATS */}
-      <section className="relative border-b border-[var(--ink-300)] overflow-hidden bg-[var(--surface)]">
+      <section className="relative overflow-hidden bg-[var(--surface)]">
         <div className="relative max-w-[1280px] mx-auto px-6 lg:px-8 py-16 lg:py-24 z-10">
           <div className="text-center mb-12">
             <div className="inline-block px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] bg-[var(--surface)] text-[var(--ink-700)] mb-3 font-sans border border-[var(--ink-300)]">
@@ -252,7 +252,7 @@ export default function LandingPage() {
       <FeaturedJobs />
 
       {/*  VALUE STRIP — between jobs and stories  */}
-      <section className="border-b border-[var(--ink-300)] bg-[var(--surface)]">
+      <section className="bg-[var(--surface)]">
         <div className="max-w-[1280px] mx-auto px-5 lg:px-8 py-16 grid sm:grid-cols-3 gap-6 lg:gap-8">
           {[
             { icon: BadgeCheck,  title: "Verified employers only", desc: "Every company is vetted for inclusive policy." },

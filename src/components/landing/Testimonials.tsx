@@ -26,7 +26,7 @@ const TESTIMONIALS = [
 
 export default function Testimonials() {
   return (
-    <section id="stories" className="bg-[var(--surface)] border-b border-[var(--ink-300)]">
+    <section id="stories" className="bg-[var(--surface)]">
       <div className="max-w-[1280px] mx-auto px-5 lg:px-8 py-16 lg:py-24">
         <div className="text-center mb-12">
           <div className="inline-block px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] bg-[var(--ink-100)] text-[var(--ink-700)] mb-3 font-sans border border-[var(--ink-300)]">

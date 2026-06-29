@@ -4,7 +4,7 @@ import { ArrowRight, CheckCircle2 } from "lucide-react";
 
 export default function EmployerCTA() {
   return (
-    <section id="employers" className="relative overflow-hidden bg-[var(--ink-900)] border-t border-[var(--ink-300)]">
+    <section id="employers" className="relative overflow-hidden bg-[var(--ink-900)]">
       <div className="relative max-w-[1280px] mx-auto px-5 lg:px-8 py-16 lg:py-24 text-center">
         <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] mb-3 bg-white/10 border border-white/20 text-white/90 font-sans">
           Enterprise Partners
