@@ -312,18 +312,20 @@ function Sidebar({
   return (
     <aside className="w-[240px] flex-shrink-0 bg-card flex flex-col h-full">
       {/* Brand */}
-      <div className="px-4 h-[64px] flex items-center justify-start gap-2.5">
-        <Link to="/" className="relative z-10 flex items-center group" aria-label="SheEnableAI home">
-          <img
-            src={logo}
-            alt="SheEnableAI logo"
-            className="w-[178px] h-[46px] object-contain transition-transform group-hover:scale-105"
-          />
-        </Link>
-      </div>
+      {role !== "CANDIDATE" && (
+        <div className="px-4 h-[64px] flex items-center justify-start gap-2.5">
+          <Link to="/" className="relative z-10 flex items-center group" aria-label="SheEnableAI home">
+            <img
+              src={logo}
+              alt="SheEnableAI logo"
+              className="w-[178px] h-[46px] object-contain transition-transform group-hover:scale-105"
+            />
+          </Link>
+        </div>
+      )}
 
       {/* User block */}
-      <div className="px-4 py-3.5 border-b border-border">
+      <div className={cn("px-4 py-3.5 border-b border-border", role === "CANDIDATE" && "pt-6")}>
         <div className="flex items-center gap-2.5 mb-2">
           {avatarUrl ? (
             <img
@@ -462,7 +464,21 @@ function Sidebar({
         ))}
       </nav>
 
-
+      {/* Brand & Powered by below on left corner for Candidate only */}
+      {role === "CANDIDATE" && (
+        <div className="mt-auto p-4 border-t border-border flex flex-col items-start gap-2 bg-secondary/15">
+          <Link to="/" className="relative z-10 flex items-center group" aria-label="SheEnableAI home">
+            <img
+              src={logo}
+              alt="SheEnableAI logo"
+              className="w-[180px] h-[48px] object-contain transition-transform group-hover:scale-105"
+            />
+          </Link>
+          <div className="text-[9px] font-sans font-bold tracking-wider text-[var(--ink-500)] uppercase">
+            Powered By Arbob Tech Team
+          </div>
+        </div>
+      )}
     </aside>
   );
 }
