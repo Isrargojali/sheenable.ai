@@ -277,20 +277,29 @@ function Sidebar({
   // Admin badges queries
   const { data: adminLogs = [] } = useQuery<AuditLogEntry[]>({
     queryKey: ["sidebarAuditLogs"],
-    queryFn: () => apiAdmin.getAuditLogs(),
+    queryFn: async () => {
+      const res = await apiAdmin.getAuditLogs();
+      return (res ?? []) as AuditLogEntry[];
+    },
     enabled: role === "ADMIN" || role === "SUPER_ADMIN",
   });
 
   const { data: secInfo } = useQuery<SecurityInfo>({
     queryKey: ["sidebarSecurityInfo"],
-    queryFn: () => apiAdmin.getSecurityInfo(),
+    queryFn: async () => {
+      const res = await apiAdmin.getSecurityInfo();
+      return res as SecurityInfo;
+    },
     enabled: role === "ADMIN" || role === "SUPER_ADMIN",
     refetchInterval: 15000,
   });
 
   const { data: allUsers = [] } = useQuery<AdminUser[]>({
     queryKey: ["sidebarUsers"],
-    queryFn: () => apiAdmin.getUsers(),
+    queryFn: async () => {
+      const res = await apiAdmin.getUsers();
+      return (res ?? []) as AdminUser[];
+    },
     enabled: role === "ADMIN" || role === "SUPER_ADMIN",
   });
 
