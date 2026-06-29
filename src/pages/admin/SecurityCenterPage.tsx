@@ -166,6 +166,15 @@ export default function SecurityCenterPage() {
     }, 2500);
   };
 
+  const handleIsolateGuardrail = (name: string) => {
+    toast.loading(`ISOLATING ANOMALY: Shielding ${name} traffic channels...`);
+    setTimeout(() => {
+      toast.dismiss();
+      toast.success(`ISOLATION COMPLETE: ${name} isolated. Live rate limiting and system integrity restored.`);
+      setShieldState("OPERATIONAL");
+    }, 2000);
+  };
+
   return (
     <DashboardShell
       title="Security center"
@@ -500,12 +509,17 @@ export default function SecurityCenterPage() {
               return (
                 <div
                   key={p.name}
+                  onClick={() => {
+                    if (isOffline) {
+                      handleIsolateGuardrail(p.name);
+                    }
+                  }}
                   className={cn(
                     "p-3.5 rounded-xl border transition-all duration-200 flex flex-col gap-1 group relative overflow-hidden",
                     isCriticalOffline
-                      ? "bg-rose-500/5 border-rose-500/20 hover:bg-rose-500/10"
+                      ? "bg-rose-500/5 border-rose-500/20 hover:bg-rose-500/10 cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
                       : isNonCriticalOffline
-                      ? "bg-amber-500/5 border-amber-500/20 hover:bg-amber-500/10"
+                      ? "bg-amber-500/5 border-amber-500/20 hover:bg-amber-500/10 cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
                       : "bg-secondary/20 hover:bg-secondary/40 border-border/40 hover:border-primary/10"
                   )}
                 >
@@ -523,15 +537,23 @@ export default function SecurityCenterPage() {
                       </span>
                     </span>
                     
-                    {isCriticalOffline ? (
-                      <span className="relative flex h-2.5 w-2.5">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
-                      </span>
-                    ) : isNonCriticalOffline ? (
-                      <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                    {isOffline ? (
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleIsolateGuardrail(p.name);
+                        }}
+                        className={cn(
+                          "text-[9px] font-extrabold px-2 py-0.5 rounded border transition-all cursor-pointer hover:scale-105 active:scale-95 animate-pulse flex-shrink-0 z-10",
+                          p.severity === "CRITICAL" 
+                            ? "bg-rose-500 hover:bg-rose-600 text-white border-rose-600" 
+                            : "bg-amber-500 hover:bg-amber-600 text-white border-amber-600"
+                        )}
+                      >
+                        Isolate
+                      </button>
                     ) : (
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
                     )}
                   </div>
                   <span className="text-[10px] text-muted-foreground leading-tight">
