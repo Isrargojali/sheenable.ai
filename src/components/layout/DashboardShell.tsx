@@ -6,7 +6,7 @@ import {
   LayoutDashboard, Briefcase, FileText, User, MessageSquare, FilePlus,
   Search, Users, ShieldCheck, ScrollText, ShieldAlert, UserCog, Activity,
   Bell, LogOut, Menu, X, Heart, Settings, Loader2, Moon, Sun, ArrowUpRight,
-  Check,
+  Check, Sparkles, Calendar,
   type LucideIcon,
 } from "lucide-react";
 import logo from "../../assets/sheEnableAI-removebg-preview.png";
@@ -498,12 +498,12 @@ function Sidebar({
   );
 }
 
-const NOTIF_ICONS: Record<string, string> = {
-  JOB_MATCH: "✨",
-  APPLICATION_STATUS: "📋",
-  MESSAGE: "💬",
-  INTERVIEW: "🤝",
-  SYSTEM: "⚙️",
+const NOTIF_ICONS: Record<string, LucideIcon> = {
+  JOB_MATCH: Sparkles,
+  APPLICATION_STATUS: FileText,
+  MESSAGE: MessageSquare,
+  INTERVIEW: Calendar,
+  SYSTEM: Settings,
 };
 
 type NotificationItem = {
@@ -577,7 +577,7 @@ function Topbar({
       title: n.title || "Notification",
       body: n.body || "",
       unread: !n.isRead,
-      icon: NOTIF_ICONS[n.type || "SYSTEM"] || "🔔",
+      icon: NOTIF_ICONS[n.type || "SYSTEM"] || Bell,
       timestamp: n.createdAt ? relativeTime(n.createdAt) : "Just now",
     }));
 
@@ -706,7 +706,16 @@ function Topbar({
                           n.unread && "bg-accent/40"
                         )}
                       >
-                        <div className="text-lg flex-shrink-0">{n.icon}</div>
+                        <div className={cn(
+                          "w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0",
+                          n.type === "JOB_MATCH" && "bg-[var(--brand-pink-soft)] text-[var(--brand-pink)]",
+                          n.type === "APPLICATION_STATUS" && "bg-amber-100 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400",
+                          n.type === "MESSAGE" && "bg-blue-100 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400",
+                          n.type === "INTERVIEW" && "bg-emerald-100 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400",
+                          (!n.type || n.type === "SYSTEM" || !["JOB_MATCH", "APPLICATION_STATUS", "MESSAGE", "INTERVIEW"].includes(n.type)) && "bg-[var(--ink-100)] dark:bg-[var(--ink-700)]/40 text-[var(--ink-500)] dark:text-[var(--ink-300)]"
+                        )}>
+                          <n.icon size={15} />
+                        </div>
                         <div className="min-w-0 flex-1">
                           <div className="text-[12px] font-semibold text-foreground">{n.title}</div>
                           <div className="text-[11px] text-muted-foreground line-clamp-2 mt-0.5">{n.body}</div>
