@@ -312,7 +312,7 @@ function Sidebar({
   return (
     <aside className="w-[240px] flex-shrink-0 bg-card flex flex-col h-full">
       {/* Brand */}
-      {role !== "CANDIDATE" && (
+      {role !== "CANDIDATE" && role !== "EMPLOYER" && (
         <div className="px-4 h-[64px] flex items-center justify-start gap-2.5">
           <Link to="/" className="relative z-10 flex items-center group" aria-label="SheEnableAI home">
             <img
@@ -325,7 +325,7 @@ function Sidebar({
       )}
 
       {/* User block */}
-      <div className={cn("px-4 py-3.5 border-b border-border", role === "CANDIDATE" && "pt-6")}>
+      <div className={cn("px-4 py-3.5 border-b border-border", (role === "CANDIDATE" || role === "EMPLOYER") && "pt-6")}>
         <div className="flex items-center gap-2.5 mb-2">
           {avatarUrl ? (
             <img
@@ -464,8 +464,8 @@ function Sidebar({
         ))}
       </nav>
 
-      {/* Brand & Powered by below on left corner for Candidate only */}
-      {role === "CANDIDATE" && (
+      {/* Brand & Powered by below on left corner for Candidate & Employer */}
+      {(role === "CANDIDATE" || role === "EMPLOYER") && (
         <div className="mt-auto p-4 border-t border-border flex flex-col items-start gap-2 bg-secondary/15">
           <Link to="/" className="relative z-10 flex items-center group" aria-label="SheEnableAI home">
             <img
