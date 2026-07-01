@@ -30,22 +30,13 @@ interface LogEntry {
 }
 
 const AUDIT_COLORS: Record<string, string> = {
-  LOGIN_SUCCESS: "bg-emerald-500/10 text-emerald-450 border-emerald-500/20",
-  BRUTE_FORCE_BLOCK: "bg-rose-500/20 text-rose-400 border-rose-500/30 font-bold",
-  ADMIN_ACTION: "bg-purple-500/10 text-purple-400 border-purple-500/20",
-  JOB_POSTED: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-  SIGNUP: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-  RATE_LIMIT: "bg-amber-500/15 text-amber-400 border-amber-500/25",
-  LOGIN_FAILED: "bg-rose-500/10 text-rose-400 border-rose-500/20"
-};
-
-const ACTION_COLORS: Record<string, string> = {
-  LOGIN_SUCCESS: "bg-slate-100 border-slate-200 text-slate-700 dark:bg-slate-900/40 dark:text-slate-350 dark:border-slate-800/40",
-  BRUTE_FORCE_BLOCK: "bg-rose-500 border-rose-600 text-white font-extrabold animate-pulse",
-  ADMIN_ACTION: "bg-purple-50 border-purple-100 text-purple-600 dark:bg-purple-950/20 dark:text-purple-400 dark:border-purple-900/30",
-  JOB_POSTED: "bg-teal-50 border-teal-100 text-teal-600 dark:bg-teal-950/20 dark:text-teal-400 dark:border-teal-900/30",
-  SIGNUP: "bg-amber-50 border-amber-100 text-amber-600 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/30",
-  RATE_LIMIT: "bg-rose-500 border-rose-600 text-white font-extrabold animate-pulse"
+  LOGIN_SUCCESS: "bg-[var(--ink-100)] text-[var(--status-ok)] border-[var(--ink-200)]",
+  BRUTE_FORCE_BLOCK: "bg-[var(--ink-100)] text-[var(--status-danger)] border-[var(--ink-200)] font-bold",
+  ADMIN_ACTION: "bg-[var(--ink-100)] text-[var(--brand-pink)] border-[var(--ink-200)]",
+  JOB_POSTED: "bg-[var(--ink-100)] text-[var(--ink-700)] border-[var(--ink-200)]",
+  SIGNUP: "bg-[var(--ink-100)] text-[var(--ink-700)] border-[var(--ink-200)]",
+  RATE_LIMIT: "bg-[var(--ink-100)] text-[var(--status-danger)] border-[var(--ink-200)]",
+  LOGIN_FAILED: "bg-[var(--ink-100)] text-[var(--status-danger)] border-[var(--ink-200)]"
 };
 
 interface MicroBarChartProps {
@@ -178,6 +169,12 @@ export default function ThreatMonitorPage() {
     threatColor = "text-[var(--status-danger)]";
   }
 
+  const leftBorderStrip = threatLevel === "LOW" 
+    ? "border-l-[3px] border-l-[var(--status-ok)]" 
+    : (threatLevel === "MEDIUM" || threatLevel === "ELEVATED" 
+      ? "border-l-[3px] border-l-[var(--status-warn)]" 
+      : "border-l-[3px] border-l-[var(--status-danger)]");
+
   const statCards = [
     { label: "Threat level status", val: t.threatLevel, colorClass: threatColor, icon: ShieldAlert, delta: "Live status" },
     { label: "Blocked IP count", val: t.blockedIPs + blockedIPsList.length, colorClass: "text-[var(--ink-900)]", icon: Ban, delta: "Firewall rule" },
@@ -186,23 +183,23 @@ export default function ThreatMonitorPage() {
 
   // 24H Security Events details
   const SECURITY_EVENTS = [
-    { label: "Failed Login Attempts", val: t.failedLogins24h, history: [Math.round(t.failedLogins24h * 0.4), Math.round(t.failedLogins24h * 0.6), Math.round(t.failedLogins24h * 0.5), Math.round(t.failedLogins24h * 0.7), Math.round(t.failedLogins24h * 0.8), Math.round(t.failedLogins24h * 0.9), t.failedLogins24h], color: "text-amber-400", barBg: "bg-amber-400", avg: Number((t.failedLogins24h / 7).toFixed(1)) },
-    { label: "Brute-force Blocks", val: t.bruteBlocks24h, history: [0, 0, 0, 0, 0, 0, t.bruteBlocks24h], color: "text-red-400", barBg: "bg-rose-500", avg: Number((t.bruteBlocks24h / 7).toFixed(2)) },
-    { label: "Rate Limit Hits", val: t.rateLimitHits, history: [Math.round(t.rateLimitHits * 0.4), Math.round(t.rateLimitHits * 0.5), Math.round(t.rateLimitHits * 0.6), Math.round(t.rateLimitHits * 0.7), Math.round(t.rateLimitHits * 0.8), Math.round(t.rateLimitHits * 0.9), t.rateLimitHits], color: "text-amber-400", barBg: "bg-amber-400", avg: Number((t.rateLimitHits / 7).toFixed(1)) },
-    { label: "XSS Attempts Blocked", val: t.xssAttempts || 0, history: [0, 0, 0, 0, 0, 0, 0], color: "text-emerald-400", barBg: "bg-emerald-400", avg: 0 },
-    { label: "Suspicious Requests", val: 0, history: [0, 0, 0, 0, 0, 0, 0], color: "text-emerald-400", barBg: "bg-emerald-400", avg: 0 },
-    { label: "Failed Auth Tokens", val: 0, history: [0, 0, 0, 0, 0, 0, 0], color: "text-emerald-400", barBg: "bg-emerald-400", avg: 0 }
+    { label: "Failed login attempts", val: t.failedLogins24h, history: [Math.round(t.failedLogins24h * 0.4), Math.round(t.failedLogins24h * 0.6), Math.round(t.failedLogins24h * 0.5), Math.round(t.failedLogins24h * 0.7), Math.round(t.failedLogins24h * 0.8), Math.round(t.failedLogins24h * 0.9), t.failedLogins24h], barBg: "bg-[var(--status-warn)]", avg: Number((t.failedLogins24h / 7).toFixed(1)) },
+    { label: "Brute-force blocks", val: t.bruteBlocks24h, history: [0, 0, 0, 0, 0, 0, t.bruteBlocks24h], barBg: "bg-[var(--status-danger)]", avg: Number((t.bruteBlocks24h / 7).toFixed(2)) },
+    { label: "Rate limit hits", val: t.rateLimitHits, history: [Math.round(t.rateLimitHits * 0.4), Math.round(t.rateLimitHits * 0.5), Math.round(t.rateLimitHits * 0.6), Math.round(t.rateLimitHits * 0.7), Math.round(t.rateLimitHits * 0.8), Math.round(t.rateLimitHits * 0.9), t.rateLimitHits], barBg: "bg-[var(--status-warn)]", avg: Number((t.rateLimitHits / 7).toFixed(1)) },
+    { label: "XSS attempts blocked", val: t.xssAttempts || 0, history: [0, 0, 0, 0, 0, 0, 0], barBg: "bg-[var(--status-ok)]", avg: 0 },
+    { label: "Suspicious requests", val: 0, history: [0, 0, 0, 0, 0, 0, 0], barBg: "bg-[var(--status-ok)]", avg: 0 },
+    { label: "Failed auth tokens", val: 0, history: [0, 0, 0, 0, 0, 0, 0], barBg: "bg-[var(--status-ok)]", avg: 0 }
   ];
 
   const SECURITY_LAYERS = [
-    { name:"Password Hashing",   method:"SHA-256 + bcrypt(12)",  status:"✓",  color:"text-emerald-400" },
-    { name:"Session Security",   method:"32-byte crypto tokens", status:"✓",  color:"text-emerald-400" },
-    { name:"XSS Protection",     method:"DOMPurify + sanitize",  status:"✓",  color:"text-emerald-400" },
-    { name:"CSRF Tokens",        method:"All state routes",       status:"✓",  color:"text-emerald-400" },
-    { name:"SQL Injection",      method:"Prisma ORM (parameterized)",status:"✓",color:"text-emerald-400"},
-    { name:"Rate Limiting",      method:"15/min per IP",          status:"✓",  color:"text-emerald-400" },
-    { name:"Brute-force Guard",  method:"5 attempts → 5min lock", status:"✓",  color:"text-emerald-400" },
-    { name:"JWT Cookies",        method:"httpOnly + SameSite=Strict",status:"✓",color:"text-emerald-400"},
+    { name: "Password hashing", method: "SHA-256 + bcrypt(12)" },
+    { name: "Session security", method: "32-byte crypto tokens" },
+    { name: "XSS protection", method: "DOMPurify + sanitize" },
+    { name: "CSRF tokens", method: "All state routes" },
+    { name: "SQL injection", method: "Prisma ORM (parameterized)" },
+    { name: "Rate limiting", method: "15/min per IP" },
+    { name: "Brute-force guard", method: "5 attempts → 5min lock" },
+    { name: "JWT cookies", method: "httpOnly + SameSite=Strict" },
   ];
 
   // Dynamic audit logs merge for simulation
@@ -225,6 +222,22 @@ export default function ThreatMonitorPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5 select-none">
         {statCards.map(c => {
           const Icon = c.icon;
+          const isThreatLevel = c.label === "Threat level status";
+          const isBlockedIP = c.label === "Blocked IP count";
+
+          let dotColor = "";
+          if (isThreatLevel) {
+            dotColor = threatLevel === "LOW" ? "bg-[var(--status-ok)]" : (threatLevel === "MEDIUM" || threatLevel === "ELEVATED" ? "bg-[var(--status-warn)]" : "bg-[var(--status-danger)]");
+          } else if (isBlockedIP) {
+            const blockedVal = t.blockedIPs + blockedIPsList.length;
+            dotColor = blockedVal > 0 ? "bg-[var(--status-warn)]" : "bg-[var(--status-ok)]";
+          }
+
+          let numberColor = "text-[var(--ink-900)]";
+          if (isThreatLevel) {
+            numberColor = threatColor;
+          }
+
           return (
             <div 
               key={c.label} 
@@ -241,10 +254,15 @@ export default function ThreatMonitorPage() {
                 )}
               </div>
               <div>
-                <div className={cn("text-[32px] font-semibold leading-none mb-1.5", c.colorClass)}>
+                <div className={cn("text-[32px] font-semibold leading-none mb-1.5", numberColor)}>
                   {typeof c.val === "number" ? <LiveCounter base={c.val as number} /> : c.val}
                 </div>
-                <div className="text-[13px] font-medium text-[var(--ink-500)]">{c.label}</div>
+                <div className="flex items-center gap-1.5 text-[13px] font-medium text-[var(--ink-500)]">
+                  {dotColor && (
+                    <span className={cn("w-2 h-2 rounded-full flex-shrink-0", dotColor)} />
+                  )}
+                  <span>{c.label}</span>
+                </div>
               </div>
             </div>
           );
@@ -253,34 +271,41 @@ export default function ThreatMonitorPage() {
 
       <div className="grid lg:grid-cols-2 gap-5 mb-5">
         {/* 24h metrics with micro-trend bars */}
-        <div className="bg-[#12081c] border border-purple-500/10 rounded-2xl p-5 shadow-lg select-none">
-          <div className="text-[10px] font-bold text-white/40 uppercase tracking-[.6px] mb-4">24h Security Events</div>
+        <div className={cn("bg-[var(--surface)] border border-[var(--ink-200)] rounded-[var(--radius-card)] p-5 shadow-[var(--shadow-card)] select-none", leftBorderStrip)}>
+          <h3 className="text-sm font-semibold text-[var(--ink-900)] mb-4">24h security events</h3>
           <div className="space-y-1">
-            {SECURITY_EVENTS.map((e) => (
-              <div key={e.label} className="flex items-center justify-between py-3 border-b border-white/[0.03] last:border-0 hover:bg-white/[0.01] transition-all px-1.5 rounded-lg">
-                <span className="text-xs text-white/70 font-medium">{e.label}</span>
-                <div className="flex items-center gap-4">
-                  <span className={cn("text-xs font-bold font-mono", e.color)}>{e.val}</span>
-                  <MicroBarChart 
-                    history={e.history} 
-                    colorClass={e.barBg} 
-                    todayVal={e.val} 
-                    avgVal={e.avg} 
-                  />
+            {SECURITY_EVENTS.map((e) => {
+              const isZero = e.val === 0;
+              const valColor = isZero 
+                ? "text-[var(--ink-500)]" 
+                : "text-[var(--status-danger)] font-semibold";
+
+              return (
+                <div key={e.label} className="flex items-center justify-between py-3 border-b border-[var(--ink-200)]/40 last:border-0 hover:bg-[var(--ink-50)]/50 transition-all px-1.5 rounded-lg">
+                  <span className="text-xs text-[var(--ink-700)] font-medium">{e.label}</span>
+                  <div className="flex items-center gap-4">
+                    <span className={cn("text-xs font-bold font-mono", valColor)}>{e.val}</span>
+                    <MicroBarChart 
+                      history={e.history} 
+                      colorClass={e.barBg} 
+                      todayVal={e.val} 
+                      avgVal={e.avg} 
+                    />
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
         {/* Security layers with automated tests */}
-        <div className="bg-[#12081c] border border-purple-500/10 rounded-2xl p-5 shadow-lg">
+        <div className={cn("bg-[var(--surface)] border border-[var(--ink-200)] rounded-[var(--radius-card)] p-5 shadow-[var(--shadow-card)]", leftBorderStrip)}>
           <div className="flex items-center justify-between mb-4">
-            <div className="text-[10px] font-bold text-white/40 uppercase tracking-[.6px]">Security Layers Status</div>
+            <h3 className="text-sm font-semibold text-[var(--ink-900)]">Security layers status</h3>
             <button
               onClick={handleRunSecurityTests}
               disabled={isTestingLayers}
-              className="text-[9.5px] font-extrabold px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-all flex items-center gap-1.5 cursor-pointer border-0 active:scale-95"
+              className="h-9 px-4 rounded-[var(--radius-input)] text-xs font-semibold text-white bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] transition-all flex items-center gap-1.5 cursor-pointer border-0 active:scale-95 disabled:opacity-50"
             >
               {isTestingLayers ? (
                 <RefreshCw size={11} className="animate-spin" />
@@ -293,25 +318,25 @@ export default function ThreatMonitorPage() {
           <div className="space-y-3.5">
             {SECURITY_LAYERS.map(l => {
               return (
-                <div key={l.name} className="flex items-center justify-between py-1.5 border-b border-white/[0.03] last:border-0">
+                <div key={l.name} className="flex items-center justify-between py-2 border-b border-[var(--ink-200)]/40 last:border-0">
                   <div>
-                    <div className="text-xs text-white/85 font-bold flex items-center gap-2">
+                    <div className="text-xs text-[var(--ink-900)] font-bold flex items-center gap-2">
                       {l.name}
                     </div>
-                    <div className="text-[9.5px] text-white/35 font-mono mt-0.5">{l.method}</div>
+                    <div className="text-[10px] text-[var(--ink-500)] font-mono mt-0.5">{l.method}</div>
                   </div>
                   <div className="text-right">
                     {testedTimestamp ? (
-                      <span className="text-[9.5px] font-mono text-emerald-400 font-semibold select-none">
+                      <span className="text-[9.5px] font-mono text-[var(--status-ok)] font-semibold select-none">
                         Active &middot; Verified {testedTimestamp}
                       </span>
                     ) : (
-                      <span className="text-[9.5px] font-mono text-muted-foreground select-none">
+                      <span className="text-[9.5px] font-mono text-[var(--ink-500)] select-none">
                         Active &middot; Last tested: 3d ago{" "}
                         <button 
                           onClick={handleRunSecurityTests}
                           disabled={isTestingLayers}
-                          className="text-[9px] font-bold text-primary hover:underline bg-transparent border-0 p-0 cursor-pointer inline"
+                          className="text-[9px] font-semibold text-[var(--ink-700)] hover:underline bg-transparent border-0 p-0 cursor-pointer inline ml-1"
                         >
                           (test now &rarr;)
                         </button>
@@ -326,12 +351,12 @@ export default function ThreatMonitorPage() {
       </div>
 
       {/* Live audit stream */}
-      <div className="bg-[#12081c] border border-purple-500/10 rounded-2xl p-5 shadow-lg select-none">
+      <div className="bg-[var(--surface)] border border-[var(--ink-200)] rounded-[var(--radius-card)] p-5 shadow-[var(--shadow-card)] select-none">
         <div className="flex items-center justify-between mb-4">
-          <div className="text-[10px] font-bold text-white/40 uppercase tracking-[.6px]">Live SOC Audit Stream</div>
-          <div className="flex items-center gap-1.5 bg-emerald-500/5 border border-emerald-500/10 px-2.5 py-0.5 rounded-full">
-            <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-            <span className="text-[8.5px] text-emerald-400 font-extrabold tracking-widest uppercase">SOC LIVE</span>
+          <h3 className="text-sm font-semibold text-[var(--ink-900)]">Live SOC audit stream</h3>
+          <div className="flex items-center gap-1.5 bg-[var(--status-ok)]/10 border border-[var(--status-ok)]/20 px-2.5 py-0.5 rounded-full">
+            <span className="w-1.5 h-1.5 bg-[var(--status-ok)] rounded-full animate-pulse" />
+            <span className="text-[8.5px] text-[var(--status-ok)] font-semibold tracking-widest uppercase">SOC LIVE</span>
           </div>
         </div>
         
@@ -348,39 +373,39 @@ export default function ThreatMonitorPage() {
                 key={log.id} 
                 onClick={() => setExpandedLogId(isExpanded ? null : log.id)}
                 className={cn(
-                  "relative flex flex-col px-3.5 py-3 border border-transparent rounded-xl hover:bg-white/[0.02] hover:border-white/[0.04] transition-all duration-150 cursor-pointer group",
-                  isExpanded && "bg-white/[0.03] border-white/[0.06]"
+                  "relative flex flex-col px-3.5 py-3 border border-transparent rounded-xl hover:bg-[var(--ink-50)]/50 hover:border-[var(--ink-200)]/60 transition-all duration-150 cursor-pointer group",
+                  isExpanded && "bg-[var(--ink-50)] border-[var(--ink-200)]/85 shadow-sm"
                 )}
               >
                 {/* Horizontal row details */}
                 <div className="flex items-center gap-3">
-                  <span className="font-mono text-white/35 flex-shrink-0 w-16 text-[9.5px]">
+                  <span className="font-mono text-[var(--ink-500)] flex-shrink-0 w-16 text-[9.5px]">
                     {new Date(log.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
                   </span>
                   
                   {/* Event action badge */}
                   <span className={cn(
-                    "text-[8.5px] font-extrabold px-2.5 py-0.5 rounded-full border flex-shrink-0 uppercase tracking-wider",
-                    AUDIT_COLORS[log.action] ?? "bg-secondary border-border text-ink-400"
+                    "text-[8.5px] font-semibold px-2.5 py-0.5 rounded-full border flex-shrink-0 uppercase tracking-wider",
+                    AUDIT_COLORS[log.action] ?? "bg-[var(--ink-100)] border-[var(--ink-200)] text-[var(--ink-500)]"
                   )}>
                     {log.action.replace(/_/g, " ")}
                   </span>
                   
-                  <span className="text-white/80 text-xs font-semibold flex items-center gap-1.5">
+                  <span className="text-[var(--ink-900)] text-xs font-semibold flex items-center gap-1.5">
                     {log.userId}
                     {isBanned && (
-                      <span className="text-[8px] font-bold bg-rose-500/10 text-rose-500 border border-rose-500/20 px-1.5 rounded uppercase">Banned</span>
+                      <span className="text-[8px] font-bold bg-[var(--status-danger)]/15 text-[var(--status-danger)] border border-[var(--status-danger)]/20 px-1.5 rounded uppercase">Banned</span>
                     )}
                   </span>
 
                   {/* Hacker auto-release countdown details */}
                   {isHacker && hackerLockSeconds > 0 && (
-                    <span className="text-[9.5px] text-rose-400 font-mono font-medium ml-2 flex items-center gap-1">
+                    <span className="text-[9.5px] text-[var(--status-danger)] font-mono font-medium ml-2 flex items-center gap-1">
                       <span className="animate-pulse">Auto-release in {formatLockCountdown(hackerLockSeconds)}</span>
-                      <span className="text-white/20">&middot;</span>
+                      <span className="text-[var(--ink-400)]">&middot;</span>
                       <button
                         onClick={handleExtendLock}
-                        className="text-[9px] text-purple-400 hover:text-purple-300 hover:underline bg-transparent border-0 p-0 font-extrabold cursor-pointer"
+                        className="text-[9px] text-[var(--brand-pink)] hover:underline bg-transparent border-0 p-0 font-semibold cursor-pointer"
                       >
                         [Extend lock &rarr;]
                       </button>
@@ -388,7 +413,7 @@ export default function ThreatMonitorPage() {
                   )}
 
                   {isBlocked && (
-                    <span className="text-[8px] font-bold bg-rose-500/15 border border-rose-500/20 text-rose-500 px-1.5 py-0.2 rounded uppercase ml-2 animate-pulse">
+                    <span className="text-[8px] font-bold bg-[var(--status-danger)]/15 border border-[var(--status-danger)]/20 text-[var(--status-danger)] px-1.5 py-0.2 rounded uppercase ml-2 animate-pulse">
                       IP Blocked
                     </span>
                   )}
@@ -398,12 +423,12 @@ export default function ThreatMonitorPage() {
                     <TooltipProvider>
                       <Tooltip delayDuration={200}>
                         <TooltipTrigger asChild>
-                          <span className="text-white/30 text-[9.5px] font-mono cursor-help truncate block">
+                          <span className="text-[var(--ink-400)] text-[9.5px] font-mono cursor-help truncate block">
                             {log.detail}
                           </span>
                         </TooltipTrigger>
-                        <TooltipContent side="top" align="end" className="bg-[#1c0f2d] border border-purple-500/30 text-white/90 text-[10px] font-mono max-w-sm p-2.5 rounded-xl shadow-2xl">
-                          <div className="font-semibold text-purple-400 mb-1 border-b border-purple-500/10 pb-1">Forensic Metadata</div>
+                        <TooltipContent side="top" align="end" className="bg-[var(--surface)] border border-[var(--ink-200)] text-[var(--ink-700)] text-[10px] font-mono max-w-sm p-2.5 rounded-xl shadow-2xl">
+                          <div className="font-semibold text-[var(--brand-pink)] mb-1 border-b border-[var(--ink-200)]/80 pb-1">Forensic Metadata</div>
                           <div className="break-all whitespace-pre-wrap">{log.detail}</div>
                         </TooltipContent>
                       </Tooltip>
@@ -413,21 +438,21 @@ export default function ThreatMonitorPage() {
 
                 {/* Inline Action strip on Hover */}
                 {(log.action === "BRUTE_FORCE_BLOCK" || log.action === "RATE_LIMIT") && (
-                  <div className="absolute right-3.5 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center gap-1.5 bg-[#1a0f2e] border border-purple-500/30 px-3 py-1 rounded-xl shadow-2xl z-20 font-mono text-[9px]">
+                  <div className="absolute right-3.5 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center gap-1.5 bg-[var(--surface)] border border-[var(--ink-200)] px-3 py-1 rounded-xl shadow-lg z-20 font-mono text-[9px]">
                     {!isBlocked ? (
                       <button 
                         onClick={(e) => {
                           e.stopPropagation();
                           handleBlockIP(ip);
                         }}
-                        className="text-rose-400 hover:text-rose-300 font-bold bg-transparent border-0 p-0 cursor-pointer"
+                        className="text-[var(--status-danger)] hover:underline font-bold bg-transparent border-0 p-0 cursor-pointer"
                       >
                         Block IP
                       </button>
                     ) : (
-                      <span className="text-white/30 cursor-not-allowed">Blocked</span>
+                      <span className="text-[var(--ink-400)] cursor-not-allowed">Blocked</span>
                     )}
-                    <span className="text-white/20 font-light">&middot;</span>
+                    <span className="text-[var(--ink-200)] font-light">&middot;</span>
                     {!isBanned ? (
                       <button 
                         onClick={(e) => {
@@ -435,30 +460,30 @@ export default function ThreatMonitorPage() {
                           setBannedEmails(prev => [...prev, log.userId]);
                           toast.success(`User email ${log.userId} permanently banned`);
                         }}
-                        className="text-amber-400 hover:text-amber-300 font-bold bg-transparent border-0 p-0 cursor-pointer"
+                        className="text-[var(--status-warn)] hover:underline font-bold bg-transparent border-0 p-0 cursor-pointer"
                       >
                         Ban email
                       </button>
                     ) : (
-                      <span className="text-white/30 cursor-not-allowed">Banned</span>
+                      <span className="text-[var(--ink-400)] cursor-not-allowed">Banned</span>
                     )}
-                    <span className="text-white/20 font-light">&middot;</span>
+                    <span className="text-[var(--ink-200)] font-light">&middot;</span>
                     <button 
                       onClick={(e) => {
                         e.stopPropagation();
                         toast.info(`SOC Query: Fetching access history for principal ${log.userId}...`);
                       }}
-                      className="text-purple-450 hover:text-purple-400 font-semibold bg-transparent border-0 p-0 cursor-pointer"
+                      className="text-[var(--brand-pink)] hover:underline font-semibold bg-transparent border-0 p-0 cursor-pointer"
                     >
                       View history
                     </button>
-                    <span className="text-white/20 font-light">&middot;</span>
+                    <span className="text-[var(--ink-200)] font-light">&middot;</span>
                     <button 
                       onClick={(e) => {
                         e.stopPropagation();
                         handleDismissEvent(log.id);
                       }}
-                      className="text-white/50 hover:text-white/80 bg-transparent border-0 p-0 cursor-pointer"
+                      className="text-[var(--ink-500)] hover:underline bg-transparent border-0 p-0 cursor-pointer"
                     >
                       Dismiss
                     </button>
@@ -469,28 +494,28 @@ export default function ThreatMonitorPage() {
                 {isExpanded && (
                   <div 
                     onClick={e => e.stopPropagation()} 
-                    className="mt-3.5 p-4 bg-white/[0.02] border border-white/[0.04] rounded-xl text-left cursor-default space-y-3"
+                    className="mt-3.5 p-4 bg-[var(--ink-50)] border border-[var(--ink-200)]/80 rounded-xl text-left cursor-default space-y-3"
                   >
-                    <div className="flex justify-between items-center flex-wrap gap-2 text-[10px] text-white/40">
+                    <div className="flex justify-between items-center flex-wrap gap-2 text-[10px] text-[var(--ink-500)]">
                       <span>Event Log UUID: {log.id}</span>
                       <span>Target IP: {ip}</span>
                     </div>
 
-                    <div className="text-xs text-white/70 leading-normal">
-                      <span className="font-bold text-white/90">Forensic Context: </span>
-                      System action <span className="text-primary font-bold">{log.action}</span> was recorded from operator <span className="text-white font-bold">{log.userId}</span>. 
+                    <div className="text-xs text-[var(--ink-700)] leading-normal">
+                      <span className="font-bold text-[var(--ink-900)]">Forensic Context: </span>
+                      System action <span className="text-[var(--brand-pink)] font-bold">{log.action}</span> was recorded from operator <span className="text-[var(--ink-900)] font-bold">{log.userId}</span>. 
                       {isHacker && hackerLockSeconds > 0 && (
-                        <span> Auto-release trigger countdown: <strong className="text-rose-400">{formatLockCountdown(hackerLockSeconds)}</strong>.</span>
+                        <span> Auto-release trigger countdown: <strong className="text-[var(--status-danger)]">{formatLockCountdown(hackerLockSeconds)}</strong>.</span>
                       )}
                     </div>
 
                     {/* Expand actions row */}
-                    <div className="flex flex-wrap gap-2 items-center justify-between border-t border-white/[0.04] pt-3">
+                    <div className="flex flex-wrap gap-2 items-center justify-between border-t border-[var(--ink-200)]/60 pt-3">
                       <div className="flex items-center gap-2">
                         {isHacker && hackerLockSeconds > 0 && (
                           <button
                             onClick={handleExtendLock}
-                            className="px-3 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 rounded-lg text-[9.5px] font-bold border border-amber-500/20 transition-all cursor-pointer"
+                            className="px-3 py-1 bg-[var(--status-warn)]/10 hover:bg-[var(--status-warn)]/20 text-[var(--status-warn)] rounded-lg text-[9.5px] font-bold border border-[var(--status-warn)]/20 transition-all cursor-pointer"
                           >
                             Extend lock (+300s)
                           </button>
@@ -498,7 +523,7 @@ export default function ThreatMonitorPage() {
                         {(log.action === "BRUTE_FORCE_BLOCK" || log.action === "RATE_LIMIT") && !isBlocked && (
                           <button
                             onClick={() => handleBlockIP(ip)}
-                            className="px-3 py-1 bg-rose-500/15 hover:bg-rose-500/25 text-rose-500 rounded-lg text-[9.5px] font-bold border border-rose-500/20 transition-all cursor-pointer"
+                            className="px-3 py-1 bg-[var(--status-danger)]/10 hover:bg-[var(--status-danger)]/20 text-[var(--status-danger)] rounded-lg text-[9.5px] font-bold border border-[var(--status-danger)]/20 transition-all cursor-pointer"
                           >
                             Block IP Permanently
                           </button>
@@ -510,13 +535,13 @@ export default function ThreatMonitorPage() {
                             navigator.clipboard.writeText(JSON.stringify(log, null, 2));
                             toast.success("Event details copied to clipboard");
                           }}
-                          className="px-2.5 py-1 bg-white/5 hover:bg-white/10 text-white/70 rounded-lg text-[9.5px] font-bold transition-all cursor-pointer border-0"
+                          className="px-2.5 py-1 bg-[var(--ink-100)] hover:bg-[var(--ink-200)] text-[var(--ink-700)] rounded-lg text-[9.5px] font-semibold transition-all cursor-pointer border border-[var(--ink-200)]"
                         >
                           Copy JSON
                         </button>
                         <button
                           onClick={() => handleDismissEvent(log.id)}
-                          className="px-2.5 py-1 bg-white/5 hover:bg-white/10 text-white/70 rounded-lg text-[9.5px] font-bold transition-all cursor-pointer border-0"
+                          className="px-2.5 py-1 bg-[var(--ink-100)] hover:bg-[var(--ink-200)] text-[var(--ink-700)] rounded-lg text-[9.5px] font-semibold transition-all cursor-pointer border border-[var(--ink-200)]"
                         >
                           Dismiss Event
                         </button>
