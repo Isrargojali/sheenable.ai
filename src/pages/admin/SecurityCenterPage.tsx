@@ -203,185 +203,148 @@ export default function SecurityCenterPage() {
       {/* Simulation Controller Row */}
       <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-[var(--ink-50)] border border-[var(--ink-200)] rounded-2xl mb-6">
         <div>
-          <h4 className="text-xs font-bold text-[var(--ink-500)] uppercase tracking-widest leading-none mb-1">State Simulator</h4>
+          <h4 className="text-sm font-semibold text-[var(--ink-900)] leading-none mb-1">State simulator</h4>
           <p className="text-[11px] text-[var(--ink-500)] mt-0.5">Toggle states to audit degraded or critical security visual behaviors</p>
         </div>
-        <div className="flex bg-[var(--ink-100)] border border-[var(--ink-200)] p-0.5 rounded-xl text-[10px] font-bold">
-          {(["OPERATIONAL", "DEGRADED", "CRITICAL"] as const).map((st) => (
-            <button
-              key={st}
-              onClick={() => {
-                setShieldState(st);
-                setLockdownActive(false);
-                toast.success(`Security Shield State changed to ${st}`);
-              }}
-              className={cn(
-                "px-3 py-1.5 rounded-lg uppercase tracking-wider transition-all",
-                shieldState === st 
-                  ? st === "CRITICAL"
-                    ? "bg-[var(--status-danger)] text-white font-bold"
-                    : st === "DEGRADED"
-                    ? "bg-[var(--status-warn)] text-white font-bold"
-                    : "bg-[var(--status-ok)] text-white font-bold"
-                  : "text-[var(--ink-500)] hover:text-[var(--ink-900)]"
-              )}
-            >
-              {st}
-            </button>
-          ))}
+        <div className="flex bg-[var(--ink-100)] p-1 rounded-full">
+          {(["OPERATIONAL", "DEGRADED", "CRITICAL"] as const).map((st) => {
+            const labelMap = {
+              OPERATIONAL: "Operational",
+              DEGRADED: "Degraded",
+              CRITICAL: "Critical"
+            };
+            const isActive = shieldState === st;
+            return (
+              <button
+                key={st}
+                onClick={() => {
+                  setShieldState(st);
+                  setLockdownActive(false);
+                  toast.success(`Security Shield State changed to ${st}`);
+                }}
+                className={cn(
+                  "px-4 py-1.5 rounded-full text-[13px] font-medium transition-all cursor-pointer border-0 select-none",
+                  isActive 
+                    ? "bg-[var(--brand-pink)] text-white shadow-sm" 
+                    : "bg-transparent text-[var(--ink-500)] hover:text-[var(--ink-900)]"
+                )}
+              >
+                {labelMap[st]}
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {/* Visual System Shield Banner */}
-      {shieldState === "OPERATIONAL" && (
-        <div className="relative overflow-hidden border border-[var(--ink-200)] border-l-[4px] border-l-[var(--status-ok)] rounded-2xl p-5 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-300 bg-[var(--surface)] shadow-[var(--shadow-card)]">
-          <div className="flex items-center gap-3.5 z-10">
-            <div className="relative flex-shrink-0 flex items-center justify-center">
-              <span className="animate-ping absolute inline-flex h-5 w-5 rounded-full bg-[var(--status-ok)]/75" />
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-[var(--status-ok)]" />
-            </div>
-            <div>
-              <h4 className="text-xs font-bold uppercase tracking-widest leading-none mb-1 text-[var(--status-ok)]">
-                SYSTEM SHIELD: FULLY OPERATIONAL
-              </h4>
-              <p className="text-[11px] font-medium leading-relaxed text-[var(--ink-700)]">
-                Live rate-limiting, cross-site scripting protectors, and brute-force defenses are actively screening queries.
-              </p>
-            </div>
-          </div>
-          <div className="relative group self-start sm:self-auto z-10 select-none flex items-center gap-2">
-            {diagnosticsClean && (
-              <span className="text-[9px] font-bold bg-[var(--ink-100)] text-[var(--status-ok)] border border-[var(--ink-200)] px-2 py-0.5 rounded-md">
-                Integrity: Verified
-              </span>
-            )}
-            <button 
-              onClick={handleRunDiagnostics}
-              disabled={isDiagnosticsRunning}
-              className="flex items-center gap-1.5 text-[10px] font-bold px-3 py-1.5 rounded-lg border bg-[var(--ink-100)] border-[var(--ink-200)] text-[var(--ink-700)] transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
-            >
-              {isDiagnosticsRunning ? (
-                <RefreshCw size={12} className="animate-spin" />
-              ) : (
-                <ShieldCheck size={12} />
-              )}
-              {isDiagnosticsRunning ? "Running..." : "Run diagnostics"}
-            </button>
-            <div className="absolute right-0 bottom-full mb-2 hidden group-hover:block bg-[var(--ink-900)] text-[var(--ink-50)] text-[10px] rounded-lg px-2.5 py-1.5 w-56 shadow-xl border border-[var(--ink-700)] text-center leading-normal z-50">
-              Triggers audit on the 8 Cryptographic Guardrails, parsing config integrity, database salts, and rate limiting status.
-              <div className="absolute top-full right-6 transform translate-x-1/2 border-[5px] border-transparent border-t-[var(--ink-900)]" />
-            </div>
-          </div>
-        </div>
-      )}
+      {(() => {
+        const stateConfig = {
+          OPERATIONAL: {
+            heading: "System shield: fully operational",
+            body: "Live rate-limiting, cross-site scripting protectors, and brute-force defenses are actively screening queries.",
+            dotColor: "bg-[var(--status-ok)]",
+            borderColor: "border-l-[var(--status-ok)]",
+          },
+          DEGRADED: {
+            heading: "System shield: partially active — Rate limiting offline",
+            body: "SMTP Relay anomalies detected. Rate limiter bypassed. Tap below to isolate the affected guardrail.",
+            dotColor: "bg-[var(--status-warn)]",
+            borderColor: "border-l-[var(--status-warn)]",
+          },
+          CRITICAL: {
+            heading: "System shield: breach detected",
+            body: "Multiple failed login sequences and JWT verification failures. Immediate system lockdown recommended.",
+            dotColor: "bg-[var(--status-danger)]",
+            borderColor: "border-l-[var(--status-danger)]",
+          }
+        };
 
-      {shieldState === "DEGRADED" && (
-        <div className="relative overflow-hidden border border-[var(--ink-200)] border-l-[4px] border-l-[var(--status-warn)] rounded-2xl p-5 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-300 bg-[var(--surface)] shadow-[var(--shadow-card)]">
-          <div className="flex items-center gap-3.5 z-10">
-            <div className="relative flex-shrink-0 flex items-center justify-center">
-              <span className="animate-ping absolute inline-flex h-5 w-5 rounded-full bg-[var(--status-warn)]/75" />
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-[var(--status-warn)]" />
-            </div>
-            <div>
-              <h4 className="text-xs font-bold uppercase tracking-widest leading-none mb-1 text-[var(--status-warn)]">
-                SYSTEM SHIELD: PARTIALLY ACTIVE — Rate limiting offline.
-              </h4>
-              <p className="text-[11px] font-medium leading-relaxed text-[var(--ink-700)]">
-                SMTP Relay anomalies detected. Rate limiter bypassed. Tap below to isolate the affected guardrail.
-              </p>
-              <button 
-                onClick={() => {
-                  const el = document.getElementById("cryptographic-guardrails");
-                  if (el) {
-                    el.scrollIntoView({ behavior: "smooth" });
-                    toast.info("Rate limiter currently bypassed. Notice the high-severity amber dot.");
-                  }
-                }}
-                className="text-[10px] font-bold text-[var(--status-warn)] underline block mt-2 hover:opacity-80"
-              >
-                View affected components &rarr;
-              </button>
-            </div>
-          </div>
-          <div className="relative group self-start sm:self-auto z-10 select-none flex items-center gap-2">
-            <button 
-              onClick={handleRunDiagnostics}
-              disabled={isDiagnosticsRunning}
-              className="flex items-center gap-1.5 text-[10px] font-bold px-3 py-1.5 rounded-lg border bg-[var(--ink-100)] border-[var(--ink-200)] text-[var(--ink-700)] transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
-            >
-              {isDiagnosticsRunning ? (
-                <RefreshCw size={12} className="animate-spin" />
-              ) : (
-                <AlertTriangle size={12} className="animate-pulse" />
-              )}
-              {isDiagnosticsRunning ? "Running..." : "Run diagnostics"}
-            </button>
-            <div className="absolute right-0 bottom-full mb-2 hidden group-hover:block bg-[var(--ink-900)] text-[var(--ink-50)] text-[10px] rounded-lg px-2.5 py-1.5 w-56 shadow-xl border border-[var(--ink-700)] text-center leading-normal z-50">
-              Triggers audit on the 8 Cryptographic Guardrails, parsing config integrity, database salts, and rate limiting status.
-              <div className="absolute top-full right-6 transform translate-x-1/2 border-[5px] border-transparent border-t-[var(--ink-900)]" />
-            </div>
-          </div>
-        </div>
-      )}
+        const currentShield = stateConfig[shieldState];
 
-      {shieldState === "CRITICAL" && (
-        <div className="relative overflow-hidden border border-[var(--ink-200)] border-l-[4px] border-l-[var(--status-danger)] rounded-2xl p-5 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-300 bg-[var(--surface)] shadow-[var(--shadow-card)] animate-pulse">
-          <div className="flex items-center gap-3.5 z-10">
-            <div className="relative flex-shrink-0 flex items-center justify-center">
-              <span className="animate-ping absolute inline-flex h-5 w-5 rounded-full bg-[var(--status-danger)]/75" />
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-[var(--status-danger)] animate-pulse" />
-            </div>
-            <div>
-              <h4 className="text-xs font-bold uppercase tracking-widest leading-none mb-1 text-[var(--status-danger)]">
-                SYSTEM SHIELD: BREACH DETECTED
-              </h4>
-              <p className="text-[11px] font-medium leading-relaxed text-[var(--ink-700)]">
-                Multiple failed login sequences and JWT verification failures. Immediate system lockdown recommended.
-              </p>
-              {lockdownActive ? (
-                <div className="flex flex-col sm:flex-row sm:items-center gap-3 mt-3">
-                  <span className="text-[10px] font-bold text-[var(--status-danger)] flex items-center gap-1 bg-[var(--ink-100)] border border-[var(--ink-200)] px-3 py-1.5 rounded-xl">
-                    🔒 LOCKDOWN STATE ACTIVE
-                  </span>
-                  <button
-                    onClick={handleDeactivateLockdown}
-                    className="h-11 px-5 rounded-[var(--radius-input)] text-sm font-semibold border border-[var(--ink-300)] text-[var(--ink-700)] hover:bg-[var(--ink-100)] bg-white transition-all shadow-none cursor-pointer"
+        return (
+          <div className={cn("relative overflow-hidden border border-[var(--ink-200)] border-l-[3px] rounded-[var(--radius-card)] p-5 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-300 bg-[var(--surface)] shadow-[var(--shadow-card)]", currentShield.borderColor)}>
+            <div className="flex items-start gap-3.5 z-10">
+              <span className={cn("w-2 h-2 rounded-full mt-1.5 flex-shrink-0 animate-pulse", currentShield.dotColor)} />
+              <div>
+                <h4 className="text-sm font-semibold text-[var(--ink-900)] leading-none mb-2">
+                  {currentShield.heading}
+                </h4>
+                <p className="text-[13px] text-[var(--ink-500)] leading-relaxed">
+                  {currentShield.body}
+                </p>
+                
+                {shieldState === "DEGRADED" && (
+                  <button 
+                    onClick={() => {
+                      const el = document.getElementById("cryptographic-guardrails");
+                      if (el) {
+                        el.scrollIntoView({ behavior: "smooth" });
+                        toast.info("Rate limiter currently bypassed. Notice the high-severity amber dot.");
+                      }
+                    }}
+                    className="text-[11px] font-medium text-[var(--ink-700)] hover:underline block mt-2 cursor-pointer bg-transparent border-0 p-0"
                   >
-                    Deactivate lockdown &rarr;
+                    View affected components &rarr;
                   </button>
-                </div>
-              ) : (
-                <button 
-                  onClick={handleInitiateLockdown}
-                  className="mt-3 h-11 px-5 rounded-[var(--radius-input)] text-sm font-semibold text-white bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] flex items-center gap-1.5 animate-bounce hover:scale-105 active:scale-95 transition-all w-fit cursor-pointer"
-                >
-                  <Ban size={12} />
-                  Initiate lockdown protocol &rarr;
-                </button>
+                )}
+
+                {shieldState === "CRITICAL" && (
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 mt-3">
+                    {lockdownActive ? (
+                      <>
+                        <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--ink-700)] select-none bg-[var(--ink-100)] px-2.5 py-1 rounded-full border border-[var(--ink-200)]">
+                          <span className="w-2 h-2 rounded-full bg-[var(--status-danger)]" />
+                          Lockdown state active
+                        </span>
+                        <button
+                          onClick={handleDeactivateLockdown}
+                          className="h-9 px-4 rounded-[var(--radius-input)] text-xs font-semibold border border-[var(--ink-200)] text-[var(--ink-900)] bg-[var(--surface)] hover:bg-[var(--ink-50)] transition-all cursor-pointer"
+                        >
+                          Deactivate lockdown &rarr;
+                        </button>
+                      </>
+                    ) : (
+                      <button 
+                        onClick={handleInitiateLockdown}
+                        className="h-9 px-4 rounded-[var(--radius-input)] text-xs font-semibold text-white bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] flex items-center gap-1.5 hover:scale-[1.02] active:scale-[0.98] transition-all w-fit cursor-pointer border-0"
+                      >
+                        <Ban size={12} />
+                        Initiate lockdown protocol &rarr;
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Diagnostics Trigger Button */}
+            <div className="relative group self-start sm:self-auto z-10 select-none flex items-center gap-2">
+              {shieldState === "OPERATIONAL" && diagnosticsClean && (
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[var(--ink-700)] select-none bg-[var(--ink-100)] px-2.5 py-1 rounded-full border border-[var(--ink-200)]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--status-ok)]" />
+                  Integrity verified
+                </span>
               )}
+              <button 
+                onClick={handleRunDiagnostics}
+                disabled={isDiagnosticsRunning}
+                className="h-9 px-4 rounded-[var(--radius-input)] text-xs font-semibold border border-[var(--ink-200)] text-[var(--ink-900)] bg-[var(--surface)] hover:bg-[var(--ink-50)] transition-all flex items-center gap-1.5 cursor-pointer"
+              >
+                {isDiagnosticsRunning ? (
+                  <RefreshCw size={12} className="animate-spin" />
+                ) : (
+                  <ShieldCheck size={12} className="text-[var(--ink-500)]" />
+                )}
+                {isDiagnosticsRunning ? "Running..." : "Run diagnostics"}
+              </button>
+              <div className="absolute right-0 bottom-full mb-2 hidden group-hover:block bg-[var(--ink-900)] text-[var(--ink-50)] text-[10px] rounded-lg px-2.5 py-1.5 w-56 shadow-xl border border-[var(--ink-700)] text-center leading-normal z-50">
+                Triggers audit on the 8 Cryptographic Guardrails, parsing config integrity, database salts, and rate limiting status.
+                <div className="absolute top-full right-6 transform translate-x-1/2 border-[5px] border-transparent border-t-[var(--ink-900)]" />
+              </div>
             </div>
           </div>
-          <div className="relative group self-start sm:self-auto z-10 select-none flex items-center gap-2">
-            <button 
-              onClick={handleRunDiagnostics}
-              disabled={isDiagnosticsRunning}
-              className="flex items-center gap-1.5 text-[10px] font-bold px-3 py-1.5 rounded-lg border bg-[var(--ink-100)] border-[var(--ink-200)] text-[var(--ink-700)] transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
-            >
-              {isDiagnosticsRunning ? (
-                <RefreshCw size={12} className="animate-spin" />
-              ) : (
-                <ShieldAlert size={12} className="animate-pulse" />
-              )}
-              {isDiagnosticsRunning ? "Running..." : "Run diagnostics"}
-            </button>
-            <div className="absolute right-0 bottom-full mb-2 hidden group-hover:block bg-slate-900 text-white text-[10px] rounded-lg px-2.5 py-1.5 w-56 shadow-xl border border-slate-800 text-center leading-normal z-50">
-              Triggers audit on the 8 Cryptographic Guardrails, parsing config integrity, database salts, and rate limiting status.
-              <div className="absolute top-full right-6 transform translate-x-1/2 border-[5px] border-transparent border-t-slate-900" />
-            </div>
-          </div>
-          <div className="absolute -right-10 -top-10 w-28 h-28 bg-rose-500/5 rounded-full blur-xl" />
-        </div>
-      )}
+        );
+      })()}
 
       {/* Modern KPI Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 select-none">
@@ -411,7 +374,8 @@ export default function SecurityCenterPage() {
                     {isLoading ? (
                       <div className="h-4.5 w-10 bg-[var(--ink-100)] animate-pulse rounded-full" />
                     ) : (
-                      <span className="bg-[var(--ink-100)] text-[var(--ink-700)] text-[11px] font-medium px-2 py-0.5 rounded-full select-none">
+                      <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--ink-700)] select-none">
+                        <span className="w-2 h-2 rounded-full bg-[var(--status-ok)]" />
                         {isSessions ? "View sessions" : "Active"}
                       </span>
                     )}
