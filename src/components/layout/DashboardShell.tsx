@@ -449,7 +449,7 @@ function Sidebar({
                   className={({ isActive }) => cn(
                     "flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[12px] font-medium mb-0.5 transition-all border-l-[3px] border-transparent",
                     isActive
-                      ? "bg-[var(--brand-pink-soft)] text-[var(--brand-pink)] font-semibold border-l-[var(--brand-pink)] rounded-l-none"
+                      ? "bg-[var(--brand-pink-tint)] text-[var(--brand-pink)] font-semibold border-l-[var(--brand-pink)] rounded-l-none"
                       : "text-[var(--ink-700)] bg-transparent hover:bg-[var(--ink-100)] hover:text-[var(--ink-900)]"
                   )}
                 >

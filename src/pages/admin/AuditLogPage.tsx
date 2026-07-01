@@ -89,12 +89,10 @@ function parseMetadata(detail: string): Record<string, string> {
   if (Object.keys(res).length === 0) {
     res["info"] = detail;
   }
-  
   return res;
 }
 
 function enrichMetadata(action: string, parsed: Record<string, string>): Record<string, string> {
-  // Only use actual data from the parsed detail — no fake fallbacks
   const result = { ...parsed };
   if (Object.keys(result).length === 0) {
     result["status"] = "RECORDED";
@@ -103,42 +101,30 @@ function enrichMetadata(action: string, parsed: Record<string, string>): Record<
 }
 
 const getChipColor = (key: string) => {
-  const k = key.toLowerCase();
-  if (k === "role") return "bg-emerald-50 border-emerald-100 text-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/30";
-  if (k === "ip") return "bg-blue-50 border-blue-100 text-blue-600 dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-900/30";
-  if (k === "browser" || k === "device") return "bg-slate-50 border-slate-200 text-slate-600 dark:bg-slate-900/30 dark:text-slate-400 dark:border-slate-800/40";
-  if (k === "changed_fields" || k === "reason") return "bg-amber-50 border-amber-100 text-amber-600 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/30";
-  if (k.includes("status") || k === "target" || k === "actor") return "bg-purple-50 border-purple-100 text-purple-600 dark:bg-purple-950/20 dark:text-purple-400 dark:border-purple-900/30";
-  return "bg-secondary border-border/80 text-foreground";
+  return "bg-[var(--ink-100)] border border-[var(--ink-200)] text-[var(--ink-700)]";
 };
 
 const getActionTypeClass = (action: string) => {
   const act = action.toUpperCase();
+  const base = "px-2 py-0.5 rounded-full text-[9px] font-semibold border bg-[var(--ink-100)] border-[var(--ink-200)] uppercase tracking-wider";
   
-  if (act.includes("BRUTE_FORCE") || act.includes("FAILED_AUTH") || act.includes("BREACH") || act.includes("BLOCKED")) {
-    return "bg-rose-500 border-rose-600 text-white font-extrabold animate-pulse dark:bg-rose-950/80 dark:border-rose-900/50 dark:text-rose-250";
+  if (act.includes("BRUTE_FORCE") || act.includes("FAILED_AUTH") || act.includes("BREACH") || act.includes("BLOCKED") || act.includes("FAILED")) {
+    return `${base} text-[var(--status-danger)]`;
   }
   
-  if (act.includes("LOGIN") || act.includes("LOGOUT") || act.includes("AUTH")) {
-    if (act.includes("FAILED")) {
-      return "bg-rose-50 border-rose-100 text-rose-600 dark:bg-rose-950/20 dark:text-rose-400 dark:border-rose-900/30";
-    }
-    return "bg-slate-100 border-slate-200 text-slate-700 dark:bg-slate-900/40 dark:text-slate-355 dark:border-slate-800/40";
+  if (act.includes("SUCCESS") || act.includes("VERIF") || act.includes("RESTORE")) {
+    return `${base} text-[var(--status-ok)]`;
   }
 
-  if (act.includes("SIGNUP") || act.includes("ROLE") || act.includes("SUSPEND") || act.includes("VERIF")) {
-    return "bg-amber-50 border-amber-100 text-amber-600 dark:bg-amber-950/20 dark:text-amber-450 dark:border-amber-900/30";
-  }
-
-  if (act.includes("JOB") || act.includes("APPLICATION")) {
-    return "bg-teal-50 border-teal-100 text-teal-600 dark:bg-teal-950/20 dark:text-teal-400 dark:border-teal-900/30";
+  if (act.includes("ROLE") || act.includes("SUSPEND") || act.includes("WARN")) {
+    return `${base} text-[var(--status-warn)]`;
   }
 
   if (act.includes("ADMIN") || act.includes("PERMISSION") || act.includes("APPROV")) {
-    return "bg-purple-50 border-purple-100 text-purple-600 dark:bg-purple-950/20 dark:text-purple-400 dark:border-purple-900/30";
+    return `${base} text-[var(--status-info)]`;
   }
 
-  return "bg-secondary border-border text-ink-400";
+  return `${base} text-[var(--ink-700)]`;
 };
 
 const getHumanSummary = (log: AuditLogEntry) => {
@@ -372,28 +358,28 @@ export default function AuditLogPage() {
       {/* Filters Control Station */}
       <div className="flex flex-col md:flex-row gap-3 mb-6 items-stretch md:items-center justify-between">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-300" size={14} />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--ink-400)]" size={14} />
           <input 
             value={search} 
             onChange={e => setSearch(e.target.value)} 
             placeholder="Search operator, email, action code, IP, or JSON fields..."
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl text-xs bg-card border border-border text-foreground placeholder:text-ink-300 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all" 
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl text-xs bg-[var(--surface)] border border-[var(--ink-200)] text-[var(--ink-900)] placeholder:text-[var(--ink-400)] focus:outline-none focus:ring-2 focus:ring-[rgba(230,0,126,0.2)] focus:border-[var(--brand-pink)] transition-all" 
           />
         </div>
 
         <div className="flex items-center gap-2.5 flex-wrap">
           {/* Action Filter with Counts */}
-          <div className="flex items-center gap-2 bg-card border border-border px-3 py-1.5 rounded-xl text-xs font-semibold text-ink-400 h-[38px]">
-            <Filter size={12} className="text-primary" />
+          <div className="flex items-center gap-2 bg-[var(--surface)] border border-[var(--ink-200)] px-3 py-1.5 rounded-xl text-xs font-semibold text-[var(--ink-500)] h-[38px]">
+            <Filter size={12} className="text-[var(--brand-pink)]" />
             <Select value={actionType} onValueChange={handleSetActionType}>
-              <SelectTrigger className="border-0 bg-transparent p-0 text-xs font-bold text-foreground focus:ring-0 focus:ring-offset-0 focus:outline-none shadow-none h-auto w-auto cursor-pointer gap-1.5 select-none [&>svg]:hidden">
+              <SelectTrigger className="border-0 bg-transparent p-0 text-xs font-bold text-[var(--ink-900)] focus:ring-0 focus:ring-offset-0 focus:outline-none shadow-none h-auto w-auto cursor-pointer gap-1.5 select-none [&>svg]:hidden">
                 <SelectValue placeholder="Select Action" />
               </SelectTrigger>
-              <SelectContent className="bg-popover border border-border rounded-xl shadow-xl min-w-[220px] p-1 max-h-80 overflow-y-auto">
+              <SelectContent className="bg-[var(--surface)] border border-[var(--ink-200)] rounded-xl shadow-xl min-w-[220px] p-1 max-h-80 overflow-y-auto">
                 {ACTION_TYPES.map(a => {
                   const count = allLogs.filter(l => a === "All Actions" || l.action === a).length;
                   return (
-                    <SelectItem key={a} value={a} className="text-[11px] font-bold text-foreground focus:bg-accent focus:text-accent-foreground rounded-lg cursor-pointer py-1.5 pl-8 pr-2">
+                    <SelectItem key={a} value={a} className="text-[11px] font-bold text-[var(--ink-700)] focus:bg-[var(--ink-100)] focus:text-[var(--ink-900)] rounded-lg cursor-pointer py-1.5 pl-8 pr-2">
                       {a === "All Actions" ? `All Actions (${count})` : `${a.replace(/_/g, " ")} (${count})`}
                     </SelectItem>
                   );
@@ -403,48 +389,48 @@ export default function AuditLogPage() {
           </div>
 
           {/* Timeframe Filter */}
-          <div className="flex items-center gap-2 bg-card border border-border px-3 py-1.5 rounded-xl text-xs font-semibold text-ink-400 h-[38px]">
-            <Calendar size={12} className="text-primary" />
+          <div className="flex items-center gap-2 bg-[var(--surface)] border border-[var(--ink-200)] px-3 py-1.5 rounded-xl text-xs font-semibold text-[var(--ink-500)] h-[38px]">
+            <Calendar size={12} className="text-[var(--brand-pink)]" />
             <Select value={timeRange} onValueChange={(val: any) => setTimeRange(val)}>
-              <SelectTrigger className="border-0 bg-transparent p-0 text-xs font-bold text-foreground focus:ring-0 focus:ring-offset-0 focus:outline-none shadow-none h-auto w-auto cursor-pointer gap-1.5 select-none [&>svg]:hidden">
+              <SelectTrigger className="border-0 bg-transparent p-0 text-xs font-bold text-[var(--ink-900)] focus:ring-0 focus:ring-offset-0 focus:outline-none shadow-none h-auto w-auto cursor-pointer gap-1.5 select-none [&>svg]:hidden">
                 <SelectValue placeholder="Select Timeframe" />
               </SelectTrigger>
-              <SelectContent className="bg-popover border border-border rounded-xl shadow-xl min-w-[140px] p-1">
-                <SelectItem value="ALL" className="text-[11px] font-bold text-foreground focus:bg-accent focus:text-accent-foreground rounded-lg cursor-pointer py-1.5 pl-8 pr-2">All Time</SelectItem>
-                <SelectItem value="24H" className="text-[11px] font-bold text-foreground focus:bg-accent focus:text-accent-foreground rounded-lg cursor-pointer py-1.5 pl-8 pr-2">Last 24 Hours</SelectItem>
-                <SelectItem value="7D" className="text-[11px] font-bold text-foreground focus:bg-accent focus:text-accent-foreground rounded-lg cursor-pointer py-1.5 pl-8 pr-2">Last 7 Days</SelectItem>
-                <SelectItem value="30D" className="text-[11px] font-bold text-foreground focus:bg-accent focus:text-accent-foreground rounded-lg cursor-pointer py-1.5 pl-8 pr-2">Last 30 Days</SelectItem>
+              <SelectContent className="bg-[var(--surface)] border border-[var(--ink-200)] rounded-xl shadow-xl min-w-[140px] p-1">
+                <SelectItem value="ALL" className="text-[11px] font-bold text-[var(--ink-700)] focus:bg-[var(--ink-100)] focus:text-[var(--ink-900)] rounded-lg cursor-pointer py-1.5 pl-8 pr-2">All Time</SelectItem>
+                <SelectItem value="24H" className="text-[11px] font-bold text-[var(--ink-700)] focus:bg-[var(--ink-100)] focus:text-[var(--ink-900)] rounded-lg cursor-pointer py-1.5 pl-8 pr-2">Last 24 Hours</SelectItem>
+                <SelectItem value="7D" className="text-[11px] font-bold text-[var(--ink-700)] focus:bg-[var(--ink-100)] focus:text-[var(--ink-900)] rounded-lg cursor-pointer py-1.5 pl-8 pr-2">Last 7 Days</SelectItem>
+                <SelectItem value="30D" className="text-[11px] font-bold text-[var(--ink-700)] focus:bg-[var(--ink-100)] focus:text-[var(--ink-900)] rounded-lg cursor-pointer py-1.5 pl-8 pr-2">Last 30 Days</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          <span className="inline-flex items-center gap-1.5 px-3 py-2 bg-secondary border border-border rounded-xl text-xs font-bold text-foreground">
+          <span className="inline-flex items-center gap-1.5 px-3 py-2 bg-[var(--ink-100)] border border-[var(--ink-200)] rounded-xl text-xs font-bold text-[var(--ink-700)]">
             {filtered.length} Recorded
           </span>
         </div>
       </div>
 
       {/* Audit Log Table Component */}
-      <SectionCard noPad className="border-border/80 shadow-md">
-        <header className="px-5 py-4 border-b border-border flex items-center justify-between bg-secondary/5">
+      <SectionCard noPad className="border-[var(--ink-200)] shadow-[var(--shadow-card)]">
+        <header className="px-5 py-4 border-b border-[var(--ink-200)] flex items-center justify-between bg-[var(--ink-50)]">
           <div className="flex items-center gap-2">
-            <ScrollText size={16} className="text-primary animate-pulse" />
-            <h3 className="font-serif text-sm text-foreground font-bold">
+            <ScrollText size={16} className="text-[var(--ink-500)]" />
+            <h3 className="font-serif text-sm text-[var(--ink-900)] font-bold">
               Compliance Ledger
             </h3>
           </div>
           
           {/* Header exports and status */}
           <div className="flex items-center gap-3">
-            <span className="text-[10px] font-black bg-primary/10 border border-primary/20 text-primary px-2.5 py-1 rounded-full uppercase tracking-wider">
+            <span className="text-[10px] font-bold bg-[var(--ink-100)] border border-[var(--ink-200)] text-[var(--ink-700)] px-2.5 py-1 rounded-full uppercase tracking-wider">
               {filtered.length} events · {getActiveRangeText(filtered)}
             </span>
-            <div className="flex items-center bg-secondary border border-border p-0.5 rounded-lg text-[9px] font-bold select-none">
+            <div className="flex items-center bg-[var(--ink-100)] border border-[var(--ink-200)] p-0.5 rounded-lg text-[9px] font-bold select-none">
               <button
                 onClick={() => {
                   toast.success(`Exported ${filtered.length} logs to CSV successfully.`);
                 }}
-                className="px-2 py-1 hover:bg-background rounded text-foreground transition-all cursor-pointer border-0"
+                className="px-2 py-1 hover:bg-white rounded text-[var(--ink-700)] hover:text-[var(--ink-900)] transition-all cursor-pointer border-0"
               >
                 CSV
               </button>
@@ -452,7 +438,7 @@ export default function AuditLogPage() {
                 onClick={() => {
                   toast.success(`Exported ${filtered.length} logs to PDF successfully.`);
                 }}
-                className="px-2 py-1 hover:bg-background rounded text-foreground transition-all cursor-pointer border-0"
+                className="px-2 py-1 hover:bg-white rounded text-[var(--ink-700)] hover:text-[var(--ink-900)] transition-all cursor-pointer border-0"
               >
                 PDF
               </button>
@@ -460,12 +446,12 @@ export default function AuditLogPage() {
           </div>
         </header>
 
-        <div className="overflow-x-auto rounded-2xl">
+        <div className="overflow-x-auto rounded-[var(--radius-card)]">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-border bg-secondary/10">
+              <tr className="border-b border-[var(--ink-200)] bg-[var(--ink-50)]">
                 {["Timestamp","System Event","Operator User","Granular Metadata / Details"].map(h => (
-                  <th key={h} className="px-5 py-4 text-[10px] font-bold text-ink-300 uppercase tracking-widest bg-secondary/20 whitespace-nowrap">
+                  <th key={h} className="px-5 py-4 text-[10px] font-bold text-[var(--ink-500)] uppercase tracking-widest bg-[var(--ink-50)] whitespace-nowrap">
                     {h}
                   </th>
                 ))}
@@ -499,8 +485,8 @@ export default function AuditLogPage() {
                       key={log.id} 
                       onClick={() => setExpandedRowId(isExpanded ? null : log.id)}
                       className={cn(
-                        "hover:bg-secondary/20 transition-all duration-150 group cursor-pointer",
-                        isExpanded && "bg-secondary/30"
+                        "hover:bg-[var(--ink-50)] transition-all duration-150 group cursor-pointer",
+                        isExpanded && "bg-[var(--ink-100)]"
                       )}
                     >
                       {/* Log time details */}
@@ -534,10 +520,10 @@ export default function AuditLogPage() {
                             e.stopPropagation();
                             setSelectedOperator(log.operator);
                           }}
-                          className="text-left font-bold text-foreground hover:text-primary transition-colors flex flex-col bg-transparent border-0 p-0 cursor-pointer"
+                          className="text-left font-bold text-[var(--ink-900)] hover:text-[var(--brand-pink)] transition-colors flex flex-col bg-transparent border-0 p-0 cursor-pointer"
                         >
                           <span>{log.operator?.name || "System Daemon"}</span>
-                          <span className="text-[10px] font-medium text-muted-foreground mt-0.5">
+                          <span className="text-[10px] font-medium text-[var(--ink-500)] mt-0.5">
                             {log.operator?.role ? `${log.operator.role.toLowerCase()}` : "system"} · {parseMetadata(log.detail).ip || "192.168.1.x"}
                           </span>
                         </button>
@@ -547,7 +533,7 @@ export default function AuditLogPage() {
                       <td className="px-5 py-4.5">
                         <div className="flex items-center justify-between gap-4">
                           {renderMetadataChips(log.action, log.detail)}
-                          <div className="text-muted-foreground group-hover:text-foreground transition-all flex-shrink-0">
+                          <div className="text-[var(--ink-500)] group-hover:text-[var(--ink-900)] transition-all flex-shrink-0">
                             {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                           </div>
                         </div>
@@ -556,15 +542,15 @@ export default function AuditLogPage() {
                         {isExpanded && (
                           <div 
                             onClick={e => e.stopPropagation()} 
-                            className="mt-4 p-5 bg-card border border-border/80 rounded-2xl space-y-4 shadow-sm animate-fade-in text-left cursor-default"
+                            className="mt-4 p-5 bg-[var(--surface)] border border-[var(--ink-200)] rounded-2xl space-y-4 shadow-[var(--shadow-card)] animate-fade-in text-left cursor-default"
                           >
                             <div className="flex justify-between items-center flex-wrap gap-2">
-                              <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                                <ShieldAlert size={13} className="text-primary animate-pulse" />
+                              <h4 className="text-xs font-bold text-[var(--ink-900)] flex items-center gap-1.5">
+                                <ShieldAlert size={13} className="text-[var(--ink-500)]" />
                                 Forensic Record Audit Details
                               </h4>
                               <div className="flex items-center gap-2">
-                                <span className="text-[10px] font-mono text-muted-foreground select-all">
+                                <span className="text-[10px] font-mono text-[var(--ink-500)] select-all">
                                   UUID: {log.operator?._id || "6a0dce7222fc5279132d7b67"}
                                 </span>
                                 <button
@@ -572,15 +558,15 @@ export default function AuditLogPage() {
                                     navigator.clipboard.writeText(log.id);
                                     toast.success("Event ID copied to clipboard");
                                   }}
-                                  className="px-2 py-0.5 bg-secondary hover:bg-secondary/80 border border-border/60 text-foreground rounded text-[9px] font-bold transition-all cursor-pointer"
+                                  className="px-2.5 py-0.5 bg-[var(--ink-100)] hover:bg-[var(--ink-200)] border border-[var(--ink-200)] text-[var(--ink-700)] rounded text-[9px] font-semibold transition-all cursor-pointer"
                                 >
                                   Copy ID
                                 </button>
                               </div>
                             </div>
 
-                            <div className="text-xs text-muted-foreground leading-normal">
-                              <span className="font-semibold text-foreground">Human-Readable Narrative: </span>
+                            <div className="text-xs text-[var(--ink-500)] leading-normal">
+                              <span className="font-semibold text-[var(--ink-900)]">Human-Readable Narrative: </span>
                               {getHumanSummary(log)}
                             </div>
 
@@ -588,19 +574,19 @@ export default function AuditLogPage() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               {/* Diff details box */}
                               <div className="space-y-1.5">
-                                <span className="text-[10px] font-bold text-ink-300 uppercase tracking-widest block">Database Diff</span>
+                                <span className="text-[10px] font-bold text-[var(--ink-500)] uppercase tracking-widest block">Database Diff</span>
                                 {diff ? (
-                                  <div className="bg-secondary/40 border border-border/60 rounded-xl p-3.5 font-mono text-xs space-y-1.5">
-                                    <div className="text-muted-foreground text-[10px] uppercase font-bold tracking-wider">Field: {diff.field}</div>
-                                    <div className="text-rose-500 bg-rose-500/5 px-2.5 py-0.5 rounded border border-rose-500/10 w-fit">
+                                  <div className="bg-[var(--ink-50)] border border-[var(--ink-200)] rounded-xl p-3.5 font-mono text-xs space-y-1.5">
+                                    <div className="text-[var(--ink-500)] text-[10px] uppercase font-bold tracking-wider">Field: {diff.field}</div>
+                                    <div className="text-[var(--status-danger)] bg-[var(--ink-100)] px-2.5 py-0.5 rounded border border-[var(--ink-200)] w-fit font-bold">
                                       - {diff.oldValue}
                                     </div>
-                                    <div className="text-emerald-500 bg-emerald-500/5 px-2.5 py-0.5 rounded border border-emerald-500/10 w-fit">
+                                    <div className="text-[var(--status-ok)] bg-[var(--ink-100)] px-2.5 py-0.5 rounded border border-[var(--ink-200)] w-fit font-bold">
                                       + {diff.newValue}
                                     </div>
                                   </div>
                                 ) : (
-                                  <div className="bg-secondary/25 border border-border/40 rounded-xl p-3.5 text-xs text-muted-foreground italic">
+                                  <div className="bg-[var(--ink-50)] border border-[var(--ink-200)] rounded-xl p-3.5 text-xs text-[var(--ink-500)] italic">
                                     No database update diff for this event category.
                                   </div>
                                 )}
@@ -609,18 +595,18 @@ export default function AuditLogPage() {
                               {/* JSON details payload */}
                               <div className="space-y-1.5">
                                 <div className="flex justify-between items-center">
-                                  <span className="text-[10px] font-bold text-ink-300 uppercase tracking-widest">JSON Payload:</span>
+                                  <span className="text-[10px] font-bold text-[var(--ink-500)] uppercase tracking-widest">JSON Payload:</span>
                                   <button
                                     onClick={() => {
                                       navigator.clipboard.writeText(JSON.stringify(log, null, 2));
                                       toast.success("JSON payload copied to clipboard");
                                     }}
-                                    className="text-[9px] font-extrabold text-primary hover:underline cursor-pointer"
+                                    className="text-[9px] font-bold text-[var(--brand-pink)] hover:underline cursor-pointer"
                                   >
                                     Copy JSON
                                   </button>
                                 </div>
-                                <pre className="bg-slate-950 text-slate-350 border border-slate-900 rounded-xl p-3.5 font-mono text-[9.5px] overflow-x-auto max-h-36 scrollbar-thin">
+                                <pre className="bg-[var(--ink-50)] text-[var(--ink-700)] border border-[var(--ink-200)] rounded-xl p-3.5 font-mono text-[9.5px] overflow-x-auto max-h-36 scrollbar-thin">
                                   {JSON.stringify({
                                     id: log.id,
                                     action: log.action,
@@ -647,62 +633,62 @@ export default function AuditLogPage() {
       {selectedOperator && (
         <div className="fixed inset-0 z-50 flex justify-end bg-foreground/30 backdrop-blur-xs animate-fade-in">
           <div className="absolute inset-0 cursor-pointer" onClick={() => setSelectedOperator(null)} />
-          <div className="relative w-full max-w-md bg-card border-l border-border h-full shadow-2xl flex flex-col animate-slide-in-right">
-            <header className="px-6 py-5 border-b border-border flex items-center justify-between bg-secondary/15">
+          <div className="relative w-full max-w-md bg-[var(--surface)] border-l border-[var(--ink-200)] h-full shadow-2xl flex flex-col animate-slide-in-right">
+            <header className="px-6 py-5 border-b border-[var(--ink-200)] flex items-center justify-between bg-[var(--ink-50)]">
               <div>
-                <h3 className="font-serif text-base text-foreground font-bold flex items-center gap-2">
+                <h3 className="font-serif text-base text-[var(--ink-900)] font-bold flex items-center gap-2">
                   Operator Profile Info
                 </h3>
-                <p className="text-[10px] text-muted-foreground mt-0.5">Administrative forensics directory audit record</p>
+                <p className="text-[10px] text-[var(--ink-500)] mt-0.5">Administrative forensics directory audit record</p>
               </div>
               <button 
                 onClick={() => setSelectedOperator(null)} 
-                className="p-1.5 hover:bg-secondary rounded-full text-ink-400 hover:text-foreground transition-all"
+                className="p-1.5 hover:bg-[var(--ink-100)] rounded-full text-[var(--ink-400)] hover:text-[var(--ink-900)] transition-all"
               >
                 <X size={15} />
               </button>
             </header>
 
             <div className="p-6 flex-1 overflow-y-auto space-y-6">
-              <div className="flex items-center gap-4 p-4 bg-secondary/25 border border-border/50 rounded-2xl">
-                <div className="w-12 h-12 rounded-full bg-primary/15 border border-primary/20 flex items-center justify-center font-bold text-primary font-serif text-lg">
+              <div className="flex items-center gap-4 p-4 bg-[var(--ink-50)] border border-[var(--ink-200)] rounded-2xl">
+                <div className="w-12 h-12 rounded-full bg-[var(--ink-100)] border border-[var(--ink-200)] flex items-center justify-center font-bold text-[var(--ink-900)] font-serif text-lg">
                   {selectedOperator.name ? selectedOperator.name.split(" ").map(n => n[0]).join("").toUpperCase() : "OP"}
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-foreground">{selectedOperator.name}</h4>
+                  <h4 className="text-sm font-bold text-[var(--ink-900)]">{selectedOperator.name}</h4>
                   <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                    <span className="text-[8px] font-black px-1.5 py-0.2 rounded border bg-primary/10 border-primary/20 text-primary uppercase tracking-wider">
+                    <span className="text-[8px] font-semibold px-1.5 py-0.2 rounded border bg-[var(--ink-100)] border-[var(--ink-200)] text-[var(--ink-750)] uppercase tracking-wider">
                       {selectedOperator.role}
                     </span>
-                    <span className="text-[9px] text-muted-foreground font-mono">{selectedOperator.email}</span>
+                    <span className="text-[9px] text-[var(--ink-500)] font-mono">{selectedOperator.email}</span>
                   </div>
                 </div>
               </div>
 
               <div className="space-y-4">
-                <span className="text-[10px] font-bold text-ink-300 uppercase tracking-widest block">Principal Claims</span>
-                <div className="grid grid-cols-1 gap-3.5 bg-secondary/15 border border-border/40 p-4 rounded-2xl">
+                <span className="text-[10px] font-bold text-[var(--ink-500)] uppercase tracking-widest block">Principal Claims</span>
+                <div className="grid grid-cols-1 gap-3.5 bg-[var(--ink-50)] border border-[var(--ink-200)] p-4 rounded-2xl">
                   <DetailRow label="Operator UUID" value={selectedOperator._id || "6a0dce7222fc5279132d7b67"} copyable />
                   <DetailRow label="System Role" value={selectedOperator.role || "USER"} />
                   <DetailRow label="Associated Email" value={selectedOperator.email || "No email linked"} />
                   <DetailRow label="Authentication Level" value={selectedOperator.role === "SUPER_ADMIN" ? "Level 3 - Root Overseer" : selectedOperator.role === "ADMIN" ? "Level 2 - Dashboard Mod" : "Level 1 - Member Principal"} />
-                  <DetailRow label="Audit Status" value="Verified Compliant ✓" valueColor="text-emerald-500 font-bold" />
+                  <DetailRow label="Audit Status" value="Verified Compliant ✓" valueColor="text-[var(--status-ok)] font-bold" />
                 </div>
               </div>
 
               <div className="space-y-3">
-                <span className="text-[10px] font-bold text-ink-300 uppercase tracking-widest block">Operator Event History</span>
-                <p className="text-[11px] text-muted-foreground">
+                <span className="text-[10px] font-bold text-[var(--ink-500)] uppercase tracking-widest block">Operator Event History</span>
+                <p className="text-[11px] text-[var(--ink-500)]">
                   This identity is associated with {filtered.filter(l => l.operator?.name === selectedOperator.name).length} logs in the current dataset. Use the filters to view their actions.
                 </p>
               </div>
             </div>
 
-            <footer className="p-6 bg-secondary/15 border-t border-border flex justify-end">
+            <footer className="p-6 bg-[var(--ink-50)] border-t border-[var(--ink-200)] flex justify-end">
               <button
                 type="button"
                 onClick={() => setSelectedOperator(null)}
-                className="px-5 py-2 bg-secondary hover:bg-secondary/80 border border-border text-foreground rounded-full text-xs font-bold transition-all cursor-pointer"
+                className="h-11 px-5 rounded-[var(--radius-input)] text-sm font-semibold border border-[var(--ink-300)] text-[var(--ink-700)] hover:bg-[var(--ink-100)] bg-white transition-all shadow-none cursor-pointer"
               >
                 Close Profile
               </button>

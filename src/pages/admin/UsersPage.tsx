@@ -210,18 +210,18 @@ export default function UsersPage() {
       {/* Filters Control Center */}
       <div className="flex flex-col xl:flex-row gap-4 mb-6 items-stretch xl:items-center justify-between">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-300" size={14} />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--ink-400)]" size={14} />
           <input 
             value={search} 
             onChange={e => setSearch(e.target.value)} 
             placeholder="Search users by name, email, role..."
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl text-xs bg-card border border-border text-foreground placeholder:text-ink-300 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all" 
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl text-xs bg-[var(--surface)] border border-[var(--ink-200)] text-[var(--ink-900)] placeholder:text-[var(--ink-400)] focus:outline-none focus:ring-2 focus:ring-[rgba(230,0,126,0.2)] focus:border-[var(--brand-pink)] transition-all" 
           />
         </div>
 
         <div className="flex flex-wrap items-center gap-3 self-start xl:self-auto">
           {/* Role Filter tabs */}
-          <div className="flex overflow-x-auto gap-1 bg-secondary/30 p-1 rounded-xl border border-border/80">
+          <div className="flex overflow-x-auto gap-1 bg-[var(--ink-100)] p-1 rounded-xl border border-[var(--ink-200)]">
             {["ALL","CANDIDATE","EMPLOYER","ADMIN"].map(r => (
               <button 
                 key={r} 
@@ -229,8 +229,8 @@ export default function UsersPage() {
                 className={cn(
                   "px-3.5 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all",
                   roleFilter === r 
-                    ? "bg-primary text-primary-foreground shadow-sm" 
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "bg-[var(--brand-pink)] text-white shadow-sm" 
+                    : "text-[var(--ink-500)] hover:text-[var(--ink-900)]"
                 )}
               >
                 {r}
@@ -239,7 +239,7 @@ export default function UsersPage() {
           </div>
 
           {/* Status Filter tabs */}
-          <div className="flex overflow-x-auto gap-1 bg-secondary/30 p-1 rounded-xl border border-border/80">
+          <div className="flex overflow-x-auto gap-1 bg-[var(--ink-100)] p-1 rounded-xl border border-[var(--ink-200)]">
             {["ALL","ACTIVE","SUSPENDED","UNVERIFIED"].map(st => (
               <button 
                 key={st} 
@@ -250,8 +250,8 @@ export default function UsersPage() {
                 className={cn(
                   "px-3.5 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all",
                   statusFilter === st 
-                    ? "bg-primary text-primary-foreground shadow-sm" 
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "bg-[var(--brand-pink)] text-white shadow-sm" 
+                    : "text-[var(--ink-500)] hover:text-[var(--ink-900)]"
                 )}
               >
                 {st === "ALL" ? "Status: All" : st}
@@ -262,30 +262,30 @@ export default function UsersPage() {
       </div>
 
       {/* Main Table Card */}
-      <SectionCard noPad className="border-border/80 shadow-md">
-        <div className="overflow-x-auto rounded-2xl">
+      <SectionCard noPad className="border-[var(--ink-200)] shadow-[var(--shadow-card)]">
+        <div className="overflow-x-auto rounded-[var(--radius-card)]">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-border bg-secondary/10">
-                <th onClick={() => handleSort("name")} className="px-5 py-4 text-[10px] font-bold text-ink-300 uppercase tracking-widest bg-secondary/20 whitespace-nowrap cursor-pointer hover:text-foreground transition-colors select-none">
+              <tr className="border-b border-[var(--ink-200)] bg-[var(--ink-50)]">
+                <th onClick={() => handleSort("name")} className="px-5 py-4 text-[10px] font-bold text-[var(--ink-500)] uppercase tracking-widest bg-[var(--ink-50)] whitespace-nowrap cursor-pointer hover:text-[var(--ink-900)] transition-colors select-none">
                   User Details {sortBy === "name" && (sortOrder === "asc" ? " ▲" : " ▼")}
                 </th>
-                <th onClick={() => handleSort("role")} className="px-5 py-4 text-[10px] font-bold text-ink-300 uppercase tracking-widest bg-secondary/20 whitespace-nowrap cursor-pointer hover:text-foreground transition-colors select-none">
+                <th onClick={() => handleSort("role")} className="px-5 py-4 text-[10px] font-bold text-[var(--ink-500)] uppercase tracking-widest bg-[var(--ink-50)] whitespace-nowrap cursor-pointer hover:text-[var(--ink-900)] transition-colors select-none">
                   System Role {sortBy === "role" && (sortOrder === "asc" ? " ▲" : " ▼")}
                 </th>
-                <th className="px-5 py-4 text-[10px] font-bold text-ink-300 uppercase tracking-widest bg-secondary/20 whitespace-nowrap select-none">
+                <th className="px-5 py-4 text-[10px] font-bold text-[var(--ink-500)] uppercase tracking-widest bg-[var(--ink-50)] whitespace-nowrap select-none">
                   Professional Field
                 </th>
-                <th className="px-5 py-4 text-[10px] font-bold text-ink-300 uppercase tracking-widest bg-secondary/20 whitespace-nowrap select-none">
+                <th className="px-5 py-4 text-[10px] font-bold text-[var(--ink-500)] uppercase tracking-widest bg-[var(--ink-50)] whitespace-nowrap select-none">
                   Availability / Session
                 </th>
-                <th className="px-5 py-4 text-[10px] font-bold text-ink-300 uppercase tracking-widest bg-secondary/20 whitespace-nowrap select-none">
+                <th className="px-5 py-4 text-[10px] font-bold text-[var(--ink-500)] uppercase tracking-widest bg-[var(--ink-50)] whitespace-nowrap select-none">
                   Verified Status
                 </th>
-                <th onClick={() => handleSort("status")} className="px-5 py-4 text-[10px] font-bold text-ink-300 uppercase tracking-widest bg-secondary/20 whitespace-nowrap cursor-pointer hover:text-foreground transition-colors select-none">
+                <th onClick={() => handleSort("status")} className="px-5 py-4 text-[10px] font-bold text-[var(--ink-500)] uppercase tracking-widest bg-[var(--ink-50)] whitespace-nowrap cursor-pointer hover:text-[var(--ink-900)] transition-colors select-none">
                   Account State {sortBy === "status" && (sortOrder === "asc" ? " ▲" : " ▼")}
                 </th>
-                <th className="px-5 py-4 text-[10px] font-bold text-ink-300 uppercase tracking-widest bg-secondary/20 whitespace-nowrap select-none text-right pr-8">
+                <th className="px-5 py-4 text-[10px] font-bold text-[var(--ink-500)] uppercase tracking-widest bg-[var(--ink-50)] whitespace-nowrap select-none text-right pr-8">
                   Actions
                 </th>
               </tr>
@@ -317,42 +317,33 @@ export default function UsersPage() {
                 return (
                   <tr 
                     key={u.id} 
-                    className="hover:bg-secondary/20 transition-all duration-150 group"
+                    className="hover:bg-[var(--ink-50)] transition-all duration-150 group"
                   >
                     {/* User profile block */}
                     <td className="px-5 py-4.5 whitespace-nowrap">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center text-primary text-xs font-black border border-primary/20 flex-shrink-0 group-hover:scale-105 transition-transform duration-200">
+                        <div className="w-9 h-9 rounded-xl bg-[var(--ink-100)] flex items-center justify-center text-[var(--ink-900)] text-xs font-bold border border-[var(--ink-200)] flex-shrink-0 group-hover:scale-105 transition-transform duration-200">
                           {initials}
                         </div>
                         <div>
-                          <div className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
+                          <div className="text-xs font-bold text-[var(--ink-900)] group-hover:text-[var(--brand-pink)] transition-colors">
                             {displayName}
                           </div>
-                          <div className="text-[10px] text-primary/70 font-mono mt-0.5">@{username}</div>
-                          <div className="text-[9.5px] text-muted-foreground mt-0.5">{u.email}</div>
+                          <div className="text-[10px] text-[var(--ink-500)] font-mono mt-0.5">@{username}</div>
+                          <div className="text-[9.5px] text-[var(--ink-500)] mt-0.5">{u.email}</div>
                         </div>
                       </div>
                     </td>
 
                     {/* Role badge */}
                     <td className="px-5 py-4.5 whitespace-nowrap">
-                      <span className={cn(
-                        "text-[9px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider border",
-                        u.role === "CANDIDATE" 
-                          ? "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-950/20 dark:text-rose-400"
-                          : u.role === "EMPLOYER" 
-                            ? "bg-violet-50 text-violet-600 border-violet-100 dark:bg-violet-950/20 dark:text-violet-400"
-                            : u.role === "SUPER_ADMIN"
-                            ? "bg-purple-50 text-purple-600 border-purple-100 dark:bg-purple-950/20 dark:text-purple-400"
-                            : "bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-950/20 dark:text-blue-400"
-                      )}>
+                      <span className="text-[9px] font-semibold px-2.5 py-0.5 rounded-full bg-[var(--ink-100)] text-[var(--ink-700)] border border-[var(--ink-200)] uppercase tracking-wider">
                         {u.role}
                       </span>
                     </td>
 
                     {/* Category (Professional Field) */}
-                    <td className="px-5 py-4.5 whitespace-nowrap text-xs text-muted-foreground font-semibold">
+                    <td className="px-5 py-4.5 whitespace-nowrap text-xs text-[var(--ink-500)] font-semibold">
                       {u.role === "CANDIDATE" && (u.profile?.category ?? "General Support")}
                       {u.role === "EMPLOYER" && (u.profile?.category ?? "Services")}
                       {(u.role === "ADMIN" || u.role === "SUPER_ADMIN") && "Platform Administration"}
@@ -361,66 +352,53 @@ export default function UsersPage() {
                     {/* Availability / Session Status Column */}
                     <td className="px-5 py-4.5 whitespace-nowrap">
                       {u.role === "CANDIDATE" && (
-                        <span className={cn(
-                          "inline-flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full border",
-                          u.profile?.isAvailable 
-                            ? "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400" 
-                            : "bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-950/20 dark:text-amber-400"
-                        )}>
-                          <span className={cn("w-1.5 h-1.5 rounded-full", u.profile?.isAvailable ? "bg-emerald-500" : "bg-amber-500")} />
-                          {u.profile?.isAvailable ? "Available" : "Busy"}
+                        <span className="inline-flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full border border-[var(--ink-200)] bg-[var(--ink-100)]">
+                          <span className={cn("w-1.5 h-1.5 rounded-full", u.profile?.isAvailable ? "bg-[var(--status-ok)]" : "bg-[var(--status-warn)]")} />
+                          <span className={cn(u.profile?.isAvailable ? "text-[var(--status-ok)]" : "text-[var(--status-warn)]")}>
+                            {u.profile?.isAvailable ? "Available" : "Busy"}
+                          </span>
                         </span>
                       )}
                       {u.role === "EMPLOYER" && (
-                        <span className={cn(
-                          "inline-flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full border",
-                          !u.isSuspended
-                            ? "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400"
-                            : "bg-red-50 text-red-600 border-red-100 dark:bg-red-950/20 dark:text-red-400"
-                        )}>
-                          <span className={cn("w-1.5 h-1.5 rounded-full", !u.isSuspended ? "bg-emerald-500" : "bg-red-500")} />
-                          {!u.isSuspended ? "Active" : "Inactive"}
+                        <span className="inline-flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full border border-[var(--ink-200)] bg-[var(--ink-100)]">
+                          <span className={cn("w-1.5 h-1.5 rounded-full", !u.isSuspended ? "bg-[var(--status-ok)]" : "bg-[var(--status-danger)]")} />
+                          <span className={cn(!u.isSuspended ? "text-[var(--status-ok)]" : "text-[var(--status-danger)]")}>
+                            {!u.isSuspended ? "Active" : "Inactive"}
+                          </span>
                         </span>
                       )}
                       {(u.role === "ADMIN" || u.role === "SUPER_ADMIN") && (
-                        <span className={cn(
-                          "inline-flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full border",
-                          u.profile?.availabilityStatus === "Online"
-                            ? "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400"
-                            : u.profile?.availabilityStatus === "Away"
-                            ? "bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-950/20 dark:text-amber-400"
-                            : "bg-zinc-50 text-zinc-500 border-zinc-200 dark:bg-zinc-800/20 dark:text-zinc-400"
-                        )}>
+                        <span className="inline-flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full border border-[var(--ink-200)] bg-[var(--ink-100)]">
                           <span className={cn(
                             "w-1.5 h-1.5 rounded-full",
-                            u.profile?.availabilityStatus === "Online" ? "bg-emerald-500" : u.profile?.availabilityStatus === "Away" ? "bg-amber-500" : "bg-zinc-400"
+                            u.profile?.availabilityStatus === "Online" ? "bg-[var(--status-ok)]" : u.profile?.availabilityStatus === "Away" ? "bg-[var(--status-warn)]" : "bg-[var(--ink-400)]"
                           )} />
-                          {u.profile?.availabilityStatus || "Offline"}
+                          <span className={cn(
+                            u.profile?.availabilityStatus === "Online" ? "text-[var(--status-ok)]" : u.profile?.availabilityStatus === "Away" ? "text-[var(--status-warn)]" : "text-[var(--ink-500)]"
+                          )}>
+                            {u.profile?.availabilityStatus || "Offline"}
+                          </span>
                         </span>
                       )}
                     </td>
 
                     {/* Verified state */}
                     <td className="px-5 py-4.5 whitespace-nowrap">
-                      <span className={cn(
-                        "inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full border",
-                        u.isVerified 
-                          ? "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400" 
-                          : "bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-950/20 dark:text-amber-400"
-                      )}>
-                        {u.isVerified ? "✓ Verified" : "Pending"}
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-[var(--ink-200)] bg-[var(--ink-100)]">
+                        <span className={cn("w-1.5 h-1.5 rounded-full", u.isVerified ? "bg-[var(--status-ok)]" : "bg-[var(--status-warn)]")} />
+                        <span className={cn(u.isVerified ? "text-[var(--status-ok)]" : "text-[var(--status-warn)]")}>
+                          {u.isVerified ? "Verified" : "Pending"}
+                        </span>
                       </span>
                     </td>
 
                     {/* Suspend status */}
                     <td className="px-5 py-4.5 whitespace-nowrap">
-                      <span className={cn(
-                        "text-[10px] font-bold px-2.5 py-0.5 rounded-full border",
-                        u.isSuspended 
-                          ? "bg-red-50 text-red-600 border-red-100 dark:bg-red-950/20 dark:text-red-400" 
-                          : "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-450"
-                      )}>
-                        {u.isSuspended ? "Suspended" : "Active"}
+                      <span className="inline-flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-[var(--ink-200)] bg-[var(--ink-100)]">
+                        <span className={cn("w-1.5 h-1.5 rounded-full", u.isSuspended ? "bg-[var(--status-danger)]" : "bg-[var(--status-ok)]")} />
+                        <span className={cn(u.isSuspended ? "text-[var(--status-danger)]" : "text-[var(--status-ok)]")}>
+                          {u.isSuspended ? "Suspended" : "Active"}
+                        </span>
                       </span>
                     </td>
 
@@ -430,14 +408,14 @@ export default function UsersPage() {
                         <button 
                           onClick={() => toast.info(`Viewing profile details for ${displayName}...`)}
                           title="View quick profile"
-                          className="p-1.5 hover:bg-secondary rounded-lg text-muted-foreground hover:text-foreground transition-all"
+                          className="p-1.5 hover:bg-[var(--ink-100)] rounded-lg text-[var(--ink-500)] hover:text-[var(--ink-900)] transition-all"
                         >
                           <Eye size={14} />
                         </button>
                         <button 
                           onClick={() => toast.info(`Editing details for ${displayName}...`)}
                           title="Edit user details"
-                          className="p-1.5 hover:bg-secondary rounded-lg text-muted-foreground hover:text-foreground transition-all"
+                          className="p-1.5 hover:bg-[var(--ink-100)] rounded-lg text-[var(--ink-500)] hover:text-[var(--ink-900)] transition-all"
                         >
                           <Edit2 size={14} />
                         </button>
@@ -448,20 +426,20 @@ export default function UsersPage() {
                               e.stopPropagation();
                               setActiveDropdown(activeDropdown === u.id ? null : u.id);
                             }}
-                            className="p-1.5 hover:bg-secondary rounded-lg text-muted-foreground hover:text-foreground transition-all"
+                            className="p-1.5 hover:bg-[var(--ink-100)] rounded-lg text-[var(--ink-500)] hover:text-[var(--ink-900)] transition-all"
                           >
                             <MoreVertical size={14} />
                           </button>
                           {activeDropdown === u.id && (
                             <>
                               <div className="fixed inset-0 z-30" onClick={() => setActiveDropdown(null)} />
-                              <div className="absolute right-0 mt-1 w-48 bg-card border border-border rounded-xl shadow-xl z-40 py-1.5 text-left animate-fade-in">
+                              <div className="absolute right-0 mt-1 w-48 bg-[var(--surface)] border border-[var(--ink-200)] rounded-xl shadow-xl z-40 py-1.5 text-left animate-fade-in">
                                 <button
                                   onClick={() => {
                                     setActiveDropdown(null);
                                     toast.info(`Viewing full profile for ${displayName}`);
                                   }}
-                                  className="w-full px-3.5 py-2 text-xs text-foreground hover:bg-secondary flex items-center gap-2 font-semibold"
+                                  className="w-full px-3.5 py-2 text-xs text-[var(--ink-700)] hover:bg-[var(--ink-50)] hover:text-[var(--ink-900)] flex items-center gap-2 font-semibold"
                                 >
                                   <Eye size={13} /> View full profile
                                 </button>
@@ -470,7 +448,7 @@ export default function UsersPage() {
                                     setActiveDropdown(null);
                                     navigate(`/admin/audit?search=${u.email}`);
                                   }}
-                                  className="w-full px-3.5 py-2 text-xs text-foreground hover:bg-secondary flex items-center gap-2 font-semibold"
+                                  className="w-full px-3.5 py-2 text-xs text-[var(--ink-700)] hover:bg-[var(--ink-50)] hover:text-[var(--ink-900)] flex items-center gap-2 font-semibold"
                                 >
                                   <ScrollText size={13} /> View audit history
                                 </button>
@@ -479,7 +457,7 @@ export default function UsersPage() {
                                     setActiveDropdown(null);
                                     toast.success(`Password reset email dispatched to ${u.email}`);
                                   }}
-                                  className="w-full px-3.5 py-2 text-xs text-foreground hover:bg-secondary flex items-center gap-2 font-semibold"
+                                  className="w-full px-3.5 py-2 text-xs text-[var(--ink-700)] hover:bg-[var(--ink-50)] hover:text-[var(--ink-900)] flex items-center gap-2 font-semibold"
                                 >
                                   <KeyRound size={13} /> Send password reset
                                 </button>
@@ -494,7 +472,7 @@ export default function UsersPage() {
                                       newRole: u.role
                                     });
                                   }}
-                                  className="w-full px-3.5 py-2 text-xs text-foreground hover:bg-secondary flex items-center gap-2 font-semibold"
+                                  className="w-full px-3.5 py-2 text-xs text-[var(--ink-700)] hover:bg-[var(--ink-50)] hover:text-[var(--ink-900)] flex items-center gap-2 font-semibold"
                                 >
                                   <UserCog size={13} /> Change role
                                 </button>
@@ -505,13 +483,13 @@ export default function UsersPage() {
                                       setActiveDropdown(null);
                                       verifyMut.mutate(u.id);
                                     }}
-                                    className="w-full px-3.5 py-2 text-xs text-foreground hover:bg-secondary flex items-center gap-2 font-semibold"
+                                    className="w-full px-3.5 py-2 text-xs text-[var(--ink-700)] hover:bg-[var(--ink-50)] hover:text-[var(--ink-900)] flex items-center gap-2 font-semibold"
                                   >
                                     <UserCheck size={13} /> Verify manually
                                   </button>
                                 )}
 
-                                <div className="border-t border-border/40 my-1" />
+                                <div className="border-t border-[var(--ink-200)] my-1" />
 
                                 <button
                                   onClick={() => {
@@ -541,8 +519,8 @@ export default function UsersPage() {
                                     }
                                   }}
                                   className={cn(
-                                    "w-full px-3.5 py-2 text-xs flex items-center gap-2 font-bold",
-                                    u.isSuspended ? "text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/20" : "text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20"
+                                    "w-full px-3.5 py-2 text-xs flex items-center gap-2 font-bold hover:bg-[var(--ink-50)]",
+                                    u.isSuspended ? "text-[var(--status-ok)]" : "text-[var(--status-danger)]"
                                   )}
                                 >
                                   <Ban size={13} /> {u.isSuspended ? "Unsuspend account" : "Suspend account"}
@@ -562,14 +540,14 @@ export default function UsersPage() {
 
         {/* Pagination controls */}
         {pageCount > 1 && (
-          <div className="flex items-center justify-between px-6 py-4 border-t border-border bg-secondary/5 text-xs select-none">
-            <span className="text-muted-foreground font-medium">
-              Showing <strong className="text-foreground">{(currentPage - 1) * pageSize + 1}</strong> to <strong className="text-foreground">{Math.min(currentPage * pageSize, sortedUsers.length)}</strong> of <strong className="text-foreground">{sortedUsers.length}</strong> users
+          <div className="flex items-center justify-between px-6 py-4 border-t border-[var(--ink-200)] bg-[var(--ink-50)] text-xs select-none">
+            <span className="text-[var(--ink-500)] font-medium">
+              Showing <strong className="text-[var(--ink-900)]">{(currentPage - 1) * pageSize + 1}</strong> to <strong className="text-[var(--ink-900)]">{Math.min(currentPage * pageSize, sortedUsers.length)}</strong> of <strong className="text-[var(--ink-900)]">{sortedUsers.length}</strong> users
             </span>
             <div className="flex items-center gap-1.5">
               <button
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                className="px-3 py-1.5 bg-card border border-border rounded-lg hover:bg-secondary disabled:opacity-50 transition-all font-bold"
+                className="px-3 py-1.5 bg-white border border-[var(--ink-300)] text-[var(--ink-700)] rounded-lg hover:bg-[var(--ink-100)] disabled:opacity-50 transition-all font-semibold"
                 disabled={currentPage === 1}
               >
                 Previous
@@ -581,8 +559,8 @@ export default function UsersPage() {
                   className={cn(
                     "px-3 py-1.5 rounded-lg border font-bold transition-all",
                     currentPage === idx + 1 
-                      ? "bg-primary text-primary-foreground border-primary" 
-                      : "bg-card border-border hover:bg-secondary"
+                      ? "bg-[var(--brand-pink)] text-white border-[var(--brand-pink)]" 
+                      : "bg-white border-[var(--ink-300)] text-[var(--ink-700)] hover:bg-[var(--ink-100)]"
                   )}
                 >
                   {idx + 1}
@@ -590,7 +568,7 @@ export default function UsersPage() {
               ))}
               <button
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, pageCount))}
-                className="px-3 py-1.5 bg-card border border-border rounded-lg hover:bg-secondary disabled:opacity-50 transition-all font-bold"
+                className="px-3 py-1.5 bg-white border border-[var(--ink-300)] text-[var(--ink-700)] rounded-lg hover:bg-[var(--ink-100)] disabled:opacity-50 transition-all font-semibold"
                 disabled={currentPage === pageCount}
               >
                 Next
@@ -618,33 +596,33 @@ export default function UsersPage() {
       {/* Role Change Modal */}
       {roleModal?.show && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-foreground/50 backdrop-blur-sm animate-fade-in">
-          <div className="bg-card w-full max-w-sm rounded-3xl border border-border/80 shadow-2xl overflow-hidden">
-            <header className="px-6 py-4 border-b border-border flex items-center justify-between">
-              <h3 className="font-serif text-sm text-foreground font-bold flex items-center gap-2">
-                <UserCog size={15} className="text-primary" />
+          <div className="bg-[var(--surface)] w-full max-w-sm rounded-3xl border border-[var(--ink-200)] shadow-2xl overflow-hidden">
+            <header className="px-6 py-4 border-b border-[var(--ink-200)] flex items-center justify-between">
+              <h3 className="font-serif text-sm text-[var(--ink-900)] font-bold flex items-center gap-2">
+                <UserCog size={15} className="text-[var(--ink-500)]" />
                 Change Role: {roleModal.userName}
               </h3>
-              <button onClick={() => setRoleModal(null)} className="p-1.5 hover:bg-secondary rounded-full">
+              <button onClick={() => setRoleModal(null)} className="p-1.5 hover:bg-[var(--ink-100)] rounded-full text-[var(--ink-400)] hover:text-[var(--ink-900)]">
                 <X size={14} />
               </button>
             </header>
             <div className="p-6 space-y-4">
               <div className="space-y-2">
-                <label className="text-xs font-bold text-ink-400 uppercase tracking-wider block">Current Role</label>
-                <span className="inline-block text-[10px] font-bold px-2.5 py-0.5 rounded-full border bg-secondary text-foreground border-border">{roleModal.currentRole}</span>
+                <label className="text-xs font-bold text-[var(--ink-400)] uppercase tracking-wider block">Current Role</label>
+                <span className="inline-block text-[10px] font-bold px-2.5 py-0.5 rounded-full border bg-[var(--ink-100)] text-[var(--ink-700)] border-[var(--ink-200)]">{roleModal.currentRole}</span>
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold text-ink-400 uppercase tracking-wider block">New Role</label>
+                <label className="text-xs font-bold text-[var(--ink-400)] uppercase tracking-wider block">New Role</label>
                 <Select
                   value={roleModal.newRole}
                   onValueChange={val => setRoleModal(prev => prev ? { ...prev, newRole: val } : null)}
                 >
-                  <SelectTrigger className="w-full px-3 py-2.5 bg-card border border-border rounded-xl text-xs font-bold text-foreground focus:ring-2 focus:ring-primary/20 focus:ring-offset-0 focus:outline-none cursor-pointer">
+                  <SelectTrigger className="w-full px-3 py-2.5 bg-white border border-[var(--ink-300)] rounded-xl text-xs font-bold text-[var(--ink-900)] focus:ring-2 focus:ring-[rgba(230,0,126,0.2)] focus:border-[var(--brand-pink)] focus:ring-offset-0 focus:outline-none cursor-pointer">
                     <SelectValue placeholder="Select New Role" />
                   </SelectTrigger>
-                  <SelectContent className="bg-popover border border-border rounded-xl shadow-xl min-w-[200px] p-1">
+                  <SelectContent className="bg-[var(--surface)] border border-[var(--ink-200)] rounded-xl shadow-xl min-w-[200px] p-1">
                     {["CANDIDATE", "EMPLOYER", "ADMIN", "SUPER_ADMIN"].map(r => (
-                      <SelectItem key={r} value={r} className="text-xs font-semibold text-foreground focus:bg-accent focus:text-accent-foreground rounded-lg cursor-pointer py-2 pl-8 pr-2">{r}</SelectItem>
+                      <SelectItem key={r} value={r} className="text-xs font-semibold text-[var(--ink-700)] focus:bg-[var(--ink-100)] focus:text-[var(--ink-900)] rounded-lg cursor-pointer py-2 pl-8 pr-2">{r}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -652,12 +630,12 @@ export default function UsersPage() {
               <button
                 onClick={() => roleMut.mutate({ id: roleModal.userId, role: roleModal.newRole })}
                 disabled={roleMut.isPending || roleModal.newRole === roleModal.currentRole}
-                className="w-full py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl text-xs font-bold transition-all disabled:opacity-60 flex items-center justify-center gap-2"
+                className="w-full py-2.5 bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white rounded-xl text-xs font-bold transition-all disabled:opacity-60 flex items-center justify-center gap-2"
               >
                 {roleMut.isPending ? <Loader2 size={13} className="animate-spin" /> : <RefreshCw size={13} />}
                 Update Role
               </button>
-              <button onClick={() => setRoleModal(null)} className="w-full py-2 text-xs text-muted-foreground hover:text-foreground transition-all">Cancel</button>
+              <button onClick={() => setRoleModal(null)} className="w-full py-2 text-xs text-[var(--ink-500)] hover:text-[var(--ink-900)] transition-all">Cancel</button>
             </div>
           </div>
         </div>

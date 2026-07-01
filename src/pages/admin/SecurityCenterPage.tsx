@@ -207,12 +207,12 @@ export default function SecurityCenterPage() {
       subtitle="Configure cryptographic keys, active session tokens, and security rules."
     >
       {/* Simulation Controller Row */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-secondary/20 border border-border/80 rounded-2xl mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-[var(--ink-50)] border border-[var(--ink-200)] rounded-2xl mb-6">
         <div>
-          <h4 className="text-xs font-bold text-ink-500 uppercase tracking-widest leading-none mb-1">State Simulator</h4>
-          <p className="text-[11px] text-muted-foreground mt-0.5">Toggle states to audit degraded or critical security visual behaviors</p>
+          <h4 className="text-xs font-bold text-[var(--ink-500)] uppercase tracking-widest leading-none mb-1">State Simulator</h4>
+          <p className="text-[11px] text-[var(--ink-500)] mt-0.5">Toggle states to audit degraded or critical security visual behaviors</p>
         </div>
-        <div className="flex bg-secondary border border-border p-0.5 rounded-xl text-[10px] font-bold">
+        <div className="flex bg-[var(--ink-100)] border border-[var(--ink-200)] p-0.5 rounded-xl text-[10px] font-bold">
           {(["OPERATIONAL", "DEGRADED", "CRITICAL"] as const).map((st) => (
             <button
               key={st}
@@ -225,11 +225,11 @@ export default function SecurityCenterPage() {
                 "px-3 py-1.5 rounded-lg uppercase tracking-wider transition-all",
                 shieldState === st 
                   ? st === "CRITICAL"
-                    ? "bg-rose-500 text-white font-black"
+                    ? "bg-[var(--status-danger)] text-white font-bold"
                     : st === "DEGRADED"
-                    ? "bg-amber-500 text-white font-black"
-                    : "bg-emerald-500 text-white font-black"
-                  : "text-muted-foreground hover:text-foreground"
+                    ? "bg-[var(--status-warn)] text-white font-bold"
+                    : "bg-[var(--status-ok)] text-white font-bold"
+                  : "text-[var(--ink-500)] hover:text-[var(--ink-900)]"
               )}
             >
               {st}
@@ -240,31 +240,31 @@ export default function SecurityCenterPage() {
 
       {/* Visual System Shield Banner */}
       {shieldState === "OPERATIONAL" && (
-        <div className="relative overflow-hidden border rounded-2xl p-5 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-300 bg-gradient-to-r from-emerald-500/10 to-teal-500/5 border-emerald-500/20">
+        <div className="relative overflow-hidden border border-[var(--ink-200)] border-l-[4px] border-l-[var(--status-ok)] rounded-2xl p-5 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-300 bg-[var(--surface)] shadow-[var(--shadow-card)]">
           <div className="flex items-center gap-3.5 z-10">
             <div className="relative flex-shrink-0 flex items-center justify-center">
-              <span className="animate-ping absolute inline-flex h-5 w-5 rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500" />
+              <span className="animate-ping absolute inline-flex h-5 w-5 rounded-full bg-[var(--status-ok)]/75" />
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-[var(--status-ok)]" />
             </div>
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-widest leading-none mb-1 text-emerald-800 dark:text-emerald-450">
+              <h4 className="text-xs font-bold uppercase tracking-widest leading-none mb-1 text-[var(--status-ok)]">
                 SYSTEM SHIELD: FULLY OPERATIONAL
               </h4>
-              <p className="text-[11px] font-medium leading-relaxed text-emerald-700/80 dark:text-emerald-300/80">
+              <p className="text-[11px] font-medium leading-relaxed text-[var(--ink-700)]">
                 Live rate-limiting, cross-site scripting protectors, and brute-force defenses are actively screening queries.
               </p>
             </div>
           </div>
           <div className="relative group self-start sm:self-auto z-10 select-none flex items-center gap-2">
             {diagnosticsClean && (
-              <span className="text-[9px] font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 px-2 py-0.5 rounded-md">
+              <span className="text-[9px] font-bold bg-[var(--ink-100)] text-[var(--status-ok)] border border-[var(--ink-200)] px-2 py-0.5 rounded-md">
                 Integrity: Verified
               </span>
             )}
             <button 
               onClick={handleRunDiagnostics}
               disabled={isDiagnosticsRunning}
-              className="flex items-center gap-1.5 text-[10px] font-bold px-3 py-1.5 rounded-lg border bg-emerald-500/15 border-emerald-500/20 text-emerald-800 dark:text-emerald-300 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+              className="flex items-center gap-1.5 text-[10px] font-bold px-3 py-1.5 rounded-lg border bg-[var(--ink-100)] border-[var(--ink-200)] text-[var(--ink-700)] transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             >
               {isDiagnosticsRunning ? (
                 <RefreshCw size={12} className="animate-spin" />
@@ -273,27 +273,26 @@ export default function SecurityCenterPage() {
               )}
               {isDiagnosticsRunning ? "Running..." : "Run diagnostics"}
             </button>
-            <div className="absolute right-0 bottom-full mb-2 hidden group-hover:block bg-slate-900 text-white text-[10px] rounded-lg px-2.5 py-1.5 w-56 shadow-xl border border-slate-800 text-center leading-normal z-50">
+            <div className="absolute right-0 bottom-full mb-2 hidden group-hover:block bg-[var(--ink-900)] text-[var(--ink-50)] text-[10px] rounded-lg px-2.5 py-1.5 w-56 shadow-xl border border-[var(--ink-700)] text-center leading-normal z-50">
               Triggers audit on the 8 Cryptographic Guardrails, parsing config integrity, database salts, and rate limiting status.
-              <div className="absolute top-full right-6 transform translate-x-1/2 border-[5px] border-transparent border-t-slate-900" />
+              <div className="absolute top-full right-6 transform translate-x-1/2 border-[5px] border-transparent border-t-[var(--ink-900)]" />
             </div>
           </div>
-          <div className="absolute -right-10 -top-10 w-28 h-28 bg-emerald-500/5 rounded-full blur-xl" />
         </div>
       )}
 
       {shieldState === "DEGRADED" && (
-        <div className="relative overflow-hidden border rounded-2xl p-5 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-300 bg-gradient-to-r from-amber-500/10 to-orange-500/5 border-amber-500/20">
+        <div className="relative overflow-hidden border border-[var(--ink-200)] border-l-[4px] border-l-[var(--status-warn)] rounded-2xl p-5 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-300 bg-[var(--surface)] shadow-[var(--shadow-card)]">
           <div className="flex items-center gap-3.5 z-10">
             <div className="relative flex-shrink-0 flex items-center justify-center">
-              <span className="animate-ping absolute inline-flex h-5 w-5 rounded-full bg-amber-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500" />
+              <span className="animate-ping absolute inline-flex h-5 w-5 rounded-full bg-[var(--status-warn)]/75" />
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-[var(--status-warn)]" />
             </div>
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-widest leading-none mb-1 text-amber-800 dark:text-amber-405">
+              <h4 className="text-xs font-bold uppercase tracking-widest leading-none mb-1 text-[var(--status-warn)]">
                 SYSTEM SHIELD: PARTIALLY ACTIVE — Rate limiting offline.
               </h4>
-              <p className="text-[11px] font-medium leading-relaxed text-amber-700/80 dark:text-amber-300/80">
+              <p className="text-[11px] font-medium leading-relaxed text-[var(--ink-700)]">
                 SMTP Relay anomalies detected. Rate limiter bypassed. Tap below to isolate the affected guardrail.
               </p>
               <button 
@@ -304,7 +303,7 @@ export default function SecurityCenterPage() {
                     toast.info("Rate limiter currently bypassed. Notice the high-severity amber dot.");
                   }
                 }}
-                className="text-[10px] font-black text-amber-800 dark:text-amber-400 underline block mt-2 hover:text-amber-950 dark:hover:text-amber-300"
+                className="text-[10px] font-bold text-[var(--status-warn)] underline block mt-2 hover:opacity-80"
               >
                 View affected components &rarr;
               </button>
@@ -314,7 +313,7 @@ export default function SecurityCenterPage() {
             <button 
               onClick={handleRunDiagnostics}
               disabled={isDiagnosticsRunning}
-              className="flex items-center gap-1.5 text-[10px] font-bold px-3 py-1.5 rounded-lg border bg-amber-500/15 border-amber-500/20 text-amber-800 dark:text-amber-305 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+              className="flex items-center gap-1.5 text-[10px] font-bold px-3 py-1.5 rounded-lg border bg-[var(--ink-100)] border-[var(--ink-200)] text-[var(--ink-700)] transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             >
               {isDiagnosticsRunning ? (
                 <RefreshCw size={12} className="animate-spin" />
@@ -323,37 +322,36 @@ export default function SecurityCenterPage() {
               )}
               {isDiagnosticsRunning ? "Running..." : "Run diagnostics"}
             </button>
-            <div className="absolute right-0 bottom-full mb-2 hidden group-hover:block bg-slate-900 text-white text-[10px] rounded-lg px-2.5 py-1.5 w-56 shadow-xl border border-slate-800 text-center leading-normal z-50">
+            <div className="absolute right-0 bottom-full mb-2 hidden group-hover:block bg-[var(--ink-900)] text-[var(--ink-50)] text-[10px] rounded-lg px-2.5 py-1.5 w-56 shadow-xl border border-[var(--ink-700)] text-center leading-normal z-50">
               Triggers audit on the 8 Cryptographic Guardrails, parsing config integrity, database salts, and rate limiting status.
-              <div className="absolute top-full right-6 transform translate-x-1/2 border-[5px] border-transparent border-t-slate-900" />
+              <div className="absolute top-full right-6 transform translate-x-1/2 border-[5px] border-transparent border-t-[var(--ink-900)]" />
             </div>
           </div>
-          <div className="absolute -right-10 -top-10 w-28 h-28 bg-amber-500/5 rounded-full blur-xl" />
         </div>
       )}
 
       {shieldState === "CRITICAL" && (
-        <div className="relative overflow-hidden border rounded-2xl p-5 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-300 bg-gradient-to-r from-rose-500/15 to-red-500/5 border-rose-500/30 animate-pulse">
+        <div className="relative overflow-hidden border border-[var(--ink-200)] border-l-[4px] border-l-[var(--status-danger)] rounded-2xl p-5 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-300 bg-[var(--surface)] shadow-[var(--shadow-card)] animate-pulse">
           <div className="flex items-center gap-3.5 z-10">
             <div className="relative flex-shrink-0 flex items-center justify-center">
-              <span className="animate-ping absolute inline-flex h-5 w-5 rounded-full bg-rose-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-rose-500 animate-pulse" />
+              <span className="animate-ping absolute inline-flex h-5 w-5 rounded-full bg-[var(--status-danger)]/75" />
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-[var(--status-danger)] animate-pulse" />
             </div>
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-widest leading-none mb-1 text-rose-900 dark:text-rose-400">
+              <h4 className="text-xs font-bold uppercase tracking-widest leading-none mb-1 text-[var(--status-danger)]">
                 SYSTEM SHIELD: BREACH DETECTED
               </h4>
-              <p className="text-[11px] font-medium leading-relaxed text-rose-800/80 dark:text-rose-300/80">
+              <p className="text-[11px] font-medium leading-relaxed text-[var(--ink-700)]">
                 Multiple failed login sequences and JWT verification failures. Immediate system lockdown recommended.
               </p>
               {lockdownActive ? (
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3 mt-3">
-                  <span className="text-[10px] font-black text-rose-950 dark:text-rose-300 flex items-center gap-1 bg-rose-500/10 border border-rose-500/25 px-3 py-1.5 rounded-xl">
+                  <span className="text-[10px] font-bold text-[var(--status-danger)] flex items-center gap-1 bg-[var(--ink-100)] border border-[var(--ink-200)] px-3 py-1.5 rounded-xl">
                     🔒 LOCKDOWN STATE ACTIVE
                   </span>
                   <button
                     onClick={handleDeactivateLockdown}
-                    className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-755 text-white border border-emerald-600/35 rounded-xl text-[11px] font-extrabold shadow-md transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                    className="h-11 px-5 rounded-[var(--radius-input)] text-sm font-semibold border border-[var(--ink-300)] text-[var(--ink-700)] hover:bg-[var(--ink-100)] bg-white transition-all shadow-none cursor-pointer"
                   >
                     Deactivate lockdown &rarr;
                   </button>
@@ -361,7 +359,7 @@ export default function SecurityCenterPage() {
               ) : (
                 <button 
                   onClick={handleInitiateLockdown}
-                  className="mt-3 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-[11px] font-extrabold shadow-lg shadow-rose-900/30 flex items-center gap-1.5 animate-bounce hover:scale-105 active:scale-95 transition-all w-fit"
+                  className="mt-3 h-11 px-5 rounded-[var(--radius-input)] text-sm font-semibold text-white bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] flex items-center gap-1.5 animate-bounce hover:scale-105 active:scale-95 transition-all w-fit cursor-pointer"
                 >
                   <Ban size={12} />
                   Initiate lockdown protocol &rarr;
@@ -373,7 +371,7 @@ export default function SecurityCenterPage() {
             <button 
               onClick={handleRunDiagnostics}
               disabled={isDiagnosticsRunning}
-              className="flex items-center gap-1.5 text-[10px] font-bold px-3 py-1.5 rounded-lg border bg-rose-500/15 border-rose-500/20 text-rose-800 dark:text-rose-305 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+              className="flex items-center gap-1.5 text-[10px] font-bold px-3 py-1.5 rounded-lg border bg-[var(--ink-100)] border-[var(--ink-200)] text-[var(--ink-700)] transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             >
               {isDiagnosticsRunning ? (
                 <RefreshCw size={12} className="animate-spin" />
@@ -408,21 +406,18 @@ export default function SecurityCenterPage() {
                 }
               }}
               className={cn(
-                "relative bg-card border border-border/80 rounded-2xl p-5 hover:shadow-lg transition-all duration-300 group overflow-hidden flex flex-col justify-between min-h-[145px]",
-                isSessions ? "cursor-pointer hover:border-primary/20" : "border-border/80"
+                "relative bg-[var(--surface)] border border-[var(--ink-200)] rounded-2xl p-5 hover:shadow-[var(--shadow-card)] transition-all duration-300 group overflow-hidden flex flex-col justify-between min-h-[145px] shadow-[var(--shadow-card)]",
+                isSessions ? "cursor-pointer hover:border-[var(--brand-pink)]/20" : ""
               )}
             >
-              {/* Highlight gradient background glow */}
-              <div className="absolute -right-6 -bottom-6 w-20 h-20 bg-gradient-to-br from-primary/5 to-transparent rounded-full blur-xl group-hover:scale-125 transition-transform" />
-
               <div className="flex items-start justify-between mb-2">
-                <div className={cn("w-9 h-9 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-sm", TONE[k.tone])}>
-                  <Icon size={15} className="text-white" />
+                <div className="w-9 h-9 rounded-xl bg-[var(--ink-100)] flex items-center justify-center border border-[var(--ink-200)]">
+                  <Icon size={15} className="text-[var(--ink-700)]" />
                 </div>
                 {isLoading ? (
-                  <div className="h-4.5 w-10 bg-secondary animate-pulse rounded" />
+                  <div className="h-4.5 w-10 bg-[var(--ink-100)] animate-pulse rounded" />
                 ) : (
-                  <span className={cn("text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border", k.bgColor, k.textColor)}>
+                  <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border border-[var(--ink-200)] bg-[var(--ink-100)] text-[var(--ink-700)]">
                     {isSessions ? "View sessions" : "Active"}
                   </span>
                 )}
@@ -430,20 +425,20 @@ export default function SecurityCenterPage() {
 
               <div>
                 {isLoading ? (
-                  <div className="h-7 bg-secondary animate-pulse rounded w-16 mb-1.5" />
+                  <div className="h-7 bg-[var(--ink-100)] animate-pulse rounded w-16 mb-1.5" />
                 ) : (
                   <>
-                    <div className="font-serif text-3xl font-bold text-foreground leading-none tracking-tight mb-1.5 group-hover:text-primary transition-colors">
+                    <div className="font-serif text-3xl font-bold text-[var(--ink-900)] leading-none tracking-tight mb-1.5 group-hover:text-[var(--brand-pink)] transition-colors">
                       {isSessions ? `${v} active` : String(v)}
                     </div>
                     {isSessions && (
                       <div className="text-[10px] font-medium leading-none mt-2">
-                        <div className="text-muted-foreground flex justify-between mb-1.5">
+                        <div className="text-[var(--ink-500)] flex justify-between mb-1.5">
                           <span>Baseline comparison:</span>
                           <span>avg: 8</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-muted-foreground">Suspicious sessions:</span>
+                          <span className="text-[var(--ink-500)]">Suspicious sessions:</span>
                           {suspiciousCount > 0 ? (
                             <button 
                               onClick={(e) => {
@@ -451,12 +446,12 @@ export default function SecurityCenterPage() {
                                 setSessionsFilter("SUSPICIOUS");
                                 setShowSessionsModal(true);
                               }}
-                              className="text-rose-500 font-bold animate-pulse hover:underline bg-transparent border-0 p-0 cursor-pointer"
+                              className="text-[var(--status-danger)] font-bold animate-pulse hover:underline bg-transparent border-0 p-0 cursor-pointer"
                             >
                               {suspiciousCount} flagged
                             </button>
                           ) : (
-                            <span className="text-emerald-500 font-bold">0 flagged</span>
+                            <span className="text-[var(--status-ok)] font-bold">0 flagged</span>
                           )}
                         </div>
                       </div>
@@ -464,10 +459,10 @@ export default function SecurityCenterPage() {
                   </>
                 )}
                 {!isSessions && (
-                  <div className="text-[10px] font-extrabold text-ink-300 uppercase tracking-widest mt-1.5">{k.label}</div>
+                  <div className="text-[10px] font-extrabold text-[var(--ink-500)] uppercase tracking-widest mt-1.5">{k.label}</div>
                 )}
                 {isSessions && (
-                  <div className="text-[10px] font-extrabold text-ink-300 uppercase tracking-widest mt-1">{k.label}</div>
+                  <div className="text-[10px] font-extrabold text-[var(--ink-500)] uppercase tracking-widest mt-1">{k.label}</div>
                 )}
               </div>
             </div>
@@ -522,12 +517,12 @@ export default function SecurityCenterPage() {
         </SectionCard>
 
         {/* List of active protections */}
-        <SectionCard id="cryptographic-guardrails" title="Cryptographic Guardrails" className="border-border/80 shadow-md scroll-mt-6">
+        <SectionCard id="cryptographic-guardrails" title="Cryptographic Guardrails" className="border-[var(--ink-200)] shadow-[var(--shadow-card)] scroll-mt-6">
           {/* Immediate Alert Banner when a CRITICAL guardrail goes offline */}
           {hasCriticalOffline && (
-            <div className="mb-4 p-3 bg-rose-500/15 border border-rose-500/30 rounded-xl flex items-center gap-2.5 animate-pulse">
-              <ShieldAlert className="text-rose-500 flex-shrink-0 animate-bounce" size={16} />
-              <div className="text-[11px] font-bold text-rose-800 dark:text-rose-400">
+            <div className="mb-4 p-3 bg-[var(--ink-100)] border border-[var(--status-danger)] border-l-[4px] border-l-[var(--status-danger)] rounded-xl flex items-center gap-2.5 animate-pulse">
+              <ShieldAlert className="text-[var(--status-danger)] flex-shrink-0 animate-bounce" size={16} />
+              <div className="text-[11px] font-bold text-[var(--status-danger)]">
                 CRITICAL COMPROMISE: CSRF Validations & JWT Authorization are offline! Ingress authentication is bypassable.
               </div>
             </div>
@@ -551,22 +546,17 @@ export default function SecurityCenterPage() {
                   className={cn(
                     "p-3.5 rounded-xl border transition-all duration-200 flex flex-col gap-1 group relative overflow-hidden",
                     isCriticalOffline
-                      ? "bg-rose-500/5 border-rose-500/20 hover:bg-rose-500/10 cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+                      ? "bg-white border-l-[4px] border-l-[var(--status-danger)] border-[var(--ink-200)] hover:bg-[var(--ink-50)] cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
                       : isNonCriticalOffline
-                      ? "bg-amber-500/5 border-amber-500/20 hover:bg-amber-500/10 cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
-                      : "bg-secondary/20 hover:bg-secondary/40 border-border/40 hover:border-primary/10"
+                      ? "bg-white border-l-[4px] border-l-[var(--status-warn)] border-[var(--ink-200)] hover:bg-[var(--ink-50)] cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+                      : "bg-[var(--surface)] hover:bg-[var(--ink-50)] border-[var(--ink-200)]"
                   )}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-foreground group-hover:text-primary transition-colors flex items-center gap-1.5">
+                    <span className="text-xs font-bold text-[var(--ink-900)] group-hover:text-[var(--brand-pink)] transition-colors flex items-center gap-1.5">
                       {p.name}
                       {/* Criticality Label visible on hover */}
-                      <span className={cn(
-                        "text-[7.5px] font-black px-1.5 py-0.2 rounded border hidden group-hover:inline transition-all",
-                        p.severity === "CRITICAL" ? "bg-rose-50 border-rose-100 text-rose-600 dark:bg-rose-950/20 dark:text-rose-400 dark:border-rose-900/30" :
-                        p.severity === "HIGH" ? "bg-amber-50 border-amber-100 text-amber-600 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/30" :
-                        "bg-blue-50 border-blue-100 text-blue-600 dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-900/30"
-                      )}>
+                      <span className="text-[7.5px] font-semibold px-1.5 py-0.2 rounded border hidden group-hover:inline transition-all border-[var(--ink-200)] bg-[var(--ink-100)] text-[var(--ink-700)]">
                         {p.severity}
                       </span>
                     </span>
@@ -577,20 +567,15 @@ export default function SecurityCenterPage() {
                           e.stopPropagation();
                           handleIsolateGuardrail(p.name);
                         }}
-                        className={cn(
-                          "text-[9px] font-extrabold px-2 py-0.5 rounded border transition-all cursor-pointer hover:scale-105 active:scale-95 animate-pulse flex-shrink-0 z-10",
-                          p.severity === "CRITICAL" 
-                            ? "bg-rose-500 hover:bg-rose-600 text-white border-rose-600" 
-                            : "bg-amber-500 hover:bg-amber-600 text-white border-amber-600"
-                        )}
+                        className="text-[9px] font-semibold px-2 py-0.5 rounded border transition-all cursor-pointer hover:scale-105 active:scale-95 animate-pulse flex-shrink-0 z-10 bg-[var(--ink-100)] border-[var(--ink-300)] text-[var(--ink-900)] hover:bg-[var(--ink-200)]"
                       >
                         Isolate
                       </button>
                     ) : (
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-[var(--status-ok)] flex-shrink-0" />
                     )}
                   </div>
-                  <span className="text-[10px] text-muted-foreground leading-tight">
+                  <span className="text-[10px] text-[var(--ink-500)] leading-tight">
                     {p.desc}
                   </span>
                 </div>
@@ -603,31 +588,31 @@ export default function SecurityCenterPage() {
       {/* Sessions Detail Modal */}
       {showSessionsModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-foreground/45 backdrop-blur-sm animate-fade-in">
-          <div className="bg-card w-full max-w-2xl rounded-3xl border border-border/80 shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
-            <header className="px-6 py-4 border-b border-border flex items-center justify-between bg-secondary/10">
+          <div className="bg-[var(--surface)] w-full max-w-2xl rounded-3xl border border-[var(--ink-200)] shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+            <header className="px-6 py-4 border-b border-[var(--ink-200)] flex items-center justify-between bg-[var(--ink-50)]">
               <div>
-                <h3 className="font-serif text-base text-foreground font-bold flex items-center gap-2">
-                  <Shield size={16} className="text-primary animate-pulse" />
+                <h3 className="font-serif text-base text-[var(--ink-900)] font-bold flex items-center gap-2">
+                  <Shield size={16} className="text-[var(--ink-500)]" />
                   Active Administrative Sessions
                 </h3>
-                <p className="text-[11px] text-muted-foreground mt-0.5">Audit credentials, devices, and geolocations of active principals</p>
+                <p className="text-[11px] text-[var(--ink-500)] mt-0.5">Audit credentials, devices, and geolocations of active principals</p>
               </div>
               <button 
                 onClick={() => setShowSessionsModal(false)} 
-                className="p-1.5 hover:bg-secondary rounded-full text-ink-400 hover:text-foreground transition-all"
+                className="p-1.5 hover:bg-[var(--ink-100)] rounded-full text-[var(--ink-400)] hover:text-[var(--ink-900)] transition-all"
               >
                 <X size={15} />
               </button>
             </header>
 
             {/* Filter Tabs inside Modal */}
-            <div className="px-6 py-2 border-b border-border bg-secondary/5 flex items-center justify-between gap-4">
-              <div className="flex bg-secondary border border-border p-0.5 rounded-lg text-[10px] font-bold">
+            <div className="px-6 py-2 border-b border-[var(--ink-200)] bg-[var(--ink-50)] flex items-center justify-between gap-4">
+              <div className="flex bg-[var(--ink-100)] border border-[var(--ink-200)] p-0.5 rounded-lg text-[10px] font-bold">
                 <button
                   onClick={() => setSessionsFilter("ALL")}
                   className={cn(
                     "px-3 py-1 rounded-md transition-all",
-                    sessionsFilter === "ALL" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                    sessionsFilter === "ALL" ? "bg-white text-[var(--ink-900)] shadow-sm" : "text-[var(--ink-500)] hover:text-[var(--ink-900)]"
                   )}
                 >
                   All Sessions ({mockSessions.length})
@@ -636,7 +621,7 @@ export default function SecurityCenterPage() {
                   onClick={() => setSessionsFilter("SUSPICIOUS")}
                   className={cn(
                     "px-3 py-1 rounded-md transition-all flex items-center gap-1.5",
-                    sessionsFilter === "SUSPICIOUS" ? "bg-rose-500 text-white shadow-sm" : "text-muted-foreground hover:text-rose-500"
+                    sessionsFilter === "SUSPICIOUS" ? "bg-[var(--status-danger)] text-white shadow-sm" : "text-[var(--ink-500)] hover:text-[var(--status-danger)]"
                   )}
                 >
                   Suspicious ({shieldState === "OPERATIONAL" ? 0 : shieldState === "DEGRADED" ? 1 : 2})
@@ -647,7 +632,7 @@ export default function SecurityCenterPage() {
             <div className="p-6 overflow-y-auto scrollbar-thin flex-1 space-y-4">
               <div className="space-y-2.5">
                 {filteredSessions.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground text-xs">
+                  <div className="text-center py-8 text-[var(--ink-500)] text-xs">
                     No sessions match the selected filter.
                   </div>
                 ) : (
@@ -659,38 +644,35 @@ export default function SecurityCenterPage() {
                         className={cn(
                           "flex items-center justify-between p-3.5 border rounded-2xl transition-all",
                           shouldHighlight
-                            ? "bg-rose-500/5 border-rose-500/20"
-                            : "bg-secondary/20 border-border/40"
+                            ? "bg-white border-l-[4px] border-l-[var(--status-danger)] border-[var(--ink-200)]"
+                            : "bg-[var(--surface)] border-[var(--ink-200)]"
                         )}
                       >
                         <div className="min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-xs font-bold text-foreground">{session.name}</span>
-                            <span className={cn(
-                              "text-[8px] font-black px-1.5 py-0.2 rounded border uppercase tracking-wider leading-none",
-                              session.role === "SUPER_ADMIN" ? "bg-purple-50 border-purple-100 text-purple-600" : "bg-blue-50 border-blue-100 text-blue-600"
-                            )}>
+                            <span className="text-xs font-bold text-[var(--ink-900)]">{session.name}</span>
+                            <span className="text-[8px] font-semibold px-1.5 py-0.2 rounded border bg-[var(--ink-100)] text-[var(--ink-700)] border-[var(--ink-200)] uppercase tracking-wider">
                               {session.role}
                             </span>
                             {shouldHighlight && (
-                              <span className="text-[8.5px] font-bold text-rose-600 animate-pulse uppercase tracking-wider">
+                              <span className="text-[8.5px] font-bold text-[var(--status-danger)] animate-pulse uppercase tracking-wider">
                                 Suspicious Geolocation
                               </span>
                             )}
                           </div>
-                          <div className="text-[10px] text-muted-foreground mt-1 flex gap-2 font-medium">
+                          <div className="text-[10px] text-[var(--ink-500)] mt-1 flex gap-2 font-medium">
                             <span>IP: {session.ip}</span>
                             <span>·</span>
                             <span>Geo: {session.location}</span>
                           </div>
-                          <div className="text-[9px] text-muted-foreground/85 font-mono mt-0.5">{session.device}</div>
+                          <div className="text-[9px] text-[var(--ink-400)] font-mono mt-0.5">{session.device}</div>
                         </div>
                         
                         <button
                           onClick={() => {
                             toast.success(`Revoked session credentials for IP ${session.ip}`);
                           }}
-                          className="px-3 py-1.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-[10px] font-bold transition-all hover:scale-102 active:scale-98"
+                          className="px-3 py-1.5 bg-[var(--ink-100)] border border-[var(--ink-300)] text-[var(--ink-900)] hover:bg-[var(--ink-200)] rounded-xl text-[10px] font-bold transition-all hover:scale-102 active:scale-98"
                         >
                           Revoke
                         </button>
@@ -701,11 +683,11 @@ export default function SecurityCenterPage() {
               </div>
             </div>
 
-            <footer className="px-6 py-4 bg-secondary/10 border-t border-border flex justify-end gap-2.5">
+            <footer className="px-6 py-4 bg-[var(--ink-50)] border-t border-[var(--ink-200)] flex justify-end gap-2.5">
               <button
                 type="button"
                 onClick={() => setShowSessionsModal(false)}
-                className="px-5 py-2 bg-secondary hover:bg-secondary/80 border border-border text-foreground rounded-full text-[11px] font-bold transition-all"
+                className="h-11 px-5 rounded-[var(--radius-input)] text-sm font-semibold border border-[var(--ink-300)] text-[var(--ink-700)] hover:bg-[var(--ink-100)] bg-white transition-all shadow-none"
               >
                 Close Sessions
               </button>
@@ -726,15 +708,13 @@ function Row({ label, value, good, sparkline, trend, trendGood }: {
   trendGood: boolean;
 }) {
   return (
-    <div className="flex justify-between items-center py-3.5 border-b border-border/60 last:border-0 hover:bg-secondary/5 transition-all px-2 rounded-lg flex-wrap sm:flex-nowrap gap-4">
-      <span className="text-xs font-semibold text-muted-foreground">{label}</span>
+    <div className="flex justify-between items-center py-3.5 border-b border-[var(--ink-200)] last:border-0 hover:bg-[var(--ink-50)] transition-all px-2 rounded-lg flex-wrap sm:flex-nowrap gap-4">
+      <span className="text-xs font-semibold text-[var(--ink-500)]">{label}</span>
       <div className="flex items-center gap-2 flex-shrink-0">
         {/* Snapshot value */}
         <span className={cn(
-          "font-mono text-xs font-bold tracking-tight px-2.5 py-0.5 rounded-lg border",
-          good
-            ? "bg-emerald-50 border-emerald-100 text-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-450 dark:border-emerald-900/30"
-            : "bg-secondary border-border text-foreground"
+          "font-mono text-xs font-bold tracking-tight px-2.5 py-0.5 rounded-lg border border-[var(--ink-200)] bg-[var(--ink-100)]",
+          good ? "text-[var(--status-ok)]" : "text-[var(--ink-700)]"
         )}>
           {value}
         </span>
@@ -744,10 +724,8 @@ function Row({ label, value, good, sparkline, trend, trendGood }: {
         
         {/* Trend delta label - to the right of the sparkline */}
         <span className={cn(
-          "text-[9px] font-extrabold font-mono tracking-wide px-1.5 py-0.5 rounded border select-none whitespace-nowrap",
-          trendGood 
-            ? "bg-emerald-50 border-emerald-100 text-emerald-600 dark:bg-emerald-950/20 dark:border-emerald-900/30 dark:text-emerald-450"
-            : "bg-rose-50 border-rose-100 text-rose-600 dark:bg-rose-950/20 dark:border-rose-900/30 dark:text-rose-450"
+          "text-[9px] font-extrabold font-mono tracking-wide px-1.5 py-0.5 rounded border border-[var(--ink-200)] bg-[var(--ink-100)] select-none whitespace-nowrap",
+          trendGood ? "text-[var(--status-ok)]" : "text-[var(--status-danger)]"
         )}>
           {trend}
         </span>
