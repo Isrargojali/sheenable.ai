@@ -1,5 +1,5 @@
 // src/components/layout/DashboardShell.tsx
-import { ReactNode, useState, useEffect } from "react";
+import { ReactNode, useState, useEffect, HTMLAttributes } from "react";
 import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -994,14 +994,14 @@ export function DashboardShell({
 // SHARED PRIMITIVES (re-exported so pages can import from one place)
 //
 export function SectionCard({
-  title, subtitle, actions, action, children, className, noPad,
+  title, subtitle, actions, action, children, className, noPad, ...props
 }: {
   title?: string; subtitle?: string; actions?: ReactNode; action?: ReactNode;
   children: ReactNode; className?: string; noPad?: boolean;
-}) {
+} & HTMLAttributes<HTMLElement>) {
   const headerActions = actions ?? action;
   return (
-    <section className={cn("bg-[var(--surface)] border border-[var(--ink-300)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] overflow-hidden", className)}>
+    <section className={cn("bg-[var(--surface)] border border-[var(--ink-300)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] overflow-hidden", className)} {...props}>
       {(title || headerActions) && (
         <header className="px-6 pt-6 flex items-center justify-between gap-3 flex-wrap">
           <div className="min-w-0">
