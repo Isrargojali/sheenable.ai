@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { 
   ShieldCheck, AlertTriangle, Activity, Lock, RefreshCw, 
-  ShieldAlert, Shield, CheckCircle, X, KeyRound, Eye, Ban, HelpCircle
+  Shield, CheckCircle, X, KeyRound, Eye, Ban, HelpCircle
 } from "lucide-react";
 import { DashboardShell, SectionCard } from "@/components/layout/DashboardShell";
 import { apiAdmin } from "@/lib/api";
