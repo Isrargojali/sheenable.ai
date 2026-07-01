@@ -23,17 +23,11 @@ type ThreatData = {
 };
 
 const KPIS = [
-  { key: "threatLevel", label: "Threat Level Status", icon: ShieldCheck, tone: "good", bgColor: "bg-emerald-50 border-emerald-100 dark:bg-emerald-950/20 dark:border-emerald-900/30", textColor: "text-emerald-600 dark:text-emerald-400" },
-  { key: "blockedIPs", label: "Active Blocked IPs", icon: Lock, tone: "warn", bgColor: "bg-amber-50 border-amber-100 dark:bg-amber-950/20 dark:border-amber-900/30", textColor: "text-amber-600 dark:text-amber-400" },
-  { key: "failedLogins24h", label: "Failed Logins (24h)", icon: AlertTriangle, tone: "warn", bgColor: "bg-rose-50 border-rose-100 dark:bg-rose-950/20 dark:border-rose-900/30", textColor: "text-rose-600 dark:text-rose-400" },
-  { key: "activeSessions", label: "Active Sessions", icon: Activity, tone: "info", bgColor: "bg-blue-50 border-blue-100 dark:bg-blue-950/20 dark:border-blue-900/30", textColor: "text-blue-600 dark:text-blue-400" },
+  { key: "threatLevel", label: "Threat level status", icon: ShieldCheck },
+  { key: "blockedIPs", label: "Active blocked IPs", icon: Lock },
+  { key: "failedLogins24h", label: "Failed logins (24h)", icon: AlertTriangle },
+  { key: "activeSessions", label: "Active sessions", icon: Activity },
 ] as const;
-
-const TONE = {
-  good: "from-emerald-500 to-teal-600 text-emerald-500 shadow-emerald-500/10",
-  warn: "from-amber-500 to-orange-600 text-amber-500 shadow-amber-500/10",
-  info: "from-blue-500 to-indigo-600 text-blue-500 shadow-blue-500/10",
-};
 
 interface Guardrail {
   name: string;
@@ -399,73 +393,68 @@ export default function SecurityCenterPage() {
           return (
             <div
               key={k.key}
-              onClick={() => {
-                if (isSessions) {
-                  setSessionsFilter("ALL");
-                  setShowSessionsModal(true);
-                }
-              }}
-              className={cn(
-                "relative bg-[var(--surface)] border border-[var(--ink-200)] rounded-2xl p-5 hover:shadow-[var(--shadow-card)] transition-all duration-300 group overflow-hidden flex flex-col justify-between min-h-[145px] shadow-[var(--shadow-card)]",
-                isSessions ? "cursor-pointer hover:border-[var(--brand-pink)]/20" : ""
-              )}
-            >
-              <div className="flex items-start justify-between mb-2">
-                <div className="w-9 h-9 rounded-xl bg-[var(--ink-100)] flex items-center justify-center border border-[var(--ink-200)]">
-                  <Icon size={15} className="text-[var(--ink-700)]" />
-                </div>
-                {isLoading ? (
-                  <div className="h-4.5 w-10 bg-[var(--ink-100)] animate-pulse rounded" />
-                ) : (
-                  <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border border-[var(--ink-200)] bg-[var(--ink-100)] text-[var(--ink-700)]">
-                    {isSessions ? "View sessions" : "Active"}
-                  </span>
-                )}
-              </div>
-
-              <div>
-                {isLoading ? (
-                  <div className="h-7 bg-[var(--ink-100)] animate-pulse rounded w-16 mb-1.5" />
-                ) : (
-                  <>
-                    <div className="font-serif text-3xl font-bold text-[var(--ink-900)] leading-none tracking-tight mb-1.5 group-hover:text-[var(--brand-pink)] transition-colors">
-                      {isSessions ? `${v} active` : String(v)}
+                  onClick={() => {
+                    if (isSessions) {
+                      setSessionsFilter("ALL");
+                      setShowSessionsModal(true);
+                    }
+                  }}
+                  className={cn(
+                    "bg-[var(--surface)] border border-[var(--ink-200)] rounded-[var(--radius-card)] p-5 hover:shadow-[var(--shadow-card)] transition-all duration-300 group flex flex-col justify-between min-h-[130px] shadow-[var(--shadow-card)]",
+                    isSessions ? "cursor-pointer hover:border-[var(--brand-pink)]/20" : ""
+                  )}
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-7 h-7 rounded-full bg-[var(--ink-100)] flex items-center justify-center">
+                      <Icon size={16} strokeWidth={1.75} className="text-[var(--ink-500)]" />
                     </div>
-                    {isSessions && (
-                      <div className="text-[10px] font-medium leading-none mt-2">
-                        <div className="text-[var(--ink-500)] flex justify-between mb-1.5">
-                          <span>Baseline comparison:</span>
-                          <span>avg: 8</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-[var(--ink-500)]">Suspicious sessions:</span>
-                          {suspiciousCount > 0 ? (
-                            <button 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSessionsFilter("SUSPICIOUS");
-                                setShowSessionsModal(true);
-                              }}
-                              className="text-[var(--status-danger)] font-bold animate-pulse hover:underline bg-transparent border-0 p-0 cursor-pointer"
-                            >
-                              {suspiciousCount} flagged
-                            </button>
-                          ) : (
-                            <span className="text-[var(--status-ok)] font-bold">0 flagged</span>
-                          )}
-                        </div>
-                      </div>
+                    {isLoading ? (
+                      <div className="h-4.5 w-10 bg-[var(--ink-100)] animate-pulse rounded-full" />
+                    ) : (
+                      <span className="bg-[var(--ink-100)] text-[var(--ink-700)] text-[11px] font-medium px-2 py-0.5 rounded-full select-none">
+                        {isSessions ? "View sessions" : "Active"}
+                      </span>
                     )}
-                  </>
-                )}
-                {!isSessions && (
-                  <div className="text-[10px] font-extrabold text-[var(--ink-500)] uppercase tracking-widest mt-1.5">{k.label}</div>
-                )}
-                {isSessions && (
-                  <div className="text-[10px] font-extrabold text-[var(--ink-500)] uppercase tracking-widest mt-1">{k.label}</div>
-                )}
-              </div>
-            </div>
+                  </div>
+
+                  <div>
+                    {isLoading ? (
+                      <div className="h-7 bg-[var(--ink-100)] animate-pulse rounded w-16 mb-1.5" />
+                    ) : (
+                      <>
+                        <div className="text-[32px] font-semibold text-[var(--ink-900)] leading-none mb-1.5 group-hover:text-[var(--brand-pink)] transition-colors">
+                          {isSessions ? `${v} active` : String(v)}
+                        </div>
+                        {isSessions && (
+                          <div className="text-[10px] font-medium leading-none mt-2">
+                            <div className="text-[var(--ink-500)] flex justify-between mb-1.5">
+                              <span>Baseline comparison:</span>
+                              <span>avg: 8</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="text-[var(--ink-500)]">Suspicious sessions:</span>
+                              {suspiciousCount > 0 ? (
+                                <button 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSessionsFilter("SUSPICIOUS");
+                                    setShowSessionsModal(true);
+                                  }}
+                                  className="text-[var(--status-danger)] font-bold animate-pulse hover:underline bg-transparent border-0 p-0 cursor-pointer"
+                                >
+                                  {suspiciousCount} flagged
+                                </button>
+                              ) : (
+                                <span className="text-[var(--status-ok)] font-bold">0 flagged</span>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    )}
+                    <div className="text-[13px] font-medium text-[var(--ink-500)] mt-1.5">{k.label}</div>
+                  </div>
+                </div>
           );
         })}
       </div>

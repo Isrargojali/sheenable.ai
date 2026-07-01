@@ -286,74 +286,74 @@ export default function SuperAdminDashboard() {
       {/* 1. Hero Metrics Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 animate-fade-in">
         {/* Total Users */}
-        <div className="relative bg-card border border-border/80 rounded-2xl p-5 hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col justify-between min-h-[120px] shadow-sm">
-          <div className="flex items-center justify-between mb-2">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center shadow-sm">
-              <Users size={15} className="text-white" />
+        <div className="bg-[var(--surface)] border border-[var(--ink-200)] rounded-[var(--radius-card)] p-5 hover:shadow-lg transition-all duration-300 flex flex-col justify-between min-h-[130px] shadow-[var(--shadow-card)]">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-7 h-7 rounded-full bg-[var(--ink-100)] flex items-center justify-center">
+              <Users size={16} strokeWidth={1.75} className="text-[var(--ink-500)]" />
             </div>
-            <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-100 bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-950/30">
-              <TrendingUp size={10} /> +{stats?.todayGrowth?.users ?? 0} today
+            <span className="bg-[var(--ink-100)] text-[var(--ink-700)] text-[11px] font-medium px-2 py-0.5 rounded-full select-none">
+              +{stats?.todayGrowth?.users ?? 0} today
             </span>
           </div>
           <div>
-            <div className="font-serif text-3xl font-bold text-foreground leading-none mb-1">
+            <div className="text-[32px] font-semibold text-[var(--ink-900)] leading-none mb-1.5">
               {stats?.totalUsers?.toLocaleString() ?? "—"}
             </div>
-            <div className="text-[9.5px] font-extrabold text-ink-300 uppercase tracking-widest">Platform Users</div>
+            <div className="text-[13px] font-medium text-[var(--ink-500)]">Platform users</div>
           </div>
         </div>
 
         {/* Active Jobs */}
-        <div className="relative bg-card border border-border/80 rounded-2xl p-5 hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col justify-between min-h-[120px] shadow-sm">
-          <div className="flex items-center justify-between mb-2">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-sm">
-              <Briefcase size={15} className="text-white" />
+        <div className="bg-[var(--surface)] border border-[var(--ink-200)] rounded-[var(--radius-card)] p-5 hover:shadow-lg transition-all duration-300 flex flex-col justify-between min-h-[130px] shadow-[var(--shadow-card)]">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-7 h-7 rounded-full bg-[var(--ink-100)] flex items-center justify-center">
+              <Briefcase size={16} strokeWidth={1.75} className="text-[var(--ink-500)]" />
             </div>
-            <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-100 bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-950/30">
-              <TrendingUp size={10} /> +{stats?.todayGrowth?.jobs ?? 0} today
+            <span className="bg-[var(--ink-100)] text-[var(--ink-700)] text-[11px] font-medium px-2 py-0.5 rounded-full select-none">
+              +{stats?.todayGrowth?.jobs ?? 0} today
             </span>
           </div>
           <div>
-            <div className="font-serif text-3xl font-bold text-foreground leading-none mb-1">
+            <div className="text-[32px] font-semibold text-[var(--ink-900)] leading-none mb-1.5">
               {stats?.activeJobs?.toLocaleString() ?? "—"}
             </div>
-            <div className="text-[9.5px] font-extrabold text-ink-300 uppercase tracking-widest">Active Job Listings</div>
+            <div className="text-[13px] font-medium text-[var(--ink-500)]">Active job listings</div>
           </div>
         </div>
 
         {/* AI Matches Today */}
-        <div className="relative bg-card border border-border/80 rounded-2xl p-5 hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col justify-between min-h-[120px] shadow-sm">
-          <div className="flex items-center justify-between mb-2">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-sm">
-              <Sparkles size={15} className="text-white animate-spin" />
+        <div className="bg-[var(--surface)] border border-[var(--ink-200)] rounded-[var(--radius-card)] p-5 hover:shadow-lg transition-all duration-300 flex flex-col justify-between min-h-[130px] shadow-[var(--shadow-card)]">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-7 h-7 rounded-full bg-[var(--ink-100)] flex items-center justify-center">
+              <Sparkles size={16} strokeWidth={1.75} className="text-[var(--ink-500)]" />
             </div>
-            <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-blue-100 bg-blue-50 text-blue-600 dark:bg-blue-950/20 dark:text-blue-450 dark:border-blue-950/30 uppercase tracking-wider animate-pulse">
+            <span className="bg-[var(--ink-100)] text-[var(--ink-700)] text-[11px] font-medium px-2 py-0.5 rounded-full select-none">
               Live score
             </span>
           </div>
           <div>
-            <div className="font-serif text-3xl font-bold text-foreground leading-none mb-1">
+            <div className="text-[32px] font-semibold text-[var(--ink-900)] leading-none mb-1.5">
               {stats?.aiMatchesToday?.toLocaleString() ?? "—"}
             </div>
-            <div className="text-[9.5px] font-extrabold text-ink-300 uppercase tracking-widest">AI Matches Today</div>
+            <div className="text-[13px] font-medium text-[var(--ink-500)]">AI matches today</div>
           </div>
         </div>
 
         {/* Revenue / GMV */}
-        <div className="relative bg-card border border-border/80 rounded-2xl p-5 hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col justify-between min-h-[120px] shadow-sm">
-          <div className="flex items-center justify-between mb-2">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-sm">
-              <FileText size={15} className="text-white" />
+        <div className="bg-[var(--surface)] border border-[var(--ink-200)] rounded-[var(--radius-card)] p-5 hover:shadow-lg transition-all duration-300 flex flex-col justify-between min-h-[130px] shadow-[var(--shadow-card)]">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-7 h-7 rounded-full bg-[var(--ink-100)] flex items-center justify-center">
+              <FileText size={16} strokeWidth={1.75} className="text-[var(--ink-500)]" />
             </div>
-            <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-100 bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-450 dark:border-emerald-950/30">
+            <span className="bg-[var(--ink-100)] text-[var(--ink-700)] text-[11px] font-medium px-2 py-0.5 rounded-full select-none">
               +12.5% mo
             </span>
           </div>
           <div>
-            <div className="font-serif text-2xl font-bold text-foreground leading-none mb-1">
+            <div className="text-[32px] font-semibold text-[var(--ink-900)] leading-none mb-1.5">
               Rs. {stats?.revenueGMV?.toLocaleString() ?? "—"}
             </div>
-            <div className="text-[9.5px] font-extrabold text-ink-300 uppercase tracking-widest">Platform GMV / Revenue</div>
+            <div className="text-[13px] font-medium text-[var(--ink-500)]">Platform GMV / revenue</div>
           </div>
         </div>
       </div>

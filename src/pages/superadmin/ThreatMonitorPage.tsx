@@ -171,20 +171,17 @@ export default function ThreatMonitorPage() {
 
   // Threat Level Cards dynamic styles
   const threatLevel = t.threatLevel?.toUpperCase() || "LOW";
-  let threatColor = "text-emerald-400";
-  let threatBg = "bg-emerald-500/10 border-emerald-500/20";
+  let threatColor = "text-[var(--status-ok)]";
   if (threatLevel === "MEDIUM" || threatLevel === "ELEVATED") {
-    threatColor = "text-amber-400";
-    threatBg = "bg-amber-500/10 border-amber-500/20";
+    threatColor = "text-[var(--status-warn)]";
   } else if (threatLevel === "HIGH" || threatLevel === "CRITICAL") {
-    threatColor = "text-red-400";
-    threatBg = "bg-red-500/10 border-red-500/20 animate-pulse";
+    threatColor = "text-[var(--status-danger)]";
   }
 
   const statCards = [
-    { label: "Threat Level Status", val: t.threatLevel, color: threatColor, bg: threatBg },
-    { label: "Blocked IP Count", val: t.blockedIPs + blockedIPsList.length, color: "text-amber-400", bg: "bg-amber-500/10 border-amber-500/20" },
-    { label: "Total Requests Volume", val: t.activeSessions, color: "text-zinc-300", bg: "bg-[#161224] border-white/[0.05]" }
+    { label: "Threat level status", val: t.threatLevel, colorClass: threatColor, icon: ShieldAlert, delta: "Live status" },
+    { label: "Blocked IP count", val: t.blockedIPs + blockedIPsList.length, colorClass: "text-[var(--ink-900)]", icon: Ban, delta: "Firewall rule" },
+    { label: "Total requests volume", val: t.activeSessions, colorClass: "text-[var(--ink-900)]", icon: Activity, delta: "Active streams" }
   ];
 
   // 24H Security Events details
@@ -226,14 +223,32 @@ export default function ThreatMonitorPage() {
     >
       {/* Top threat cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5 select-none">
-        {statCards.map(c => (
-          <div key={c.label} className={cn("rounded-xl p-5 border flex flex-col justify-between min-h-[110px] transition-all", c.bg)}>
-            <div className="text-[10px] font-bold text-white/40 uppercase tracking-[.6px]">{c.label}</div>
-            <div className={cn("font-serif text-3xl font-bold tracking-tight mt-2", c.color)}>
-              {typeof c.val === "number" ? <LiveCounter base={c.val as number} /> : c.val}
+        {statCards.map(c => {
+          const Icon = c.icon;
+          return (
+            <div 
+              key={c.label} 
+              className="bg-[var(--surface)] border border-[var(--ink-200)] rounded-[var(--radius-card)] p-5 hover:shadow-lg transition-all duration-300 flex flex-col justify-between min-h-[130px] shadow-[var(--shadow-card)]"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-7 h-7 rounded-full bg-[var(--ink-100)] flex items-center justify-center">
+                  <Icon size={16} strokeWidth={1.75} className="text-[var(--ink-500)]" />
+                </div>
+                {c.delta && (
+                  <span className="bg-[var(--ink-100)] text-[var(--ink-700)] text-[11px] font-medium px-2 py-0.5 rounded-full select-none">
+                    {c.delta}
+                  </span>
+                )}
+              </div>
+              <div>
+                <div className={cn("text-[32px] font-semibold leading-none mb-1.5", c.colorClass)}>
+                  {typeof c.val === "number" ? <LiveCounter base={c.val as number} /> : c.val}
+                </div>
+                <div className="text-[13px] font-medium text-[var(--ink-500)]">{c.label}</div>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="grid lg:grid-cols-2 gap-5 mb-5">

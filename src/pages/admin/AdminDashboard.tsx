@@ -14,25 +14,25 @@ import { toast } from "sonner";
 const STATS = [
   { 
     key: "totalUsers", 
-    label: "Total Platform Users", 
+    label: "Platform users", 
     icon: Users, 
     deltaKey: "users" 
   },
   { 
     key: "activeJobs", 
-    label: "Active Job Listings", 
+    label: "Active job listings", 
     icon: Briefcase, 
     deltaKey: "jobs" 
   },
   { 
     key: "employers", 
-    label: "Registered Employers", 
+    label: "Registered employers", 
     icon: Building2, 
     deltaKey: "employers" 
   },
   { 
     key: "applications", 
-    label: "Total Applications", 
+    label: "Total applications", 
     icon: FileText, 
     deltaKey: "applications" 
   },
@@ -353,21 +353,17 @@ export default function AdminDashboard() {
               return (
                 <div 
                   key={s.key} 
-                  className="bg-[var(--surface)] border border-[var(--ink-200)] rounded-[var(--radius-card)] p-5 hover:shadow-lg transition-all duration-300 group flex flex-col justify-between min-h-[145px] shadow-[var(--shadow-card)]"
+                  className="bg-[var(--surface)] border border-[var(--ink-200)] rounded-[var(--radius-card)] p-5 hover:shadow-lg transition-all duration-300 flex flex-col justify-between min-h-[130px] shadow-[var(--shadow-card)]"
                 >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="w-10 h-10 rounded-xl bg-[var(--ink-100)] flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
-                      <Icon size={16} className="text-[var(--ink-700)]" />
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-7 h-7 rounded-full bg-[var(--ink-100)] flex items-center justify-center">
+                      <Icon size={16} strokeWidth={1.75} className="text-[var(--ink-500)]" />
                     </div>
                     {isLoading ? (
                       <div className="h-5 w-12 bg-[var(--ink-100)] animate-pulse rounded-full" />
-                    ) : dv > 0 ? (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[var(--status-ok)] animate-fade-in">
-                        <TrendingUp size={10} /> +{dv} {timeframeLabel}
-                      </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[var(--ink-500)] animate-fade-in">
-                        0 {timeframeLabel}
+                      <span className="bg-[var(--ink-100)] text-[var(--ink-700)] text-[11px] font-medium px-2 py-0.5 rounded-full select-none">
+                        {dv >= 0 ? `+${dv}` : dv} {timeframeLabel}
                       </span>
                     )}
                   </div>
@@ -377,10 +373,7 @@ export default function AdminDashboard() {
                       <div className="h-8 bg-[var(--ink-100)] animate-pulse rounded-lg w-20 mb-2" />
                     ) : (
                       <>
-                        <div className={cn(
-                          "font-serif text-3.5xl font-bold leading-none tracking-tight mb-1 transition-colors duration-300",
-                          s.key === "totalUsers" ? "text-[var(--brand-pink)]" : "text-[var(--ink-900)]"
-                        )}>
+                        <div className="text-[32px] font-semibold text-[var(--ink-900)] leading-none mb-1.5">
                           {v}
                         </div>
                         {dv === 0 && lastChangeStr && (
@@ -390,7 +383,7 @@ export default function AdminDashboard() {
                         )}
                       </>
                     )}
-                    <div className="text-[11px] font-bold text-[var(--ink-500)] uppercase tracking-wider">{s.label}</div>
+                    <div className="text-[13px] font-medium text-[var(--ink-500)]">{s.label}</div>
                   </div>
                 </div>
               );
