@@ -408,7 +408,7 @@ function Sidebar({
                 if (expiringListingsCount > 0) {
                   badge = String(expiringListingsCount);
                   badgeVariant = "rose";
-                }
+                } 
               } else if (item.to.includes("dashboard") && role === "EMPLOYER") {
                 // Pulsing dot — ambient "new AI matches available" awareness
                 showDot = true;
