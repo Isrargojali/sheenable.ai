@@ -402,7 +402,7 @@ function Sidebar({
                 if (atsPendingCount > 0) {
                   badge = String(atsPendingCount);
                   badgeVariant = "amber";
-                }
+                } 
               } else if (item.to.includes("listings") && role === "EMPLOYER") {
                 // Rose badge — listings expiring within 7 days
                 if (expiringListingsCount > 0) {
