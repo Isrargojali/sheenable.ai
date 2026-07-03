@@ -431,15 +431,15 @@ export default function AuditLogPage() {
           
           {/* Header exports and status */}
           <div className="flex items-center gap-3">
-            <span className="text-[10px] font-bold bg-[var(--ink-100)] border border-[var(--ink-200)] text-[var(--ink-700)] px-2.5 py-1 rounded-full uppercase tracking-wider">
+            <span className="inline-block text-[11px] font-medium bg-[var(--ink-100)] text-[var(--ink-500)] px-2 py-[2px] rounded-[var(--radius-pill)] leading-none border-0 select-none">
               {filtered.length} events · {getActiveRangeText(filtered)}
             </span>
-            <div className="flex items-center bg-[var(--ink-100)] border border-[var(--ink-200)] p-0.5 rounded-lg text-[9px] font-bold select-none">
+            <div className="flex items-center gap-2">
               <button
                 onClick={() => {
                   toast.success(`Exported ${filtered.length} logs to CSV successfully.`);
                 }}
-                className="px-2 py-1 hover:bg-white rounded text-[var(--ink-700)] hover:text-[var(--ink-900)] transition-all cursor-pointer border-0"
+                className="bg-[var(--surface)] hover:bg-[var(--ink-100)] border border-[var(--ink-200)] text-[var(--ink-900)] text-[13px] font-medium h-9 px-[14px] rounded-[var(--radius-input)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-pink)] focus:ring-offset-2 flex items-center justify-center gap-1.5 cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed select-none shadow-none"
               >
                 CSV
               </button>
@@ -447,7 +447,7 @@ export default function AuditLogPage() {
                 onClick={() => {
                   toast.success(`Exported ${filtered.length} logs to PDF successfully.`);
                 }}
-                className="px-2 py-1 hover:bg-white rounded text-[var(--ink-700)] hover:text-[var(--ink-900)] transition-all cursor-pointer border-0"
+                className="bg-[var(--surface)] hover:bg-[var(--ink-100)] border border-[var(--ink-200)] text-[var(--ink-900)] text-[13px] font-medium h-9 px-[14px] rounded-[var(--radius-input)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-pink)] focus:ring-offset-2 flex items-center justify-center gap-1.5 cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed select-none shadow-none"
               >
                 PDF
               </button>
