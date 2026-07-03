@@ -148,7 +148,7 @@ export default function UsersPage() {
     email: u.email,
     role: u.role,
     isVerified: u.isVerified,
-    isSuspended: u.isSuspended ?? !u.isActive ?? false,
+    isSuspended: u.isSuspended ?? !(u.isActive ?? true),
     profile: u.profile ?? { 
       firstName: u.firstName || u.email?.split("@")[0] || "", 
       lastName: u.lastName || "", 
