@@ -6,7 +6,7 @@ import {
   LayoutDashboard, Briefcase, FileText, User, MessageSquare, FilePlus,
   Search, Users, ShieldCheck, ScrollText, ShieldAlert, UserCog, Activity,
   Bell, LogOut, Menu, X, Heart, Settings, Loader2, Moon, Sun, ArrowUpRight,
-  Check, Sparkles, Calendar,
+  Check, Sparkles, Calendar, ChevronLeft, ChevronRight,
   type LucideIcon,
 } from "lucide-react";
 import logo from "../../assets/sheEnableAI-removebg-preview.png";
@@ -56,6 +56,8 @@ interface SidebarProps {
   onNav?: () => void;
   available: boolean;
   setAvailable: (avail: boolean) => void;
+  collapsed?: boolean;
+  setCollapsed?: (val: boolean) => void;
 }
 
 interface AuditLogEntry {
@@ -256,6 +258,8 @@ function Sidebar({
   onNav,
   available,
   setAvailable,
+  collapsed = false,
+  setCollapsed,
 }: SidebarProps) {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
@@ -325,14 +329,25 @@ function Sidebar({
 
 
   return (
-    <aside className="w-[240px] flex-shrink-0 bg-card flex flex-col h-full">
+    <aside className="w-full flex-shrink-0 bg-card flex flex-col h-full relative">
+      {/* Collapsible toggle button - Only show on desktop (when setCollapsed is passed) */}
+      {setCollapsed && (
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          className="absolute top-6 -right-3 z-50 w-6 h-6 rounded-full border border-border bg-card flex items-center justify-center cursor-pointer shadow-md text-foreground hover:bg-accent hover:text-accent-foreground transition-all duration-200 active:scale-95"
+        >
+          {collapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
+        </button>
+      )}
 
       {/* ── TOP: Profile block for ALL roles ── */}
       <div className={cn(
-        "px-4 py-3.5 border-b border-border",
+        "border-b border-border transition-all duration-300",
+        collapsed ? "px-2 py-3.5" : "px-4 py-3.5",
         (role === "ADMIN" || role === "SUPER_ADMIN") ? "pt-4" : "pt-6"
       )}>
-        <div className="flex items-center gap-2.5 mb-2">
+        <div className={cn("flex items-center gap-2.5 mb-2", collapsed && "justify-center")}>
           {avatarUrl ? (
             <img
               src={avatarUrl}
@@ -350,31 +365,45 @@ function Sidebar({
           >
             {initials(displayName)}
           </div>
-          <div className="min-w-0 flex-1">
-            <div className="text-[13px] font-semibold text-foreground truncate leading-tight">{displayName}</div>
-            <div className="mt-1">
-              <span className="inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full border border-[var(--ink-300)] bg-[var(--ink-100)] text-[var(--ink-700)] uppercase tracking-wider leading-none">
-                {ROLE_LABEL[role]}
-              </span>
+          {!collapsed && (
+            <div className="min-w-0 flex-1 transition-opacity duration-300">
+              <div className="text-[13px] font-semibold text-foreground truncate leading-tight">{displayName}</div>
+              <div className="mt-1">
+                <span className="inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full border border-[var(--ink-300)] bg-[var(--ink-100)] text-[var(--ink-700)] uppercase tracking-wider leading-none">
+                  {ROLE_LABEL[role]}
+                </span>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {role === "CANDIDATE" && (
-          <button
-            onClick={() => setAvailable(!available)}
-            className={cn(
-              "w-full flex items-center gap-2 px-2.5 py-2 rounded-[var(--radius-control)] transition-colors",
-              available
-                ? "bg-[var(--status-success-bg)] text-[var(--status-success-fg)]"
-                : "bg-[var(--status-progress-bg)] text-[var(--status-progress-fg)]"
-            )}
-          >
-            <span className={cn("w-1.5 h-1.5 rounded-full", available ? "bg-[var(--status-success-fg)]" : "bg-[var(--status-progress-fg)]")} />
-            <span className="text-[11px] font-semibold">
-              {available ? "Available for hire" : "Not available"}
-            </span>
-          </button>
+          collapsed ? (
+            <div className="flex justify-center mt-2">
+              <span 
+                className={cn(
+                  "w-2.5 h-2.5 rounded-full ring-2 ring-card animate-pulse", 
+                  available ? "bg-[var(--status-success-fg)]" : "bg-[var(--status-progress-fg)]"
+                )}
+                title={available ? "Available for hire" : "Not available"}
+              />
+            </div>
+          ) : (
+            <button
+              onClick={() => setAvailable(!available)}
+              className={cn(
+                "w-full flex items-center gap-2 px-2.5 py-2 rounded-[var(--radius-control)] transition-colors",
+                available
+                  ? "bg-[var(--status-success-bg)] text-[var(--status-success-fg)]"
+                  : "bg-[var(--status-progress-bg)] text-[var(--status-progress-fg)]"
+              )}
+            >
+              <span className={cn("w-1.5 h-1.5 rounded-full", available ? "bg-[var(--status-success-fg)]" : "bg-[var(--status-progress-fg)]")} />
+              <span className="text-[11px] font-semibold">
+                {available ? "Available for hire" : "Not available"}
+              </span>
+            </button>
+          )
         )}
       </div>
 
@@ -382,9 +411,13 @@ function Sidebar({
       <nav className="flex-1 overflow-y-auto px-2 py-2 scrollbar-thin">
         {groups.map((g, gi) => (
           <div key={g.label} className={cn(gi > 0 && "mt-4")}>
-            <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-500)] px-2.5 pt-1.5 pb-1">
-              {g.label}
-            </div>
+            {!collapsed ? (
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-500)] px-2.5 pt-1.5 pb-1 transition-opacity duration-300">
+                {g.label}
+              </div>
+            ) : gi > 0 ? (
+              <div className="h-px bg-border/50 my-3 mx-2" />
+            ) : null}
             {g.items.map(item => {
               const Icon = item.icon;
 
@@ -437,24 +470,31 @@ function Sidebar({
                   key={item.to}
                   to={item.to}
                   onClick={onNav}
+                  title={collapsed ? item.label : undefined}
                   className={({ isActive }) => cn(
                     "flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[12px] font-medium mb-0.5 transition-all border-l-[3px] border-transparent",
                     isActive
                       ? "bg-[var(--brand-pink-tint)] text-[var(--brand-pink)] font-semibold border-l-[var(--brand-pink)] rounded-l-none"
-                      : "text-[var(--ink-700)] bg-transparent hover:bg-[var(--ink-100)] hover:text-[var(--ink-900)]"
+                      : "text-[var(--ink-700)] bg-transparent hover:bg-[var(--ink-100)] hover:text-[var(--ink-900)]",
+                    collapsed && "justify-center px-0 h-10 w-10 mx-auto rounded-xl border-l-0"
                   )}
                 >
                   {({ isActive }) => (
                     <>
-                      <div className="relative flex-shrink-0">
-                        <Icon size={15} className={cn("transition-colors", isActive ? "text-[var(--brand-pink)]" : "text-[var(--ink-500)]")} />
+                      <div className="relative flex-shrink-0 flex items-center justify-center">
+                        <Icon size={16} className={cn("transition-colors", isActive ? "text-[var(--brand-pink)]" : "text-[var(--ink-500)]")} />
                         {/* Ambient dot for Dashboard */}
                         {showDot && (
                           <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[var(--accent-green)] animate-pulse ring-2 ring-card" />
                         )}
+                        {collapsed && badge && (
+                          <span className="absolute -top-2 -right-2 bg-[var(--brand-pink)] text-white w-4 h-4 flex items-center justify-center rounded-full text-[9px] font-bold leading-none shadow-sm">
+                            {badge}
+                          </span>
+                        )}
                       </div>
-                      <span className="truncate">{item.label}</span>
-                      {badge && (
+                      {!collapsed && <span className="truncate">{item.label}</span>}
+                      {!collapsed && badge && (
                         <span className="ml-auto flex items-center justify-center flex-shrink-0">
                           <span className="bg-[var(--brand-pink)] text-white w-[18px] h-[18px] flex items-center justify-center rounded-full text-[11px] font-semibold leading-none">
                             {badge}
@@ -471,17 +511,28 @@ function Sidebar({
       </nav>
 
       {/* ── BOTTOM: Logo + Powered By — for ALL roles ── */}
-      <div className="mt-auto p-4 border-t border-border flex flex-col items-start gap-2 bg-secondary/15">
+      <div className={cn(
+        "mt-auto border-t border-border flex flex-col items-center gap-2 bg-secondary/15 transition-all duration-300",
+        collapsed ? "p-2.5" : "p-4 items-start"
+      )}>
         <Link to="/" className="relative z-10 flex items-center group" aria-label="SheEnableAI home">
-          <img
-            src={logo}
-            alt="SheEnableAI logo"
-            className="w-[182px] h-[50px] object-contain transition-transform group-hover:scale-105"
-          />
+          {collapsed ? (
+            <div className="w-8 h-8 rounded-lg bg-[var(--brand-pink-soft)] flex items-center justify-center text-[var(--brand-pink)] font-black text-xs group-hover:scale-105 transition-transform shadow-sm">
+              SE
+            </div>
+          ) : (
+            <img
+              src={logo}
+              alt="SheEnableAI logo"
+              className="w-[182px] h-[50px] object-contain transition-transform group-hover:scale-105"
+            />
+          )}
         </Link>
-        <div className="text-[9px] font-sans font-bold tracking-wider text-[var(--ink-500)] uppercase">
-          Powered By Arbob Tech Team
-        </div>
+        {!collapsed && (
+          <div className="text-[9px] font-sans font-bold tracking-wider text-[var(--ink-500)] uppercase">
+            Powered By Arbob Tech Team
+          </div>
+        )}
       </div>
     </aside>
   );
@@ -781,7 +832,17 @@ export function DashboardShell({
   const [showSettings, setShowSettings] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [available, setAvailable] = useState(true);
+  const [collapsed, setCollapsed] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("sidebar-collapsed") === "true";
+    }
+    return false;
+  });
   const location = useLocation();
+
+  useEffect(() => {
+    localStorage.setItem("sidebar-collapsed", String(collapsed));
+  }, [collapsed]);
 
   // Close mobile drawer on route change
   useEffect(() => {
@@ -864,8 +925,11 @@ export function DashboardShell({
   return (
     <div className="min-h-screen w-full flex bg-background">
       {/* Desktop sidebar */}
-      <div className="hidden lg:flex h-screen sticky top-0">
-        <Sidebar available={available} setAvailable={setAvailable} />
+      <div className={cn(
+        "hidden lg:flex h-screen sticky top-0 transition-all duration-300 ease-in-out border-r border-border/80",
+        collapsed ? "w-[72px]" : "w-[240px]"
+      )}>
+        <Sidebar available={available} setAvailable={setAvailable} collapsed={collapsed} setCollapsed={setCollapsed} />
       </div>
 
       {/* Mobile drawer — Admin/SuperAdmin only (bottom nav handles Candidate/Employer) */}
