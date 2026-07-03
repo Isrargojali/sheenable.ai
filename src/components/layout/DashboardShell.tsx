@@ -686,98 +686,178 @@ function Topbar({
           </form>
         )}
 
-        {actions}
+        {(role === "ADMIN" || role === "SUPER_ADMIN") ? (
+          <div className="flex items-center gap-3">
+            {actions}
 
-        {/* Global Command Palette search input/button */}
-        {(role === "ADMIN" || role === "SUPER_ADMIN") && (
-          <button
-            onClick={onSearchClick}
-            className="hidden md:flex items-center gap-2 px-3.5 py-1.5 bg-secondary hover:bg-ink-100 text-muted-foreground hover:text-foreground text-[11px] font-medium rounded-xl border border-border/80 transition-all cursor-pointer mr-2"
-          >
-            <Search size={12} />
-            <span>Search platform...</span>
-            <kbd className="bg-card px-1.5 py-0.2 rounded border border-border text-[9px] font-mono tracking-widest font-black uppercase text-ink-300 select-none ml-2">
-              ⌘K
-            </kbd>
-          </button>
-        )}
-
-        {/* Unified Top-Right Utility Icon Cluster */}
-        <div className="flex items-center gap-2 ml-4">
-          {/* Notifications */}
-          <div className="relative">
+            {/* Global Command Palette search input/button styled as a 36px input bar */}
             <button
-              onClick={() => setShowNotif(v => !v)}
-              aria-label="Open notifications"
-              className="relative w-9 h-9 rounded-full flex items-center justify-center bg-transparent border border-[var(--ink-300)] hover:bg-[var(--ink-100)]/30 hover:border-[var(--ink-500)] transition-all cursor-pointer shadow-none select-none"
+              onClick={onSearchClick}
+              className="hidden md:flex items-center justify-between px-3 h-9 w-[280px] bg-[var(--surface)] border border-[var(--ink-200)] rounded-[var(--radius-input)] text-[13px] text-[var(--ink-700)] transition-all cursor-pointer relative select-none"
             >
-              <Bell size={18} className="text-[var(--ink-700)]" />
-              {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 text-[9px] font-bold rounded-full bg-primary text-primary-foreground flex items-center justify-center">
-                  {unreadCount}
-                </span>
-              )}
+              <div className="flex items-center gap-2 text-[var(--ink-400)]">
+                <Search size={14} strokeWidth={1.75} className="text-[var(--ink-500)]" />
+                <span>Search platform...</span>
+              </div>
+              <kbd className="bg-[var(--ink-100)] text-[var(--ink-500)] text-[10px] font-mono px-1.5 py-0.5 rounded-[4px] border-0 select-none">
+                ⌘K
+              </kbd>
             </button>
 
-            {showNotif && (
-              <>
-                <div className="fixed inset-0 z-30" onClick={() => setShowNotif(false)} />
-                <div className="fixed sm:absolute top-16 sm:top-auto left-4 right-4 sm:left-auto sm:right-0 mt-2 sm:w-80 w-auto bg-card rounded-2xl border border-border shadow-xl z-40 overflow-hidden animate-fade-in">
-                  <div className="px-4 py-3 border-b border-border flex items-center justify-between">
-                    <span className="text-sm font-semibold">Notifications</span>
-                    <button onClick={() => markAllReadMut.mutate()} className="text-[11px] text-primary font-semibold hover:underline">
-                      Mark all read
-                    </button>
-                  </div>
-                  <div className="max-h-80 overflow-y-auto scrollbar-thin">
-                    {notifsList.length === 0 && (
-                      <div className="px-4 py-8 text-center text-xs text-muted-foreground">No notifications</div>
-                    )}
-                    {notifsList.map(n => (
-                      <div
-                        key={n.id}
-                        onClick={() => {
-                          if (n.unread) {
-                            markReadMut.mutate(n.id);
-                          }
-                        }}
-                        className={cn(
-                          "px-4 py-3 border-b border-border last:border-0 flex gap-2.5 cursor-pointer hover:bg-secondary/30 transition-all",
-                          n.unread && "bg-accent/40"
-                        )}
-                      >
-                        <div className={cn(
-                          "w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0",
-                          n.type === "JOB_MATCH" && "bg-[var(--brand-pink-soft)] text-[var(--brand-pink)]",
-                          n.type === "APPLICATION_STATUS" && "bg-amber-100 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400",
-                          n.type === "MESSAGE" && "bg-blue-100 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400",
-                          n.type === "INTERVIEW" && "bg-emerald-100 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400",
-                          (!n.type || n.type === "SYSTEM" || !["JOB_MATCH", "APPLICATION_STATUS", "MESSAGE", "INTERVIEW"].includes(n.type)) && "bg-[var(--ink-100)] dark:bg-[var(--ink-700)]/40 text-[var(--ink-500)] dark:text-[var(--ink-300)]"
-                        )}>
-                          <n.icon size={15} />
+            {/* Notifications Button */}
+            <div className="relative">
+              <button
+                onClick={() => setShowNotif(v => !v)}
+                aria-label="Open notifications"
+                className="relative w-9 h-9 flex items-center justify-center bg-transparent border border-[var(--ink-200)] rounded-[var(--radius-input)] hover:bg-[var(--ink-100)]/30 hover:border-[var(--ink-500)] transition-all cursor-pointer shadow-none select-none"
+              >
+                <Bell size={18} strokeWidth={1.75} className="text-[var(--ink-500)]" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[var(--status-danger)] border border-white" />
+                )}
+              </button>
+
+              {showNotif && (
+                <>
+                  <div className="fixed inset-0 z-30" onClick={() => setShowNotif(false)} />
+                  <div className="fixed sm:absolute top-16 sm:top-auto left-4 right-4 sm:left-auto sm:right-0 mt-2 sm:w-80 w-auto bg-card rounded-2xl border border-border shadow-xl z-40 overflow-hidden animate-fade-in">
+                    <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+                      <span className="text-sm font-semibold">Notifications</span>
+                      <button onClick={() => markAllReadMut.mutate()} className="text-[11px] text-primary font-semibold hover:underline">
+                        Mark all read
+                      </button>
+                    </div>
+                    <div className="max-h-80 overflow-y-auto scrollbar-thin">
+                      {notifsList.length === 0 && (
+                        <div className="px-4 py-8 text-center text-xs text-muted-foreground">No notifications</div>
+                      )}
+                      {notifsList.map(n => (
+                        <div
+                          key={n.id}
+                          onClick={() => {
+                            if (n.unread) {
+                              markReadMut.mutate(n.id);
+                            }
+                          }}
+                          className={cn(
+                            "px-4 py-3 border-b border-border last:border-0 flex gap-2.5 cursor-pointer hover:bg-secondary/30 transition-all",
+                            n.unread && "bg-accent/40"
+                          )}
+                        >
+                          <div className={cn(
+                            "w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0",
+                            n.type === "JOB_MATCH" && "bg-[var(--brand-pink-soft)] text-[var(--brand-pink)]",
+                            n.type === "APPLICATION_STATUS" && "bg-amber-100 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400",
+                            n.type === "MESSAGE" && "bg-blue-100 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400",
+                            n.type === "INTERVIEW" && "bg-emerald-100 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400",
+                            (!n.type || n.type === "SYSTEM" || !["JOB_MATCH", "APPLICATION_STATUS", "MESSAGE", "INTERVIEW"].includes(n.type)) && "bg-[var(--ink-100)] dark:bg-[var(--ink-700)]/40 text-[var(--ink-500)] dark:text-[var(--ink-300)]"
+                          )}>
+                            <n.icon size={15} />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="text-[12px] font-semibold text-foreground">{n.title}</div>
+                            <div className="text-[11px] text-muted-foreground line-clamp-2 mt-0.5">{n.body}</div>
+                            <div className="text-[10px] text-ink-300 mt-1">{n.timestamp}</div>
+                          </div>
                         </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="text-[12px] font-semibold text-foreground">{n.title}</div>
-                          <div className="text-[11px] text-muted-foreground line-clamp-2 mt-0.5">{n.body}</div>
-                          <div className="text-[10px] text-ink-300 mt-1">{n.timestamp}</div>
-                        </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </>
-            )}
+                </>
+              )}
+            </div>
+
+            {/* Quick Dark Toggle */}
+            <QuickDarkModeToggle />
+
+            {/* Profile Dropdown */}
+            <ProfileDropdown
+              available={available}
+              onSettingsClick={onSettingsClick}
+            />
           </div>
+        ) : (
+          <>
+            {actions}
 
-          {/* Quick Dark Toggle */}
-          <QuickDarkModeToggle />
+            {/* Unified Top-Right Utility Icon Cluster */}
+            <div className="flex items-center gap-2 ml-4">
+              {/* Notifications */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowNotif(v => !v)}
+                  aria-label="Open notifications"
+                  className="relative w-9 h-9 rounded-full flex items-center justify-center bg-transparent border border-[var(--ink-300)] hover:bg-[var(--ink-100)]/30 hover:border-[var(--ink-500)] transition-all cursor-pointer shadow-none select-none"
+                >
+                  <Bell size={18} className="text-[var(--ink-700)]" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 text-[9px] font-bold rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
 
-          {/* Profile Dropdown */}
-          <ProfileDropdown
-            available={available}
-            onSettingsClick={onSettingsClick}
-          />
-        </div>
+                {showNotif && (
+                  <>
+                    <div className="fixed inset-0 z-30" onClick={() => setShowNotif(false)} />
+                    <div className="fixed sm:absolute top-16 sm:top-auto left-4 right-4 sm:left-auto sm:right-0 mt-2 sm:w-80 w-auto bg-card rounded-2xl border border-border shadow-xl z-40 overflow-hidden animate-fade-in">
+                      <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+                        <span className="text-sm font-semibold">Notifications</span>
+                        <button onClick={() => markAllReadMut.mutate()} className="text-[11px] text-primary font-semibold hover:underline">
+                          Mark all read
+                        </button>
+                      </div>
+                      <div className="max-h-80 overflow-y-auto scrollbar-thin">
+                        {notifsList.length === 0 && (
+                          <div className="px-4 py-8 text-center text-xs text-muted-foreground">No notifications</div>
+                        )}
+                        {notifsList.map(n => (
+                          <div
+                            key={n.id}
+                            onClick={() => {
+                              if (n.unread) {
+                                markReadMut.mutate(n.id);
+                              }
+                            }}
+                            className={cn(
+                              "px-4 py-3 border-b border-border last:border-0 flex gap-2.5 cursor-pointer hover:bg-secondary/30 transition-all",
+                              n.unread && "bg-accent/40"
+                            )}
+                          >
+                            <div className={cn(
+                              "w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0",
+                              n.type === "JOB_MATCH" && "bg-[var(--brand-pink-soft)] text-[var(--brand-pink)]",
+                              n.type === "APPLICATION_STATUS" && "bg-amber-100 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400",
+                              n.type === "MESSAGE" && "bg-blue-100 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400",
+                              n.type === "INTERVIEW" && "bg-emerald-100 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400",
+                              (!n.type || n.type === "SYSTEM" || !["JOB_MATCH", "APPLICATION_STATUS", "MESSAGE", "INTERVIEW"].includes(n.type)) && "bg-[var(--ink-100)] dark:bg-[var(--ink-700)]/40 text-[var(--ink-500)] dark:text-[var(--ink-300)]"
+                            )}>
+                              <n.icon size={15} />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="text-[12px] font-semibold text-foreground">{n.title}</div>
+                              <div className="text-[11px] text-muted-foreground line-clamp-2 mt-0.5">{n.body}</div>
+                              <div className="text-[10px] text-ink-300 mt-1">{n.timestamp}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Quick Dark Toggle */}
+              <QuickDarkModeToggle />
+
+              {/* Profile Dropdown */}
+              <ProfileDropdown
+                available={available}
+                onSettingsClick={onSettingsClick}
+              />
+            </div>
+          </>
+        )}
       </div>
     </header>
   );
@@ -1576,6 +1656,9 @@ function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
 // ─── COMPACT DARK MODE TOGGLE ──────────────────────────────────────────────
 function QuickDarkModeToggle() {
   const [darkMode, setDarkMode] = useState(false);
+  const { user } = useAuthStore();
+  const role = user?.role ?? "CANDIDATE";
+  const isAdmin = role === "ADMIN" || role === "SUPER_ADMIN";
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -1604,9 +1687,18 @@ function QuickDarkModeToggle() {
       type="button"
       onClick={toggleMode}
       aria-label="Toggle dark appearance"
-      className="w-9 h-9 rounded-full flex items-center justify-center bg-transparent border border-[var(--ink-300)] hover:bg-[var(--ink-100)]/30 hover:border-[var(--ink-500)] transition-all cursor-pointer shadow-none select-none"
+      className={cn(
+        "w-9 h-9 flex items-center justify-center bg-transparent transition-all cursor-pointer shadow-none select-none",
+        isAdmin 
+          ? "border border-[var(--ink-200)] rounded-[var(--radius-input)] hover:bg-[var(--ink-100)]" 
+          : "rounded-full border border-[var(--ink-300)] hover:bg-[var(--ink-100)]/30 hover:border-[var(--ink-500)]"
+      )}
     >
-      {darkMode ? <Sun size={18} className="text-[var(--ink-700)]" /> : <Moon size={18} className="text-[var(--ink-700)]" />}
+      {darkMode ? (
+        <Sun size={18} strokeWidth={1.75} className={isAdmin ? "text-[var(--ink-500)]" : "text-[var(--ink-700)]"} />
+      ) : (
+        <Moon size={18} strokeWidth={1.75} className={isAdmin ? "text-[var(--ink-500)]" : "text-[var(--ink-700)]"} />
+      )}
     </button>
   );
 }

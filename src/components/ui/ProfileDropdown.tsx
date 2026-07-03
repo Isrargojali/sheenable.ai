@@ -57,7 +57,12 @@ export function ProfileDropdown({
         <button
           type="button"
           aria-haspopup="true"
-          className="relative w-9 h-9 rounded-full flex items-center justify-center bg-transparent border border-[var(--ink-300)] hover:border-[var(--brand-pink)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-pink)] focus:border-[var(--brand-pink)] transition-all cursor-pointer select-none group"
+          className={cn(
+            "relative w-9 h-9 rounded-full flex items-center justify-center bg-transparent transition-all cursor-pointer select-none group focus:outline-none focus:ring-2 focus:ring-[var(--brand-pink)]",
+            (role === "ADMIN" || role === "SUPER_ADMIN")
+              ? "border-0"
+              : "border border-[var(--ink-300)] hover:border-[var(--brand-pink)]"
+          )}
         >
           {avatarUrl ? (
             <img
@@ -72,8 +77,10 @@ export function ProfileDropdown({
           ) : null}
           <div
             className={cn(
-              "w-full h-full flex items-center justify-center text-white text-xs rounded-full",
-              getCompanyGradient(displayName)
+              "w-full h-full flex items-center justify-center text-white rounded-full",
+              (role === "ADMIN" || role === "SUPER_ADMIN")
+                ? "bg-[var(--ink-900)] text-[12px] font-semibold"
+                : "text-xs " + getCompanyGradient(displayName)
             )}
             style={{ display: avatarUrl ? 'none' : 'flex' }}
           >
