@@ -251,7 +251,7 @@ export default function SuperAdminDashboard() {
       desc: "Create, revoke, audit",         
       icon: UserCog,
       snippet: "3 active · 0 pending approval",
-      snippetColor: "text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/20 border-purple-100 dark:border-purple-950/30"
+      snippetColor: "text-[var(--ink-700)] bg-[var(--ink-100)] border-[var(--ink-200)]"
     },
     { 
       to: "/super-admin/threat-monitor", 
@@ -259,7 +259,7 @@ export default function SuperAdminDashboard() {
       desc: "Live attack feed",              
       icon: Activity,
       snippet: `Threat level: LOW · ${threatData?.recentFailedLogins ?? 0} failures 24h`,
-      snippetColor: "text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/20 border-rose-100 dark:border-rose-950/30"
+      snippetColor: "text-[var(--brand-pink)] bg-[var(--brand-pink-tint)] border-[var(--brand-pink)]/20"
     },
     { 
       to: "/admin/security",             
@@ -267,7 +267,7 @@ export default function SuperAdminDashboard() {
       desc: "All platform protections",      
       icon: ShieldAlert,
       snippet: "12 active sessions · 0 breaches detected",
-      snippetColor: "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/20 border-blue-100 dark:border-blue-950/30"
+      snippetColor: "text-[var(--ink-700)] bg-[var(--ink-100)] border-[var(--ink-200)]"
     },
   ];
 
@@ -282,6 +282,15 @@ export default function SuperAdminDashboard() {
     <DashboardShell
       title="Super admin command center"
       subtitle="Control super-admin access, configurations, and platform governance."
+      actions={
+        <button
+          onClick={() => navigate("/super-admin/threat-monitor")}
+          className="bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white font-medium text-[13px] h-9 px-[14px] rounded-[var(--radius-input)] border-0 focus:outline-none focus:ring-2 focus:ring-[var(--brand-pink)] focus:ring-offset-2 flex items-center gap-1.5 cursor-pointer"
+        >
+          <ShieldAlert size={14} strokeWidth={1.75} className="text-white" />
+          <span>View all alerts</span>
+        </button>
+      }
     >
       {/* 1. Hero Metrics Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 animate-fade-in">
@@ -450,7 +459,12 @@ export default function SuperAdminDashboard() {
                   <div key={i} className="p-3 bg-secondary/15 hover:bg-secondary/25 border border-border/30 rounded-xl transition-all duration-150">
                     <div className="flex items-center justify-between mb-1.5 flex-wrap gap-2">
                       <span className="text-xs font-bold text-foreground">{adm.name}</span>
-                      <span className="inline-block text-[8px] font-black px-1.5 py-0.5 rounded border border-purple-100 bg-purple-50 text-purple-700 uppercase tracking-wider dark:bg-purple-950/20 dark:text-purple-400">
+                      <span className={cn(
+                        "inline-block text-[10px] font-semibold px-2 py-[2px] rounded-[var(--radius-pill)] uppercase leading-none border-0",
+                        adm.role.includes("SUPER_ADMIN") || adm.role === "Full Admin"
+                          ? "bg-[var(--ink-900)] text-white"
+                          : "bg-[var(--ink-100)] text-[var(--ink-700)]"
+                      )}>
                         {adm.role}
                       </span>
                     </div>
@@ -458,7 +472,7 @@ export default function SuperAdminDashboard() {
                       Action: {adm.action}
                     </div>
                     <div className="flex items-center gap-1.5 text-[8.5px] text-ink-300 font-extrabold uppercase tracking-wider">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-[var(--status-ok)]" />
                       {adm.active}
                     </div>
                   </div>
@@ -511,11 +525,11 @@ export default function SuperAdminDashboard() {
                 className="w-full flex items-center justify-between p-3.5 bg-secondary/35 hover:bg-secondary/50 border border-border/50 rounded-2xl transition-all font-bold text-left group"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-600">
+                  <div className="w-8 h-8 rounded-xl bg-[var(--brand-pink)]/10 flex items-center justify-center text-[var(--brand-pink)]">
                     <UserPlus size={14} />
                   </div>
                   <div>
-                    <div className="text-xs text-foreground group-hover:text-primary transition-colors">Create Admin Account</div>
+                    <div className="text-xs text-foreground group-hover:text-[var(--brand-pink)] transition-colors">Create Admin Account</div>
                     <div className="text-[10px] text-muted-foreground font-medium mt-0.5">Provision a new administrator</div>
                   </div>
                 </div>
@@ -527,11 +541,11 @@ export default function SuperAdminDashboard() {
                 className="w-full flex items-center justify-between p-3.5 bg-secondary/35 hover:bg-secondary/50 border border-border/50 rounded-2xl transition-all font-bold text-left group"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-rose-500/10 flex items-center justify-center text-rose-600">
+                  <div className="w-8 h-8 rounded-xl bg-[var(--status-danger)]/10 flex items-center justify-center text-[var(--status-danger)]">
                     <Ban size={14} />
                   </div>
                   <div>
-                    <div className="text-xs text-foreground group-hover:text-primary transition-colors">Suspend User Account</div>
+                    <div className="text-xs text-foreground group-hover:text-[var(--brand-pink)] transition-colors">Suspend User Account</div>
                     <div className="text-[10px] text-muted-foreground font-medium mt-0.5">Instant credential lockout override</div>
                   </div>
                 </div>
@@ -543,11 +557,11 @@ export default function SuperAdminDashboard() {
                 className="w-full flex items-center justify-between p-3.5 bg-secondary/35 hover:bg-secondary/50 border border-border/50 rounded-2xl transition-all font-bold text-left group"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-600">
+                  <div className="w-8 h-8 rounded-xl bg-[var(--brand-pink)]/10 flex items-center justify-center text-[var(--brand-pink)]">
                     <FileDown size={14} />
                   </div>
                   <div>
-                    <div className="text-xs text-foreground group-hover:text-primary transition-colors">Compliance Audit Export</div>
+                    <div className="text-xs text-foreground group-hover:text-[var(--brand-pink)] transition-colors">Compliance Audit Export</div>
                     <div className="text-[10px] text-muted-foreground font-medium mt-0.5">Generate compliance audit log PDF</div>
                   </div>
                 </div>
@@ -559,9 +573,9 @@ export default function SuperAdminDashboard() {
           {/* System resource gauges */}
           <SectionCard title="System Resource Overseer" subtitle="Host hardware hypervisor utilization">
             <div className="flex gap-3 justify-between">
-              <CircularGauge value={healthData?.gauges?.cpuCore ?? 42} label="CPU Core" colorClass="stroke-primary" />
-              <CircularGauge value={healthData?.gauges?.ramAllocation ?? 64} label="RAM Allocation" colorClass="stroke-purple-500" />
-              <CircularGauge value={healthData?.gauges?.ssdVault ?? 28} label="SSD Vault" colorClass="stroke-emerald-500" />
+              <CircularGauge value={healthData?.gauges?.cpuCore ?? 42} label="CPU Core" colorClass="stroke-[var(--brand-pink)]" />
+              <CircularGauge value={healthData?.gauges?.ramAllocation ?? 64} label="RAM Allocation" colorClass="stroke-[var(--brand-pink)]" />
+              <CircularGauge value={healthData?.gauges?.ssdVault ?? 28} label="SSD Vault" colorClass="stroke-[var(--brand-pink)]" />
             </div>
           </SectionCard>
         </div>
@@ -574,7 +588,7 @@ export default function SuperAdminDashboard() {
             <h3 className="text-xs font-bold text-ink-500 uppercase tracking-widest">Platform Boundaries Status Health</h3>
             <p className="text-[11.5px] text-muted-foreground mt-0.5">Real-time status updates and diagnostics logs from service boundaries</p>
           </div>
-          <span className="text-[10px] font-extrabold text-[#7C3AED] bg-purple-50 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-950/30 px-2 py-0.5 rounded-full flex items-center gap-1 uppercase tracking-wider animate-pulse">
+          <span className="text-[10px] font-semibold text-[var(--status-ok)] bg-[var(--ink-100)] border border-[var(--ink-200)] px-2 py-[2px] rounded-[var(--radius-pill)] flex items-center gap-1 uppercase tracking-wider leading-none">
             <Sparkles size={10} className="animate-spin" /> Live Diagnostics
           </span>
         </div>

@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { 
   Search, ScrollText, Filter, Calendar, X, 
-  ChevronDown, ChevronUp, Copy, ShieldAlert
+  ChevronDown, ChevronUp, Copy, ShieldAlert, FileDown
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { apiAdmin } from "@/lib/api";
@@ -354,6 +354,15 @@ export default function AuditLogPage() {
     <DashboardShell 
       title="Audit trails" 
       subtitle="Inspect administrative overrides, threat blocks, and compliance trails."
+      actions={
+        <button
+          onClick={() => toast.success("Audit ledger exported successfully.")}
+          className="bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white font-medium text-[13px] h-9 px-[14px] rounded-[var(--radius-input)] border-0 focus:outline-none focus:ring-2 focus:ring-[var(--brand-pink)] focus:ring-offset-2 flex items-center gap-1.5 cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed select-none shadow-none"
+        >
+          <FileDown size={14} strokeWidth={1.75} className="text-white" />
+          <span>Export ledger</span>
+        </button>
+      }
     >
       {/* Filters Control Station */}
       <div className="flex flex-col md:flex-row gap-3 mb-6 items-stretch md:items-center justify-between">

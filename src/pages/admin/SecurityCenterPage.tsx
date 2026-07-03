@@ -199,6 +199,16 @@ export default function SecurityCenterPage() {
     <DashboardShell
       title="Security center"
       subtitle="Configure cryptographic keys, active session tokens, and security rules."
+      actions={
+        <button
+          onClick={handleRunDiagnostics}
+          disabled={isDiagnosticsRunning}
+          className="bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white text-[13px] font-medium h-9 px-[14px] rounded-[var(--radius-input)] border-0 focus:outline-none focus:ring-2 focus:ring-[var(--brand-pink)] focus:ring-offset-2 flex items-center gap-1.5 cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed select-none shadow-none"
+        >
+          <RefreshCw size={14} className={cn("text-white", isDiagnosticsRunning && "animate-spin")} />
+          <span>{isDiagnosticsRunning ? "Running..." : "Run diagnostics"}</span>
+        </button>
+      }
     >
       {/* Simulation Controller Row */}
       <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-[var(--ink-50)] border border-[var(--ink-200)] rounded-2xl mb-6">
@@ -328,14 +338,14 @@ export default function SecurityCenterPage() {
               <button 
                 onClick={handleRunDiagnostics}
                 disabled={isDiagnosticsRunning}
-                className="h-9 px-4 rounded-[var(--radius-input)] text-xs font-semibold border border-[var(--ink-200)] text-[var(--ink-900)] bg-[var(--surface)] hover:bg-[var(--ink-50)] transition-all flex items-center gap-1.5 cursor-pointer"
+                className="bg-[var(--surface)] hover:bg-[var(--ink-100)] border border-[var(--ink-200)] text-[var(--ink-900)] text-[13px] font-medium h-9 px-[14px] rounded-[var(--radius-input)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-pink)] focus:ring-offset-2 flex items-center justify-center gap-1.5 cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed select-none shadow-none"
               >
                 {isDiagnosticsRunning ? (
-                  <RefreshCw size={12} className="animate-spin" />
+                  <RefreshCw size={14} className="animate-spin" />
                 ) : (
-                  <ShieldCheck size={12} className="text-[var(--ink-500)]" />
+                  <ShieldCheck size={14} className="text-[var(--ink-500)]" />
                 )}
-                {isDiagnosticsRunning ? "Running..." : "Run diagnostics"}
+                <span>{isDiagnosticsRunning ? "Running..." : "Run diagnostics"}</span>
               </button>
               <div className="absolute right-0 bottom-full mb-2 hidden group-hover:block bg-[var(--ink-900)] text-[var(--ink-50)] text-[10px] rounded-lg px-2.5 py-1.5 w-56 shadow-xl border border-[var(--ink-700)] text-center leading-normal z-50">
                 Triggers audit on the 8 Cryptographic Guardrails, parsing config integrity, database salts, and rate limiting status.

@@ -134,12 +134,9 @@ export default function ManageAdminsPage() {
 
   const getRoleBadgeClass = (role: string) => {
     if (role === "Full Admin") {
-      return "bg-purple-600 border-purple-700 text-white font-extrabold shadow-sm hover:bg-purple-700";
+      return "bg-[var(--ink-900)] text-white text-[11px] font-semibold px-2 py-[3px] rounded-[var(--radius-pill)] uppercase tracking-wider";
     }
-    if (role === "Moderator") {
-      return "bg-teal-600 border-teal-700 text-white font-bold hover:bg-teal-700";
-    }
-    return "border border-slate-200 text-slate-600 dark:border-slate-800 dark:text-slate-400 font-semibold bg-transparent";
+    return "bg-[var(--ink-100)] text-[var(--ink-700)] text-[11px] font-semibold px-2 py-[3px] rounded-[var(--radius-pill)] uppercase tracking-wider border-0";
   };
 
   const handleOpenRevoke = (admin: AdminUser) => {
@@ -204,29 +201,32 @@ export default function ManageAdminsPage() {
       title="Manage Admins"
       subtitle="Control role elevations, credential configurations, and administrative ingress tokens"
       actions={
-        <button onClick={() => setShowForm(v => !v)}
-                className="flex items-center gap-1.5 px-4 py-2 bg-purple-600 text-white text-xs font-bold rounded-full hover:bg-purple-700 transition-colors cursor-pointer select-none">
-          <Plus size={13} /> Create Admin
+        <button 
+          onClick={() => setShowForm(v => !v)}
+          className="bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white text-[13px] font-medium h-9 px-[14px] rounded-[var(--radius-input)] border-0 focus:outline-none focus:ring-2 focus:ring-[var(--brand-pink)] focus:ring-offset-2 flex items-center gap-1.5 cursor-pointer transition-all duration-200 select-none shadow-none"
+        >
+          <Plus size={14} strokeWidth={1.75} className="text-white" />
+          <span>+ Create admin</span>
         </button>
       }
     >
       {/* Create form */}
       {showForm && (
-        <SectionCard title="Create New Admin Account" className="mb-5 border-purple-200 bg-purple-50/30">
+        <SectionCard title="Create New Admin Account" className="mb-5 border border-[var(--ink-200)] bg-[var(--surface)] shadow-[var(--shadow-card)]">
           <div className="space-y-4 mt-3">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div>
-                <label className="block text-[11px] font-bold text-[#3D3656] uppercase tracking-wide mb-1.5">Name</label>
-                <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Admin name" className="w-full px-3.5 py-2.5 border border-[#E8E1F0] rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/10 focus:border-purple-400 transition-all text-foreground" />
+                <label className="block text-[11px] font-semibold text-[var(--ink-500)] uppercase tracking-wide mb-1.5">Name</label>
+                <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Admin name" className="w-full px-3.5 py-2.5 border border-[var(--ink-200)] rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[rgba(230,0,126,0.15)] focus:border-[var(--brand-pink)] transition-all text-foreground" />
               </div>
               <div>
-                <label className="block text-[11px] font-bold text-[#3D3656] uppercase tracking-wide mb-1.5">Email</label>
-                <input type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="admin@hercareer.pk" className="w-full px-3.5 py-2.5 border border-[#E8E1F0] rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/10 focus:border-purple-400 transition-all text-foreground" />
+                <label className="block text-[11px] font-semibold text-[var(--ink-500)] uppercase tracking-wide mb-1.5">Email</label>
+                <input type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="admin@hercareer.pk" className="w-full px-3.5 py-2.5 border border-[var(--ink-200)] rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[rgba(230,0,126,0.15)] focus:border-[var(--brand-pink)] transition-all text-foreground" />
               </div>
               <div>
-                <label className="block text-[11px] font-bold text-[#3D3656] uppercase tracking-wide mb-1.5">System Role</label>
+                <label className="block text-[11px] font-semibold text-[var(--ink-500)] uppercase tracking-wide mb-1.5">System Role</label>
                 <Select value={form.role} onValueChange={val => setForm(f => ({ ...f, role: val }))}>
-                  <SelectTrigger className="w-full px-3.5 py-2.5 border border-[#E8E1F0] rounded-xl text-sm bg-white focus:ring-2 focus:ring-purple-500/10 focus:border-purple-400 transition-all text-foreground cursor-pointer h-[42px]">
+                  <SelectTrigger className="w-full px-3.5 py-2.5 border border-[var(--ink-200)] rounded-xl text-sm bg-white focus:ring-2 focus:ring-[rgba(230,0,126,0.15)] focus:border-[var(--brand-pink)] transition-all text-foreground cursor-pointer h-[42px]">
                     <SelectValue placeholder="Select System Role" />
                   </SelectTrigger>
                   <SelectContent className="bg-popover border border-border rounded-xl shadow-xl min-w-[200px] p-1">
@@ -238,14 +238,14 @@ export default function ManageAdminsPage() {
               </div>
             </div>
             <div>
-              <label className="block text-[11px] font-bold text-[#3D3656] uppercase tracking-wide mb-2">Permissions</label>
+              <label className="block text-[11px] font-semibold text-[var(--ink-500)] uppercase tracking-wide mb-2">Permissions</label>
               <div className="flex flex-wrap gap-2">
                 {ALL_PERMS.map(p => {
                   const sel = form.perms.includes(p.id);
                   return (
                     <button key={p.id} onClick={() => setForm(f => ({ ...f, perms: sel ? f.perms.filter(x => x !== p.id) : [...f.perms, p.id] }))}
                             className={cn("px-3 py-1.5 rounded-full text-[11px] font-semibold border transition-all cursor-pointer",
-                              sel ? "bg-purple-500 border-purple-500 text-white" : "bg-white border-[#E8E1F0] text-[#6B6480] hover:border-purple-300")}>
+                              sel ? "bg-[var(--brand-pink)] border-[var(--brand-pink)] text-white" : "bg-white border-[var(--ink-200)] text-[var(--ink-700)] hover:border-[var(--ink-300)]")}>
                       {p.name}
                     </button>
                   );
@@ -253,10 +253,16 @@ export default function ManageAdminsPage() {
               </div>
             </div>
             <div className="flex gap-3">
-              <button onClick={createAdmin} className="px-5 py-2.5 bg-purple-600 text-white text-sm font-bold rounded-full hover:bg-purple-700 transition-colors cursor-pointer">
+              <button
+                onClick={createAdmin}
+                className="bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white text-[13px] font-medium h-9 px-[14px] rounded-[var(--radius-input)] border-0 focus:outline-none focus:ring-2 focus:ring-[var(--brand-pink)] focus:ring-offset-2 flex items-center justify-center gap-1.5 cursor-pointer transition-all duration-200 select-none shadow-none"
+              >
                 Create Admin Account
               </button>
-              <button onClick={() => setShowForm(false)} className="px-5 py-2.5 border border-[#E8E1F0] rounded-full text-sm font-semibold text-[#6B6480] hover:bg-[#F7F4F9] transition-colors cursor-pointer">
+              <button
+                onClick={() => setShowForm(false)}
+                className="bg-[var(--surface)] hover:bg-[var(--ink-100)] border border-[var(--ink-200)] text-[var(--ink-900)] text-[13px] font-medium h-9 px-[14px] rounded-[var(--radius-input)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-pink)] focus:ring-offset-2 flex items-center justify-center gap-1.5 cursor-pointer transition-all duration-200 select-none shadow-none"
+              >
                 Cancel
               </button>
             </div>
@@ -316,7 +322,7 @@ export default function ManageAdminsPage() {
                       <p className="text-xs text-muted-foreground">Start by creating your first administrative account to coordinate platform activities.</p>
                       <button 
                         onClick={() => setShowForm(true)}
-                        className="px-4 py-2 bg-purple-600 text-white rounded-full text-xs font-bold hover:bg-purple-700 cursor-pointer"
+                        className="bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white text-[13px] font-medium h-9 px-[14px] rounded-[var(--radius-input)] border-0 focus:outline-none focus:ring-2 focus:ring-[var(--brand-pink)] focus:ring-offset-2 flex items-center gap-1.5 cursor-pointer transition-all duration-200 select-none shadow-none"
                       >
                         + Create Admin
                       </button>
@@ -489,8 +495,8 @@ export default function ManageAdminsPage() {
                         className={cn(
                           "p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 select-none",
                           hasPerm 
-                            ? "bg-purple-500/5 border-purple-500/30 hover:bg-purple-500/10"
-                            : "bg-secondary/20 border-border/40 hover:border-primary/10"
+                            ? "bg-[var(--brand-pink)]/5 border-[var(--brand-pink)]/30 hover:bg-[var(--brand-pink)]/10"
+                            : "bg-secondary/20 border-border/40 hover:border-[var(--brand-pink)]/10"
                         )}
                       >
                         <div className="min-w-0">
@@ -501,7 +507,7 @@ export default function ManageAdminsPage() {
                           type="checkbox" 
                           checked={hasPerm} 
                           onChange={() => {}} // toggled by parent div click
-                          className="w-3.5 h-3.5 accent-purple-600 rounded" 
+                          className="w-3.5 h-3.5 accent-[var(--brand-pink)] rounded" 
                         />
                       </div>
                     );
@@ -514,14 +520,14 @@ export default function ManageAdminsPage() {
               <button
                 type="button"
                 onClick={() => setEditingAdmin(null)}
-                className="px-5 py-2 bg-secondary hover:bg-secondary/80 border border-border text-foreground rounded-full text-[11px] font-bold transition-all cursor-pointer"
+                className="bg-[var(--surface)] hover:bg-[var(--ink-100)] border border-[var(--ink-200)] text-[var(--ink-900)] text-[13px] font-medium h-9 px-[14px] rounded-[var(--radius-input)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-pink)] focus:ring-offset-2 flex items-center justify-center gap-1.5 cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed select-none shadow-none"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleSavePermissions}
-                className="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-full text-[11px] font-bold transition-all cursor-pointer"
+                className="bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white text-[13px] font-medium h-9 px-[14px] rounded-[var(--radius-input)] border-0 focus:outline-none focus:ring-2 focus:ring-[var(--brand-pink)] focus:ring-offset-2 flex items-center justify-center gap-1.5 cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed select-none shadow-none"
               >
                 Save changes
               </button>
@@ -589,7 +595,7 @@ export default function ManageAdminsPage() {
               <button
                 type="button"
                 onClick={() => setAdminToRevoke(null)}
-                className="px-5 py-2 bg-secondary hover:bg-secondary/80 border border-border text-foreground rounded-full text-[11px] font-bold transition-all cursor-pointer"
+                className="bg-[var(--surface)] hover:bg-[var(--ink-100)] border border-[var(--ink-200)] text-[var(--ink-900)] text-[13px] font-medium h-9 px-[14px] rounded-[var(--radius-input)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-pink)] focus:ring-offset-2 flex items-center justify-center gap-1.5 cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed select-none shadow-none"
               >
                 Cancel
               </button>
@@ -598,10 +604,10 @@ export default function ManageAdminsPage() {
                 onClick={handleConfirmRevoke}
                 disabled={confirmText !== "REVOKE" || (adminToRevoke.role === "Full Admin" && !superAdminPassword)}
                 className={cn(
-                  "px-5 py-2 rounded-full text-[11px] font-bold text-white transition-all cursor-pointer",
+                  "text-[13px] font-medium h-9 px-[14px] rounded-[var(--radius-input)] border-0 focus:outline-none focus:ring-2 focus:ring-[var(--brand-pink)] focus:ring-offset-2 flex items-center justify-center gap-1.5 cursor-pointer transition-all duration-200 select-none shadow-none text-white",
                   (confirmText !== "REVOKE" || (adminToRevoke.role === "Full Admin" && !superAdminPassword))
-                    ? "bg-slate-300 border-slate-300 cursor-not-allowed text-slate-500"
-                    : "bg-rose-600 hover:bg-rose-700 hover:scale-102 active:scale-98"
+                    ? "bg-slate-300 opacity-50 cursor-not-allowed"
+                    : "bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)]"
                 )}
               >
                 Confirm Revocation

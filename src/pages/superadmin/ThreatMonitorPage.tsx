@@ -217,6 +217,20 @@ export default function ThreatMonitorPage() {
     <DashboardShell
       title="Threat Monitor"
       subtitle="Real-time platform security intelligence, ingress logs, and active firewall controls"
+      actions={
+        <button
+          onClick={handleRunSecurityTests}
+          disabled={isTestingLayers}
+          className="bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white text-[13px] font-medium h-9 px-[14px] rounded-[var(--radius-input)] border-0 focus:outline-none focus:ring-2 focus:ring-[var(--brand-pink)] focus:ring-offset-2 flex items-center gap-1.5 cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed select-none shadow-none"
+        >
+          {isTestingLayers ? (
+            <RefreshCw size={14} className="animate-spin text-white" />
+          ) : (
+            <Play size={14} className="text-white" />
+          )}
+          <span>{isTestingLayers ? "Auditing..." : "Run security tests"}</span>
+        </button>
+      }
     >
       {/* Top threat cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5 select-none">
@@ -305,14 +319,14 @@ export default function ThreatMonitorPage() {
             <button
               onClick={handleRunSecurityTests}
               disabled={isTestingLayers}
-              className="h-9 px-4 rounded-[var(--radius-input)] text-xs font-semibold text-white bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] transition-all flex items-center gap-1.5 cursor-pointer border-0 active:scale-95 disabled:opacity-50"
+              className="bg-[var(--surface)] hover:bg-[var(--ink-100)] border border-[var(--ink-200)] text-[var(--ink-900)] text-[13px] font-medium h-9 px-[14px] rounded-[var(--radius-input)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-pink)] focus:ring-offset-2 flex items-center justify-center gap-1.5 cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed select-none shadow-none"
             >
               {isTestingLayers ? (
-                <RefreshCw size={11} className="animate-spin" />
+                <RefreshCw size={14} className="animate-spin" />
               ) : (
-                <Play size={11} className="animate-pulse" />
+                <Play size={14} className="text-[var(--ink-500)]" />
               )}
-              {isTestingLayers ? "Auditing..." : "Run security tests"}
+              <span>{isTestingLayers ? "Auditing..." : "Run security tests"}</span>
             </button>
           </div>
           <div className="space-y-3.5">

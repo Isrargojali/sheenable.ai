@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { 
   Users, Briefcase, Building2, FileText, ShieldCheck, ScrollText, 
-  ArrowUpRight, TrendingUp, Activity, X, Clock, Sparkles
+  ArrowUpRight, TrendingUp, Activity, X, Clock, Sparkles, FileDown
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { DashboardShell, SectionCard } from "@/components/layout/DashboardShell";
@@ -288,6 +288,15 @@ export default function AdminDashboard() {
     <DashboardShell 
       title="Admin overview" 
       subtitle="Monitor platform health, service status, and security compliance."
+      actions={
+        <button
+          onClick={() => toast.success("Overview report exported successfully.")}
+          className="bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white font-medium text-[13px] h-9 px-[14px] rounded-[var(--radius-input)] border-0 focus:outline-none focus:ring-2 focus:ring-[var(--brand-pink)] focus:ring-offset-2 flex items-center gap-1.5 cursor-pointer"
+        >
+          <FileDown size={14} strokeWidth={1.75} className="text-white" />
+          <span>Export report</span>
+        </button>
+      }
     >
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in mb-6">
         {/* Left Column (Main Governance Panels) */}

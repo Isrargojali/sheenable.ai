@@ -3,11 +3,12 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { 
   Search, UserCheck, Ban, Loader2, MoreVertical,
-  Eye, Edit2, KeyRound, UserCog, ScrollText, X, AlertTriangle, RefreshCw
+  Eye, Edit2, KeyRound, UserCog, ScrollText, X, AlertTriangle, RefreshCw,
+  FileDown
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { apiAdmin } from "@/lib/api";
-import { DashboardShell, SectionCard, BtnPrimary } from "@/components/layout/DashboardShell";
+import { DashboardShell, SectionCard } from "@/components/layout/DashboardShell";
 import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 import { toast } from "sonner";
 import { useSearchParams, useNavigate } from "react-router-dom";
@@ -205,7 +206,15 @@ export default function UsersPage() {
     <DashboardShell
       title="User governance"
       subtitle="Manage user accounts, verify credentials, and assign roles."
-      actions={<BtnPrimary onClick={handleExport}>Export CSV Report</BtnPrimary>}
+      actions={
+        <button
+          onClick={handleExport}
+          className="bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white text-[13px] font-medium h-9 px-[14px] rounded-[var(--radius-input)] border-0 focus:outline-none focus:ring-2 focus:ring-[var(--brand-pink)] focus:ring-offset-2 flex items-center gap-1.5 cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed select-none shadow-none"
+        >
+          <FileDown size={14} strokeWidth={1.75} className="text-white" />
+          <span>Export CSV report</span>
+        </button>
+      }
     >
       {/* Filters Control Center */}
       <div className="flex flex-col xl:flex-row gap-4 mb-6 items-stretch xl:items-center justify-between">
