@@ -472,7 +472,7 @@ function Sidebar({
                   onClick={onNav}
                   title={collapsed ? item.label : undefined}
                   className={({ isActive }) => cn(
-                    "flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[12px] font-medium mb-0.5 transition-all border-l-[3px] border-transparent",
+                    "flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[12px] font-medium mb-0.5 transition-all border-l-[3px] border-transparent relative",
                     isActive
                       ? "bg-[var(--brand-pink-tint)] text-[var(--brand-pink)] font-semibold border-l-[var(--brand-pink)] rounded-l-none"
                       : "text-[var(--ink-700)] bg-transparent hover:bg-[var(--ink-100)] hover:text-[var(--ink-900)]",
@@ -488,17 +488,29 @@ function Sidebar({
                           <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[var(--accent-green)] animate-pulse ring-2 ring-card" />
                         )}
                         {collapsed && badge && (
-                          <span className="absolute -top-2 -right-2 bg-[var(--brand-pink)] text-white w-4 h-4 flex items-center justify-center rounded-full text-[9px] font-bold leading-none shadow-sm">
+                          <span 
+                            className={cn(
+                              "absolute -top-1.5 -right-1.5 w-4 h-4 flex items-center justify-center rounded-[var(--radius-pill)] text-[10px] font-semibold leading-none shadow-sm transition-all select-none pointer-events-none",
+                              isActive
+                                ? "bg-white text-[var(--brand-pink)]"
+                                : "bg-[var(--brand-pink)] text-white"
+                            )}
+                          >
                             {badge}
                           </span>
                         )}
                       </div>
-                      {!collapsed && <span className="truncate">{item.label}</span>}
+                      {!collapsed && <span className="truncate pr-7">{item.label}</span>}
                       {!collapsed && badge && (
-                        <span className="ml-auto flex items-center justify-center flex-shrink-0">
-                          <span className="bg-[var(--brand-pink)] text-white w-[18px] h-[18px] flex items-center justify-center rounded-full text-[11px] font-semibold leading-none">
-                            {badge}
-                          </span>
+                        <span 
+                          className={cn(
+                            "absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center rounded-[var(--radius-pill)] text-[10px] font-semibold leading-none transition-all select-none pointer-events-none",
+                            isActive 
+                              ? "bg-white text-[var(--brand-pink)]" 
+                              : "bg-[var(--brand-pink)] text-white"
+                          )}
+                        >
+                          {badge}
                         </span>
                       )}
                     </>
