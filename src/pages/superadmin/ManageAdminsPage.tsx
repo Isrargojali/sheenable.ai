@@ -212,7 +212,7 @@ export default function ManageAdminsPage() {
     >
       {/* Create form */}
       {showForm && (
-        <SectionCard title="Create New Admin Account" className="mb-5 border border-[var(--ink-200)] bg-[var(--surface)] shadow-[var(--shadow-card)]">
+        <SectionCard title="Create New Admin Account" className="mb-6 border border-[var(--ink-200)] bg-[var(--surface)] shadow-[var(--shadow-card)]">
           <div className="space-y-4 mt-3">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div>

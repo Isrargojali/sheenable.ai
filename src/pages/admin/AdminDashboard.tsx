@@ -302,21 +302,21 @@ export default function AdminDashboard() {
         {/* Left Column (Main Governance Panels) */}
         <div className="lg:col-span-2 space-y-6">
           {/* Header Row with Timeframe Selector */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-secondary/20 p-3.5 rounded-2xl border border-border/60">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[var(--surface)] p-4 rounded-[var(--radius-card)] border border-[var(--ink-200)] shadow-[var(--shadow-card)]">
             <div>
               <h3 className="text-xs font-bold text-ink-500 uppercase tracking-widest">Platform Activity Statistics</h3>
               <p className="text-[11px] text-muted-foreground mt-0.5">Toggle timeframe to analyze signups and submissions</p>
             </div>
-            <div className="flex bg-secondary border border-border p-0.5 rounded-xl text-[10px] font-bold self-start sm:self-auto">
+            <div className="flex bg-[var(--ink-100)] p-1 rounded-full h-10 items-center border-0 self-start sm:self-auto">
               {(["today", "7d", "30d"] as const).map((t) => (
                 <button
                   key={t}
                   onClick={() => setTimeframe(t)}
                   className={cn(
-                    "px-3 py-1.5 rounded-lg uppercase tracking-wider transition-all",
+                    "h-8 px-4 rounded-full text-[12px] font-semibold uppercase transition-all border-0 cursor-pointer flex items-center justify-center select-none",
                     timeframe === t 
-                      ? "bg-card border border-border/60 text-foreground shadow-sm font-black" 
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "bg-[var(--brand-pink)] text-white shadow-none" 
+                      : "bg-transparent text-[var(--ink-500)] hover:text-[var(--ink-900)]"
                   )}
                 >
                   {t === "today" ? "Today" : t === "7d" ? "7 Days" : "30 Days"}

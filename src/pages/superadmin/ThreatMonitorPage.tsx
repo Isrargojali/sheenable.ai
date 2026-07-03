@@ -233,7 +233,7 @@ export default function ThreatMonitorPage() {
       }
     >
       {/* Top threat cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5 select-none">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 select-none">
         {statCards.map(c => {
           const Icon = c.icon;
           const isThreatLevel = c.label === "Threat level status";
@@ -283,7 +283,7 @@ export default function ThreatMonitorPage() {
         })}
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-5 mb-5">
+      <div className="grid lg:grid-cols-2 gap-6 mb-6">
         {/* 24h metrics with micro-trend bars */}
         <div className={cn("bg-[var(--surface)] border border-[var(--ink-200)] rounded-[var(--radius-card)] p-5 shadow-[var(--shadow-card)] select-none", leftBorderStrip)}>
           <h3 className="text-sm font-semibold text-[var(--ink-900)] mb-4">24h security events</h3>
