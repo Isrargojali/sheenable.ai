@@ -369,7 +369,7 @@ function Sidebar({
             <div className="min-w-0 flex-1 transition-opacity duration-300">
               <div className="text-[13px] font-semibold text-foreground truncate leading-tight">{displayName}</div>
               <div className="mt-1">
-                <span className="inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full border border-[var(--ink-300)] bg-[var(--ink-100)] text-[var(--ink-700)] uppercase tracking-wider leading-none">
+                <span className="inline-block text-[10px] font-semibold px-2 py-[2px] rounded-[var(--radius-pill)] bg-[var(--ink-100)] text-[var(--ink-700)] uppercase leading-none">
                   {ROLE_LABEL[role]}
                 </span>
               </div>
