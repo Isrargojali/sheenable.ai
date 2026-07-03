@@ -230,16 +230,16 @@ export default function UsersPage() {
 
         <div className="flex flex-wrap items-center gap-3 self-start xl:self-auto">
           {/* Role Filter tabs */}
-          <div className="flex overflow-x-auto gap-1 bg-[var(--ink-100)] p-1 rounded-xl border border-[var(--ink-200)]">
+          <div className="flex overflow-x-auto gap-1 bg-[var(--ink-100)] p-1 rounded-full h-10 items-center border-0">
             {["ALL","CANDIDATE","EMPLOYER","ADMIN"].map(r => (
               <button 
                 key={r} 
                 onClick={() => handleSetRole(r)}
                 className={cn(
-                  "px-3.5 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all",
+                  "h-8 px-4 rounded-full text-[12px] font-semibold uppercase transition-all border-0 cursor-pointer flex items-center justify-center select-none",
                   roleFilter === r 
-                    ? "bg-[var(--brand-pink)] text-white shadow-sm" 
-                    : "text-[var(--ink-500)] hover:text-[var(--ink-900)]"
+                    ? "bg-[var(--brand-pink)] text-white shadow-none" 
+                    : "bg-transparent text-[var(--ink-500)] hover:text-[var(--ink-900)]"
                 )}
               >
                 {r}
@@ -248,7 +248,7 @@ export default function UsersPage() {
           </div>
 
           {/* Status Filter tabs */}
-          <div className="flex overflow-x-auto gap-1 bg-[var(--ink-100)] p-1 rounded-xl border border-[var(--ink-200)]">
+          <div className="flex overflow-x-auto gap-1 bg-[var(--ink-100)] p-1 rounded-full h-10 items-center border-0">
             {["ALL","ACTIVE","SUSPENDED","UNVERIFIED"].map(st => (
               <button 
                 key={st} 
@@ -257,10 +257,10 @@ export default function UsersPage() {
                   setCurrentPage(1);
                 }}
                 className={cn(
-                  "px-3.5 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all",
+                  "h-8 px-4 rounded-full text-[12px] font-semibold uppercase transition-all border-0 cursor-pointer flex items-center justify-center select-none",
                   statusFilter === st 
-                    ? "bg-[var(--brand-pink)] text-white shadow-sm" 
-                    : "text-[var(--ink-500)] hover:text-[var(--ink-900)]"
+                    ? "bg-[var(--brand-pink)] text-white shadow-none" 
+                    : "bg-transparent text-[var(--ink-500)] hover:text-[var(--ink-900)]"
                 )}
               >
                 {st === "ALL" ? "Status: All" : st}

@@ -283,16 +283,16 @@ export default function ManageAdminsPage() {
         </div>
 
         {/* Role Filters */}
-        <div className="flex bg-secondary border border-border p-0.5 rounded-xl text-[10px] font-bold">
+        <div className="flex overflow-x-auto gap-1 bg-[var(--ink-100)] p-1 rounded-full h-10 items-center border-0">
           {["All", "Full Admin", "Moderator", "Support"].map(role => (
             <button
               key={role}
               onClick={() => setRoleFilter(role)}
               className={cn(
-                "px-3 py-1.5 rounded-lg uppercase tracking-wider transition-all cursor-pointer",
+                "h-8 px-4 rounded-full text-[12px] font-semibold uppercase transition-all border-0 cursor-pointer flex items-center justify-center select-none",
                 roleFilter === role 
-                  ? "bg-background text-foreground shadow-sm font-black"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "bg-[var(--brand-pink)] text-white shadow-none" 
+                  : "bg-transparent text-[var(--ink-500)] hover:text-[var(--ink-900)]"
               )}
             >
               {role}
