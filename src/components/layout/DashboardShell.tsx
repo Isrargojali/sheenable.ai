@@ -380,9 +380,9 @@ function Sidebar({
         {role === "CANDIDATE" && (
           collapsed ? (
             <div className="flex justify-center mt-2">
-              <span 
+              <span
                 className={cn(
-                  "w-2.5 h-2.5 rounded-full ring-2 ring-card animate-pulse", 
+                  "w-2.5 h-2.5 rounded-full ring-2 ring-card animate-pulse",
                   available ? "bg-[var(--status-success-fg)]" : "bg-[var(--status-progress-fg)]"
                 )}
                 title={available ? "Available for hire" : "Not available"}
@@ -435,13 +435,13 @@ function Sidebar({
                 if (atsPendingCount > 0) {
                   badge = String(atsPendingCount);
                   badgeVariant = "amber";
-                } 
+                }
               } else if (item.to.includes("listings") && role === "EMPLOYER") {
                 // Rose badge — listings expiring within 7 days
                 if (expiringListingsCount > 0) {
                   badge = String(expiringListingsCount);
                   badgeVariant = "rose";
-                } 
+                }
               } else if (item.to.includes("dashboard") && role === "EMPLOYER") {
                 // Pulsing dot — ambient "new AI matches available" awareness
                 showDot = true;
@@ -488,7 +488,7 @@ function Sidebar({
                           <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[var(--accent-green)] animate-pulse ring-2 ring-card" />
                         )}
                         {collapsed && badge && (
-                          <span 
+                          <span
                             className={cn(
                               "absolute -top-1.5 -right-1.5 w-4 h-4 flex items-center justify-center rounded-[var(--radius-pill)] text-[10px] font-semibold leading-none shadow-sm transition-all select-none pointer-events-none",
                               isActive
@@ -502,11 +502,11 @@ function Sidebar({
                       </div>
                       {!collapsed && <span className="truncate pr-7">{item.label}</span>}
                       {!collapsed && badge && (
-                        <span 
+                        <span
                           className={cn(
                             "absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center rounded-[var(--radius-pill)] text-[10px] font-semibold leading-none transition-all select-none pointer-events-none",
-                            isActive 
-                              ? "bg-white text-[var(--brand-pink)]" 
+                            isActive
+                              ? "bg-white text-[var(--brand-pink)]"
                               : "bg-[var(--brand-pink)] text-white"
                           )}
                         >
@@ -1701,8 +1701,8 @@ function QuickDarkModeToggle() {
       aria-label="Toggle dark appearance"
       className={cn(
         "w-9 h-9 flex items-center justify-center bg-transparent transition-all cursor-pointer shadow-none select-none",
-        isAdmin 
-          ? "border border-[var(--ink-200)] rounded-[var(--radius-input)] hover:bg-[var(--ink-100)]" 
+        isAdmin
+          ? "border border-[var(--ink-200)] rounded-[var(--radius-input)] hover:bg-[var(--ink-100)]"
           : "rounded-full border border-[var(--ink-300)] hover:bg-[var(--ink-100)]/30 hover:border-[var(--ink-500)]"
       )}
     >
