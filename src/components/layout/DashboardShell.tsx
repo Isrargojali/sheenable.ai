@@ -424,7 +424,7 @@ function Sidebar({
               // Dynamic badge overrides per nav item
               let badge = item.badge;
               let badgeVariant: "primary" | "amber" | "rose" = "primary";
-              let showDot = false;
+              let showDot = false; 
 
               if (item.to.includes("messages")) {
                 badge = unreadMessagesCount > 0 ? String(unreadMessagesCount) : undefined;
