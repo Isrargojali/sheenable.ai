@@ -463,7 +463,7 @@ function Sidebar({
                   badge = String(pendingAdminRequests);
                   badgeVariant = "amber";
                 }
-              }
+              }  
 
               return (
                 <NavLink
