@@ -478,7 +478,7 @@ function Sidebar({
                       : "text-[var(--ink-700)] bg-transparent hover:bg-[var(--ink-100)] hover:text-[var(--ink-900)]",
                     collapsed && "justify-center px-0 h-10 w-10 mx-auto rounded-xl border-l-0"
                   )}
-                >
+                >  
                   {({ isActive }) => (
                     <>
                       <div className="relative flex-shrink-0 flex items-center justify-center">
