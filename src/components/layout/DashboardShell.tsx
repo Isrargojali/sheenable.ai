@@ -497,7 +497,7 @@ function Sidebar({
                             )}
                           >
                             {badge}
-                          </span>
+                          </span>   
                         )}
                       </div>
                       {!collapsed && <span className="truncate pr-7">{item.label}</span>}
