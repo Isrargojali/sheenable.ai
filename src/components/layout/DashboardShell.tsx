@@ -520,7 +520,7 @@ function Sidebar({
             })}
           </div>
         ))}
-      </nav>
+      </nav>  
 
       {/* ── BOTTOM: Logo + Powered By — for ALL roles ── */}
       <div className={cn(
