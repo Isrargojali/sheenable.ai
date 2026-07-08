@@ -526,7 +526,7 @@ function Sidebar({
       <div className={cn(
         "mt-auto border-t border-border flex flex-col items-center gap-2 bg-secondary/15 transition-all duration-300",
         collapsed ? "p-2.5" : "p-4 items-start"
-      )}>
+      )}>  
         <Link to="/" className="relative z-10 flex items-center group" aria-label="SheEnableAI home">
           {collapsed ? (
             <div className="w-8 h-8 rounded-lg bg-[var(--brand-pink-soft)] flex items-center justify-center text-[var(--brand-pink)] font-black text-xs group-hover:scale-105 transition-transform shadow-sm">
