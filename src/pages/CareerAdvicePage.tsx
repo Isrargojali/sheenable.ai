@@ -64,17 +64,17 @@ export default function CareerAdvicePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--surface-muted)] text-[var(--ink-700)] flex flex-col">
-      {/* Header */}
+    <div className="min-h-screen bg-[var(--surface)] text-[var(--ink-700)] flex flex-col">
+      {/* Dark Header / Navigation */}
       <div className="bg-[var(--surface-dark)]">
         <SubpageNav />
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 max-w-[1200px] mx-auto w-full p-6 space-y-8">
+      <div className="flex-1 flex flex-col">
         {activeArticle ? (
           /* Detailed Article View */
-          <div className="max-w-3xl mx-auto space-y-6 animate-fade-in py-6">
+          <div className="max-w-3xl mx-auto w-full p-6 space-y-6 animate-fade-in py-12">
             <button
               onClick={() => setActiveArticle(null)}
               className="px-4 py-2 bg-[var(--ink-100)] hover:bg-[var(--ink-200)] text-[var(--ink-900)] rounded-full text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm"
@@ -92,11 +92,12 @@ export default function CareerAdvicePage() {
 
             <div className="space-y-4">
               <div className="flex flex-wrap items-center gap-3">
-                <span className={`px-3 py-1 rounded-full text-[10px] font-bold ${getCategoryColor(activeArticle.category)}`}>
+                <span className="text-[11px] font-semibold uppercase px-[10px] py-[3px] rounded-full bg-[var(--ink-100)] text-[var(--ink-700)]">
                   {getCategoryLabel(activeArticle.category)}
                 </span>
-                <span className="text-[var(--ink-500)] text-xs flex items-center gap-1">
-                  <Clock size={12} /> {activeArticle.readTime} min read
+                <span className="text-[var(--ink-500)] text-xs flex items-center gap-1.5">
+                  <Clock size={12} strokeWidth={1.75} className="text-[var(--ink-500)]" />
+                  <span>{activeArticle.readTime} min read</span>
                 </span>
               </div>
 
@@ -140,125 +141,134 @@ export default function CareerAdvicePage() {
             </div>
           </div>
         ) : (
-          /* Article Directory Grid */
-          <div className="space-y-6">
-            {/* Editorial Heading */}
-            <div className="text-center max-w-2xl mx-auto space-y-3 py-6">
-              <h2 className="font-serif text-3xl font-extrabold tracking-tight text-[var(--ink-900)]">
-                SheEnableAI <span className="text-[var(--brand-pink)]">Career Hub</span>
-              </h2>
-              <p className="text-sm text-[var(--ink-500)] leading-relaxed">
-                Empowering career insights, tech leadership blueprints, and data-driven diversity research, custom-curated for ambitious women in Pakistan's software sectors.
-              </p>
-            </div>
+          /* Directory View */
+          <>
+            {/* Dark Hero Section (Title + Search Bar) */}
+            <header className="bg-[var(--surface-dark)] text-white pb-12 pt-6">
+              <div className="max-w-[1200px] mx-auto w-full px-6 text-center max-w-2xl space-y-6">
+                <div className="space-y-3">
+                  <h2 className="font-serif text-3xl font-extrabold tracking-tight text-white">
+                    SheEnableAI <span className="italic text-[var(--brand-pink)]">Career Hub</span>
+                  </h2>
+                  <p className="text-sm text-[var(--on-dark-secondary)] leading-relaxed">
+                    Empowering career insights, tech leadership blueprints, and data-driven diversity research, custom-curated for ambitious women in Pakistan's software sectors.
+                  </p>
+                </div>
 
-            {/* Filter controls */}
-            <div className="grid md:grid-cols-3 gap-4 bg-[var(--surface)] border border-[var(--ink-200)] rounded-3xl p-4 shadow-card">
-              {/* Search */}
-              <div className="md:col-span-2 relative">
-                <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--ink-500)]" />
-                <input
-                  type="text"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search articles, topics, keywords..."
-                  className="w-full bg-white border border-[var(--ink-300)] rounded-2xl pl-10 pr-4 py-3 text-xs text-[var(--ink-900)] focus:outline-none focus:border-[var(--brand-pink)] placeholder:text-[var(--ink-500)]"
-                />
-              </div>
-
-              {/* Category selector */}
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="w-full bg-white border border-[var(--ink-300)] hover:bg-[var(--ink-100)] text-xs text-[var(--ink-700)] focus:ring-2 focus:ring-[var(--brand-pink)]/10 focus:outline-none shadow-none cursor-pointer rounded-2xl px-4 py-3 h-auto flex items-center justify-between transition-colors">
-                  <SelectValue placeholder="Category" />
-                </SelectTrigger>
-                <SelectContent className="bg-white border border-[var(--ink-200)] rounded-xl shadow-2xl min-w-[200px] p-1">
-                  <SelectItem value="all" className="text-xs font-semibold text-[var(--ink-700)] focus:bg-[var(--brand-pink-soft)] focus:text-[var(--brand-pink)] rounded-lg cursor-pointer py-2 pl-8 pr-2">
-                    All Categories
-                  </SelectItem>
-                  <SelectItem value="CAREER_ADVICE" className="text-xs font-semibold text-[var(--ink-700)] focus:bg-[var(--brand-pink-soft)] focus:text-[var(--brand-pink)] rounded-lg cursor-pointer py-2 pl-8 pr-2">
-                    Career Advice
-                  </SelectItem>
-                  <SelectItem value="COMPANY_BLOG" className="text-xs font-semibold text-[var(--ink-700)] focus:bg-[var(--brand-pink-soft)] focus:text-[var(--brand-pink)] rounded-lg cursor-pointer py-2 pl-8 pr-2">
-                    Company Blog
-                  </SelectItem>
-                  <SelectItem value="DEI_RESEARCH" className="text-xs font-semibold text-[var(--ink-700)] focus:bg-[var(--brand-pink-soft)] focus:text-[var(--brand-pink)] rounded-lg cursor-pointer py-2 pl-8 pr-2">
-                    DEI & Salary Studies
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Loading skeletons */}
-            {isLoading ? (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[1, 2, 3].map((n) => (
-                  <div key={n} className="bg-[var(--surface)] border border-[var(--ink-200)] rounded-3xl p-5 space-y-4 animate-pulse">
-                    <div className="w-full h-40 bg-[var(--ink-100)] rounded-2xl" />
-                    <div className="h-4 bg-[var(--ink-100)] rounded w-1/3" />
-                    <div className="h-6 bg-[var(--ink-100)] rounded w-3/4" />
-                    <div className="h-10 bg-[var(--ink-100)] rounded" />
+                {/* Filter controls */}
+                <div className="grid md:grid-cols-3 gap-4 bg-white/5 border border-[var(--on-dark-border)] rounded-3xl p-4 shadow-lg max-w-3xl mx-auto">
+                  {/* Search */}
+                  <div className="md:col-span-2 relative">
+                    <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--on-dark-secondary)]" />
+                    <input
+                      type="text"
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      placeholder="Search articles, topics, keywords..."
+                      className="w-full bg-white/5 border border-[var(--on-dark-border)] rounded-2xl pl-10 pr-4 py-3 text-xs text-white placeholder:text-[var(--on-dark-secondary)] focus:outline-none focus:border-[var(--brand-pink)] transition-all"
+                    />
                   </div>
-                ))}
+
+                  {/* Category selector */}
+                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                    <SelectTrigger className="w-full bg-white/5 border border-[var(--on-dark-border)] hover:bg-white/10 text-xs text-[var(--on-dark-secondary)] focus:ring-2 focus:ring-[var(--brand-pink)]/20 focus:outline-none shadow-none cursor-pointer rounded-2xl px-4 py-3 h-auto flex items-center justify-between transition-colors">
+                      <SelectValue placeholder="Category" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[var(--surface-dark)] border border-[var(--on-dark-border)] rounded-xl shadow-2xl min-w-[200px] p-1">
+                      <SelectItem value="all" className="text-xs font-semibold text-[var(--on-dark-secondary)] focus:bg-[var(--brand-pink-soft)]/20 focus:text-white rounded-lg cursor-pointer py-2 pl-8 pr-2">
+                        All Categories
+                      </SelectItem>
+                      <SelectItem value="CAREER_ADVICE" className="text-xs font-semibold text-[var(--on-dark-secondary)] focus:bg-[var(--brand-pink-soft)]/20 focus:text-white rounded-lg cursor-pointer py-2 pl-8 pr-2">
+                        Career Advice
+                      </SelectItem>
+                      <SelectItem value="COMPANY_BLOG" className="text-xs font-semibold text-[var(--on-dark-secondary)] focus:bg-[var(--brand-pink-soft)]/20 focus:text-white rounded-lg cursor-pointer py-2 pl-8 pr-2">
+                        Company Blog
+                      </SelectItem>
+                      <SelectItem value="DEI_RESEARCH" className="text-xs font-semibold text-[var(--on-dark-secondary)] focus:bg-[var(--brand-pink-soft)]/20 focus:text-white rounded-lg cursor-pointer py-2 pl-8 pr-2">
+                        DEI & Salary Studies
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-            ) : filteredArticles.length === 0 ? (
-              <div className="text-center py-20 bg-[var(--surface)] border border-[var(--ink-200)] rounded-3xl text-[var(--ink-500)] flex flex-col items-center gap-2">
-                <BookOpen size={36} className="text-[var(--ink-400)]" />
-                <div className="text-sm font-bold">No articles matched your criteria</div>
-                <p className="text-[10px] text-[var(--ink-400)]">Try clearing filters or checking your spelling.</p>
-              </div>
-            ) : (
-              /* Articles Grid */
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredArticles.map((article) => (
-                  <div
-                    key={article._id}
-                    onClick={() => setActiveArticle(article)}
-                    className="bg-[var(--surface)] border border-[var(--ink-200)] hover:border-[var(--brand-pink)]/50 rounded-3xl overflow-hidden shadow-card hover:shadow-lg transition-all duration-300 group cursor-pointer flex flex-col"
-                  >
-                    {article.coverUrl && (
-                      <div className="overflow-hidden h-44 relative border-b border-[var(--ink-200)]">
-                        <img
-                          src={article.coverUrl}
-                          alt={article.title}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                        {article.isFeatured && (
-                          <span className="absolute top-3 left-3 bg-[var(--brand-pink)] text-white text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider flex items-center gap-0.5">
-                            <Sparkles size={8} fill="white" /> Featured
-                          </span>
+            </header>
+
+            {/* Articles Grid section switches to --surface (white) */}
+            <main className="flex-1 bg-[var(--surface)] text-[var(--ink-700)]">
+              <div className="max-w-[1200px] mx-auto w-full p-6 py-12">
+                {isLoading ? (
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[1, 2, 3].map((n) => (
+                      <div key={n} className="bg-white border border-[var(--ink-200)] rounded-[var(--radius-card)] p-5 space-y-4 animate-pulse">
+                        <div className="w-full h-40 bg-[var(--ink-100)] rounded-2xl" />
+                        <div className="h-4 bg-[var(--ink-100)] rounded w-1/3" />
+                        <div className="h-6 bg-[var(--ink-100)] rounded w-3/4" />
+                        <div className="h-10 bg-[var(--ink-100)] rounded" />
+                      </div>
+                    ))}
+                  </div>
+                ) : filteredArticles.length === 0 ? (
+                  <div className="text-center py-20 bg-white border border-[var(--ink-200)] rounded-[var(--radius-card)] text-[var(--ink-500)] flex flex-col items-center gap-2">
+                    <BookOpen size={36} className="text-[var(--ink-400)]" />
+                    <div className="text-sm font-bold">No articles matched your criteria</div>
+                    <p className="text-[10px] text-[var(--ink-400)]">Try clearing filters or checking your spelling.</p>
+                  </div>
+                ) : (
+                  /* Articles Grid */
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredArticles.map((article) => (
+                      <div
+                        key={article._id}
+                        onClick={() => setActiveArticle(article)}
+                        className="bg-white border border-[var(--ink-200)] hover:border-[var(--brand-pink)]/40 rounded-[var(--radius-card)] overflow-hidden shadow-[var(--shadow-card)] hover:shadow-md transition-all duration-300 group cursor-pointer flex flex-col"
+                      >
+                        {article.coverUrl && (
+                          <div className="overflow-hidden h-44 relative border-b border-[var(--ink-200)]">
+                            <img
+                              src={article.coverUrl}
+                              alt={article.title}
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            />
+                            {article.isFeatured && (
+                              <span className="absolute top-3 left-3 bg-[var(--brand-pink)] text-white text-[11px] font-semibold px-[10px] py-[3px] rounded-full uppercase tracking-wider">
+                                Featured
+                              </span>
+                            )}
+                          </div>
                         )}
-                      </div>
-                    )}
-                    <div className="p-5 flex-1 flex flex-col justify-between space-y-3.5">
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold ${getCategoryColor(article.category)}`}>
-                            {getCategoryLabel(article.category)}
-                          </span>
-                          <span className="text-[10px] text-[var(--ink-500)] flex items-center gap-0.5">
-                            <Clock size={10} /> {article.readTime} min
-                          </span>
-                        </div>
-                        <h3 className="font-serif text-sm font-extrabold text-[var(--ink-900)] group-hover:text-[var(--brand-pink)] transition-colors leading-snug">
-                          {article.title}
-                        </h3>
-                        <p className="text-[11px] text-[var(--ink-500)] leading-relaxed line-clamp-2">
-                          {article.excerpt}
-                        </p>
-                      </div>
+                        <div className="p-5 flex-1 flex flex-col justify-between space-y-3.5">
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[11px] font-semibold uppercase px-[10px] py-[3px] rounded-full bg-[var(--ink-100)] text-[var(--ink-700)]">
+                                {getCategoryLabel(article.category)}
+                              </span>
+                              <span className="text-[10px] text-[var(--ink-500)] flex items-center gap-1">
+                                <Clock size={12} strokeWidth={1.75} className="text-[var(--ink-500)]" />
+                                <span>{article.readTime} min</span>
+                              </span>
+                            </div>
+                            <h3 className="font-serif text-sm font-extrabold text-[var(--ink-900)] group-hover:text-[var(--brand-pink)] transition-colors leading-snug">
+                              {article.title}
+                            </h3>
+                            <p className="text-[11px] text-[var(--ink-500)] leading-relaxed line-clamp-2">
+                              {article.excerpt}
+                            </p>
+                          </div>
 
-                      <div className="flex items-center justify-between border-t border-[var(--ink-200)] pt-3 mt-1">
-                        <span className="text-[10px] font-semibold text-[var(--ink-700)]">By {article.author.name}</span>
-                        <span className="text-[10px] text-[var(--brand-pink)] group-hover:underline font-bold flex items-center gap-0.5">
-                          Read More →
-                        </span>
+                          <div className="flex items-center justify-between border-t border-[var(--ink-200)] pt-3 mt-1">
+                            <span className="text-[10px] font-semibold text-[var(--ink-700)]">By {article.author.name}</span>
+                            <span className="text-[13px] font-medium text-[var(--brand-pink)] group-hover:underline flex items-center gap-0.5">
+                              Read More →
+                            </span>
+                          </div>
+                        </div>
                       </div>
-                    </div>
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
-            )}
-          </div>
+            </main>
+          </>
         )}
       </div>
     </div>
