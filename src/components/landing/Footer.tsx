@@ -103,12 +103,12 @@ export default function Footer() {
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     placeholder="you@example.com"
-                    className="w-full sm:flex-1 h-9 px-3 rounded-xl bg-white/10 text-[14px] text-[var(--ink-300)] placeholder:text-[var(--ink-500)] focus:outline-none focus:bg-white/15"
+                    className="w-full sm:flex-1 h-10 px-4 rounded-full bg-white/10 text-[14px] text-[var(--ink-300)] placeholder:text-[var(--ink-500)] focus:outline-none focus:bg-white/15"
                     aria-label="Email for newsletter"
                   />
                   <button
                     type="submit"
-                    className="h-9 px-4 rounded-xl bg-[var(--ink-100)] text-[var(--ink-900)] hover:bg-[var(--ink-300)] text-[13px] font-semibold press w-full sm:w-auto flex-shrink-0"
+                    className="h-10 px-6 rounded-full bg-[var(--brand-pink)] text-white hover:bg-[var(--brand-pink-hover)] text-[13px] font-bold press w-full sm:w-auto flex-shrink-0"
                   >
                     Join
                   </button>
