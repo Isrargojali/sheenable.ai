@@ -1,31 +1,31 @@
 /* src/styles.css */
 :root {
   /* Brand — the ONLY accent */
-  --brand-pink:          #E91E8C;   /* primary buttons, active nav, active tabs, focus ring, key single stat */
-  --brand-pink-hover:    #C8177A;
-  --brand-pink-tint:     #FDECF5;   /* active sidebar row background only */
+  --brand-pink:        #E91E8C;   /* primary buttons, heading accent, active states, key stats, progress fills */
+  --brand-pink-hover:  #C8177A;
+  --brand-pink-soft:   #FDECF5;   /* active-tab background on light surfaces */
 
-  /* Neutrals — the entire admin UI is built from these */
-  --ink-900:  #0E0E12;   /* page titles, table primary text */
-  --ink-700:  #2A2A33;   /* body text */
-  --ink-500:  #6B6B76;   /* subtitles, metadata, secondary labels */
-  --ink-400:  #9A9AA5;   /* placeholder, disabled, icon default */
-  --ink-200:  #E5E5EA;   /* borders, dividers */
-  --ink-100:  #F2F2F5;   /* neutral pill background, icon-circle background */
-  --ink-50:   #F8F8FA;   /* page background */
-  --surface:  #FFFFFF;   /* every card, every panel */
+  /* Surfaces */
+  --surface-dark:   #1A0A2E;   /* hero band, top nav band */
+  --surface:        #FFFFFF;   /* all content sections below the hero */
+  --surface-muted:  #FAFAFA;   /* alternate section band if needed */
 
-  /* Status — ONLY for status indicators (dots, left borders, status text). Never as card fills. */
-  --status-ok:     #16A34A; /* Green — active / operational / low threat */
-  --status-warn:   #D97706; /* Amber — degraded / elevated */
-  --status-danger: #DC2626; /* Red — critical / suspended / breach */
-  --status-info:   #2563EB; /* Blue — informational only */
+  /* Ink/Neutrals on light */
+  --ink-900:  #1A1A1A;   /* primary text on light */
+  --ink-700:  #2A2A33;   /* body text on light */
+  --ink-500:  #6B6B76;   /* labels, metadata, secondary text on light */
+  --ink-300:  #C9C9D1;   /* input borders on light */
+  --ink-200:  #E5E5EA;   /* card borders on light */
+  --ink-100:  #F2F2F5;   /* neutral pill background on light */
 
-  /* Radii */
-  --radius-card: 12px;
-  --radius-pill: 999px;
+  /* On Dark Surfaces */
+  --on-dark-primary:    #FFFFFF;
+  --on-dark-secondary:  rgba(255,255,255,0.72);
+  --on-dark-border:     rgba(255,255,255,0.16);
+
+  /* Borders / Radii / Shadows */
+  --radius-card:  12px;
+  --radius-pill:  9999px;
   --radius-input: 8px;
-
-  /* Shadows */
-  --shadow-card: 0 1px 2px rgba(14,14,18,0.04), 0 1px 1px rgba(14,14,18,0.03);
+  --shadow-card:  0 1px 2px rgba(14,14,18,0.04), 0 1px 1px rgba(14,14,18,0.03);
 }

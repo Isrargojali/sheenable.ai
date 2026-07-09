@@ -87,56 +87,60 @@ export default function SalaryGuidePage() {
   );
 
   return (
-    <div className="min-h-screen bg-[#1A0D1F] text-white flex flex-col">
+    <div className="min-h-screen bg-[var(--surface-muted)] text-[var(--ink-700)] flex flex-col">
       {/* Header */}
-      <SubpageNav
-        actions={
-          <button
-            onClick={() => setShowAddForm(true)}
-            className="px-4 h-9 bg-[#22C55E] hover:bg-[#1eb053] text-[#0F0A1A] rounded-full text-xs font-black transition-all flex items-center gap-1 shadow-lg press"
-          >
-            <Plus size={14} /> Contribute Anonymously
-          </button>
-        }
-      />
+      <div className="bg-[var(--surface-dark)]">
+        <SubpageNav
+          actions={
+            <button
+              onClick={() => setShowAddForm(true)}
+              className="px-4 h-9 bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white rounded-full text-xs font-bold transition-all flex items-center gap-1 shadow-lg press"
+            >
+              <Plus size={14} /> Contribute Anonymously
+            </button>
+          }
+        />
+      </div>
 
-      {/* Main Content Area */}
-      <div className="flex-1 max-w-[1200px] mx-auto w-full p-6 space-y-8">
-        {/* Banner */}
-        <div className="text-center max-w-2xl mx-auto space-y-3 py-6">
+      {/* Hero Section */}
+      <section className="bg-[var(--surface-dark)] text-white py-16">
+        <div className="relative max-w-[1280px] mx-auto px-5 lg:px-8 text-center max-w-2xl space-y-3">
           <h2 className="font-serif text-3xl font-extrabold tracking-tight">
-            Salary <span className="text-[#22C55E]">Transparency Index</span>
+            Salary <span className="text-[var(--brand-pink)]">Transparency Index</span>
           </h2>
-          <p className="text-sm text-white/50 leading-relaxed">
+          <p className="text-sm text-[var(--on-dark-secondary)] leading-relaxed">
             Establishing wage equity in Pakistan's software industry through verified aggregates. Explore salary ranges, compare percentiles, and anonymously track the gender pay gap.
           </p>
         </div>
+      </section>
 
+      {/* Main Content Area */}
+      <div className="flex-1 max-w-[1200px] mx-auto w-full p-6 space-y-8">
         {/* Global Stats Cards */}
         <div className="grid sm:grid-cols-3 gap-6">
-          <div className="bg-[#0F0A1A] border border-white/5 rounded-3xl p-5 space-y-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-white/40">Verified Crowdsources</span>
-            <div className="text-2xl font-black text-[#22C55E]">
+          <div className="bg-[var(--surface)] border border-[var(--ink-200)] rounded-3xl p-5 space-y-2 shadow-card">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--ink-500)]">Verified Crowdsourced records</span>
+            <div className="text-2xl font-black text-[var(--brand-pink)]">
               {salaryStats ? salaryStats.reduce((sum, s) => sum + s.count, 0) : "..."}
             </div>
-            <p className="text-[10px] text-white/40">Active, clean, verified salary records in Pakistan.</p>
+            <p className="text-[10px] text-[var(--ink-500)]">Active, clean, verified salary records in Pakistan.</p>
           </div>
 
-          <div className="bg-[#0F0A1A] border border-white/5 rounded-3xl p-5 space-y-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-white/40">DEI Gender Parity Ratio</span>
-            <div className="text-2xl font-black text-purple-400">
+          <div className="bg-[var(--surface)] border border-[var(--ink-200)] rounded-3xl p-5 space-y-2 shadow-card">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--ink-500)]">DEI Gender Parity Ratio</span>
+            <div className="text-2xl font-black text-[var(--ink-900)]">
               {salaryStats && salaryStats.length > 0
                 ? Math.round(salaryStats.reduce((sum, s) => sum + s.parityRatio, 0) / salaryStats.length)
                 : "92"}%
             </div>
-            <p className="text-[10px] text-white/40">Average female wage parity relative to male benchmarks.</p>
+            <p className="text-[10px] text-[var(--ink-500)]">Average female wage parity relative to male benchmarks.</p>
           </div>
 
-          <div className="bg-[#0F0A1A] border border-white/5 rounded-3xl p-5 space-y-2 flex flex-col justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-white/40">Contribute Data</span>
+          <div className="bg-[var(--surface)] border border-[var(--ink-200)] rounded-3xl p-5 space-y-2 flex flex-col justify-between shadow-card">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--ink-500)]">Contribute Data</span>
             <button
               onClick={() => setShowAddForm(true)}
-              className="py-1.5 px-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-bold transition-all text-center"
+              className="py-1.5 px-4 bg-[var(--ink-100)] hover:bg-[var(--ink-200)] border border-[var(--ink-300)] rounded-xl text-xs font-bold transition-all text-center text-[var(--ink-900)]"
             >
               Add Your Salary anonymously
             </button>
@@ -145,20 +149,20 @@ export default function SalaryGuidePage() {
 
         {/* Main Explorer Section */}
         <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4 justify-between bg-[#0F0A1A] border border-white/5 rounded-3xl p-4 shadow-lg">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 justify-between bg-[var(--surface)] border border-[var(--ink-200)] rounded-3xl p-4 shadow-card">
             <div className="relative flex-1">
-              <Plus size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" />
+              <Plus size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--ink-500)]" />
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search job roles (e.g. Frontend Engineer, Product Manager, Lahore)..."
-                className="w-full bg-[#1A0D1F] border border-white/5 rounded-2xl pl-10 pr-4 py-3 text-xs text-white focus:outline-none focus:border-[#22C55E]"
+                className="w-full bg-white border border-[var(--ink-300)] rounded-2xl pl-10 pr-4 py-3 text-xs text-[var(--ink-900)] focus:outline-none focus:border-[var(--brand-pink)]"
               />
             </div>
             <button
               onClick={() => refetch()}
-              className="px-4 py-3 bg-[#1A0D1F] border border-white/5 hover:bg-white/5 rounded-2xl text-xs font-bold transition-all flex items-center justify-center gap-1.5"
+              className="px-4 py-3 bg-[var(--ink-100)] border border-[var(--ink-200)] hover:bg-[var(--ink-200)] text-[var(--ink-900)] rounded-2xl text-xs font-bold transition-all flex items-center justify-center gap-1.5"
             >
               <RefreshCw size={12} /> Sync Data
             </button>
@@ -166,62 +170,62 @@ export default function SalaryGuidePage() {
 
           {isLoading ? (
             <div className="text-center py-20 animate-pulse">
-              <Loader2 className="animate-spin text-[#22C55E] mx-auto mb-2" size={24} />
-              <span className="text-xs text-white/40">Compiling crowdsourced indices...</span>
+              <Loader2 className="animate-spin text-[var(--brand-pink)] mx-auto mb-2" size={24} />
+              <span className="text-xs text-[var(--ink-500)]">Compiling crowdsourced indices...</span>
             </div>
           ) : filteredStats.length === 0 ? (
-            <div className="text-center py-20 bg-[#0F0A1A] border border-white/5 rounded-3xl text-white/30 flex flex-col items-center gap-2">
-              <DollarSign size={36} className="text-white/20" />
+            <div className="text-center py-20 bg-[var(--surface)] border border-[var(--ink-200)] rounded-3xl text-[var(--ink-500)] flex flex-col items-center gap-2">
+              <DollarSign size={36} className="text-[var(--ink-400)]" />
               <div className="text-sm font-bold">No salary indices matched your criteria</div>
-              <p className="text-[10px] text-white/20">Be the first to contribute to this role category!</p>
+              <p className="text-[10px] text-[var(--ink-400)]">Be the first to contribute to this role category!</p>
             </div>
           ) : (
             /* Salary Stat Grid Cards */
             <div className="grid md:grid-cols-2 gap-6">
               {filteredStats.map((stat, idx) => (
-                <div key={idx} className="bg-[#0F0A1A] border border-white/5 rounded-3xl p-6 space-y-4 shadow-xl">
+                <div key={idx} className="bg-[var(--surface)] border border-[var(--ink-200)] rounded-3xl p-6 space-y-4 shadow-card text-[var(--ink-700)]">
                   {/* Role Header */}
                   <div className="flex justify-between items-start">
                     <div>
-                      <h3 className="text-base font-bold text-white flex items-center gap-2">
-                        <Briefcase size={15} className="text-[#22C55E]" /> {stat.role}
+                      <h3 className="text-base font-bold text-[var(--ink-900)] flex items-center gap-2">
+                        <Briefcase size={15} className="text-[var(--brand-pink)]" /> {stat.role}
                       </h3>
-                      <div className="text-[10px] text-white/40 flex items-center gap-2 mt-1">
+                      <div className="text-[10px] text-[var(--ink-500)] flex items-center gap-2 mt-1">
                         <span className="flex items-center gap-0.5"><MapPin size={10} /> {stat.cities.join(", ")}</span>
                         <span>·</span>
                         <span>Avg experience: {stat.avgExperience} yrs</span>
                       </div>
                     </div>
-                    <span className="px-2.5 py-0.5 bg-[#22C55E]/10 border border-[#22C55E]/20 text-[#22C55E] rounded-full text-[9px] font-bold">
+                    <span className="px-2.5 py-0.5 bg-[var(--brand-pink-soft)] border border-[var(--brand-pink)]/20 text-[var(--brand-pink)] rounded-full text-[9px] font-bold">
                       {stat.count} records
                     </span>
                   </div>
 
                   {/* Wage ranges bar chart */}
                   <div className="space-y-1">
-                    <div className="flex justify-between text-[10px] text-white/40">
+                    <div className="flex justify-between text-[10px] text-[var(--ink-500)]">
                       <span>Min: PKR {stat.min.toLocaleString()}</span>
-                      <span className="font-bold text-white">Median: PKR {stat.median.toLocaleString()}</span>
+                      <span className="font-bold text-[var(--ink-900)]">Median: PKR {stat.median.toLocaleString()}</span>
                       <span>Max: PKR {stat.max.toLocaleString()}</span>
                     </div>
-                    <div className="h-2.5 bg-[#1A0D1F] border border-white/5 rounded-full overflow-hidden relative">
+                    <div className="h-2.5 bg-[var(--ink-100)] border border-[var(--ink-200)] rounded-full overflow-hidden relative">
                       {/* Highlighted median range */}
-                      <div className="h-full bg-gradient-to-r from-[#22C55E]/50 to-[#22C55E] rounded-full" style={{ width: "70%", marginLeft: "15%" }} />
+                      <div className="h-full bg-gradient-to-r from-[var(--brand-pink)]/50 to-[var(--brand-pink)] rounded-full" style={{ width: "70%", marginLeft: "15%" }} />
                     </div>
                   </div>
 
                   {/* DEI pay parity scale */}
-                  <div className="bg-[#1A0D1F] border border-white/5 p-3 rounded-2xl flex justify-between items-center">
+                  <div className="bg-[var(--surface-muted)] border border-[var(--ink-200)] p-3 rounded-2xl flex justify-between items-center">
                     <div>
-                      <span className="text-[9px] font-bold uppercase tracking-wider text-white/40">Pay Parity Index</span>
-                      <div className="text-xs font-bold text-white flex items-center gap-1.5 mt-0.5">
-                        <Sparkles size={11} className="text-purple-400" />
+                      <span className="text-[9px] font-bold uppercase tracking-wider text-[var(--ink-500)]">Pay Parity Index</span>
+                      <div className="text-xs font-bold text-[var(--ink-900)] flex items-center gap-1.5 mt-0.5">
+                        <Sparkles size={11} className="text-[var(--brand-pink)]" />
                         {stat.parityRatio}% Equity ratio
                       </div>
                     </div>
                     <div className="text-right">
-                      <span className="text-[9px] font-bold uppercase tracking-wider text-white/40">Female Median</span>
-                      <div className="text-xs font-bold text-[#22C55E] mt-0.5">PKR {stat.femaleMedian.toLocaleString()}</div>
+                      <span className="text-[9px] font-bold uppercase tracking-wider text-[var(--ink-500)]">Female Median</span>
+                      <div className="text-xs font-bold text-[var(--brand-pink)] mt-0.5">PKR {stat.femaleMedian.toLocaleString()}</div>
                     </div>
                   </div>
                 </div>
@@ -233,28 +237,28 @@ export default function SalaryGuidePage() {
 
       {/* Contribution Drawer/Modal */}
       {showAddForm && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
-          <div className="bg-[#0F0A1A] border border-white/5 rounded-3xl p-6 max-w-md w-full space-y-4 shadow-2xl relative">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-white border border-[var(--ink-200)] rounded-3xl p-6 max-w-md w-full space-y-4 shadow-2xl relative text-[var(--ink-700)]">
             <button
               onClick={() => setShowAddForm(false)}
-              className="absolute top-4 right-4 text-white/40 hover:text-white font-bold text-sm"
+              className="absolute top-4 right-4 text-[var(--ink-500)] hover:text-[var(--ink-900)] font-bold text-sm"
             >
               ×
             </button>
-            <h3 className="font-serif text-lg font-bold text-white flex items-center gap-2">
-              <DollarSign size={18} className="text-[#22C55E]" /> Contribute Anonymously
+            <h3 className="font-serif text-lg font-bold text-[var(--ink-900)] flex items-center gap-2">
+              <DollarSign size={18} className="text-[var(--brand-pink)]" /> Contribute Anonymously
             </h3>
-            <p className="text-xs text-white/50 leading-relaxed">
-              Your identity is protected. We completely anonymize and aggregates all reports. Contributions help verify pay scales and fight wage discrimination.
+            <p className="text-xs text-[var(--ink-500)] leading-relaxed">
+              Your identity is protected. We completely anonymize and aggregate all reports. Contributions help verify pay scales and fight wage discrimination.
             </p>
 
             <form onSubmit={handleAddSubmit} className="space-y-3 pt-2">
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-white/40 mb-1">Job Role</label>
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--ink-500)] mb-1">Job Role</label>
                 <select
                   value={form.role}
                   onChange={(e) => setForm({ ...form, role: e.target.value })}
-                  className="w-full bg-[#1A0D1F] border border-white/5 rounded-2xl px-4 py-3 text-xs text-white focus:outline-none focus:border-[#22C55E]"
+                  className="w-full bg-white border border-[var(--ink-300)] rounded-2xl px-4 py-3 text-xs text-[var(--ink-900)] focus:outline-none focus:border-[var(--brand-pink)]"
                 >
                   <option value="Frontend Engineer">Frontend Engineer</option>
                   <option value="Backend Engineer">Backend Engineer</option>
@@ -268,20 +272,20 @@ export default function SalaryGuidePage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-white/40 mb-1">Experience (Years)</label>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--ink-500)] mb-1">Experience (Years)</label>
                   <input
                     type="number"
                     value={form.experienceYears}
                     onChange={(e) => setForm({ ...form, experienceYears: e.target.value })}
-                    className="w-full bg-[#1A0D1F] border border-white/5 rounded-2xl px-4 py-3 text-xs text-white focus:outline-none focus:border-[#22C55E]"
+                    className="w-full bg-white border border-[var(--ink-300)] rounded-2xl px-4 py-3 text-xs text-[var(--ink-900)] focus:outline-none focus:border-[var(--brand-pink)]"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-white/40 mb-1">City Hub</label>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--ink-500)] mb-1">City Hub</label>
                   <select
                     value={form.city}
                     onChange={(e) => setForm({ ...form, city: e.target.value })}
-                    className="w-full bg-[#1A0D1F] border border-white/5 rounded-2xl px-4 py-3 text-xs text-white focus:outline-none"
+                    className="w-full bg-white border border-[var(--ink-300)] rounded-2xl px-4 py-3 text-xs text-[var(--ink-900)] focus:outline-none focus:border-[var(--brand-pink)]"
                   >
                     <option value="Lahore">Lahore</option>
                     <option value="Karachi">Karachi</option>
@@ -291,23 +295,23 @@ export default function SalaryGuidePage() {
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-white/40 mb-1">Monthly Salary (PKR)</label>
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--ink-500)] mb-1">Monthly Salary (PKR)</label>
                 <input
                   type="number"
                   value={form.salaryPKR}
                   onChange={(e) => setForm({ ...form, salaryPKR: e.target.value })}
                   placeholder="e.g. 180000"
-                  className="w-full bg-[#1A0D1F] border border-white/5 rounded-2xl px-4 py-3 text-xs text-white focus:outline-none focus:border-[#22C55E]"
+                  className="w-full bg-white border border-[var(--ink-300)] rounded-2xl px-4 py-3 text-xs text-[var(--ink-900)] placeholder:text-[var(--ink-500)] focus:outline-none focus:border-[var(--brand-pink)]"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-white/40 mb-1">Your Gender</label>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--ink-500)] mb-1">Your Gender</label>
                   <select
                     value={form.gender}
                     onChange={(e) => setForm({ ...form, gender: e.target.value })}
-                    className="w-full bg-[#1A0D1F] border border-white/5 rounded-2xl px-4 py-3 text-xs text-white focus:outline-none"
+                    className="w-full bg-white border border-[var(--ink-300)] rounded-2xl px-4 py-3 text-xs text-[var(--ink-900)] focus:outline-none focus:border-[var(--brand-pink)]"
                   >
                     <option value="FEMALE">Female</option>
                     <option value="MALE">Male</option>
@@ -315,12 +319,13 @@ export default function SalaryGuidePage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-white/40 mb-1">Sector Industry</label>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--ink-500)] mb-1">Sector Industry</label>
                   <input
                     type="text"
                     value={form.industry}
                     onChange={(e) => setForm({ ...form, industry: e.target.value })}
-                    className="w-full bg-[#1A0D1F] border border-white/5 rounded-2xl px-4 py-3 text-xs text-white focus:outline-none"
+                    placeholder="e.g. SaaS"
+                    className="w-full bg-white border border-[var(--ink-300)] rounded-2xl px-4 py-3 text-xs text-[var(--ink-900)] focus:outline-none focus:border-[var(--brand-pink)]"
                   />
                 </div>
               </div>
@@ -328,7 +333,7 @@ export default function SalaryGuidePage() {
               <button
                 type="submit"
                 disabled={submitMutation.isPending}
-                className="w-full mt-3 py-3 bg-[#22C55E] hover:bg-[#1eb053] text-[#0F0A1A] rounded-full text-xs font-black transition-all flex items-center justify-center gap-1 shadow-lg"
+                className="w-full mt-3 py-3 bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white rounded-full text-xs font-black transition-all flex items-center justify-center gap-1 shadow-lg"
               >
                 {submitMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
                 Verify & Submit anonymously
@@ -339,4 +344,5 @@ export default function SalaryGuidePage() {
       )}
     </div>
   );
+}
 }

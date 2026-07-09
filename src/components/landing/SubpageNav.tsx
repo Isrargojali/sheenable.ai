@@ -67,7 +67,7 @@ export default function SubpageNav({ actions }: SubpageNavProps = {}) {
                 className="text-[13px] font-semibold relative group transition-colors duration-200 text-white/75 hover:text-white"
               >
                 {l.label}
-                <span className="absolute -bottom-1 left-0 right-0 h-px scale-x-0 group-hover:scale-x-100 transition-transform origin-left bg-[#22C55E]" />
+                <span className="absolute -bottom-1 left-0 right-0 h-px scale-x-0 group-hover:scale-x-100 transition-transform origin-left bg-[var(--brand-pink)]" />
               </a>
             ))}
           </div>
@@ -79,7 +79,7 @@ export default function SubpageNav({ actions }: SubpageNavProps = {}) {
             ) : user ? (
               <Link
                 to={dashboardHref}
-                className="inline-flex items-center px-5 h-9 rounded-full text-[12px] font-bold transition-all shadow-md press bg-[#22C55E] text-[#0F0A1A] hover:bg-[#1eb053] hover:-translate-y-0.5"
+                className="inline-flex items-center px-5 h-9 rounded-full text-[12px] font-bold transition-all shadow-md press bg-[var(--brand-pink)] text-white hover:bg-[var(--brand-pink-hover)] hover:-translate-y-0.5"
               >
                 Go to Dashboard
               </Link>
@@ -87,13 +87,13 @@ export default function SubpageNav({ actions }: SubpageNavProps = {}) {
               <>
                 <Link
                   to="/auth/signup?role=EMPLOYER"
-                  className="hidden md:inline-flex items-center px-4 h-9 rounded-full text-[12px] font-semibold border-[1.5px] press transition-colors duration-200 border-white/15 text-white/85 hover:border-[#22C55E] hover:text-[#22C55E]"
+                  className="hidden md:inline-flex items-center px-4 h-9 rounded-full text-[12px] font-semibold border-[1.5px] press transition-colors duration-200 border-white/15 text-white/85 hover:border-[var(--brand-pink)] hover:text-[var(--brand-pink)]"
                 >
                   Post a Job
                 </Link>
                 <Link
                   to="/auth/signup"
-                  className="hidden lg:inline-flex items-center px-4 h-9 rounded-full text-[12px] font-bold shadow-sm press transition-all bg-[#22C55E] text-[#0F0A1A] hover:bg-[#1eb053] hover:-translate-y-0.5"
+                  className="hidden lg:inline-flex items-center px-4 h-9 rounded-full text-[12px] font-bold shadow-sm press transition-all bg-[var(--brand-pink)] text-white hover:bg-[var(--brand-pink-hover)] hover:-translate-y-0.5"
                 >
                   Join Free
                 </Link>
@@ -115,7 +115,7 @@ export default function SubpageNav({ actions }: SubpageNavProps = {}) {
       {open && (
         <>
           <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 lg:hidden animate-fade-in" onClick={() => setOpen(false)} />
-          <aside className="fixed top-0 right-0 bottom-0 w-[80%] max-w-[320px] z-50 lg:hidden p-6 animate-slide-up transition-all bg-[#0F0A1A] border-l border-white/5 text-white">
+          <aside className="fixed top-0 right-0 bottom-0 w-[80%] max-w-[320px] z-50 lg:hidden p-6 animate-slide-up transition-all bg-[#1A0A2E] border-l border-white/5 text-white">
             <div className="flex items-center justify-between mb-8">
               <span className="font-serif text-lg font-bold">Menu</span>
               <button
@@ -144,7 +144,7 @@ export default function SubpageNav({ actions }: SubpageNavProps = {}) {
                 <Link
                   to={dashboardHref}
                   onClick={() => setOpen(false)}
-                  className="px-3 py-3 rounded-xl text-sm font-bold text-center mt-2 transition-colors bg-[#22C55E] text-[#0F0A1A] hover:bg-[#1eb053]"
+                  className="px-3 py-3 rounded-xl text-sm font-bold text-center mt-2 transition-colors bg-[var(--brand-pink)] text-white hover:bg-[var(--brand-pink-hover)]"
                 >
                   Go to Dashboard
                 </Link>
@@ -153,14 +153,14 @@ export default function SubpageNav({ actions }: SubpageNavProps = {}) {
                   <Link
                     to="/auth/signup?role=EMPLOYER"
                     onClick={() => setOpen(false)}
-                    className="px-3 py-3 rounded-xl text-sm font-semibold border-[1.5px] text-center transition-colors border-white/10 text-white/80 hover:border-[#22C55E] hover:text-[#22C55E]"
+                    className="px-3 py-3 rounded-xl text-sm font-semibold border-[1.5px] text-center transition-colors border-white/10 text-white/80 hover:border-[var(--brand-pink)] hover:text-[var(--brand-pink)]"
                   >
                     Post a Job
                   </Link>
                   <Link
                     to="/auth/signup"
                     onClick={() => setOpen(false)}
-                    className="px-3 py-3 rounded-xl text-sm font-bold text-center mt-2 transition-colors bg-[#22C55E] text-[#0F0A1A] hover:bg-[#1eb053]"
+                    className="px-3 py-3 rounded-xl text-sm font-bold text-center mt-2 transition-colors bg-[var(--brand-pink)] text-white hover:bg-[var(--brand-pink-hover)]"
                   >
                     Join Free
                   </Link>

@@ -38,7 +38,7 @@ export default function CVBuilderPublicPage() {
   const { user, token } = useAuthStore();
   const [step, setStep] = useState<"info" | "experience" | "education" | "skills" | "preview">("info");
   const [selectedTemplate, setSelectedTemplate] = useState<"executive" | "modern" | "minimalist">("modern");
-  const [accentColor, setAccentColor] = useState<string>("#22C55E"); // SheEnableAI Green
+  const [accentColor, setAccentColor] = useState<string>("#E91E8C"); // SheEnableAI Brand Pink
   const [showRegModal, setShowRegModal] = useState(false);
 
   // Form State
@@ -129,7 +129,7 @@ export default function CVBuilderPublicPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#1A0D1F] text-white flex flex-col">
+    <div className="min-h-screen bg-[var(--surface-muted)] text-[var(--ink-700)] flex flex-col">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@300;400;500;600;700;800&display=swap');
         @media print {
@@ -141,7 +141,7 @@ export default function CVBuilderPublicPage() {
       `}</style>
 
       {/* Premium Header */}
-      <div className="print:hidden">
+      <div className="print:hidden bg-[var(--surface-dark)]">
         <SubpageNav
           actions={
             <div className="flex items-center gap-2">
@@ -154,7 +154,7 @@ export default function CVBuilderPublicPage() {
               <button
                 onClick={handleSave}
                 disabled={saveMutation.isPending}
-                className="px-5 h-9 bg-[#22C55E] hover:bg-[#1eb053] text-[#0F0A1A] rounded-full text-xs font-black transition-all shadow-lg flex items-center gap-1.5 press"
+                className="px-5 h-9 bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white rounded-full text-xs font-black transition-all shadow-lg flex items-center gap-1.5 press"
               >
                 {saveMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
                 {token ? "Save to Profile" : "Save & Create Profile"}
@@ -168,7 +168,7 @@ export default function CVBuilderPublicPage() {
         {/* Left Form Panel */}
         <div className="lg:col-span-5 space-y-6 print:hidden">
           {/* Progress Tabs */}
-          <div className="bg-[#0F0A1A] border border-white/5 rounded-3xl p-4 flex justify-between overflow-x-auto gap-2">
+          <div className="bg-[var(--surface)] border border-[var(--ink-200)] rounded-3xl p-4 flex justify-between overflow-x-auto gap-2 shadow-card">
             {[
               { id: "info", label: "Info" },
               { id: "experience", label: "Work" },
@@ -181,8 +181,8 @@ export default function CVBuilderPublicPage() {
                 onClick={() => setStep(s.id as any)}
                 className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all whitespace-nowrap ${
                   step === s.id
-                    ? "bg-[#22C55E]/10 text-[#22C55E] border border-[#22C55E]/20"
-                    : "text-white/40 hover:text-white/60"
+                    ? "bg-[var(--brand-pink-soft)] text-[var(--brand-pink)] border border-[var(--brand-pink)]/20"
+                    : "text-[var(--ink-500)] hover:text-[var(--ink-900)]"
                 }`}
               >
                 {s.label}
@@ -191,65 +191,65 @@ export default function CVBuilderPublicPage() {
           </div>
 
           {/* Form Step Cards */}
-          <div className="bg-[#0F0A1A] border border-white/5 rounded-3xl p-6 shadow-xl">
+          <div className="bg-[var(--surface)] border border-[var(--ink-200)] rounded-3xl p-6 shadow-card text-[var(--ink-700)]">
             {step === "info" && (
               <div className="space-y-4">
-                <h3 className="text-base font-bold text-[#22C55E] flex items-center gap-2">
+                <h3 className="text-base font-bold text-[var(--brand-pink)] flex items-center gap-2">
                   <Sparkles size={16} /> Personal Details
                 </h3>
-                <p className="text-xs text-white/50 mb-4">Start by adding your basic contact details to head your CV.</p>
+                <p className="text-xs text-[var(--ink-500)] mb-4">Start by adding your basic contact details to head your CV.</p>
 
                 <div className="space-y-3">
                   <div>
-                    <label className="block text-[10px] font-bold uppercase tracking-wider text-white/40 mb-1">Full Name</label>
+                    <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--ink-500)] mb-1">Full Name</label>
                     <input
                       type="text"
                       value={cv.name}
                       onChange={(e) => updateCv({ ...cv, name: e.target.value })}
                       placeholder="e.g. Ayesha Rahman"
-                      className="w-full bg-[#1A0D1F] border border-white/5 rounded-2xl px-4 py-3 text-xs text-white placeholder:text-white/20 focus:outline-none focus:border-[#22C55E] transition-all"
+                      className="w-full bg-white border border-[var(--ink-300)] rounded-2xl px-4 py-3 text-xs text-[var(--ink-900)] placeholder:text-[var(--ink-500)] focus:outline-none focus:border-[var(--brand-pink)] transition-all"
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold uppercase tracking-wider text-white/40 mb-1">Professional Title</label>
+                    <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--ink-500)] mb-1">Professional Title</label>
                     <input
                       type="text"
                       value={cv.title}
                       onChange={(e) => updateCv({ ...cv, title: e.target.value })}
                       placeholder="e.g. Senior Frontend Engineer"
-                      className="w-full bg-[#1A0D1F] border border-white/5 rounded-2xl px-4 py-3 text-xs text-white placeholder:text-white/20 focus:outline-none focus:border-[#22C55E] transition-all"
+                      className="w-full bg-white border border-[var(--ink-300)] rounded-2xl px-4 py-3 text-xs text-[var(--ink-900)] placeholder:text-[var(--ink-500)] focus:outline-none focus:border-[var(--brand-pink)] transition-all"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-[10px] font-bold uppercase tracking-wider text-white/40 mb-1">Email</label>
+                      <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--ink-500)] mb-1">Email</label>
                       <input
                         type="email"
                         value={cv.email}
                         onChange={(e) => updateCv({ ...cv, email: e.target.value })}
                         placeholder="ayesha@example.com"
-                        className="w-full bg-[#1A0D1F] border border-white/5 rounded-2xl px-4 py-3 text-xs text-white placeholder:text-white/20 focus:outline-none focus:border-[#22C55E] transition-all"
+                        className="w-full bg-white border border-[var(--ink-300)] rounded-2xl px-4 py-3 text-xs text-[var(--ink-900)] placeholder:text-[var(--ink-500)] focus:outline-none focus:border-[var(--brand-pink)] transition-all"
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold uppercase tracking-wider text-white/40 mb-1">Phone</label>
+                      <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--ink-500)] mb-1">Phone</label>
                       <input
                         type="text"
                         value={cv.phone}
                         onChange={(e) => updateCv({ ...cv, phone: e.target.value })}
                         placeholder="+92 300 1234567"
-                        className="w-full bg-[#1A0D1F] border border-white/5 rounded-2xl px-4 py-3 text-xs text-white placeholder:text-white/20 focus:outline-none focus:border-[#22C55E] transition-all"
+                        className="w-full bg-white border border-[var(--ink-300)] rounded-2xl px-4 py-3 text-xs text-[var(--ink-900)] placeholder:text-[var(--ink-500)] focus:outline-none focus:border-[var(--brand-pink)] transition-all"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold uppercase tracking-wider text-white/40 mb-1">Professional Summary</label>
+                    <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--ink-500)] mb-1">Professional Summary</label>
                     <textarea
                       value={cv.summary}
                       onChange={(e) => updateCv({ ...cv, summary: e.target.value })}
                       rows={5}
                       placeholder="Briefly state your core expertise, key achievements, and the value you deliver."
-                      className="w-full bg-[#1A0D1F] border border-white/5 rounded-2xl px-4 py-3 text-xs text-white placeholder:text-white/20 focus:outline-none focus:border-[#22C55E] transition-all resize-none"
+                      className="w-full bg-white border border-[var(--ink-300)] rounded-2xl px-4 py-3 text-xs text-[var(--ink-900)] placeholder:text-[var(--ink-500)] focus:outline-none focus:border-[var(--brand-pink)] transition-all resize-none"
                     />
                   </div>
                 </div>
@@ -257,7 +257,7 @@ export default function CVBuilderPublicPage() {
                 <div className="pt-4 flex justify-end">
                   <button
                     onClick={() => setStep("experience")}
-                    className="px-5 py-2 bg-white/5 hover:bg-white/10 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all"
+                    className="px-5 py-2 bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white rounded-full text-xs font-bold flex items-center gap-1.5 transition-all"
                   >
                     Work Experience <ArrowRight size={12} />
                   </button>
@@ -267,21 +267,21 @@ export default function CVBuilderPublicPage() {
 
             {step === "experience" && (
               <div className="space-y-4">
-                <h3 className="text-base font-bold text-[#22C55E] flex items-center gap-2">
+                <h3 className="text-base font-bold text-[var(--brand-pink)] flex items-center gap-2">
                   <Sparkles size={16} /> Professional Experience
                 </h3>
-                <p className="text-xs text-white/50 mb-4">List your past job roles, dates, and core quantifiable achievements.</p>
+                <p className="text-xs text-[var(--ink-500)] mb-4">List your past job roles, dates, and core quantifiable achievements.</p>
 
                 <div className="space-y-4 max-h-[350px] overflow-y-auto pr-1">
                   {(cv.experience || []).map((exp, i) => (
-                    <div key={i} className="border border-white/5 bg-[#1A0D1F] p-4 rounded-2xl relative space-y-2">
+                    <div key={i} className="border border-[var(--ink-200)] bg-[var(--surface-muted)] p-4 rounded-2xl relative space-y-2">
                       <button
                         onClick={() => {
                           const newExp = [...(cv.experience || [])];
                           newExp.splice(i, 1);
                           updateCv({ ...cv, experience: newExp });
                         }}
-                        className="absolute top-3 right-3 text-red-400 hover:text-red-300 p-1 transition-all"
+                        className="absolute top-3 right-3 text-red-500 hover:text-red-700 p-1 transition-all"
                       >
                         <Trash2 size={12} />
                       </button>
@@ -296,7 +296,7 @@ export default function CVBuilderPublicPage() {
                             updateCv({ ...cv, experience: newExp });
                           }}
                           placeholder="Job Title"
-                          className="bg-[#0F0A1A] border border-white/5 rounded-xl px-3 py-2 text-xs text-white focus:outline-none"
+                          className="bg-white border border-[var(--ink-300)] rounded-xl px-3 py-2 text-xs text-[var(--ink-900)] focus:outline-none focus:border-[var(--brand-pink)]"
                         />
                         <input
                           type="text"
@@ -307,7 +307,7 @@ export default function CVBuilderPublicPage() {
                             updateCv({ ...cv, experience: newExp });
                           }}
                           placeholder="Company Name"
-                          className="bg-[#0F0A1A] border border-white/5 rounded-xl px-3 py-2 text-xs text-white focus:outline-none"
+                          className="bg-white border border-[var(--ink-300)] rounded-xl px-3 py-2 text-xs text-[var(--ink-900)] focus:outline-none focus:border-[var(--brand-pink)]"
                         />
                       </div>
                       <div className="grid grid-cols-2 gap-2">
@@ -320,7 +320,7 @@ export default function CVBuilderPublicPage() {
                             updateCv({ ...cv, experience: newExp });
                           }}
                           placeholder="Start (e.g. Jan 2022)"
-                          className="bg-[#0F0A1A] border border-white/5 rounded-xl px-3 py-2 text-xs text-white focus:outline-none"
+                          className="bg-white border border-[var(--ink-300)] rounded-xl px-3 py-2 text-xs text-[var(--ink-900)] focus:outline-none focus:border-[var(--brand-pink)]"
                         />
                         <input
                           type="text"
@@ -331,13 +331,13 @@ export default function CVBuilderPublicPage() {
                             updateCv({ ...cv, experience: newExp });
                           }}
                           placeholder="End (e.g. Present)"
-                          className="bg-[#0F0A1A] border border-white/5 rounded-xl px-3 py-2 text-xs text-white focus:outline-none"
+                          className="bg-white border border-[var(--ink-300)] rounded-xl px-3 py-2 text-xs text-[var(--ink-900)] focus:outline-none focus:border-[var(--brand-pink)]"
                         />
                       </div>
 
                       {/* Achievement bullet */}
                       <div className="space-y-1">
-                        <label className="block text-[8px] font-bold uppercase tracking-wider text-white/40">Achievements</label>
+                        <label className="block text-[8px] font-bold uppercase tracking-wider text-[var(--ink-500)]">Achievements</label>
                         {exp.bullets.map((bullet, j) => (
                           <input
                             key={j}
@@ -351,7 +351,7 @@ export default function CVBuilderPublicPage() {
                               updateCv({ ...cv, experience: newExp });
                             }}
                             placeholder="Add bullet achievement statement..."
-                            className="w-full bg-[#0F0A1A] border border-white/5 rounded-xl px-3 py-1.5 text-[10px] text-white focus:outline-none"
+                            className="w-full bg-white border border-[var(--ink-300)] rounded-xl px-3 py-1.5 text-[10px] text-[var(--ink-900)] focus:outline-none focus:border-[var(--brand-pink)]"
                           />
                         ))}
                         <button
@@ -360,7 +360,7 @@ export default function CVBuilderPublicPage() {
                             newExp[i] = { ...exp, bullets: [...exp.bullets, ""] };
                             updateCv({ ...cv, experience: newExp });
                           }}
-                          className="text-[10px] text-[#22C55E] hover:underline font-bold flex items-center gap-0.5 mt-1"
+                          className="text-[10px] text-[var(--brand-pink)] hover:underline font-bold flex items-center gap-0.5 mt-1"
                         >
                           <Plus size={10} /> Add Bullet
                         </button>
@@ -374,7 +374,7 @@ export default function CVBuilderPublicPage() {
                     const newExp = [...(cv.experience || []), { title: "", company: "", from: "", to: "", bullets: [""] }];
                     updateCv({ ...cv, experience: newExp });
                   }}
-                  className="w-full py-2.5 bg-white/5 hover:bg-white/10 rounded-2xl text-xs font-bold border border-dashed border-white/15 transition-all flex items-center justify-center gap-1"
+                  className="w-full py-2.5 bg-[var(--ink-100)] hover:bg-[var(--ink-200)] text-[var(--ink-900)] rounded-2xl text-xs font-bold border border-dashed border-[var(--ink-300)] transition-all flex items-center justify-center gap-1"
                 >
                   <Plus size={14} /> Add Role
                 </button>
@@ -382,13 +382,13 @@ export default function CVBuilderPublicPage() {
                 <div className="pt-4 flex justify-between">
                   <button
                     onClick={() => setStep("info")}
-                    className="px-5 py-2 hover:bg-white/5 rounded-full text-xs font-bold transition-all text-white/60"
+                    className="px-5 py-2 hover:bg-[var(--ink-100)] rounded-full text-xs font-bold transition-all text-[var(--ink-500)]"
                   >
                     Back
                   </button>
                   <button
                     onClick={() => setStep("education")}
-                    className="px-5 py-2 bg-white/5 hover:bg-white/10 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all"
+                    className="px-5 py-2 bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white rounded-full text-xs font-bold flex items-center gap-1.5 transition-all"
                   >
                     Education <ArrowRight size={12} />
                   </button>
@@ -398,21 +398,21 @@ export default function CVBuilderPublicPage() {
 
             {step === "education" && (
               <div className="space-y-4">
-                <h3 className="text-base font-bold text-[#22C55E] flex items-center gap-2">
+                <h3 className="text-base font-bold text-[var(--brand-pink)] flex items-center gap-2">
                   <Sparkles size={16} /> Education
                 </h3>
-                <p className="text-xs text-white/50 mb-4">Add your degrees, school certifications, and years of completion.</p>
+                <p className="text-xs text-[var(--ink-500)] mb-4">Add your degrees, school certifications, and years of completion.</p>
 
                 <div className="space-y-3 max-h-[300px] overflow-y-auto">
                   {(cv.education || []).map((edu, i) => (
-                    <div key={i} className="border border-white/5 bg-[#1A0D1F] p-4 rounded-2xl relative space-y-2">
+                    <div key={i} className="border border-[var(--ink-200)] bg-[var(--surface-muted)] p-4 rounded-2xl relative space-y-2">
                       <button
                         onClick={() => {
                           const newEdu = [...(cv.education || [])];
                           newEdu.splice(i, 1);
                           updateCv({ ...cv, education: newEdu });
                         }}
-                        className="absolute top-3 right-3 text-red-400 hover:text-red-300 p-1 transition-all"
+                        className="absolute top-3 right-3 text-red-500 hover:text-red-700 p-1 transition-all"
                       >
                         <Trash2 size={12} />
                       </button>
@@ -426,7 +426,7 @@ export default function CVBuilderPublicPage() {
                           updateCv({ ...cv, education: newEdu });
                         }}
                         placeholder="Degree Title (e.g. BS Computer Science)"
-                        className="w-full bg-[#0F0A1A] border border-white/5 rounded-xl px-3 py-2 text-xs text-white focus:outline-none"
+                        className="w-full bg-white border border-[var(--ink-300)] rounded-xl px-3 py-2 text-xs text-[var(--ink-900)] focus:outline-none focus:border-[var(--brand-pink)]"
                       />
                       <div className="grid grid-cols-2 gap-2">
                         <input
@@ -438,7 +438,7 @@ export default function CVBuilderPublicPage() {
                             updateCv({ ...cv, education: newEdu });
                           }}
                           placeholder="Institution Name (e.g. NUST)"
-                          className="bg-[#0F0A1A] border border-white/5 rounded-xl px-3 py-2 text-xs text-white focus:outline-none"
+                          className="bg-white border border-[var(--ink-300)] rounded-xl px-3 py-2 text-xs text-[var(--ink-900)] focus:outline-none focus:border-[var(--brand-pink)]"
                         />
                         <input
                           type="text"
@@ -449,7 +449,7 @@ export default function CVBuilderPublicPage() {
                             updateCv({ ...cv, education: newEdu });
                           }}
                           placeholder="Year of Graduation"
-                          className="bg-[#0F0A1A] border border-white/5 rounded-xl px-3 py-2 text-xs text-white focus:outline-none"
+                          className="bg-white border border-[var(--ink-300)] rounded-xl px-3 py-2 text-xs text-[var(--ink-900)] focus:outline-none focus:border-[var(--brand-pink)]"
                         />
                       </div>
                     </div>
@@ -461,7 +461,7 @@ export default function CVBuilderPublicPage() {
                     const newEdu = [...(cv.education || []), { degree: "", school: "", year: "" }];
                     updateCv({ ...cv, education: newEdu });
                   }}
-                  className="w-full py-2.5 bg-white/5 hover:bg-white/10 rounded-2xl text-xs font-bold border border-dashed border-white/15 transition-all flex items-center justify-center gap-1"
+                  className="w-full py-2.5 bg-[var(--ink-100)] hover:bg-[var(--ink-200)] text-[var(--ink-900)] rounded-2xl text-xs font-bold border border-dashed border-[var(--ink-300)] transition-all flex items-center justify-center gap-1"
                 >
                   <Plus size={14} /> Add Education Item
                 </button>
@@ -469,13 +469,13 @@ export default function CVBuilderPublicPage() {
                 <div className="pt-4 flex justify-between">
                   <button
                     onClick={() => setStep("experience")}
-                    className="px-5 py-2 hover:bg-white/5 rounded-full text-xs font-bold transition-all text-white/60"
+                    className="px-5 py-2 hover:bg-[var(--ink-100)] rounded-full text-xs font-bold transition-all text-[var(--ink-500)]"
                   >
                     Back
                   </button>
                   <button
                     onClick={() => setStep("skills")}
-                    className="px-5 py-2 bg-white/5 hover:bg-white/10 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all"
+                    className="px-5 py-2 bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white rounded-full text-xs font-bold flex items-center gap-1.5 transition-all"
                   >
                     Skills <ArrowRight size={12} />
                   </button>
@@ -485,16 +485,16 @@ export default function CVBuilderPublicPage() {
 
             {step === "skills" && (
               <div className="space-y-4">
-                <h3 className="text-base font-bold text-[#22C55E] flex items-center gap-2">
+                <h3 className="text-base font-bold text-[var(--brand-pink)] flex items-center gap-2">
                   <Sparkles size={16} /> Skills & Competencies
                 </h3>
-                <p className="text-xs text-white/50 mb-4">Add relevant technical stack and soft skills.</p>
+                <p className="text-xs text-[var(--ink-500)] mb-4">Add relevant technical stack and soft skills.</p>
 
                 <div className="flex flex-wrap gap-2 mb-4">
                   {(cv.skills || []).map((skill, index) => (
                     <span
                       key={index}
-                      className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-full text-xs font-semibold flex items-center gap-1"
+                      className="px-3 py-1.5 bg-[var(--ink-100)] border border-[var(--ink-300)] rounded-full text-xs font-semibold flex items-center gap-1 text-[var(--ink-700)]"
                     >
                       {skill}
                       <button
@@ -502,7 +502,7 @@ export default function CVBuilderPublicPage() {
                           const newSkills = (cv.skills || []).filter((_, idx) => idx !== index);
                           updateCv({ ...cv, skills: newSkills });
                         }}
-                        className="text-white/40 hover:text-red-400 font-bold ml-1"
+                        className="text-[var(--ink-500)] hover:text-red-500 font-bold ml-1"
                       >
                         ×
                       </button>
@@ -524,19 +524,19 @@ export default function CVBuilderPublicPage() {
                       }
                     }
                   }}
-                  className="w-full bg-[#1A0D1F] border border-white/5 rounded-2xl px-4 py-3 text-xs text-white placeholder:text-white/20 focus:outline-none focus:border-[#22C55E]"
+                  className="w-full bg-white border border-[var(--ink-300)] rounded-2xl px-4 py-3 text-xs text-[var(--ink-900)] placeholder:text-[var(--ink-500)] focus:outline-none focus:border-[var(--brand-pink)]"
                 />
 
                 <div className="pt-4 flex justify-between">
                   <button
                     onClick={() => setStep("education")}
-                    className="px-5 py-2 hover:bg-white/5 rounded-full text-xs font-bold transition-all text-white/60"
+                    className="px-5 py-2 hover:bg-[var(--ink-100)] rounded-full text-xs font-bold transition-all text-[var(--ink-500)]"
                   >
                     Back
                   </button>
                   <button
                     onClick={() => setStep("preview")}
-                    className="px-5 py-2 bg-white/5 hover:bg-white/10 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all"
+                    className="px-5 py-2 bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white rounded-full text-xs font-bold flex items-center gap-1.5 transition-all"
                   >
                     Visual Theme <ArrowRight size={12} />
                   </button>
@@ -546,14 +546,14 @@ export default function CVBuilderPublicPage() {
 
             {step === "preview" && (
               <div className="space-y-4">
-                <h3 className="text-base font-bold text-[#22C55E] flex items-center gap-2">
+                <h3 className="text-base font-bold text-[var(--brand-pink)] flex items-center gap-2">
                   <Palette size={16} /> Theme Customizer
                 </h3>
-                <p className="text-xs text-white/50 mb-4">Customize the structure and colors of your generated PDF.</p>
+                <p className="text-xs text-[var(--ink-500)] mb-4">Customize the structure and colors of your generated PDF.</p>
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-[10px] font-bold uppercase tracking-wider text-white/40 mb-2">Select Template Style</label>
+                    <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--ink-500)] mb-2">Select Template Style</label>
                     <div className="grid grid-cols-3 gap-2">
                       {[
                         { id: "modern", name: "Sleek Modern", icon: Type },
@@ -565,8 +565,8 @@ export default function CVBuilderPublicPage() {
                           onClick={() => setSelectedTemplate(t.id as any)}
                           className={`p-3 rounded-2xl border text-center transition-all flex flex-col items-center gap-1.5 ${
                             selectedTemplate === t.id
-                              ? "border-[#22C55E] bg-[#22C55E]/5 text-[#22C55E] font-bold shadow-sm"
-                              : "border-white/5 hover:border-white/10 text-white/55 hover:text-white"
+                              ? "border-[var(--brand-pink)] bg-[var(--brand-pink-soft)] text-[var(--brand-pink)] font-bold shadow-sm"
+                              : "border-[var(--ink-200)] hover:border-[var(--ink-300)] text-[var(--ink-500)] hover:text-[var(--ink-900)]"
                           }`}
                         >
                           <t.icon size={14} />
@@ -577,12 +577,10 @@ export default function CVBuilderPublicPage() {
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-bold uppercase tracking-wider text-white/40 mb-2">Accent Highlights</label>
+                    <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--ink-500)] mb-2">Accent Highlights</label>
                     <div className="flex gap-2.5">
                       {[
-                        { hex: "#22C55E", name: "Emerald" },
-                        { hex: "#7C3AED", name: "Violet" },
-                        { hex: "#EC4899", name: "Rose" },
+                        { hex: "#E91E8C", name: "Rose" },
                         { hex: "#F59E0B", name: "Amber" },
                         { hex: "#3B82F6", name: "Sky" },
                         { hex: "#1F2937", name: "Dark" }
@@ -591,7 +589,7 @@ export default function CVBuilderPublicPage() {
                           key={c.hex}
                           onClick={() => setAccentColor(c.hex)}
                           className={`w-7 h-7 rounded-full border transition-all flex items-center justify-center ${
-                            accentColor === c.hex ? "ring-2 ring-[#22C55E] ring-offset-2 ring-offset-[#1A0D1F]" : "border-white/10"
+                            accentColor === c.hex ? "ring-2 ring-[var(--brand-pink)] ring-offset-2 ring-offset-white" : "border-[var(--ink-300)]"
                           }`}
                           style={{ backgroundColor: c.hex }}
                         >
@@ -605,13 +603,13 @@ export default function CVBuilderPublicPage() {
                 <div className="pt-4 flex justify-between">
                   <button
                     onClick={() => setStep("skills")}
-                    className="px-5 py-2 hover:bg-white/5 rounded-full text-xs font-bold transition-all text-white/60"
+                    className="px-5 py-2 hover:bg-[var(--ink-100)] rounded-full text-xs font-bold transition-all text-[var(--ink-500)]"
                   >
                     Back
                   </button>
                   <button
                     onClick={handlePrint}
-                    className="px-5 py-2 bg-[#22C55E] hover:bg-[#1eb053] text-[#0F0A1A] rounded-full text-xs font-black transition-all shadow-lg flex items-center gap-1"
+                    className="px-5 py-2 bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white rounded-full text-xs font-black transition-all shadow-lg flex items-center gap-1"
                   >
                     <Download size={12} /> Compile & Print PDF
                   </button>
@@ -622,14 +620,14 @@ export default function CVBuilderPublicPage() {
         </div>
 
         {/* Right Preview Panel */}
-        <div className="lg:col-span-7 bg-white/5 border border-white/5 rounded-3xl p-6 overflow-y-auto max-h-[85vh]">
-          <h4 className="text-[11px] font-bold uppercase tracking-widest text-[#22C55E] mb-4 print:hidden">Live Interactive Document Preview</h4>
+        <div className="lg:col-span-7 bg-[var(--surface)] border border-[var(--ink-200)] rounded-3xl p-6 overflow-y-auto max-h-[85vh] shadow-card">
+          <h4 className="text-[11px] font-bold uppercase tracking-widest text-[var(--brand-pink)] mb-4 print:hidden">Live Interactive Document Preview</h4>
 
           {(!cv.name && !cv.title) ? (
-            <div className="text-center py-24 text-white/30 border border-dashed border-white/5 rounded-2xl flex flex-col items-center gap-2">
-              <Sparkles size={36} className="text-white/20 animate-pulse" />
+            <div className="text-center py-24 text-[var(--ink-500)] border border-dashed border-[var(--ink-300)] rounded-2xl flex flex-col items-center gap-2">
+              <Sparkles size={36} className="text-[var(--ink-500)]/40 animate-pulse" />
               <div className="text-sm font-bold">Your CV compilations appear here</div>
-              <p className="text-[10px] text-white/20 max-w-xs mx-auto">Fill out the basic details on the left to see the template populate in real-time.</p>
+              <p className="text-[10px] text-[var(--ink-500)]/60 max-w-xs mx-auto">Fill out the basic details on the left to see the template populate in real-time.</p>
             </div>
           ) : (
             <div
@@ -730,13 +728,13 @@ export default function CVBuilderPublicPage() {
 
       {/* Guest Registration Dialog */}
       {showRegModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in print:hidden">
-          <div className="bg-[#0F0A1A] border border-white/5 rounded-3xl p-6 max-w-sm w-full text-center space-y-4 shadow-2xl">
-            <div className="w-12 h-12 bg-[#22C55E]/10 rounded-full flex items-center justify-center mx-auto text-[#22C55E]">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in print:hidden">
+          <div className="bg-white border border-[var(--ink-200)] rounded-3xl p-6 max-w-sm w-full text-center space-y-4 shadow-2xl">
+            <div className="w-12 h-12 bg-[var(--brand-pink-soft)] rounded-full flex items-center justify-center mx-auto text-[var(--brand-pink)]">
               <UserCheck size={24} />
             </div>
-            <h3 className="font-serif text-lg font-bold text-white">Save CV to Profile</h3>
-            <p className="text-xs text-white/50 leading-relaxed">
+            <h3 className="font-serif text-lg font-bold text-[var(--ink-900)]">Save CV to Profile</h3>
+            <p className="text-xs text-[var(--ink-500)] leading-relaxed">
               Create a free candidate profile on SheEnableAI to persist your CV online, unlock direct 1-click job applications, and receive smart AI recommendations.
             </p>
             <div className="pt-2 space-y-2">
@@ -745,13 +743,13 @@ export default function CVBuilderPublicPage() {
                   setShowRegModal(false);
                   navigate("/auth/signup");
                 }}
-                className="w-full py-2.5 bg-[#22C55E] hover:bg-[#1eb053] text-[#0F0A1A] rounded-full text-xs font-black transition-all"
+                className="w-full py-2.5 bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white rounded-full text-xs font-black transition-all"
               >
                 Sign Up as Candidate
               </button>
               <button
                 onClick={() => setShowRegModal(false)}
-                className="w-full py-2.5 bg-white/5 hover:bg-white/10 rounded-full text-xs font-bold transition-all text-white/60"
+                className="w-full py-2.5 bg-[var(--ink-100)] hover:bg-[var(--ink-200)] rounded-full text-xs font-bold transition-all text-[var(--ink-700)]"
               >
                 Continue Editing
               </button>
