@@ -106,7 +106,7 @@ export default function SalaryGuidePage() {
       <section className="bg-[var(--surface-dark)] text-white pb-16 pt-6">
         <div className="relative max-w-[1200px] mx-auto px-6 text-center max-w-2xl space-y-3">
           <h2 className="font-serif text-3xl font-extrabold tracking-tight">
-            Salary <span className="text-[var(--brand-pink)]">Transparency Index</span>
+            Salary <span className="italic text-[var(--brand-pink)]">Transparency Index</span>
           </h2>
           <p className="text-sm text-[var(--on-dark-secondary)] leading-relaxed">
             Establishing wage equity in Pakistan's software industry through verified aggregates. Explore salary ranges, compare percentiles, and anonymously track the gender pay gap.
