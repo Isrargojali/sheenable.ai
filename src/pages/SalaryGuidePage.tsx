@@ -87,24 +87,24 @@ export default function SalaryGuidePage() {
   );
 
   return (
-    <div className="min-h-screen bg-[var(--surface-muted)] text-[var(--ink-700)] flex flex-col">
-      {/* Header */}
+    <div className="min-h-screen bg-[var(--surface)] text-[var(--ink-700)] flex flex-col">
+      {/* Header Band (Dark) */}
       <div className="bg-[var(--surface-dark)]">
         <SubpageNav
           actions={
             <button
               onClick={() => setShowAddForm(true)}
-              className="px-4 h-9 bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white rounded-full text-xs font-bold transition-all flex items-center gap-1 shadow-lg press"
+              className="px-5 h-10 bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white rounded-full text-[14px] font-medium transition-all flex items-center gap-1.5 shadow-sm press"
             >
-              <Plus size={14} /> Contribute Anonymously
+              <Plus size={14} className="text-white" /> Contribute Anonymously
             </button>
           }
         />
       </div>
 
-      {/* Hero Section */}
-      <section className="bg-[var(--surface-dark)] text-white py-16">
-        <div className="relative max-w-[1280px] mx-auto px-5 lg:px-8 text-center max-w-2xl space-y-3">
+      {/* Hero Title Section (Dark) */}
+      <section className="bg-[var(--surface-dark)] text-white pb-16 pt-6">
+        <div className="relative max-w-[1200px] mx-auto px-6 text-center max-w-2xl space-y-3">
           <h2 className="font-serif text-3xl font-extrabold tracking-tight">
             Salary <span className="text-[var(--brand-pink)]">Transparency Index</span>
           </h2>
@@ -114,126 +114,131 @@ export default function SalaryGuidePage() {
         </div>
       </section>
 
-      {/* Main Content Area */}
-      <div className="flex-1 max-w-[1200px] mx-auto w-full p-6 space-y-8">
-        {/* Global Stats Cards */}
-        <div className="grid sm:grid-cols-3 gap-6">
-          <div className="bg-[var(--surface)] border border-[var(--ink-200)] rounded-3xl p-5 space-y-2 shadow-card">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--ink-500)]">Verified Crowdsourced records</span>
-            <div className="text-2xl font-black text-[var(--brand-pink)]">
-              {salaryStats ? salaryStats.reduce((sum, s) => sum + s.count, 0) : "..."}
+      {/* Main Content Area (Light) */}
+      <main className="flex-1 bg-[var(--surface)] text-[var(--ink-700)] -mt-8 relative z-10">
+        <div className="max-w-[1200px] mx-auto w-full px-6 pb-16 space-y-8">
+          {/* Global Stats Cards */}
+          <div className="grid sm:grid-cols-3 gap-4">
+            <div className="bg-[var(--surface)] border border-[var(--ink-200)] rounded-[var(--radius-card)] p-6 flex flex-col justify-between shadow-[var(--shadow-card)]">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.04em] text-[var(--ink-500)]">Verified Crowdsources</span>
+              <div className="text-[40px] font-semibold tracking-tight text-[var(--ink-900)] leading-none my-2">
+                {salaryStats ? salaryStats.reduce((sum, s) => sum + s.count, 0) : "..."}
+              </div>
+              <p className="text-[13px] font-normal text-[var(--ink-500)]">Active, clean, verified salary records in Pakistan.</p>
             </div>
-            <p className="text-[10px] text-[var(--ink-500)]">Active, clean, verified salary records in Pakistan.</p>
+
+            <div className="bg-[var(--surface)] border border-[var(--ink-200)] rounded-[var(--radius-card)] p-6 flex flex-col justify-between shadow-[var(--shadow-card)]">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.04em] text-[var(--ink-500)]">DEI Gender Parity Ratio</span>
+              <div className="text-[40px] font-semibold tracking-tight text-[var(--brand-pink)] leading-none my-2">
+                {salaryStats && salaryStats.length > 0
+                  ? Math.round(salaryStats.reduce((sum, s) => sum + s.parityRatio, 0) / salaryStats.length)
+                  : "92"}%
+              </div>
+              <p className="text-[13px] font-normal text-[var(--ink-500)]">Average female wage parity relative to male benchmarks.</p>
+            </div>
+
+            <div className="bg-[var(--surface)] border border-[var(--ink-200)] rounded-[var(--radius-card)] p-6 flex flex-col justify-between shadow-[var(--shadow-card)]">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.04em] text-[var(--ink-500)]">Contribute Data</span>
+              <button
+                onClick={() => setShowAddForm(true)}
+                className="w-full h-10 px-5 bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white text-[14px] font-medium rounded-full transition-all shadow-sm flex items-center justify-center gap-1.5 press mt-2"
+              >
+                Add Your Salary anonymously
+              </button>
+            </div>
           </div>
 
-          <div className="bg-[var(--surface)] border border-[var(--ink-200)] rounded-3xl p-5 space-y-2 shadow-card">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--ink-500)]">DEI Gender Parity Ratio</span>
-            <div className="text-2xl font-black text-[var(--ink-900)]">
-              {salaryStats && salaryStats.length > 0
-                ? Math.round(salaryStats.reduce((sum, s) => sum + s.parityRatio, 0) / salaryStats.length)
-                : "92"}%
+          {/* Main Explorer Section */}
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 justify-between bg-[var(--surface)] border border-[var(--ink-200)] rounded-[var(--radius-input)] p-2 shadow-[var(--shadow-card)]">
+              <div className="relative flex-1">
+                <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--ink-500)]" />
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search roles (e.g. Frontend Engineer, Product Manager)..."
+                  className="w-full bg-transparent border-0 rounded-none pl-10 pr-4 py-3 text-xs text-[var(--ink-900)] placeholder:text-[var(--ink-500)] focus:outline-none focus:ring-0"
+                />
+              </div>
+              <button
+                onClick={() => refetch()}
+                className="px-4 h-9 bg-transparent border-[1.5px] border-[var(--brand-pink)] text-[var(--brand-pink)] hover:bg-[var(--brand-pink-soft)] rounded-full text-[13px] font-medium transition-all flex items-center justify-center gap-1.5 press"
+              >
+                <RefreshCw size={12} className="text-[var(--brand-pink)]" /> Sync Data
+              </button>
             </div>
-            <p className="text-[10px] text-[var(--ink-500)]">Average female wage parity relative to male benchmarks.</p>
-          </div>
 
-          <div className="bg-[var(--surface)] border border-[var(--ink-200)] rounded-3xl p-5 space-y-2 flex flex-col justify-between shadow-card">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--ink-500)]">Contribute Data</span>
-            <button
-              onClick={() => setShowAddForm(true)}
-              className="py-1.5 px-4 bg-[var(--ink-100)] hover:bg-[var(--ink-200)] border border-[var(--ink-300)] rounded-xl text-xs font-bold transition-all text-center text-[var(--ink-900)]"
-            >
-              Add Your Salary anonymously
-            </button>
-          </div>
-        </div>
+            {isLoading ? (
+              <div className="text-center py-20 animate-pulse">
+                <Loader2 className="animate-spin text-[var(--brand-pink)] mx-auto mb-2" size={24} />
+                <span className="text-xs text-[var(--ink-500)]">Compiling crowdsourced indices...</span>
+              </div>
+            ) : filteredStats.length === 0 ? (
+              <div className="text-center py-20 bg-[var(--surface)] border border-[var(--ink-200)] rounded-3xl text-[var(--ink-500)] flex flex-col items-center gap-2">
+                <DollarSign size={36} className="text-[var(--ink-400)]" />
+                <div className="text-sm font-bold">No salary indices matched your criteria</div>
+                <p className="text-[10px] text-[var(--ink-400)]">Be the first to contribute to this role category!</p>
+              </div>
+            ) : (
+              /* Salary Stat Grid Cards */
+              <div className="grid md:grid-cols-2 gap-4">
+                {filteredStats.map((stat, idx) => (
+                  <div key={idx} className="bg-[var(--surface)] border border-[var(--ink-200)] rounded-[var(--radius-card)] p-6 space-y-4 shadow-[var(--shadow-card)] transition-all hover:border-[var(--brand-pink)]/30 text-[var(--ink-700)]">
+                    {/* Role Header */}
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-center gap-2">
+                        <Briefcase size={16} className="text-[var(--ink-500)]" />
+                        <h3 className="text-[16px] font-semibold text-[var(--ink-900)]">
+                          {stat.role}
+                        </h3>
+                      </div>
+                      <span className="px-[10px] py-[2px] bg-[var(--ink-100)] text-[var(--ink-700)] rounded-full text-[11px] font-normal lowercase">
+                        {stat.count} records
+                      </span>
+                    </div>
 
-        {/* Main Explorer Section */}
-        <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4 justify-between bg-[var(--surface)] border border-[var(--ink-200)] rounded-3xl p-4 shadow-card">
-            <div className="relative flex-1">
-              <Plus size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--ink-500)]" />
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search job roles (e.g. Frontend Engineer, Product Manager, Lahore)..."
-                className="w-full bg-white border border-[var(--ink-300)] rounded-2xl pl-10 pr-4 py-3 text-xs text-[var(--ink-900)] focus:outline-none focus:border-[var(--brand-pink)]"
-              />
-            </div>
-            <button
-              onClick={() => refetch()}
-              className="px-4 py-3 bg-[var(--ink-100)] border border-[var(--ink-200)] hover:bg-[var(--ink-200)] text-[var(--ink-900)] rounded-2xl text-xs font-bold transition-all flex items-center justify-center gap-1.5"
-            >
-              <RefreshCw size={12} /> Sync Data
-            </button>
-          </div>
+                    {/* Location and experience */}
+                    <div className="text-[12px] font-normal text-[var(--ink-500)] flex items-center gap-2 mt-1">
+                      <span className="flex items-center gap-0.5"><MapPin size={10} /> {stat.cities.join(", ")}</span>
+                      <span>·</span>
+                      <span>Avg experience: {stat.avgExperience} yrs</span>
+                    </div>
 
-          {isLoading ? (
-            <div className="text-center py-20 animate-pulse">
-              <Loader2 className="animate-spin text-[var(--brand-pink)] mx-auto mb-2" size={24} />
-              <span className="text-xs text-[var(--ink-500)]">Compiling crowdsourced indices...</span>
-            </div>
-          ) : filteredStats.length === 0 ? (
-            <div className="text-center py-20 bg-[var(--surface)] border border-[var(--ink-200)] rounded-3xl text-[var(--ink-500)] flex flex-col items-center gap-2">
-              <DollarSign size={36} className="text-[var(--ink-400)]" />
-              <div className="text-sm font-bold">No salary indices matched your criteria</div>
-              <p className="text-[10px] text-[var(--ink-400)]">Be the first to contribute to this role category!</p>
-            </div>
-          ) : (
-            /* Salary Stat Grid Cards */
-            <div className="grid md:grid-cols-2 gap-6">
-              {filteredStats.map((stat, idx) => (
-                <div key={idx} className="bg-[var(--surface)] border border-[var(--ink-200)] rounded-3xl p-6 space-y-4 shadow-card text-[var(--ink-700)]">
-                  {/* Role Header */}
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="text-base font-bold text-[var(--ink-900)] flex items-center gap-2">
-                        <Briefcase size={15} className="text-[var(--brand-pink)]" /> {stat.role}
-                      </h3>
-                      <div className="text-[10px] text-[var(--ink-500)] flex items-center gap-2 mt-1">
-                        <span className="flex items-center gap-0.5"><MapPin size={10} /> {stat.cities.join(", ")}</span>
-                        <span>·</span>
-                        <span>Avg experience: {stat.avgExperience} yrs</span>
+                    {/* Wage ranges bar chart */}
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[12px] font-normal text-[var(--ink-500)]">
+                        <span>Min: PKR {stat.min.toLocaleString()}</span>
+                        <span className="font-semibold text-[var(--ink-900)]">Median: PKR {stat.median.toLocaleString()}</span>
+                        <span>Max: PKR {stat.max.toLocaleString()}</span>
+                      </div>
+                      <div className="h-1.5 bg-[var(--ink-100)] rounded-full overflow-hidden relative">
+                        {/* Highlighted median range */}
+                        <div className="h-full bg-[var(--brand-pink)] rounded-full" style={{ width: "70%", marginLeft: "15%" }} />
                       </div>
                     </div>
-                    <span className="px-2.5 py-0.5 bg-[var(--brand-pink-soft)] border border-[var(--brand-pink)]/20 text-[var(--brand-pink)] rounded-full text-[9px] font-bold">
-                      {stat.count} records
-                    </span>
-                  </div>
 
-                  {/* Wage ranges bar chart */}
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-[10px] text-[var(--ink-500)]">
-                      <span>Min: PKR {stat.min.toLocaleString()}</span>
-                      <span className="font-bold text-[var(--ink-900)]">Median: PKR {stat.median.toLocaleString()}</span>
-                      <span>Max: PKR {stat.max.toLocaleString()}</span>
-                    </div>
-                    <div className="h-2.5 bg-[var(--ink-100)] border border-[var(--ink-200)] rounded-full overflow-hidden relative">
-                      {/* Highlighted median range */}
-                      <div className="h-full bg-gradient-to-r from-[var(--brand-pink)]/50 to-[var(--brand-pink)] rounded-full" style={{ width: "70%", marginLeft: "15%" }} />
-                    </div>
-                  </div>
-
-                  {/* DEI pay parity scale */}
-                  <div className="bg-[var(--surface-muted)] border border-[var(--ink-200)] p-3 rounded-2xl flex justify-between items-center">
-                    <div>
-                      <span className="text-[9px] font-bold uppercase tracking-wider text-[var(--ink-500)]">Pay Parity Index</span>
-                      <div className="text-xs font-bold text-[var(--ink-900)] flex items-center gap-1.5 mt-0.5">
-                        <Sparkles size={11} className="text-[var(--brand-pink)]" />
-                        {stat.parityRatio}% Equity ratio
+                    {/* DEI pay parity scale */}
+                    <div className="bg-[var(--surface-muted)] border border-[var(--ink-200)] rounded-[var(--radius-input)] p-3 flex justify-between items-center">
+                      <div>
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.04em] text-[var(--ink-500)]">Pay Parity Index</span>
+                        <div className="text-[13px] font-medium text-[var(--ink-900)] flex items-center gap-1.5 mt-0.5">
+                          <Sparkles size={12} strokeWidth={1.75} className="text-[var(--ink-500)]" />
+                          {stat.parityRatio}% Equity ratio
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.04em] text-[var(--ink-500)]">Female Median</span>
+                        <div className="text-[13px] font-semibold text-[var(--brand-pink)] mt-0.5">PKR {stat.femaleMedian.toLocaleString()}</div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <span className="text-[9px] font-bold uppercase tracking-wider text-[var(--ink-500)]">Female Median</span>
-                      <div className="text-xs font-bold text-[var(--brand-pink)] mt-0.5">PKR {stat.femaleMedian.toLocaleString()}</div>
-                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      </main>
 
       {/* Contribution Drawer/Modal */}
       {showAddForm && (
