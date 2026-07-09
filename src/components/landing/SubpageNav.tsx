@@ -42,13 +42,11 @@ export default function SubpageNav({ actions }: SubpageNavProps = {}) {
     <>
       <nav
         className={cn(
-          "sticky top-0 z-40 transition-all duration-300",
-          scrolled
-            ? "glass-dark border-b border-white/5 shadow-2xl"
-            : "bg-transparent"
+          "sticky top-0 z-40 transition-all duration-300 bg-[var(--surface-dark)] border-b border-white/5",
+          scrolled ? "shadow-2xl" : "shadow-none"
         )}
       >
-        <div className="max-w-[1280px] mx-auto h-16 px-5 lg:px-8 flex items-center justify-between gap-4">
+        <div className="max-w-[1280px] mx-auto h-[72px] px-8 flex items-center justify-between gap-4">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 group" aria-label="SheEnableAI home">
             <img
@@ -57,29 +55,29 @@ export default function SubpageNav({ actions }: SubpageNavProps = {}) {
               className="w-48 h-24 object-contain transition-transform group-hover:scale-105"
             />
           </Link>
-
+ 
           {/* Center links */}
           <div className="hidden lg:flex items-center gap-7">
             {NAV_LINKS.map(l => (
               <a
                 key={l.label}
                 href={l.href}
-                className="text-[13px] font-semibold relative group transition-colors duration-200 text-white/75 hover:text-white"
+                className="text-[14px] font-medium relative group transition-colors duration-200 text-white hover:text-[var(--brand-pink)]"
               >
                 {l.label}
                 <span className="absolute -bottom-1 left-0 right-0 h-px scale-x-0 group-hover:scale-x-100 transition-transform origin-left bg-[var(--brand-pink)]" />
               </a>
             ))}
           </div>
-
+ 
           {/* CTAs */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             {actions ? (
               actions
             ) : user ? (
               <Link
                 to={dashboardHref}
-                className="inline-flex items-center px-5 h-9 rounded-full text-[12px] font-bold transition-all shadow-md press bg-[var(--brand-pink)] text-white hover:bg-[var(--brand-pink-hover)] hover:-translate-y-0.5"
+                className="inline-flex items-center px-5 h-10 rounded-full text-[14px] font-medium transition-all shadow-md press bg-[var(--brand-pink)] text-white hover:bg-[var(--brand-pink-hover)]"
               >
                 Go to Dashboard
               </Link>
@@ -87,19 +85,19 @@ export default function SubpageNav({ actions }: SubpageNavProps = {}) {
               <>
                 <Link
                   to="/auth/signup?role=EMPLOYER"
-                  className="hidden md:inline-flex items-center px-4 h-9 rounded-full text-[12px] font-semibold border-[1.5px] press transition-colors duration-200 border-white/15 text-white/85 hover:border-[var(--brand-pink)] hover:text-[var(--brand-pink)]"
+                  className="hidden md:inline-flex items-center px-5 h-10 rounded-full text-[14px] font-medium border-[1.5px] press transition-colors duration-200 border-[var(--on-dark-border)] text-white hover:border-[var(--brand-pink)] hover:text-[var(--brand-pink)]"
                 >
                   Post a Job
                 </Link>
                 <Link
                   to="/auth/signup"
-                  className="hidden lg:inline-flex items-center px-4 h-9 rounded-full text-[12px] font-bold shadow-sm press transition-all bg-[var(--brand-pink)] text-white hover:bg-[var(--brand-pink-hover)] hover:-translate-y-0.5"
+                  className="hidden lg:inline-flex items-center px-5 h-10 rounded-full text-[14px] font-medium shadow-sm press transition-all bg-[var(--brand-pink)] text-white hover:bg-[var(--brand-pink-hover)]"
                 >
                   Join Free
                 </Link>
               </>
             )}
-
+ 
             <button
               onClick={() => setOpen(true)}
               className="lg:hidden p-2 rounded-lg press transition-colors hover:bg-white/10 text-white"
@@ -110,7 +108,7 @@ export default function SubpageNav({ actions }: SubpageNavProps = {}) {
           </div>
         </div>
       </nav>
-
+ 
       {/* Mobile drawer */}
       {open && (
         <>
@@ -153,7 +151,7 @@ export default function SubpageNav({ actions }: SubpageNavProps = {}) {
                   <Link
                     to="/auth/signup?role=EMPLOYER"
                     onClick={() => setOpen(false)}
-                    className="px-3 py-3 rounded-xl text-sm font-semibold border-[1.5px] text-center transition-colors border-white/10 text-white/80 hover:border-[var(--brand-pink)] hover:text-[var(--brand-pink)]"
+                    className="px-3 py-3 rounded-xl text-sm font-semibold border-[1.5px] text-center transition-colors border-[var(--on-dark-border)] text-white hover:border-[var(--brand-pink)] hover:text-[var(--brand-pink)]"
                   >
                     Post a Job
                   </Link>
