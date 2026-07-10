@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search, Sparkles, BookOpen, Clock, Tag, ArrowLeft, Heart, Share2 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Search, BookOpen, Clock, Tag, ArrowLeft } from "lucide-react";
 import { api } from "@/lib/api";
-import logo from "@/assets/sheEnableAI-removebg-preview.png";
 import SubpageNav from "@/components/landing/SubpageNav";
+import useSEO from "@/hooks/useSEO";
 import {
   Select,
   SelectContent,
@@ -32,6 +31,11 @@ export default function CareerAdvicePage() {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [activeArticle, setActiveArticle] = useState<Article | null>(null);
+
+  useSEO({
+    title: "Career Advice & Hub for Women in Pakistan | SheEnableAI",
+    description: "Expert career advice, resume tips, and interview preparation guides for women in tech in Pakistan. Accelerate your career with pre-vetted insights.",
+  });
 
   // Fetch articles from backend API
   const { data: articles, isLoading } = useQuery<Article[]>({
@@ -147,11 +151,11 @@ export default function CareerAdvicePage() {
             <header className="bg-[var(--surface-dark)] text-white pb-12 pt-6">
               <div className="max-w-[1200px] mx-auto w-full px-6 text-center max-w-2xl space-y-6">
                 <div className="space-y-3">
-                  <h2 className="font-serif text-3xl font-extrabold tracking-tight text-white">
-                    SheEnableAI <span className="italic text-[var(--brand-pink)]">Career Hub</span>
-                  </h2>
+                  <h1 className="font-serif text-3xl font-extrabold tracking-tight text-white">
+                    Career Advice for <span className="italic text-[var(--brand-pink)]">Women in Tech in Pakistan</span>
+                  </h1>
                   <p className="text-sm text-[var(--on-dark-secondary)] leading-relaxed">
-                    Empowering career insights, tech leadership blueprints, and data-driven diversity research, custom-curated for ambitious women in Pakistan's software sectors.
+                    Pre-vetted blueprints, resume strategies, and interview insights compiled by Pakistan's top female tech leaders.
                   </p>
                 </div>
 
@@ -196,6 +200,12 @@ export default function CareerAdvicePage() {
             {/* Articles Grid section switches to --surface (white) */}
             <main className="flex-1 bg-[var(--surface)] text-[var(--ink-700)]">
               <div className="max-w-[1200px] mx-auto w-full p-6 py-12">
+                
+                {/* Career Advice Intro Paragraph */}
+                <div className="bg-white border border-[var(--ink-200)] rounded-2xl p-6 mb-8 text-xs text-[var(--ink-700)] leading-relaxed shadow-sm">
+                  Navigating a career in tech as a woman in Pakistan comes with unique opportunities and challenges. The SheEnableAI Career Hub provides actionable advice on salary negotiation, returning to the workforce after a break, building a standout technical resume, and preparing for engineering and design interviews at top local and global companies. Read our latest guides to take control of your career trajectory.
+                </div>
+
                 {isLoading ? (
                   <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {[1, 2, 3].map((n) => (

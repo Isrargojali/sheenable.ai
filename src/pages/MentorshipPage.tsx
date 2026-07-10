@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Search, Sparkles, Clock, ArrowRight, UserCheck, Loader2, MessageCircle, Calendar } from "lucide-react";
+import { Search, Sparkles, UserCheck, Loader2, MessageCircle, Calendar } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
 import SubpageNav from "@/components/landing/SubpageNav";
+import useSEO from "@/hooks/useSEO";
 import {
   Select,
   SelectContent,
@@ -32,6 +33,11 @@ export default function MentorshipPage() {
   const [search, setSearch] = useState("");
   const [selectedExpertise, setSelectedExpertise] = useState("all");
   const [activeMentor, setActiveMentor] = useState<Mentor | null>(null);
+
+  useSEO({
+    title: "1-on-1 Mentorship for Women in Tech | SheEnableAI",
+    description: "Connect with verified female engineering leaders, product managers, and design executives in Pakistan. Get 1-on-1 career guidance. Join free.",
+  });
 
   // Fetch mentors from API
   const { data: mentors, isLoading } = useQuery<Mentor[]>({
@@ -81,11 +87,11 @@ export default function MentorshipPage() {
       {/* Hero Section */}
       <section className="bg-[var(--surface-dark)] text-white py-16">
         <div className="relative max-w-[1200px] mx-auto px-6 text-center max-w-2xl space-y-3">
-          <h2 className="font-serif text-3xl font-extrabold tracking-tight">
-            Verified <span className="italic text-[var(--brand-pink)]">Mentorship Matchings</span>
-          </h2>
+          <h1 className="font-serif text-3xl font-extrabold tracking-tight">
+            1-on-1 Mentorship for <span className="italic text-[var(--brand-pink)]">Women in Tech</span>
+          </h1>
           <p className="text-sm text-[var(--text-on-dark-mute)] leading-relaxed">
-            Accelerate your career through direct guidelines from Pakistan's top-tier female tech executives, engineering directors, and product leaders.
+            Get career guidance, resume reviews, and interview prep from Pakistan's leading female tech executives.
           </p>
         </div>
       </section>
@@ -101,24 +107,24 @@ export default function MentorshipPage() {
                 <div className="flex gap-3 bg-[var(--surface-dark-card)] border border-[var(--border-dark)] p-4 rounded-2xl">
                   <UserCheck size={24} strokeWidth={1.75} className="text-white flex-shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="text-[15px] font-semibold text-[var(--text-on-dark)]">Expert Curation</h4>
-                    <p className="text-[13px] text-[var(--text-on-dark-mute)] leading-relaxed mt-0.5">Connect with hand-picked industry veterans and leaders.</p>
+                    <h4 className="text-[15px] font-semibold text-[var(--text-on-dark)]">Resume & Portfolio Reviews</h4>
+                    <p className="text-[13px] text-[var(--text-on-dark-mute)] leading-relaxed mt-0.5">Get direct, honest feedback on your CV and technical portfolio from managers who hire for these roles daily.</p>
                   </div>
                 </div>
 
                 <div className="flex gap-3 bg-[var(--surface-dark-card)] border border-[var(--border-dark)] p-4 rounded-2xl">
                   <Calendar size={24} strokeWidth={1.75} className="text-white flex-shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="text-[15px] font-semibold text-[var(--text-on-dark)]">Direct Scheduling</h4>
-                    <p className="text-[13px] text-[var(--text-on-dark-mute)] leading-relaxed mt-0.5">Seamlessly book sessions directly with your mentor.</p>
+                    <h4 className="text-[15px] font-semibold text-[var(--text-on-dark)]">Mock Interview Practice</h4>
+                    <p className="text-[13px] text-[var(--text-on-dark-mute)] leading-relaxed mt-0.5">Practice system design, coding, and product management interviews with experienced industry mentors.</p>
                   </div>
                 </div>
 
                 <div className="flex gap-3 bg-[var(--surface-dark-card)] border border-[var(--border-dark)] p-4 rounded-2xl">
                   <MessageCircle size={24} strokeWidth={1.75} className="text-white flex-shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="text-[15px] font-semibold text-[var(--text-on-dark)]">Growth Guidance</h4>
-                    <p className="text-[13px] text-[var(--text-on-dark-mute)] leading-relaxed mt-0.5">Receive personalized feedback on your career path.</p>
+                    <h4 className="text-[15px] font-semibold text-[var(--text-on-dark)]">Career Growth Blueprints</h4>
+                    <p className="text-[13px] text-[var(--text-on-dark-mute)] leading-relaxed mt-0.5">Learn how to navigate salary negotiations, caregiving return-to-work phases, and transitions into leadership.</p>
                   </div>
                 </div>
               </div>
@@ -128,16 +134,16 @@ export default function MentorshipPage() {
                 <div className="w-14 h-14 bg-[color-mix(in_oklab,var(--brand-pink)_12%,transparent)] rounded-full flex items-center justify-center mx-auto text-[var(--brand-pink)]">
                   <Sparkles size={32} />
                 </div>
-                <h3 className="text-xl font-semibold text-[var(--text-on-dark)]">Mentorship Discovery is Locked</h3>
+                <h3 className="text-xl font-semibold text-[var(--text-on-dark)]">Locked Mentor Profile</h3>
                 <p className="text-sm text-[var(--text-on-dark-mute)] leading-relaxed max-w-[440px] mx-auto">
-                  Mentorship pairings and active scheduling windows are accessible exclusively to registered users of the SheEnableAI platform to maintain high-quality matches.
+                  Create a candidate account to unlock free 1-on-1 mentorship with Pakistan's top tech leaders.
                 </p>
                 <div className="pt-2 space-y-3 w-full">
                   <Link
                     to="/auth/signup"
                     className="w-full h-12 bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white rounded-full text-xs font-bold transition-all flex items-center justify-center gap-1 shadow-lg"
                   >
-                    Sign Up as Candidate
+                    Create Free Account to Unlock Mentors
                   </Link>
                   <Link
                     to="/auth/login"

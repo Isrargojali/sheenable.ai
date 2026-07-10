@@ -101,18 +101,18 @@ const App = () => (
         <PageTransition>
         <Routes>
           {/* Public */}
-          <Route path="/"                      element={<LandingPage />} />
-          <Route path="/jobs"                  element={<BrowseJobsPage />} />
-          <Route path="/cv-builder"            element={<CVBuilderPublicPage />} />
-          <Route path="/career-advice"         element={<CareerAdvicePage />} />
-          <Route path="/salary-guide"          element={<SalaryGuidePage />} />
-          <Route path="/post-job"              element={<PostJobPublicPage />} />
-          <Route path="/pricing"               element={<PricingPage />} />
-          <Route path="/talent-search"         element={<TalentSearchPage />} />
-          <Route path="/inclusion-resources"   element={<InclusionResourcesPage />} />
-          <Route path="/mentorship"            element={<MentorshipPage />} />
-          <Route path="/events"                element={<EventsPage />} />
-          <Route path="/blog"                  element={<BlogPage />} />
+          <Route path="/"                               element={<LandingPage />} />
+          <Route path="/find-jobs-for-women-pakistan"   element={<BrowseJobsPage />} />
+          <Route path="/cv-builder"                     element={<CVBuilderPublicPage />} />
+          <Route path="/career-hub-women-pakistan"      element={<CareerAdvicePage />} />
+          <Route path="/pakistan-salary-transparency-index" element={<SalaryGuidePage />} />
+          <Route path="/hire-female-talent-pakistan"    element={<PostJobPublicPage />} />
+          <Route path="/employer-pricing-pakistan"      element={<PricingPage />} />
+          <Route path="/talent-search"                  element={<TalentSearchPage />} />
+          <Route path="/dei-inclusion-resources-pakistan" element={<InclusionResourcesPage />} />
+          <Route path="/mentorship-women-pakistan"      element={<MentorshipPage />} />
+          <Route path="/webinars-women-tech-pakistan"   element={<EventsPage />} />
+          <Route path="/career-blog-women-pakistan"     element={<BlogPage />} />
           <Route path="/auth/login"            element={<LoginPage />} />
           <Route path="/admin/sign-in"         element={<LoginPage />} />
           <Route path="/auth/signup"           element={<SignupPage />} />

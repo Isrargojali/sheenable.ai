@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Calendar, MapPin, Users, Sparkles, Check, ArrowRight, Loader2, Play } from "lucide-react";
+import { Calendar, Sparkles, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
-import logo from "@/assets/sheEnableAI-removebg-preview.png";
 import SubpageNav from "@/components/landing/SubpageNav";
+import useSEO from "@/hooks/useSEO";
 
 interface Speaker {
   name: string;
@@ -30,6 +30,11 @@ export default function EventsPage() {
   const queryClient = useQueryClient();
   const { user, token } = useAuthStore();
   const [filterMode, setFilterMode] = useState<"ALL" | "UPCOMING" | "PAST">("ALL");
+
+  useSEO({
+    title: "Webinars & Fairs for Women in Tech | SheEnableAI",
+    description: "Join live webinars, masterclasses, and virtual career fairs for women in tech in Pakistan. Learn from industry leaders and connect with employers.",
+  });
 
   // Fetch events from API
   const { data: events, isLoading } = useQuery<EventItem[]>({
@@ -79,11 +84,11 @@ export default function EventsPage() {
       {/* Hero Section */}
       <section className="bg-[var(--surface-dark)] text-white py-16">
         <div className="relative max-w-[1200px] mx-auto px-6 text-center max-w-2xl space-y-3">
-          <h2 className="font-serif text-3xl font-extrabold tracking-tight">
-            SheEnableAI <span className="italic text-[var(--brand-pink)]">Webinars & Fairs</span>
-          </h2>
+          <h1 className="font-serif text-3xl font-extrabold tracking-tight">
+            Webinars & Fairs for <span className="italic text-[var(--brand-pink)]">Women in Tech</span>
+          </h1>
           <p className="text-sm text-[var(--text-on-dark-mute)] leading-relaxed">
-            Attend live interactive webinars, panel discussions with local tech executives, and high-performance recruitment fairs designed to kickstart your career.
+            Join live career panel discussions, technical masterclasses, and virtual recruitment fairs custom-built for Pakistan's tech cohort.
           </p>
         </div>
       </section>

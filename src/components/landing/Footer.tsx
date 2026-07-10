@@ -4,21 +4,21 @@ import { Heart, Twitter, Linkedin, Instagram } from "lucide-react";
 import { useState } from "react";
 import logo from "@/assets/sheEnableAI-removebg-preview.png";
 const COL_CANDIDATES = [
-  { label: "Browse Jobs", href: "/jobs" },
+  { label: "Browse Jobs", href: "/find-jobs-for-women-pakistan" },
   { label: "CV Builder", href: "/cv-builder" },
-  { label: "Career Advice", href: "/career-advice" },
-  { label: "Salary Guide", href: "/salary-guide" },
+  { label: "Career Advice", href: "/career-hub-women-pakistan" },
+  { label: "Salary Guide", href: "/pakistan-salary-transparency-index" },
 ];
 const COL_EMPLOYERS = [
-  { label: "Post a Job", href: "/post-job" },
-  { label: "Employer Pricing", href: "/pricing" },
+  { label: "Post a Job", href: "/hire-female-talent-pakistan" },
+  { label: "Employer Pricing", href: "/employer-pricing-pakistan" },
   { label: "Talent Search", href: "/talent-search" },
-  { label: "Inclusion Resources", href: "/inclusion-resources" },
+  { label: "Inclusion Resources", href: "/dei-inclusion-resources-pakistan" },
 ];
 const COL_COMMUNITY = [
-  { label: "Mentorship", href: "/mentorship" },
-  { label: "Events", href: "/events" },
-  { label: "Blog", href: "/blog" },
+  { label: "Mentorship", href: "/mentorship-women-pakistan" },
+  { label: "Events", href: "/webinars-women-tech-pakistan" },
+  { label: "Blog", href: "/career-blog-women-pakistan" },
   { label: "Newsletter", href: "#newsletter" },
 ];
 
@@ -93,25 +93,30 @@ export default function Footer() {
               onSubmit={e => { e.preventDefault(); if (email.trim()) setDone(true); }}
               className="bg-white/5 border border-white/10 rounded-xl p-3"
             >
-              <div className="text-[14px] font-semibold text-[var(--ink-300)] mb-2">Get weekly job alerts</div>
+              <div className="text-[14px] font-semibold text-[var(--ink-300)] mb-2">Get weekly job alerts — free</div>
               {done ? (
-                <div className="text-[14px] text-[var(--accent-green)]">✓ Thanks — we'll be in touch.</div>
+                <div className="text-[14px] text-[var(--brand-pink)]">✓ Thanks — we'll be in touch.</div>
               ) : (
-                <div className="flex flex-col sm:flex-row gap-1.5">
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    placeholder="you@example.com"
-                    className="w-full sm:flex-1 h-10 px-4 rounded-full bg-white/10 text-[14px] text-[var(--ink-300)] placeholder:text-[var(--ink-500)] focus:outline-none focus:bg-white/15"
-                    aria-label="Email for newsletter"
-                  />
-                  <button
-                    type="submit"
-                    className="h-10 px-6 rounded-full bg-[var(--brand-pink)] text-white hover:bg-[var(--brand-pink-hover)] text-[13px] font-bold press w-full sm:w-auto flex-shrink-0"
-                  >
-                    Join
-                  </button>
+                <div className="space-y-2">
+                  <div className="flex flex-col sm:flex-row gap-1.5">
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
+                      placeholder="your@email.com"
+                      className="w-full sm:flex-1 h-10 px-4 rounded-full bg-white/10 text-[14px] text-[var(--ink-300)] placeholder:text-[var(--ink-500)] focus:outline-none focus:bg-white/15"
+                      aria-label="Email for newsletter"
+                    />
+                    <button
+                      type="submit"
+                      className="h-10 px-6 rounded-full bg-[var(--brand-pink)] text-white hover:bg-[var(--brand-pink-hover)] text-[13px] font-bold press w-full sm:w-auto flex-shrink-0"
+                    >
+                      Subscribe
+                    </button>
+                  </div>
+                  <div className="text-[11px] text-[var(--ink-500)] leading-tight">
+                    No spam. Unsubscribe anytime. We never sell your data.
+                  </div>
                 </div>
               )}
             </form>

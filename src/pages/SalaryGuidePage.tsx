@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { DollarSign, ShieldAlert, Sparkles, Plus, Check, MapPin, Briefcase, RefreshCw, Send, Loader2, Search } from "lucide-react";
-import { Link } from "react-router-dom";
+import { DollarSign, Plus, Check, Briefcase, RefreshCw, Send, Loader2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
-import logo from "@/assets/sheEnableAI-removebg-preview.png";
 import SubpageNav from "@/components/landing/SubpageNav";
+import useSEO from "@/hooks/useSEO";
 
 interface SalaryStat {
   role: string;
@@ -24,6 +23,11 @@ export default function SalaryGuidePage() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
+
+  useSEO({
+    title: "Pakistan Salary Transparency Index | Tech Salaries — SheEnableAI",
+    description: "Explore verified, anonymous salaries for software engineers, product managers, and design roles in Karachi, Lahore, and Islamabad. Fight the pay gap.",
+  });
 
   // Form State
   const [form, setForm] = useState({
@@ -105,11 +109,11 @@ export default function SalaryGuidePage() {
       {/* Hero Title Section (Dark) */}
       <section className="bg-[var(--surface-dark)] text-white pb-16 pt-6">
         <div className="relative max-w-[1200px] mx-auto px-6 text-center max-w-2xl space-y-3">
-          <h2 className="font-serif text-3xl font-extrabold tracking-tight">
-            Salary <span className="italic text-[var(--brand-pink)]">Transparency Index</span>
-          </h2>
+          <h1 className="font-serif text-3xl font-extrabold tracking-tight">
+            Pakistan Salary <span className="italic text-[var(--brand-pink)]">Transparency Index</span>
+          </h1>
           <p className="text-sm text-[var(--on-dark-secondary)] leading-relaxed">
-            Establishing wage equity in Pakistan's software industry through verified aggregates. Explore salary ranges, compare percentiles, and anonymously track the gender pay gap.
+            Verified, anonymous wage data crowdsourced from tech professionals across Pakistan to establish market rates and fight gender pay disparity.
           </p>
         </div>
       </section>
@@ -117,10 +121,16 @@ export default function SalaryGuidePage() {
       {/* Main Content Area (Light) */}
       <main className="flex-1 bg-[var(--surface)] text-[var(--ink-700)] -mt-8 relative z-10">
         <div className="max-w-[1200px] mx-auto w-full px-6 pb-16 space-y-8">
+          
+          {/* Intro Paragraph */}
+          <div className="bg-white border border-[var(--ink-200)] rounded-2xl p-6 text-xs text-[var(--ink-700)] leading-relaxed shadow-sm">
+            Establishing salary benchmarks is the most powerful tool for closing the gender wage gap. The Pakistan Salary Transparency Index provides real-time, verified compensation ranges for software engineering, product management, design, and marketing roles in Karachi, Lahore, Islamabad, and remote workspaces. All data is submitted anonymously by professionals and verified against active market job postings to ensure accuracy. Search roles below or contribute your salary anonymously to support wage transparency.
+          </div>
+
           {/* Global Stats Cards */}
           <div className="grid sm:grid-cols-3 gap-4">
             <div className="bg-[var(--surface)] border border-[var(--ink-200)] rounded-[var(--radius-card)] p-6 flex flex-col justify-between shadow-[var(--shadow-card)]">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.04em] text-[var(--ink-500)]">Verified Crowdsources</span>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.04em] text-[var(--ink-500)]">Verified Submissions</span>
               <div className="text-[40px] font-semibold tracking-tight text-[var(--ink-900)] leading-none my-2">
                 {salaryStats ? salaryStats.reduce((sum, s) => sum + s.count, 0) : "..."}
               </div>
@@ -128,7 +138,7 @@ export default function SalaryGuidePage() {
             </div>
 
             <div className="bg-[var(--surface)] border border-[var(--ink-200)] rounded-[var(--radius-card)] p-6 flex flex-col justify-between shadow-[var(--shadow-card)]">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.04em] text-[var(--ink-500)]">DEI Gender Parity Ratio</span>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.04em] text-[var(--ink-500)]">DEI Wage Parity Ratio</span>
               <div className="text-[40px] font-semibold tracking-tight text-[var(--brand-pink)] leading-none my-2">
                 {salaryStats && salaryStats.length > 0
                   ? Math.round(salaryStats.reduce((sum, s) => sum + s.parityRatio, 0) / salaryStats.length)
@@ -138,7 +148,7 @@ export default function SalaryGuidePage() {
             </div>
 
             <div className="bg-[var(--surface)] border border-[var(--ink-200)] rounded-[var(--radius-card)] p-6 flex flex-col justify-between shadow-[var(--shadow-card)]">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.04em] text-[var(--ink-500)]">Contribute Data</span>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.04em] text-[var(--ink-500)]">Contribute Salary</span>
               <button
                 onClick={() => setShowAddForm(true)}
                 className="w-full h-10 px-5 bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white text-[14px] font-medium rounded-full transition-all shadow-sm flex items-center justify-center gap-1.5 press mt-2"
@@ -251,10 +261,10 @@ export default function SalaryGuidePage() {
               ×
             </button>
             <h3 className="font-serif text-lg font-bold text-[var(--ink-900)] flex items-center gap-2">
-              <DollarSign size={18} className="text-[var(--brand-pink)]" /> Contribute Anonymously
+              <DollarSign size={18} className="text-[var(--brand-pink)]" /> Add Your Salary anonymously
             </h3>
             <p className="text-xs text-[var(--ink-500)] leading-relaxed">
-              Your identity is protected. We completely anonymize and aggregate all reports. Contributions help verify pay scales and fight wage discrimination.
+              Your contribution is 100% anonymous. We encrypt all submission records.
             </p>
 
             <form onSubmit={handleAddSubmit} className="space-y-3 pt-2">
@@ -341,7 +351,7 @@ export default function SalaryGuidePage() {
                 className="w-full mt-3 py-3 bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white rounded-full text-xs font-black transition-all flex items-center justify-center gap-1 shadow-lg"
               >
                 {submitMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
-                Verify & Submit anonymously
+                Verify & Submit Salary
               </button>
             </form>
           </div>

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { toast } from "sonner";
-import { Download, Sparkles, AlertCircle, ArrowRight, ShieldCheck, Heart, FileText, Check, File } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Download, Sparkles, AlertCircle, FileText, File } from "lucide-react";
 import SubpageNav from "@/components/landing/SubpageNav";
+import useSEO from "@/hooks/useSEO";
 
 // Lists of gender-coded terms
 const MASCULINE_WORDS = ["leader", "competitive", "dominant", "analytics", "decisive", "champion", "independent", "ambitious", "challenge", "objective", "assertive", "opinionated"];
@@ -14,6 +14,11 @@ export default function InclusionResourcesPage() {
   const [mascMatches, setMascMatches] = useState<string[]>([]);
   const [femMatches, setFemMatches] = useState<string[]>([]);
   const [score, setScore] = useState(100);
+
+  useSEO({
+    title: "DEI & Inclusion Resources | Job Decoder — SheEnableAI",
+    description: "Use our free job description gender decoder to identify gender-coded language and build inclusive job specifications. Build diverse tech teams.",
+  });
 
   const handleDecode = () => {
     if (!text.trim()) return;
@@ -72,11 +77,11 @@ export default function InclusionResourcesPage() {
       {/* Hero Section */}
       <section className="bg-[var(--surface-dark)] text-white py-16">
         <div className="relative max-w-[1200px] mx-auto px-6 text-center max-w-2xl space-y-3">
-          <h2 className="font-serif text-3xl font-extrabold tracking-tight">
-            DEI & <span className="italic text-[var(--brand-pink)]">Inclusion Center</span>
-          </h2>
+          <h1 className="font-serif text-3xl font-extrabold tracking-tight">
+            DEI & <span className="italic text-[var(--brand-pink)]">Inclusion Resources for Pakistani Tech</span>
+          </h1>
           <p className="text-sm text-[var(--text-on-dark-mute)] leading-relaxed">
-            Free high-impact toolkits, hiring frameworks, and modern interactive utilities built to remove unconscious bias and foster inclusive team structures in Pakistan.
+            Remove gender bias from your recruitment process. Use our free tools and templates to write inclusive job descriptions and build diverse teams.
           </p>
         </div>
       </section>
@@ -100,7 +105,7 @@ export default function InclusionResourcesPage() {
                   value={text}
                   onChange={(e) => setText(e.target.value)}
                   rows={8}
-                  placeholder="Paste your job description draft here... (e.g. We are looking for an ambitious leader who is competitive and loves analytical challenges...)"
+                  placeholder="Paste your job description draft here. For example: 'We are looking for an aggressive, competitive leader who loves a challenge and thrives in independent tasks...'"
                   className="w-full bg-white/5 border border-[var(--border-dark)] rounded-[var(--radius-input)] p-4 text-xs text-[var(--text-on-dark)] placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-[var(--brand-pink)] focus:ring-offset-2 resize-none transition-all min-h-[240px]"
                 />
               </div>

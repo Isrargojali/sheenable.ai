@@ -1,13 +1,14 @@
-import { useState, useMemo, useEffect } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useState, useMemo } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Search, MapPin, Sparkles, AlertCircle, X, UserPlus, LogIn, ArrowRight } from "lucide-react";
+import { Search, Sparkles, AlertCircle, X, UserPlus, LogIn, Calendar } from "lucide-react";
 import SubpageNav from "@/components/landing/SubpageNav";
 import Footer from "@/components/landing/Footer";
 import { JobCard, type JobCardData } from "@/components/ui-kit";
 import { apiJobs } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "sonner";
+import useSEO from "@/hooks/useSEO";
 import {
   Select,
   SelectContent,
@@ -41,10 +42,6 @@ export default function BrowseJobsPage() {
     return TYPES[0];
   });
   const [applyModalJob, setApplyModalJob] = useState<Job | null>(null);
-
-  useEffect(() => {
-    document.title = "Explore Careers · SheEnableAI";
-  }, []);
 
   // Fetch real-time job listings from the database
   const { data: realJobs = [], isLoading, error } = useQuery<Job[]>({
@@ -99,6 +96,43 @@ export default function BrowseJobsPage() {
     });
   }, [realJobs, q, industry, type]);
 
+  useSEO({
+    title: "Find Jobs for Women in Pakistan | Verified Openings — SheEnableAI",
+    description: "Browse curated job openings for women in Pakistan. Verified, bias-free employers. Filter by city, salary, and remote options. Apply in one click.",
+    schema: {
+      "@context": "https://schema.org",
+      "@graph": filtered.slice(0, 5).map(job => ({
+        "@type": "JobPosting",
+        "title": job.title,
+        "description": job.description || job.title,
+        "hiringOrganization": {
+          "@type": "Organization",
+          "name": job.employer?.companyName || "Verified Employer"
+        },
+        "jobLocation": {
+          "@type": "Place",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": job.location || "Pakistan",
+            "addressCountry": "PK"
+          }
+        },
+        "baseSalary": {
+          "@type": "MonetaryAmount",
+          "currency": "PKR",
+          "value": {
+            "@type": "QuantitativeValue",
+            "minValue": job.salaryMin || 50000,
+            "maxValue": job.salaryMax || 150000,
+            "unitText": "MONTH"
+          }
+        },
+        "employmentType": job.type === "FULLTIME" ? "FULL_TIME" : "PART_TIME",
+        "datePosted": new Date(job.createdAt || Date.now()).toISOString().split('T')[0]
+      }))
+    }
+  });
+
   // Handle Apply Now button click
   const handleApplyClick = (jobId: string) => {
     const selectedJob = realJobs.find((j: Job) => j.id === jobId);
@@ -135,13 +169,13 @@ export default function BrowseJobsPage() {
         <div className="relative max-w-[1280px] mx-auto px-5 lg:px-8 flex flex-col items-center text-center">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider mb-6 bg-white/5 border border-white/10 text-[var(--on-dark-secondary)]">
             <span className="w-1.5 h-1.5 rounded-full bg-[var(--brand-pink)]" />
-            Direct Career Acceleration
+            Verified openings — updated daily
           </div>
           <h1 className="font-serif text-4xl md:text-6xl tracking-tight leading-[1.05] mb-5 text-white">
-            Curated Openings for <span className="italic text-[var(--brand-pink)]">Trajectory Growth</span>
+            Verified Job Openings for <span className="italic text-[var(--brand-pink)]">Women Across Pakistan</span>
           </h1>
           <p className="text-sm md:text-base text-[var(--on-dark-secondary)] max-w-xl leading-relaxed">
-            Verified, high-impact careers from progressive companies committed to equitable hiring. Direct matching, safe spaces, zero compromise.
+            Every listing is reviewed by our team. Every employer is vetted for inclusive hiring practices.
           </p>
         </div>
       </header>
@@ -155,7 +189,7 @@ export default function BrowseJobsPage() {
             <input
               value={q}
               onChange={e => setQ(e.target.value)}
-              placeholder="Search by titles, specific skills, or company name..."
+              placeholder="Search by role, skill, or company name..."
               className="flex-1 bg-transparent text-xs text-[var(--ink-900)] focus:outline-none placeholder:text-[var(--ink-500)]"
               aria-label="Search jobs"
             />
@@ -196,6 +230,17 @@ export default function BrowseJobsPage() {
           </Select>
         </div>
 
+        {/* SEO Paragraph */}
+        <div className="bg-[var(--surface)] border border-[var(--ink-200)] rounded-2xl p-6 mb-8 text-xs text-[var(--ink-700)] leading-relaxed shadow-sm">
+          SheEnableAI lists verified job openings for women across Pakistan's major cities — Karachi, Lahore, Islamabad, Rawalpindi, and beyond. Every employer on our platform has been reviewed for inclusive hiring practices. Filter by remote, hybrid, or onsite. Roles span software engineering, product management, UX design, finance, HR, and executive leadership. New listings added daily.
+        </div>
+
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-sm font-bold text-[var(--ink-900)]">
+            {filtered.length} roles match your profile
+          </h2>
+        </div>
+
         {/* Loading state */}
         {isLoading && (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 py-8">
@@ -230,10 +275,10 @@ export default function BrowseJobsPage() {
         {/* Empty state */}
         {!isLoading && !error && filtered.length === 0 && (
           <div className="text-center py-20 bg-[var(--surface)] border border-dashed border-[var(--ink-300)] rounded-2xl max-w-2xl mx-auto">
-            <div className="text-4xl mb-4">💼</div>
+            <Calendar size={36} className="text-[var(--ink-400)] mx-auto mb-2 animate-pulse" />
             <h3 className="font-serif text-xl font-medium mb-1 text-[var(--ink-900)]">No matching opportunities found</h3>
-            <p className="text-xs text-[var(--ink-500)] max-w-xs mx-auto">
-              Try adjusting your search criteria, clearing filters, or exploring other sectors.
+            <p className="text-xs text-[var(--ink-500)] max-w-sm mx-auto leading-relaxed">
+              No roles found for that search. Try broadening your filters or check back tomorrow — we add new verified listings daily.
             </p>
           </div>
         )}

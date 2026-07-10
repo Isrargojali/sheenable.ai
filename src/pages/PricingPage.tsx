@@ -1,16 +1,59 @@
 import React, { useState } from "react";
-import { Sparkles, Check, HelpCircle, DollarSign, Calculator, Percent, ShieldCheck } from "lucide-react";
+import { Sparkles, Check, Calculator, HelpCircle } from "lucide-react";
 import { Link } from "react-router-dom";
-import logo from "@/assets/sheEnableAI-removebg-preview.png";
 import SubpageNav from "@/components/landing/SubpageNav";
+import Footer from "@/components/landing/Footer";
+import useSEO from "@/hooks/useSEO";
 
 export default function PricingPage() {
   const [headcount, setHeadcount] = useState(3);
   const [hoursSaved, setHoursSaved] = useState(25);
 
-  // ROI Math
-  const averageHourlyCost = 2500; // Recruiter PKR hourly average rate
+  const averageHourlyCost = 2500;
   const totalSavings = headcount * hoursSaved * averageHourlyCost;
+
+  useSEO({
+    title: "Employer Pricing Plans | Diversity Hiring — SheEnableAI",
+    description: "Choose the pricing plan that fits your diversity hiring goals. Transparent plans for startups, growth companies, and enterprises. First job posting free.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How does the first job free promotion work?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Every employer account gets their first job posting completely free. No credit card required. The listing remains active for 30 days and includes basic candidate matching."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I cancel or change my plan anytime?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. All our subscriptions are month-to-month. You can upgrade, downgrade, or cancel your subscription directly from your dashboard at any time."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does the AI match score work?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Our semantic match engine scores candidates based on their verified skills and experience compared to your job description. We do not use age, gender, or name in our scoring models."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do you offer custom pricing for recruitment agencies?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. We offer custom volume pricing and agency licenses under our Enterprise plan. Contact our enterprise sales team for a custom quote."
+          }
+        }
+      ]
+    }
+  });
 
   return (
     <div className="min-h-screen bg-[var(--surface)] text-[var(--ink-700)] flex flex-col">
@@ -21,9 +64,9 @@ export default function PricingPage() {
         <div className="max-w-[1200px] mx-auto w-full px-6 pt-6 space-y-12">
           {/* Banner */}
           <div className="text-center max-w-2xl mx-auto space-y-3 py-6">
-            <h2 className="font-serif text-3xl font-extrabold tracking-tight">
-              Flexible, transparent <span className="italic text-[var(--brand-pink)]">pricing tiers</span>
-            </h2>
+            <h1 className="font-serif text-3xl font-extrabold tracking-tight">
+              Flexible, transparent <span className="italic text-[var(--brand-pink)]">pricing plans</span>
+            </h1>
             <p className="text-sm text-[var(--text-on-dark-mute)] leading-relaxed">
               Choose the right subscription plan to accelerate your diversity hiring benchmarks. Build outstanding tech teams through state-of-the-art AI screening.
             </p>
@@ -31,8 +74,8 @@ export default function PricingPage() {
 
           {/* Pricing Matrix */}
           <div className="grid md:grid-cols-3 gap-6 items-stretch">
-            {/* Plan 1 */}
-            <div className="bg-[var(--surface-dark-card)] border border-[var(--border-dark)] rounded-[var(--radius-card)] p-8 flex flex-col justify-between space-y-6 shadow-xl relative">
+            {/* Starter Plan */}
+            <div className="w-full bg-[var(--surface-dark-card)] border border-[var(--border-dark)] rounded-[var(--radius-card)] p-8 flex flex-col justify-between space-y-6 shadow-xl relative">
               <div className="space-y-4">
                 <div>
                   <h3 className="text-sm font-bold text-[var(--text-on-dark)]">Starter Tier</h3>
@@ -41,10 +84,10 @@ export default function PricingPage() {
                 </div>
 
                 <ul className="space-y-2 text-[11px] text-[var(--text-on-dark-mute)] border-t border-[var(--border-dark)] pt-4">
-                  <li className="flex items-center gap-2"><Check size={14} className="text-[var(--text-on-dark-mute)]" /> 2 active job listings</li>
-                  <li className="flex items-center gap-2"><Check size={14} className="text-[var(--text-on-dark-mute)]" /> Standard candidate profiles access</li>
-                  <li className="flex items-center gap-2"><Check size={14} className="text-[var(--text-on-dark-mute)]" /> Basic screening filter systems</li>
-                  <li className="flex items-center gap-2"><Check size={14} className="text-[var(--text-on-dark-mute)]" /> Email support channel</li>
+                  <li className="flex items-center gap-2"><Check size={14} className="text-white/60" /> 1 active job listing</li>
+                  <li className="flex items-center gap-2"><Check size={14} className="text-white/60" /> Basic AI matching score</li>
+                  <li className="flex items-center gap-2"><Check size={14} className="text-white/60" /> Standard candidate search</li>
+                  <li className="flex items-center gap-2"><Check size={14} className="text-white/60" /> Email support</li>
                 </ul>
               </div>
               <Link
@@ -55,8 +98,8 @@ export default function PricingPage() {
               </Link>
             </div>
 
-            {/* Plan 2 (Highlighted) */}
-            <div className="bg-[var(--surface-dark-card)] border-2 border-[var(--brand-pink)] rounded-[var(--radius-card)] p-8 flex flex-col justify-between space-y-6 relative shadow-2xl">
+            {/* Professional Plan (Highlighted) */}
+            <div className="w-full bg-[var(--surface-dark-card)] border-2 border-[var(--brand-pink)] rounded-[var(--radius-card)] p-8 flex flex-col justify-between space-y-6 relative shadow-2xl">
               <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[var(--brand-pink)] text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                 Most Popular
               </span>
@@ -71,12 +114,11 @@ export default function PricingPage() {
                 </div>
 
                 <ul className="space-y-2 text-[11px] text-[var(--text-on-dark-mute)] border-t border-[var(--brand-pink)]/10 pt-4">
-                  <li className="flex items-center gap-2"><Check size={14} className="text-[var(--brand-pink)]" /> 5 active job listings</li>
-                  <li className="flex items-center gap-2"><Check size={14} className="text-[var(--brand-pink)]" /> AI Semantic Resume-Job matching</li>
-                  <li className="flex items-center gap-2"><Check size={14} className="text-[var(--brand-pink)]" /> Unlimited AI Talent Searches</li>
-                  <li className="flex items-center gap-2"><Check size={14} className="text-[var(--brand-pink)]" /> Premium candidate profiles access</li>
-                  <li className="flex items-center gap-2"><Check size={14} className="text-[var(--brand-pink)]" /> Interactive Gender Decoder access</li>
-                  <li className="flex items-center gap-2"><Check size={14} className="text-[var(--brand-pink)]" /> Priority 24/7 Slack channel support</li>
+                  <li className="flex items-center gap-2"><Check size={14} className="text-[var(--brand-pink)]" /> 3 active job listings</li>
+                  <li className="flex items-center gap-2"><Check size={14} className="text-[var(--brand-pink)]" /> Advanced AI match matching</li>
+                  <li className="flex items-center gap-2"><Check size={14} className="text-[var(--brand-pink)]" /> Verified talent pool access</li>
+                  <li className="flex items-center gap-2"><Check size={14} className="text-[var(--brand-pink)]" /> Gender-neutral job decoder</li>
+                  <li className="flex items-center gap-2"><Check size={14} className="text-[var(--brand-pink)]" /> Priority email & chat support</li>
                 </ul>
               </div>
               <Link
@@ -87,8 +129,8 @@ export default function PricingPage() {
               </Link>
             </div>
 
-            {/* Plan 3 */}
-            <div className="bg-[var(--surface-dark-card)] border border-[var(--border-dark)] rounded-[var(--radius-card)] p-8 flex flex-col justify-between space-y-6 shadow-xl relative">
+            {/* Enterprise Plan */}
+            <div className="w-full bg-[var(--surface-dark-card)] border border-[var(--border-dark)] rounded-[var(--radius-card)] p-8 flex flex-col justify-between space-y-6 shadow-xl relative">
               <div className="space-y-4">
                 <div>
                   <h3 className="text-sm font-bold text-[var(--text-on-dark)]">Enterprise Tier</h3>
@@ -97,10 +139,10 @@ export default function PricingPage() {
                 </div>
 
                 <ul className="space-y-2 text-[11px] text-[var(--text-on-dark-mute)] border-t border-[var(--border-dark)] pt-4">
-                  <li className="flex items-center gap-2"><Check size={14} className="text-[var(--text-on-dark-mute)]" /> Unlimited active job listings</li>
-                  <li className="flex items-center gap-2"><Check size={14} className="text-[var(--text-on-dark-mute)]" /> Dedicated Talent Match Consultant</li>
-                  <li className="flex items-center gap-2"><Check size={14} className="text-[var(--text-on-dark-mute)]" /> Custom API and HRIS integrations</li>
-                  <li className="flex items-center gap-2"><Check size={14} className="text-[var(--text-on-dark-mute)]" /> Customizable candidate assessment gates</li>
+                  <li className="flex items-center gap-2"><Check size={14} className="text-white/60" /> Unlimited active job listings</li>
+                  <li className="flex items-center gap-2"><Check size={14} className="text-white/60" /> Custom AI models for screening</li>
+                  <li className="flex items-center gap-2"><Check size={14} className="text-white/60" /> Dedicated account manager</li>
+                  <li className="flex items-center gap-2"><Check size={14} className="text-white/60" /> HRIS integration & custom SLA</li>
                 </ul>
               </div>
               <Link
@@ -161,17 +203,70 @@ export default function PricingPage() {
             </div>
 
             <div className="bg-white border border-[var(--ink-200)] rounded-[var(--radius-card)] p-8 shadow-[var(--shadow-card)] text-center space-y-3">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-500)]">Quarterly Cost Savings</span>
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-500)]">Estimated Quarterly Savings</span>
               <div className="text-[40px] font-bold text-[var(--brand-pink)] leading-none">
                 PKR {totalSavings.toLocaleString()}
               </div>
               <p className="text-[13px] text-[var(--ink-500)] leading-relaxed">
-                Based on average recruiter wages of PKR {averageHourlyCost.toLocaleString()}/hr and automated AI candidate vetting.
+                Based on an average HR hourly wage of PKR {averageHourlyCost.toLocaleString()}/hr and automated candidate screening.
               </p>
             </div>
           </div>
         </div>
       </div>
+
+      {/* FAQ Section */}
+      <div className="bg-[var(--surface-muted)] border-t border-[var(--ink-200)] py-16">
+        <div className="max-w-[800px] mx-auto w-full px-6 space-y-8">
+          <h2 className="font-serif text-2xl lg:text-3xl font-extrabold text-[var(--ink-900)] text-center">
+            Frequently Asked Questions
+          </h2>
+
+          <div className="space-y-6">
+            <div className="bg-white border border-[var(--ink-200)] rounded-2xl p-6 shadow-sm">
+              <h3 className="text-sm font-bold text-[var(--ink-900)] flex items-start gap-2">
+                <HelpCircle size={16} className="text-[var(--brand-pink)] flex-shrink-0 mt-0.5" />
+                <span>How does the first job free promotion work?</span>
+              </h3>
+              <p className="text-xs text-[var(--ink-500)] leading-relaxed mt-2 pl-6">
+                Every employer account gets their first job posting completely free. No credit card required. The listing remains active for 30 days and includes basic candidate matching.
+              </p>
+            </div>
+
+            <div className="bg-white border border-[var(--ink-200)] rounded-2xl p-6 shadow-sm">
+              <h3 className="text-sm font-bold text-[var(--ink-900)] flex items-start gap-2">
+                <HelpCircle size={16} className="text-[var(--brand-pink)] flex-shrink-0 mt-0.5" />
+                <span>Can I cancel or change my plan anytime?</span>
+              </h3>
+              <p className="text-xs text-[var(--ink-500)] leading-relaxed mt-2 pl-6">
+                Yes. All our subscriptions are month-to-month. You can upgrade, downgrade, or cancel your subscription directly from your dashboard at any time.
+              </p>
+            </div>
+
+            <div className="bg-white border border-[var(--ink-200)] rounded-2xl p-6 shadow-sm">
+              <h3 className="text-sm font-bold text-[var(--ink-900)] flex items-start gap-2">
+                <HelpCircle size={16} className="text-[var(--brand-pink)] flex-shrink-0 mt-0.5" />
+                <span>How does the AI match score work?</span>
+              </h3>
+              <p className="text-xs text-[var(--ink-500)] leading-relaxed mt-2 pl-6">
+                Our semantic match engine scores candidates based on their verified skills and experience compared to your job description. We do not use age, gender, or name in our scoring models.
+              </p>
+            </div>
+
+            <div className="bg-white border border-[var(--ink-200)] rounded-2xl p-6 shadow-sm">
+              <h3 className="text-sm font-bold text-[var(--ink-900)] flex items-start gap-2">
+                <HelpCircle size={16} className="text-[var(--brand-pink)] flex-shrink-0 mt-0.5" />
+                <span>Do you offer custom pricing for recruitment agencies?</span>
+              </h3>
+              <p className="text-xs text-[var(--ink-500)] leading-relaxed mt-2 pl-6">
+                Yes. We offer custom volume pricing and agency licenses under our Enterprise plan. Contact our enterprise sales team for a custom quote.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <Footer />
     </div>
   );
 }

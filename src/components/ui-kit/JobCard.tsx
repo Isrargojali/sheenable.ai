@@ -143,7 +143,7 @@ export function JobCard({ job, onSave, onApply, className }: Props) {
               : "bg-[var(--brand-pink)] text-white hover:bg-[var(--brand-pink)]/90 hover:-translate-y-0.5 hover:shadow-card"
           )}
         >
-          {job.hasApplied ? "Applied" : "Apply Now"}
+          {job.hasApplied ? "Applied" : "Apply Now — 1 Click"}
         </button>
       </footer>
     </article>

@@ -1,11 +1,10 @@
-// src/pages/auth/SignupPage.tsx
-// Refactored with premium modular AuthComponents.
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useSearchParams, useLocation } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowRight, Building2, Mail } from "lucide-react";
 import { apiAuth } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/authStore";
+import useSEO from "@/hooks/useSEO";
 import { 
   AuthLayout, 
   RoleTabs, 
@@ -30,12 +29,9 @@ const COMPANY_SIZES = ["1–10", "11–50", "51–200", "201–1000", "1000+"];
 
 export default function SignupPage() {
   const navigate = useNavigate();
-  const location = useLocation();
   const [params] = useSearchParams();
   const initialRole: Role = params.get("role") === "EMPLOYER" ? "EMPLOYER" : "CANDIDATE";
   const applyJobId = params.get("applyJobId");
-
-  const notice = (location.state as { notice?: string })?.notice ?? "";
 
   const [role,        setRole]        = useState<Role>(initialRole);
   const [fname,       setFname]       = useState("");
@@ -46,8 +42,13 @@ export default function SignupPage() {
   const [identityOk,  setIdentityOk]  = useState(false);
   const [companyName, setCompanyName] = useState("");
   const [companySize, setCompanySize] = useState(COMPANY_SIZES[1]);
-  const [error,       setError]       = useState(notice);
+  const [error,       setError]       = useState("");
   const [loading,     setLoading]     = useState(false);
+
+  useSEO({
+    title: "Join SheEnableAI | Pakistan's Female Tech Careers",
+    description: "Create your free SheEnableAI account to apply for verified jobs, connect with mentors, and access inclusive career resources.",
+  });
 
   const getFieldError = (fieldName: string) => {
     if (!error) return null;
@@ -134,10 +135,6 @@ export default function SignupPage() {
       setLoading(false);
     }
   }
-
-  useEffect(() => {
-    document.title = "Join SheEnableAI — Free for women, forever";
-  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

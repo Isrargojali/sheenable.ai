@@ -246,7 +246,10 @@ export default function CandidateDashboard() {
   const avatarUrl = user?.avatarUrl || (profileData as any)?.userId?.avatarUrl || (profileData as any)?.avatarUrl || null;
 
   return (
-    <DashboardShell>
+    <DashboardShell
+      title={`Welcome back, ${user?.firstName || displayName.split(" ")[0]}!`}
+      subtitle="Here is a summary of your career status and recommendations."
+    >
       {/* Contextual Urgent Action Banner */}
       {urgentAction && (
         <Banner

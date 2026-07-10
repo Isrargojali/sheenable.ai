@@ -1,5 +1,3 @@
-// src/components/landing/HowItWorksTabs.tsx
-// Two-tab "I'm looking for a job" / "I'm hiring" with smooth underline animation.
 import { useState } from "react";
 import { LucideIcon, Search, Sparkles, Send, PartyPopper, FileEdit, Users, ClipboardList, Handshake } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -8,34 +6,34 @@ type TabKey = "candidate" | "employer";
 
 const STEPS: Record<TabKey, { icon: LucideIcon; title: string; desc: string; accent: string }[]> = {
   candidate: [
-    { icon: FileEdit, title: "Design Your Profile", desc: "Build an exquisite, AI-optimized digital footprint that highlights your unique expertise.", accent: "border-l-primary/40" },
-    { icon: Sparkles, title: "High-Precision Matching", desc: "Our AI-engine analyzes verified openings to deliver matches aligned with your career goals and worth.", accent: "border-l-primary/60" },
-    { icon: Send, title: "Frictionless Application", desc: "Deploy a tailored, ATS-optimized dossier with single-click precision directly to hiring decision-makers.", accent: "border-l-primary" },
-    { icon: PartyPopper, title: "Secure Onboarding", desc: "Communicate directly through our encrypted portal, negotiate with confidence, and step into your new role.", accent: "border-l-primary/80" },
+    { icon: FileEdit, title: "Build your verified profile", desc: "Tell us your skills, experience, and what you're looking for. Our AI builds your match score immediately — no waiting, no guesswork.", accent: "border-l-primary/40" },
+    { icon: Sparkles, title: "Get AI-precision matches", desc: "Our matching engine scores every open role against your profile. You see salary, employer DEI rating, and fit percentage upfront.", accent: "border-l-primary/60" },
+    { icon: Send, title: "Apply with one tap", desc: "No cover letters required. One-tap applications go directly to the employer's ATS with your AI-optimised profile attached.", accent: "border-l-primary" },
+    { icon: PartyPopper, title: "Onboard safely", desc: "We stay in the loop. Interview scheduling, offer negotiation support, and a 90-day placement guarantee included.", accent: "border-l-primary/80" },
   ],
   employer: [
-    { icon: ClipboardList, title: "Curate Your Opportunity", desc: "Craft high-conversion listings with our intelligent, industry-specific template builder.", accent: "border-l-primary/40" },
-    { icon: Search, title: "Source Vetted Talent", desc: "Filter through an exclusive network of verified female leaders, researchers, and builders.", accent: "border-l-primary/60" },
-    { icon: Users, title: "Direct ATS Pipeline", desc: "Manage candidates through a fluid, collaborative visual pipeline built for modern HR workflows.", accent: "border-l-primary" },
-    { icon: Handshake, title: "Close Exceptional Hires", desc: "Converse, schedule, and extend offers in a unified, safe, and professional communication hub.", accent: "border-l-primary/80" },
+    { icon: ClipboardList, title: "Post your role spec", desc: "Craft high-conversion listings with our intelligent, industry-specific DEI template builder.", accent: "border-l-primary/40" },
+    { icon: Search, title: "Source vetted talent", desc: "Filter through an exclusive network of verified female tech leaders, researchers, and builders in Pakistan.", accent: "border-l-primary/60" },
+    { icon: Users, title: "Direct ATS pipeline", desc: "Manage candidates through a fluid, collaborative visual pipeline built for modern HR workflows.", accent: "border-l-primary" },
+    { icon: Handshake, title: "Close exceptional hires", desc: "Converse, schedule, and extend offers in a unified, secure, and professional communication hub.", accent: "border-l-primary/80" },
   ],
 };
 
 export default function HowItWorksTabs() {
   const [tab, setTab] = useState<TabKey>("candidate");
   const tabs: { key: TabKey; label: string }[] = [
-    { key: "candidate", label: "For Talented Professionals" },
-    { key: "employer", label: "For Progressive Enterprises" },
+    { key: "candidate", label: "For Candidates" },
+    { key: "employer", label: "For Employers" },
   ];
 
   return (
     <section id="community" className="max-w-[1280px] mx-auto px-5 lg:px-8 py-16 lg:py-24 bg-[var(--surface)]">
       <div className="text-center mb-12">
         <div className="inline-block px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] bg-[var(--ink-100)] text-[var(--ink-700)] mb-3 font-sans border border-[var(--ink-300)]">
-          The SheEnable Pathway
+          The SheEnableAI pathway
         </div>
         <h2 className="font-sans font-semibold text-[28px] lg:text-[40px] text-[var(--ink-900)] tracking-tight">
-          A simple path to your <span className="font-sans font-bold text-[var(--brand-pink)]">next chapter</span>
+          From profile to offer — <span className="font-sans font-bold text-[var(--brand-pink)]">faster than any other platform</span>
         </h2>
       </div>
 

@@ -1,5 +1,3 @@
-// src/pages/auth/LoginPage.tsx
-// Refactored with premium modular AuthComponents.
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { Mail, ArrowRight } from "lucide-react";
@@ -7,6 +5,7 @@ import { useAuthStore } from "@/store/authStore";
 import { apiAuth } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import useSEO from "@/hooks/useSEO";
 import { 
   AuthLayout, 
   RoleTabs, 
@@ -33,6 +32,11 @@ export default function LoginPage() {
   const setSession = useAuthStore(s => s.setSession);
 
   const isAdminMode = location.pathname === "/admin/sign-in";
+
+  useSEO({
+    title: isAdminMode ? "Admin Sign In | SheEnableAI" : "Sign In | SheEnableAI — Pakistan's Female Tech Careers",
+    description: "Sign in to your SheEnableAI account to apply for verified jobs, access mentorship, and manage your hiring dashboard.",
+  });
 
   const [role, setRole] = useState<Role>(isAdminMode ? "ADMIN" : "CANDIDATE");
   const [email, setEmail] = useState("");
@@ -65,10 +69,6 @@ export default function LoginPage() {
 
   useEffect(() => {
     setRole(isAdminMode ? "ADMIN" : "CANDIDATE");
-  }, [isAdminMode]);
-
-  useEffect(() => {
-    document.title = isAdminMode ? "Admin Sign in · SheEnableAI" : "Sign in · SheEnableAI";
   }, [isAdminMode]);
 
   function fillRole(r: Role) {

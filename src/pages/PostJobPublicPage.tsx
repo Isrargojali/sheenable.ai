@@ -1,10 +1,15 @@
 import React, { useState } from "react";
-import { Sparkles, Briefcase, Plus, Heart, Share2, Eye, ShieldCheck, Zap } from "lucide-react";
+import { Sparkles, Plus, Eye, ShieldCheck, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
-import logo from "@/assets/sheEnableAI-removebg-preview.png";
 import SubpageNav from "@/components/landing/SubpageNav";
+import useSEO from "@/hooks/useSEO";
 
 export default function PostJobPublicPage() {
+  useSEO({
+    title: "Hire Female Tech Talent in Pakistan | Inclusive Hiring — SheEnableAI",
+    description: "Hire from Pakistan's largest verified pool of female tech talent. AI screening, ATS pipeline, and DEI tools built for inclusive teams. First job posting free.",
+  });
+
   const [job, setJob] = useState({
     title: "Software Engineer",
     company: "Cobalt Labs",
@@ -28,14 +33,14 @@ export default function PostJobPublicPage() {
         <div className="lg:col-span-5 space-y-6 py-4">
           <div className="space-y-2">
             <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-on-dark)] bg-[var(--surface-dark-card)] px-[10px] py-[4px] rounded-full border border-[var(--border-dark)]">
-              Employer Lead Onboarding
+              Employer onboarding
             </span>
-            <h2 className="font-serif text-3xl font-extrabold tracking-tight leading-tight text-white">
-              Hire extraordinary <br />
-              <span className="italic text-[var(--brand-pink)]">female tech talent</span>
-            </h2>
+            <h1 className="font-serif text-3xl font-extrabold tracking-tight leading-tight text-white">
+              Hire Verified Female <br />
+              <span className="italic text-[var(--brand-pink)]">Tech Talent in Pakistan</span>
+            </h1>
             <p className="text-xs text-[var(--text-on-dark-mute)] leading-relaxed">
-              Unlock Pakistan's most premium cohort of developers, product managers, and UI/UX designers. SheEnableAI provides instant AI candidate screening, inclusive job templates, and direct matching metrics to build exceptional engineering squads.
+              Pakistan's most qualified women in engineering, product, and design — pre-vetted and ready to interview. Post your first role free.
             </p>
           </div>
 
@@ -44,26 +49,26 @@ export default function PostJobPublicPage() {
             <div className="flex gap-3 bg-[var(--surface-dark-card)] border border-[var(--border-dark)] p-4 rounded-2xl">
               <Zap size={20} strokeWidth={1.75} className="text-white flex-shrink-0 mt-0.5" />
               <div>
-                <h4 className="text-xs font-bold text-white">AI Screening & ATS Pipelines</h4>
-                <p className="text-[10px] text-[var(--text-on-dark-mute)] leading-relaxed mt-0.5">Filter candidates instantly through our high-performance semantic parsing, cutting recruitment cycles by 60%.</p>
+                <h4 className="text-xs font-bold text-white">AI screening that works</h4>
+                <p className="text-[10px] text-[var(--text-on-dark-mute)] leading-relaxed mt-0.5">Our semantic matching engine scores every candidate against your role spec in real time. No CVs to read. No guesswork. Just ranked, qualified matches.</p>
               </div>
             </div>
 
             <div className="flex gap-3 bg-[var(--surface-dark-card)] border border-[var(--border-dark)] p-4 rounded-2xl">
               <ShieldCheck size={20} strokeWidth={1.75} className="text-white flex-shrink-0 mt-0.5" />
               <div>
-                <h4 className="text-xs font-bold text-white">Verified Diversity Portfolios</h4>
-                <p className="text-[10px] text-[var(--text-on-dark-mute)] leading-relaxed mt-0.5">Build brand credibility as an inclusive employer. Reach thousands of verified she-talent candidates directly.</p>
+                <h4 className="text-xs font-bold text-white">Verified diversity portfolios</h4>
+                <p className="text-[10px] text-[var(--text-on-dark-mute)] leading-relaxed mt-0.5">Every candidate profile is skill-verified. You know exactly what you're getting — and so do they.</p>
               </div>
             </div>
           </div>
 
           <div className="pt-2">
             <Link
-              to="/pricing"
+              to="/employer-pricing-pakistan"
               className="px-[18px] h-10 border border-[var(--border-dark)] hover:border-white/20 rounded-full text-xs font-bold transition-all inline-flex items-center gap-1.5 text-[var(--text-on-dark)]"
             >
-              View Subscription Pricing <Eye size={12} />
+              View pricing plans <Eye size={12} />
             </Link>
           </div>
         </div>
@@ -71,7 +76,7 @@ export default function PostJobPublicPage() {
         {/* Right Side Visual Live Mock Poster */}
         <div className="lg:col-span-7 space-y-6 bg-[var(--surface-dark-card)] border border-[var(--border-dark)] rounded-3xl p-6 shadow-xl text-white">
           <h3 className="text-sm font-bold text-white flex items-center gap-2">
-            <Sparkles size={16} className="text-[var(--brand-pink)]" /> Interactive Posting Previewer
+            <Sparkles size={16} className="text-[var(--brand-pink)]" /> See how your listing looks to candidates
           </h3>
           <p className="text-xs text-[var(--text-on-dark-mute)]">Draft your role specs below and watch the live candidate view update instantly.</p>
 
@@ -142,7 +147,7 @@ export default function PostJobPublicPage() {
               to="/auth/signup?role=EMPLOYER"
               className="w-full h-12 bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white rounded-full text-xs font-bold transition-all flex items-center justify-center gap-1 shadow-lg"
             >
-              Publish Real Listing Now
+              Publish Your First Listing — It's Free
             </Link>
           </div>
         </div>
@@ -150,3 +155,5 @@ export default function PostJobPublicPage() {
     </div>
   );
 }
+
+

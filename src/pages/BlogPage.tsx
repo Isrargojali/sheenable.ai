@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search, Clock, Tag, ArrowLeft, BookOpen, Share2 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Search, Clock, Tag, ArrowLeft, BookOpen } from "lucide-react";
 import { api } from "@/lib/api";
-import logo from "@/assets/sheEnableAI-removebg-preview.png";
 import SubpageNav from "@/components/landing/SubpageNav";
+import useSEO from "@/hooks/useSEO";
 
 interface BlogArticle {
   _id: string;
@@ -23,6 +22,11 @@ interface BlogArticle {
 export default function BlogPage() {
   const [search, setSearch] = useState("");
   const [activeArticle, setActiveArticle] = useState<BlogArticle | null>(null);
+
+  useSEO({
+    title: "Company News & DEI Policy Logs | SheEnableAI",
+    description: "Stay updated with SheEnableAI milestones, hiring updates, and diversity policy logs in Pakistan's tech landscape.",
+  });
 
   // Fetch articles from backend API matching company and research categories
   const { data: articles, isLoading } = useQuery<BlogArticle[]>({
@@ -48,11 +52,11 @@ export default function BlogPage() {
       {/* Hero Section */}
       <section className="bg-[var(--surface-dark)] text-white pt-24 pb-16">
         <div className="relative max-w-[1200px] mx-auto px-6 text-center max-w-2xl space-y-3">
-          <h2 className="font-serif text-3xl font-extrabold tracking-tight">
+          <h1 className="font-serif text-3xl font-extrabold tracking-tight">
             Company News & <span className="italic text-[var(--brand-pink)]">DEI Policy Logs</span>
-          </h2>
+          </h1>
           <p className="text-sm text-[var(--text-on-dark-mute)] leading-relaxed max-w-[720px] mx-auto">
-            Stay updated with SheEnableAI company milestones, community achievements, and specialized reports on women inclusion in Pakistan's software industry.
+            Explore SheEnableAI milestones, community announcements, and specialized reports on female workforce participation in Pakistan's tech sector.
           </p>
         </div>
       </section>
