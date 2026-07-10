@@ -44,10 +44,10 @@ export default function PricingPage() {
                 </div>
 
                 <ul className="space-y-2 text-[11px] text-[var(--ink-700)] border-t border-[var(--ink-200)] pt-4">
-                  <li className="flex items-center gap-2"><Check size={12} className="text-[var(--brand-pink)]" /> 2 active job listings</li>
-                  <li className="flex items-center gap-2"><Check size={12} className="text-[var(--brand-pink)]" /> Standard candidate profiles access</li>
-                  <li className="flex items-center gap-2"><Check size={12} className="text-[var(--brand-pink)]" /> Basic screening filter systems</li>
-                  <li className="flex items-center gap-2"><Check size={12} className="text-[var(--brand-pink)]" /> Email support channel</li>
+                  <li className="flex items-center gap-2"><Check size={12} className="text-[var(--ink-500)]" /> 2 active job listings</li>
+                  <li className="flex items-center gap-2"><Check size={12} className="text-[var(--ink-500)]" /> Standard candidate profiles access</li>
+                  <li className="flex items-center gap-2"><Check size={12} className="text-[var(--ink-500)]" /> Basic screening filter systems</li>
+                  <li className="flex items-center gap-2"><Check size={12} className="text-[var(--ink-500)]" /> Email support channel</li>
                 </ul>
               </div>
               <Link
@@ -100,10 +100,10 @@ export default function PricingPage() {
                 </div>
 
                 <ul className="space-y-2 text-[11px] text-[var(--ink-700)] border-t border-[var(--ink-200)] pt-4">
-                  <li className="flex items-center gap-2"><Check size={12} className="text-[var(--brand-pink)]" /> Unlimited active job listings</li>
-                  <li className="flex items-center gap-2"><Check size={12} className="text-[var(--brand-pink)]" /> Dedicated Talent Match Consultant</li>
-                  <li className="flex items-center gap-2"><Check size={12} className="text-[var(--brand-pink)]" /> Custom API and HRIS integrations</li>
-                  <li className="flex items-center gap-2"><Check size={12} className="text-[var(--brand-pink)]" /> Customizable candidate assessment gates</li>
+                  <li className="flex items-center gap-2"><Check size={12} className="text-[var(--ink-500)]" /> Unlimited active job listings</li>
+                  <li className="flex items-center gap-2"><Check size={12} className="text-[var(--ink-500)]" /> Dedicated Talent Match Consultant</li>
+                  <li className="flex items-center gap-2"><Check size={12} className="text-[var(--ink-500)]" /> Custom API and HRIS integrations</li>
+                  <li className="flex items-center gap-2"><Check size={12} className="text-[var(--ink-500)]" /> Customizable candidate assessment gates</li>
                 </ul>
               </div>
               <Link
