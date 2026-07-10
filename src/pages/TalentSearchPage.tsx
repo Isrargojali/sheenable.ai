@@ -16,75 +16,75 @@ export default function TalentSearchPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[var(--surface)] text-[var(--ink-700)] flex flex-col">
+    <div className="min-h-screen bg-[var(--surface-dark)] text-white flex flex-col">
       {/* Header */}
       <SubpageNav />
 
-      {/* Hero Section (Dark) */}
+      {/* Hero Section */}
       <section className="bg-[var(--surface-dark)] text-white py-16">
         <div className="relative max-w-[1200px] mx-auto px-6 text-center max-w-2xl space-y-3">
           <h2 className="font-serif text-3xl font-extrabold tracking-tight">
             AI-powered <span className="italic text-[var(--brand-pink)]">Talent Discovery</span>
           </h2>
-          <p className="text-sm text-[var(--on-dark-secondary)] leading-relaxed">
+          <p className="text-sm text-[var(--text-on-dark-mute)] leading-relaxed">
             Eliminate resume-filtering overhead. Our advanced semantic search matches your engineering requirements against Pakistan's top-tier cohort of verified female tech leaders.
           </p>
         </div>
       </section>
 
-      {/* Main Container (Light) */}
-      <main className="flex-1 bg-[var(--surface)] text-[var(--ink-700)] py-12">
+      {/* Main Content */}
+      <main className="flex-1 bg-[var(--surface-dark)] text-white py-12">
         <div className="max-w-[1200px] mx-auto w-full px-6 space-y-12">
           {/* Features Row */}
           <div className="grid sm:grid-cols-3 gap-6">
-            <div className="bg-white border border-[var(--ink-200)] rounded-3xl p-5 space-y-2 shadow-[var(--shadow-card)]">
-              <Cpu size={18} className="text-[var(--brand-pink)]" />
-              <h4 className="text-xs font-bold text-[var(--ink-900)]">Semantic AI Filters</h4>
-              <p className="text-[10px] text-[var(--ink-500)] leading-relaxed">Search with natural prompts like "senior frontend engineer with Docker experience" and get scored fits instantly.</p>
+            <div className="bg-[var(--surface-dark-card)] border border-[var(--border-dark)] rounded-[var(--radius-card)] p-6 space-y-2 shadow-xl">
+              <Cpu size={24} strokeWidth={1.75} className="text-[var(--text-on-dark)]" />
+              <h4 className="text-base font-semibold text-[var(--text-on-dark)]">Semantic AI Filters</h4>
+              <p className="text-sm text-[var(--text-on-dark-mute)] leading-relaxed">Search with natural prompts like "senior frontend engineer with Docker experience" and get scored fits instantly.</p>
             </div>
 
-            <div className="bg-white border border-[var(--ink-200)] rounded-3xl p-5 space-y-2 shadow-[var(--shadow-card)]">
-              <ShieldCheck size={18} className="text-[var(--brand-pink)]" />
-              <h4 className="text-xs font-bold text-[var(--ink-900)]">100% Anonymized Previews</h4>
-              <p className="text-[10px] text-[var(--ink-500)] leading-relaxed">Ensure absolute gender equality and eliminate bias by evaluating skills, experience summaries, and projects first.</p>
+            <div className="bg-[var(--surface-dark-card)] border border-[var(--border-dark)] rounded-[var(--radius-card)] p-6 space-y-2 shadow-xl">
+              <ShieldCheck size={24} strokeWidth={1.75} className="text-[var(--text-on-dark)]" />
+              <h4 className="text-base font-semibold text-[var(--text-on-dark)]">100% Anonymized Previews</h4>
+              <p className="text-sm text-[var(--text-on-dark-mute)] leading-relaxed">Ensure absolute gender equality and eliminate bias by evaluating skills, experience summaries, and projects first.</p>
             </div>
 
-            <div className="bg-white border border-[var(--ink-200)] rounded-3xl p-5 space-y-2 shadow-[var(--shadow-card)]">
-              <UserCheck size={18} className="text-[var(--brand-pink)]" />
-              <h4 className="text-xs font-bold text-[var(--ink-900)]">Verified Skill Credentials</h4>
-              <p className="text-[10px] text-[var(--ink-500)] leading-relaxed">Every candidate profile is mapped, verified, and parsed to maintain clean and reliable information benchmarks.</p>
+            <div className="bg-[var(--surface-dark-card)] border border-[var(--border-dark)] rounded-[var(--radius-card)] p-6 space-y-2 shadow-xl">
+              <UserCheck size={24} strokeWidth={1.75} className="text-[var(--text-on-dark)]" />
+              <h4 className="text-base font-semibold text-[var(--text-on-dark)]">Verified Skill Credentials</h4>
+              <p className="text-sm text-[var(--text-on-dark-mute)] leading-relaxed">Every candidate profile is mapped, verified, and parsed to maintain clean and reliable information benchmarks.</p>
             </div>
           </div>
 
           {/* Teaser Candidate Cards Grid */}
           <div className="space-y-6">
-            <div className="flex justify-between items-center border-b border-[var(--ink-200)] pb-3">
-              <h3 className="text-sm font-bold text-[var(--ink-900)] flex items-center gap-2">
+            <div className="flex justify-between items-center border-b border-[var(--border-dark)] pb-3">
+              <h3 className="text-lg font-semibold text-[var(--text-on-dark)] flex items-center gap-2">
                 <Sparkles size={16} className="text-[var(--brand-pink)]" /> Anonymized Top Cohort Previews
               </h3>
-              <span className="text-[10px] text-[var(--ink-500)]">Showing 4 of 250+ active profiles</span>
+              <span className="text-xs text-[var(--text-on-dark-mute)]">Showing 4 of 250+ active profiles</span>
             </div>
 
             <div className="grid sm:grid-cols-2 gap-6">
               {mockCandidates.map((c, idx) => (
-                <div key={idx} className="bg-white border border-[var(--ink-200)] rounded-3xl p-6 space-y-4 shadow-[var(--shadow-card)] relative overflow-hidden hover:border-[var(--brand-pink)]/30 transition-all duration-300">
-                  <span className="absolute top-4 right-4 px-2 py-0.5 bg-[var(--brand-pink-tint)] border border-[var(--brand-pink)]/20 text-[var(--brand-pink)] text-[8px] font-black rounded-full uppercase tracking-wider">
+                <div key={idx} className="bg-[var(--surface-dark-card)] border border-[var(--border-dark)] rounded-[var(--radius-card)] p-6 space-y-4 shadow-xl relative overflow-hidden">
+                  <span className="absolute top-4 right-4 px-2.5 py-1 bg-[var(--brand-pink)] text-white text-[11px] font-bold rounded-full uppercase tracking-wider">
                     {c.matches}% Match Score
                   </span>
 
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-[var(--ink-100)] border border-[var(--ink-200)] flex items-center justify-center font-serif text-sm font-black text-[var(--ink-700)]">
+                    <div className="w-14 h-14 rounded-full bg-white/5 border border-[var(--border-dark)] flex items-center justify-center font-serif text-sm font-bold text-[var(--text-on-dark)]">
                       {c.initials}
                     </div>
                     <div>
-                      <h4 className="text-xs font-bold text-[var(--ink-900)]">{c.role}</h4>
-                      <p className="text-[10px] text-[var(--ink-500)] mt-0.5">{c.exp} · {c.city}</p>
+                      <h4 className="text-base font-semibold text-[var(--text-on-dark)]">{c.role}</h4>
+                      <p className="text-xs text-[var(--text-on-dark-mute)] mt-0.5">{c.exp} · {c.city}</p>
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap gap-1">
+                  <div className="flex flex-wrap gap-1.5">
                     {c.skills.map((s, i) => (
-                      <span key={i} className="px-2.5 py-0.5 bg-[var(--ink-100)] border border-[var(--ink-200)] rounded text-[8px] text-[var(--ink-700)] font-bold">
+                      <span key={i} className="px-2.5 py-1 bg-white/5 border border-[var(--border-dark)] rounded-full text-xs text-[var(--text-on-dark-mute)] font-medium">
                         {s}
                       </span>
                     ))}
@@ -97,16 +97,16 @@ export default function TalentSearchPage() {
               {user?.role === "EMPLOYER" ? (
                 <Link
                   to="/employer/ai-search"
-                  className="px-6 py-3 bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white rounded-full text-xs font-black transition-all inline-flex items-center gap-1.5 shadow-lg"
+                  className="h-[52px] px-8 bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white rounded-full text-xs font-bold transition-all inline-flex items-center justify-center gap-1.5 shadow-lg"
                 >
-                  Unlock Full AI Search Portal <ArrowRight size={14} />
+                  Unlock Full AI Search Portal <ArrowRight size={18} />
                 </Link>
               ) : (
                 <Link
                   to="/auth/signup?role=EMPLOYER"
-                  className="px-6 py-3 bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white rounded-full text-xs font-black transition-all inline-flex items-center gap-1.5 shadow-lg"
+                  className="h-[52px] px-8 bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white rounded-full text-xs font-bold transition-all inline-flex items-center justify-center gap-1.5 shadow-lg"
                 >
-                  Register as Employer to Unlock Full Profiles <ArrowRight size={14} />
+                  Register as Employer to Unlock Full Profiles <ArrowRight size={18} />
                 </Link>
               )}
             </div>
