@@ -59,14 +59,14 @@ export default function SubpageNav({ actions }: SubpageNavProps = {}) {
           {/* Center links */}
           <div className="hidden lg:flex items-center gap-7">
             {NAV_LINKS.map(l => (
-              <a
+              <Link
                 key={l.label}
-                href={l.href}
+                to={l.href}
                 className="text-[14px] font-medium relative group transition-colors duration-200 text-white hover:text-[var(--brand-pink)]"
               >
                 {l.label}
                 <span className="absolute -bottom-1 left-0 right-0 h-px scale-x-0 group-hover:scale-x-100 transition-transform origin-left bg-[var(--brand-pink)]" />
-              </a>
+              </Link>
             ))}
           </div>
  
@@ -126,14 +126,14 @@ export default function SubpageNav({ actions }: SubpageNavProps = {}) {
             </div>
             <div className="flex flex-col gap-1">
               {NAV_LINKS.map(l => (
-                <a
+                <Link
                   key={l.label}
-                  href={l.href}
+                  to={l.href}
                   onClick={() => setOpen(false)}
                   className="px-3 py-3 rounded-xl text-sm font-semibold transition-colors text-white/80 hover:bg-white/5 hover:text-white"
                 >
                   {l.label}
-                </a>
+                </Link>
               ))}
               <div className="my-3 h-px bg-white/5" />
               {actions ? (
