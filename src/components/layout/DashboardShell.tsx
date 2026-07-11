@@ -548,7 +548,7 @@ function Sidebar({
       </div>
     </aside>
   );
-}
+} 
 
 const NOTIF_ICONS: Record<string, LucideIcon> = {
   JOB_MATCH: Sparkles,
