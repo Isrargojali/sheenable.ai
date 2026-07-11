@@ -424,7 +424,7 @@ function Sidebar({
               // Dynamic badge overrides per nav item
               let badge = item.badge;
               let badgeVariant: "primary" | "amber" | "rose" = "primary";
-              let showDot = false; 
+              let showDot = false;
 
               if (item.to.includes("messages")) {
                 badge = unreadMessagesCount > 0 ? String(unreadMessagesCount) : undefined;
@@ -463,7 +463,7 @@ function Sidebar({
                   badge = String(pendingAdminRequests);
                   badgeVariant = "amber";
                 }
-              }  
+              }
 
               return (
                 <NavLink
@@ -478,7 +478,7 @@ function Sidebar({
                       : "text-[var(--ink-700)] bg-transparent hover:bg-[var(--ink-100)] hover:text-[var(--ink-900)]",
                     collapsed && "justify-center px-0 h-10 w-10 mx-auto rounded-xl border-l-0"
                   )}
-                >  
+                >
                   {({ isActive }) => (
                     <>
                       <div className="relative flex-shrink-0 flex items-center justify-center">
@@ -497,7 +497,7 @@ function Sidebar({
                             )}
                           >
                             {badge}
-                          </span>   
+                          </span>
                         )}
                       </div>
                       {!collapsed && <span className="truncate pr-7">{item.label}</span>}
@@ -520,13 +520,13 @@ function Sidebar({
             })}
           </div>
         ))}
-      </nav>  
+      </nav>
 
       {/* ── BOTTOM: Logo + Powered By — for ALL roles ── */}
       <div className={cn(
         "mt-auto border-t border-border flex flex-col items-center gap-2 bg-secondary/15 transition-all duration-300",
         collapsed ? "p-2.5" : "p-4 items-start"
-      )}>  
+      )}>
         <Link to="/" className="relative z-10 flex items-center group" aria-label="SheEnableAI home">
           {collapsed ? (
             <div className="w-8 h-8 rounded-lg bg-[var(--brand-pink-soft)] flex items-center justify-center text-[var(--brand-pink)] font-black text-xs group-hover:scale-105 transition-transform shadow-sm">
