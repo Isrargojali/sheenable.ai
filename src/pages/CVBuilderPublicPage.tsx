@@ -141,28 +141,27 @@ export default function CVBuilderPublicPage() {
       `}</style>
 
       {/* Premium Header */}
-      <div className="print:hidden bg-[var(--surface-dark)]">
-        <SubpageNav
-          actions={
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handlePrint}
-                className="px-5 h-10 bg-transparent border-[1.5px] border-[var(--brand-pink)] text-[var(--brand-pink)] hover:bg-[var(--brand-pink-soft)]/20 rounded-full text-[14px] font-medium transition-all flex items-center gap-1.5 press"
-              >
-                <Download size={14} className="text-[var(--brand-pink)]" /> Download PDF
-              </button>
-              <button
-                onClick={handleSave}
-                disabled={saveMutation.isPending}
-                className="px-5 h-10 bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white rounded-full text-[14px] font-medium transition-all shadow-sm flex items-center gap-1.5 press"
-              >
-                {saveMutation.isPending ? <Loader2 size={14} className="animate-spin text-white" /> : <Check size={14} className="text-white" />}
-                {token ? "Save to Profile" : "Save & Create Profile"}
-              </button>
-            </div>
-          }
-        />
-      </div>
+      <SubpageNav
+        className="print:hidden"
+        actions={
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handlePrint}
+              className="px-5 h-10 bg-transparent border-[1.5px] border-[var(--brand-pink)] text-[var(--brand-pink)] hover:bg-[var(--brand-pink-soft)]/20 rounded-full text-[14px] font-medium transition-all flex items-center gap-1.5 press"
+            >
+              <Download size={14} className="text-[var(--brand-pink)]" /> Download PDF
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={saveMutation.isPending}
+              className="px-5 h-10 bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white rounded-full text-[14px] font-medium transition-all shadow-sm flex items-center gap-1.5 press"
+            >
+              {saveMutation.isPending ? <Loader2 size={14} className="animate-spin text-white" /> : <Check size={14} className="text-white" />}
+              {token ? "Save to Profile" : "Save & Create Profile"}
+            </button>
+          </div>
+        }
+      />
 
       <div className="flex-1 max-w-[1400px] mx-auto w-full p-6 grid lg:grid-cols-12 gap-8 bg-[var(--surface)]">
         {/* Left Form Panel */}

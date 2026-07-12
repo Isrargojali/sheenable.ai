@@ -92,19 +92,16 @@ export default function SalaryGuidePage() {
 
   return (
     <div className="min-h-screen bg-[var(--surface)] text-[var(--ink-700)] flex flex-col">
-      {/* Header Band (Dark) */}
-      <div className="bg-[var(--surface-dark)]">
-        <SubpageNav
-          actions={
-            <button
-              onClick={() => setShowAddForm(true)}
-              className="px-5 h-10 bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white rounded-full text-[14px] font-medium transition-all flex items-center gap-1.5 shadow-sm press"
-            >
-              <Plus size={14} className="text-white" /> Contribute Anonymously
-            </button>
-          }
-        />
-      </div>
+      <SubpageNav
+        actions={
+          <button
+            onClick={() => setShowAddForm(true)}
+            className="px-5 h-10 bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white rounded-full text-[14px] font-medium transition-all flex items-center gap-1.5 shadow-sm press"
+          >
+            <Plus size={14} className="text-white" /> Contribute Anonymously
+          </button>
+        }
+      />
 
       {/* Hero Title Section (Dark) */}
       <section className="bg-[var(--surface-dark)] text-white pb-16 pt-6">

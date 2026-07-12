@@ -93,7 +93,7 @@ export default function LandingPage() {
   };
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-background overflow-x-hidden">
+    <div ref={containerRef} className="min-h-screen bg-background">
       <GlassNav />
 
       {/*  HERO */}

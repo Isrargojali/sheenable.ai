@@ -155,7 +155,7 @@ export default function BrowseJobsPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--surface-muted)] text-[var(--ink-700)] overflow-x-hidden">
+    <div className="min-h-screen flex flex-col bg-[var(--surface-muted)] text-[var(--ink-700)]">
       <SubpageNav />
 
       {/* Hero Section */}

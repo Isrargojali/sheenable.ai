@@ -15,9 +15,10 @@ const NAV_LINKS = [
 
 interface SubpageNavProps {
   actions?: React.ReactNode;
+  className?: string;
 }
 
-export default function SubpageNav({ actions }: SubpageNavProps = {}) {
+export default function SubpageNav({ actions, className }: SubpageNavProps = {}) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const { user } = useAuthStore();
@@ -43,7 +44,8 @@ export default function SubpageNav({ actions }: SubpageNavProps = {}) {
       <nav
         className={cn(
           "sticky top-0 z-40 transition-all duration-300 bg-[var(--surface-dark)] border-b border-white/5",
-          scrolled ? "shadow-2xl" : "shadow-none"
+          scrolled ? "shadow-2xl" : "shadow-none",
+          className
         )}
       >
         <div className="max-w-[1280px] mx-auto h-[72px] px-8 flex items-center justify-between gap-4">

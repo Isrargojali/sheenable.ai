@@ -57,10 +57,9 @@ export default function PricingPage() {
 
   return (
     <div className="min-h-screen bg-[var(--surface)] text-[var(--ink-700)] flex flex-col">
+      <SubpageNav />
       {/* Upper Section: Hero + Cards Grid (Dark) */}
       <div className="bg-[var(--surface-dark)] text-white pb-16">
-        <SubpageNav />
-
         <div className="max-w-[1200px] mx-auto w-full px-6 pt-6 space-y-12">
           {/* Banner */}
           <div className="text-center max-w-2xl mx-auto space-y-3 py-6">

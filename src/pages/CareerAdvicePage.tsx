@@ -69,10 +69,7 @@ export default function CareerAdvicePage() {
 
   return (
     <div className="min-h-screen bg-[var(--surface)] text-[var(--ink-700)] flex flex-col">
-      {/* Dark Header / Navigation */}
-      <div className="bg-[var(--surface-dark)]">
-        <SubpageNav />
-      </div>
+      <SubpageNav />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
