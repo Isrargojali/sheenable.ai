@@ -719,7 +719,16 @@
   box-shadow: 0 0 0 3px rgba(230, 0, 126, 0.25) !important;
 }
 
-/* ── Native Accessibility Suite Styles ────────────────────────── */
+/* ── Native Accessibility Suite Styles v2 ────────────────────────── */
+
+/* Root content scaling and CSS variables */
+html {
+  --a11y-scale: 1;
+  --a11y-saturation: 1;
+  font-size: calc(13px * var(--a11y-scale, 1)) !important;
+}
+
+/* Stop animations and motions */
 html[data-a11y-stop-animations="true"] *,
 html[data-a11y-stop-animations="true"] *::before,
 html[data-a11y-stop-animations="true"] *::after {
@@ -729,60 +738,161 @@ html[data-a11y-stop-animations="true"] *::after {
   transition-duration: 0s !important;
 }
 
-html[data-a11y-font-size="large"] {
-  font-size: 15px !important;
-}
-html[data-a11y-font-size="xlarge"] {
-  font-size: 18px !important;
+/* Readable font swap */
+html[data-a11y-readable-font="true"] * {
+  font-family: 'Satoshi', 'Inter', system-ui, -apple-system, sans-serif !important;
 }
 
-html[data-a11y-contrast="high"] {
-  filter: contrast(1.3) saturate(1.1) !important;
-}
-html[data-a11y-contrast="grayscale"] {
-  filter: grayscale(1) !important;
-}
-
-html[data-a11y-low-saturation="true"] {
-  filter: saturate(0.55) !important;
+/* Dyslexia friendly font spacing */
+html[data-a11y-dyslexia="true"] * {
+  font-family: 'Comic Sans MS', cursive, sans-serif !important;
+  letter-spacing: 0.15em !important;
+  word-spacing: 0.20em !important;
+  line-height: 1.85 !important;
 }
 
-html[data-a11y-highlight-links="true"] a {
-  outline: 2px dashed var(--brand-pink) !important;
-  outline-offset: 3px !important;
-  text-decoration: underline !important;
-  text-decoration-thickness: 2px !important;
-  font-weight: bold !important;
-}
-
+/* Highlight headers and titles */
 html[data-a11y-highlight-titles="true"] h1,
 html[data-a11y-highlight-titles="true"] h2,
 html[data-a11y-highlight-titles="true"] h3,
-html[data-a11y-highlight-titles="true"] h4 {
-  border-left: 5px solid var(--brand-pink) !important;
-  padding-left: 12px !important;
-  font-weight: 800 !important;
-  letter-spacing: -0.01em !important;
+html[data-a11y-highlight-titles="true"] h4,
+html[data-a11y-highlight-titles="true"] h5,
+html[data-a11y-highlight-titles="true"] h6 {
+  outline: 3px solid var(--brand-pink) !important;
+  background-color: rgba(230, 0, 126, 0.08) !important;
+  color: var(--ink-900) !important;
+  padding: 4px 10px !important;
+  border-radius: 8px !important;
+  display: inline-block !important;
 }
 
-html[data-a11y-dyslexia="true"] * {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-  letter-spacing: 0.12em !important;
-  word-spacing: 0.18em !important;
-  line-height: 1.8 !important;
+/* Highlight links */
+html[data-a11y-highlight-links="true"] a {
+  outline: 2px dashed #0072B2 !important;
+  outline-offset: 3px !important;
+  text-decoration: underline !important;
+  text-decoration-thickness: 3px !important;
+  font-weight: 900 !important;
+  color: #0072B2 !important;
 }
 
-html[data-a11y-mute-images="true"] img:not([alt="SheEnableAI logo"]):not(.logo),
-html[data-a11y-mute-images="true"] svg:not(.lucide) {
-  opacity: 0.2 !important;
-  filter: grayscale(1) blur(3px) !important;
+/* Font Sizing Stepper Overrides */
+html[data-a11y-font-sizing="1"] * { font-size: calc(1em + 1.5px) !important; }
+html[data-a11y-font-sizing="2"] * { font-size: calc(1em + 3px) !important; }
+html[data-a11y-font-sizing="3"] * { font-size: calc(1em + 4.5px) !important; }
+
+/* Line Height Stepper Overrides */
+html[data-a11y-line-height="1"] * { line-height: 1.6 !important; }
+html[data-a11y-line-height="2"] * { line-height: 1.95 !important; }
+html[data-a11y-line-height="3"] * { line-height: 2.3 !important; }
+
+/* Letter Spacing Stepper Overrides */
+html[data-a11y-letter-spacing="1"] * { letter-spacing: 0.08em !important; }
+html[data-a11y-letter-spacing="2"] * { letter-spacing: 0.16em !important; }
+html[data-a11y-letter-spacing="3"] * { letter-spacing: 0.24em !important; }
+
+/* Text Alignment Overrides */
+html[data-a11y-align="left"] * { text-align: left !important; }
+html[data-a11y-align="center"] * { text-align: center !important; }
+html[data-a11y-align="right"] * { text-align: right !important; }
+
+/* Contrast Themes */
+html[data-a11y-contrast-theme="dark-contrast"],
+html[data-a11y-contrast-theme="dark-contrast"] body {
+  background-color: #09070f !important;
+  color: #ffffff !important;
 }
-html[data-a11y-mute-images="true"] img:not([alt="SheEnableAI logo"]):not(.logo):hover,
-html[data-a11y-mute-images="true"] svg:not(.lucide):hover {
-  opacity: 0.95 !important;
-  filter: none !important;
+html[data-a11y-contrast-theme="dark-contrast"] p,
+html[data-a11y-contrast-theme="dark-contrast"] span,
+html[data-a11y-contrast-theme="dark-contrast"] li {
+  color: #e2e8f0 !important;
+}
+html[data-a11y-contrast-theme="light-contrast"],
+html[data-a11y-contrast-theme="light-contrast"] body {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+html[data-a11y-contrast-theme="light-contrast"] p,
+html[data-a11y-contrast-theme="light-contrast"] span,
+html[data-a11y-contrast-theme="light-contrast"] li {
+  color: #1e1b21 !important;
 }
 
+/* Monochrome & Saturation Filters */
+html[data-a11y-monochrome="true"] {
+  filter: grayscale(1) !important;
+}
+html[data-a11y-has-saturation="true"]:not([data-a11y-monochrome="true"]) {
+  filter: saturate(var(--a11y-saturation)) !important;
+}
+
+/* High Contrast AAA WCAG */
+html[data-a11y-high-contrast-aaa="true"] * {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+}
+html[data-a11y-high-contrast-aaa="true"] a,
+html[data-a11y-high-contrast-aaa="true"] button {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+  border: 2px solid #ffffff !important;
+  font-weight: bold !important;
+}
+
+/* Color Presets */
+html[data-a11y-color-preset="1"] *, html[data-a11y-color-preset="1"] body { background-color: #fdf6e3 !important; color: #586e75 !important; }
+html[data-a11y-color-preset="2"] *, html[data-a11y-color-preset="2"] body { background-color: #000000 !important; color: #ffff00 !important; }
+html[data-a11y-color-preset="3"] *, html[data-a11y-color-preset="3"] body { background-color: #000000 !important; color: #ffffff !important; }
+html[data-a11y-color-preset="4"] *, html[data-a11y-color-preset="4"] body { background-color: #ffffff !important; color: #000000 !important; }
+html[data-a11y-color-preset="5"] *, html[data-a11y-color-preset="5"] body { background-color: #0b0f19 !important; color: #cbd5e1 !important; }
+
+/* Hide non-logo Images and show alt fallback box */
+html[data-a11y-hide-images="true"] img:not([alt*="logo"]):not([alt*="Logo"]):not([src*="logo"]) {
+  visibility: hidden !important;
+  position: relative !important;
+  display: block !important;
+  height: 120px !important;
+  width: 100% !important;
+}
+html[data-a11y-hide-images="true"] img:not([alt*="logo"]):not([alt*="Logo"]):not([src*="logo"])::after {
+  content: "📷 Image Alt Description: " attr(alt) !important;
+  visibility: visible !important;
+  position: absolute !important;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: #14101F !important;
+  color: #ffffff !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 11px !important;
+  font-weight: bold !important;
+  border: 2px dashed #ff007f !important;
+  padding: 8px !important;
+  text-align: center !important;
+}
+
+/* Highlight Hover & Keyboard Focus Outline markers */
+html[data-a11y-highlight-hover="true"] *:hover {
+  outline: 3px solid var(--brand-pink) !important;
+  outline-offset: 2px !important;
+}
+html[data-a11y-highlight-focus="true"] *:focus,
+html[data-a11y-highlight-focus="true"] *:focus-visible {
+  outline: 4px solid #0072B2 !important;
+  outline-offset: 4px !important;
+  box-shadow: 0 0 12px #0072B2 !important;
+}
+
+/* Big Custom Cursors SVGs */
+html[data-a11y-cursor="dark"] * {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath fill='%23000000' stroke='%23ffffff' stroke-width='2' d='M0,0 L0,22 L6,16 L12,27 L15,25 L9,14 L16,14 Z'/%3E%3C/svg%3E"), auto !important;
+}
+html[data-a11y-cursor="light"] * {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath fill='%23ffffff' stroke='%23000000' stroke-width='2' d='M0,0 L0,22 L6,16 L12,27 L15,25 L9,14 L16,14 Z'/%3E%3C/svg%3E"), auto !important;
+}
+
+/* Colorblind Palettes overrides */
 html[data-a11y-colorblind="true"] {
   --brand-pink: #0072B2 !important;
   --brand-pink-hover: #005A9C !important;
