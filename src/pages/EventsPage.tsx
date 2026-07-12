@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Calendar, Sparkles, Loader2, MapPin, Users, Play, Check } from "lucide-react";
+import { Calendar, Sparkles, Loader2, MapPin, Users, Play, Check, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "sonner";
