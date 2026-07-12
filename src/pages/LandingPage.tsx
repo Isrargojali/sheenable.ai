@@ -96,7 +96,8 @@ export default function LandingPage() {
     <div ref={containerRef} className="min-h-screen bg-background">
       <GlassNav />
 
-      {/*  HERO */}
+      <main id="main-content" className="outline-none">
+        {/*  HERO */}
       <section
         className="relative overflow-hidden text-white flex flex-col items-center justify-center bg-[var(--ink-900)]"
         style={{ 
@@ -305,8 +306,10 @@ export default function LandingPage() {
       {/*  TESTIMONIALS  */}
       <Testimonials />
 
-      {/*  EMPLOYER CTA BAND ─ */}
+      {/*  EMPLOYER CTA BAND  */}
       <EmployerCTA />
+
+      </main>
 
       {/*  FOOTER  */}
       <Footer />

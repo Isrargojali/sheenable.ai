@@ -94,7 +94,7 @@ export default function EventsPage() {
       </section>
 
       {/* Main Content */}
-      <main className="flex-1 bg-[var(--surface-dark)] text-white py-12">
+      <main id="main-content" className="flex-1 bg-[var(--surface-dark)] text-white py-12 outline-none">
         <div className="max-w-[1200px] mx-auto w-full px-6 space-y-8">
           {/* Tab filters */}
           <div className="flex justify-center border-b border-[var(--border-dark)] pb-1 gap-8">

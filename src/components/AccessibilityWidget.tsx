@@ -1,6 +1,6 @@
 // src/components/AccessibilityWidget.tsx
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { 
   Accessibility, 
   X, 
@@ -27,100 +27,16 @@ import {
   AlignRight,
   Sun,
   Moon,
-  MoveHorizontal
+  MoveHorizontal,
+  ChevronLeft
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-// Settings interfaces
-interface AccessibilitySettings {
-  profile: "epilepsy" | "visually-impaired" | "cognitive" | "adhd" | "blindness" | "colorblind" | null;
-  
-  // B. Readable Experience
-  contentScaling: number; // 80 - 200, default 100
-  textMagnifier: boolean;
-  readableFont: boolean;
-  dyslexiaFont: boolean;
-  highlightTitles: boolean;
-  highlightLinks: boolean;
-  fontSizing: 0 | 1 | 2 | 3;
-  lineHeight: 0 | 1 | 2 | 3;
-  letterSpacing: 0 | 1 | 2 | 3;
-  textAlignment: "default" | "left" | "center" | "right";
-  
-  // C. Visually Pleasing Experience
-  contrastTheme: "default" | "dark-contrast" | "light-contrast";
-  monochrome: boolean;
-  highContrastAAA: boolean;
-  saturation: number; // 0 - 200, default 100
-  colorPreset: number; // 0 (default), 1, 2, 3, 4, 5
-  
-  // D. Easy Orientation
-  muteSounds: boolean;
-  hideImages: boolean;
-  virtualKeyboard: boolean;
-  readingGuide: boolean;
-  stopAnimations: boolean;
-  readingMask: boolean;
-  highlightHover: boolean;
-  highlightFocus: boolean;
-  bigCursor: "none" | "dark" | "light";
-  screenReaderOptimize: boolean;
-  colorblindPalette: boolean;
-}
-
-const DEFAULT_SETTINGS: AccessibilitySettings = {
-  profile: null,
-  contentScaling: 100,
-  textMagnifier: false,
-  readableFont: false,
-  dyslexiaFont: false,
-  highlightTitles: false,
-  highlightLinks: false,
-  fontSizing: 0,
-  lineHeight: 0,
-  letterSpacing: 0,
-  textAlignment: "default",
-  contrastTheme: "default",
-  monochrome: false,
-  highContrastAAA: false,
-  saturation: 100,
-  colorPreset: 0,
-  muteSounds: false,
-  hideImages: false,
-  virtualKeyboard: false,
-  readingGuide: false,
-  stopAnimations: false,
-  readingMask: false,
-  highlightHover: false,
-  highlightFocus: false,
-  bigCursor: "none",
-  screenReaderOptimize: false,
-  colorblindPalette: false,
-};
-
-const COLOR_PRESETS = [
-  { name: "Default Theme", bg: "transparent", text: "inherit" },
-  { name: "Cream & Charcoal", bg: "#fdf6e3", text: "#586e75" },
-  { name: "Black & High-Contrast Yellow", bg: "#000000", text: "#ffff00" },
-  { name: "Black & Pure White", bg: "#000000", text: "#ffffff" },
-  { name: "White & Black", bg: "#ffffff", text: "#000000" },
-  { name: "Dark Night Blue", bg: "#0b0f19", text: "#cbd5e1" },
-];
+import { useAccessibility, COLOR_PRESETS, AccessibilitySettings } from "@/context/AccessibilityContext";
 
 export default function AccessibilityWidget() {
   const location = useLocation();
+  const { settings, dispatch } = useAccessibility();
   const [isOpen, setIsOpen] = useState(false);
-  const [settings, setSettings] = useState<AccessibilitySettings>(() => {
-    const saved = localStorage.getItem("she-enable-a11y-settings-v2");
-    if (saved) {
-      try {
-        return { ...DEFAULT_SETTINGS, ...JSON.parse(saved) };
-      } catch (e) {
-        return DEFAULT_SETTINGS;
-      }
-    }
-    return DEFAULT_SETTINGS;
-  });
 
   const [mouseY, setMouseY] = useState(0);
   const [mouseX, setMouseX] = useState(0);
@@ -129,9 +45,11 @@ export default function AccessibilityWidget() {
 
   const panelRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const tabRef = useRef<HTMLButtonElement>(null);
 
   // Mouse move listener for reading guide, mask, and magnifier
   useEffect(() => {
+    if (!settings.readingGuide && !settings.readingMask && !settings.textMagnifier) return;
     const handleMouseMove = (e: MouseEvent) => {
       setMouseY(e.clientY);
       setMouseX(e.clientX);
@@ -144,7 +62,7 @@ export default function AccessibilityWidget() {
           target.innerText && 
           target.innerText.trim().length > 0 &&
           target.innerText.length < 300 &&
-          !target.closest('[role="dialog"]') && // Don't magnify text inside our widget panel
+          !target.closest('[role="dialog"]') && // Don't magnify text inside accessibility widget panel
           target.tagName !== "HTML" &&
           target.tagName !== "BODY"
         ) {
@@ -196,39 +114,6 @@ export default function AccessibilityWidget() {
     return () => observer.disconnect();
   }, [settings.muteSounds, location.pathname]);
 
-  // Apply settings to document.documentElement attributes
-  useEffect(() => {
-    const root = document.documentElement;
-
-    // Apply content scaling CSS variable
-    root.style.setProperty("--a11y-scale", String(settings.contentScaling / 100));
-    root.style.setProperty("--a11y-saturation", String(settings.saturation / 100));
-
-    // Set attributes for CSS styling selectors
-    root.setAttribute("data-a11y-stop-animations", String(settings.stopAnimations));
-    root.setAttribute("data-a11y-readable-font", String(settings.readableFont));
-    root.setAttribute("data-a11y-dyslexia", String(settings.dyslexiaFont));
-    root.setAttribute("data-a11y-highlight-titles", String(settings.highlightTitles));
-    root.setAttribute("data-a11y-highlight-links", String(settings.highlightLinks));
-    root.setAttribute("data-a11y-font-sizing", String(settings.fontSizing));
-    root.setAttribute("data-a11y-line-height", String(settings.lineHeight));
-    root.setAttribute("data-a11y-letter-spacing", String(settings.letterSpacing));
-    root.setAttribute("data-a11y-align", settings.textAlignment);
-    root.setAttribute("data-a11y-contrast-theme", settings.contrastTheme);
-    root.setAttribute("data-a11y-monochrome", String(settings.monochrome));
-    root.setAttribute("data-a11y-high-contrast-aaa", String(settings.highContrastAAA));
-    root.setAttribute("data-a11y-has-saturation", String(settings.saturation !== 100));
-    root.setAttribute("data-a11y-color-preset", String(settings.colorPreset));
-    root.setAttribute("data-a11y-hide-images", String(settings.hideImages));
-    root.setAttribute("data-a11y-highlight-hover", String(settings.highlightHover));
-    root.setAttribute("data-a11y-highlight-focus", String(settings.highlightFocus));
-    root.setAttribute("data-a11y-cursor", settings.bigCursor);
-    root.setAttribute("data-a11y-screen-reader", String(settings.screenReaderOptimize));
-    root.setAttribute("data-a11y-colorblind", String(settings.colorblindPalette));
-
-    localStorage.setItem("she-enable-a11y-settings-v2", JSON.stringify(settings));
-  }, [settings]);
-
   // Global Keyboard Shortcuts (Alt+1 to toggle panel, Esc to close panel/modals)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -241,12 +126,16 @@ export default function AccessibilityWidget() {
       // Escape closes Panel
       if (e.key === "Escape" && isOpen) {
         setIsOpen(false);
-        triggerRef.current?.focus();
+        if (settings.hideTriggerButton) {
+          tabRef.current?.focus();
+        } else {
+          triggerRef.current?.focus();
+        }
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen]);
+  }, [isOpen, settings.hideTriggerButton]);
 
   // Keyboard navigation within the drawer panel
   const handlePanelKeyDown = (e: React.KeyboardEvent) => {
@@ -269,59 +158,16 @@ export default function AccessibilityWidget() {
     }
   };
 
-  // Profiles preset configurations
-  const applyProfile = (profileType: AccessibilitySettings["profile"]) => {
-    if (settings.profile === profileType) {
-      setSettings(DEFAULT_SETTINGS);
-      return;
-    }
-
-    const newSettings = { ...DEFAULT_SETTINGS, profile: profileType };
-
-    switch (profileType) {
-      case "epilepsy":
-        newSettings.stopAnimations = true;
-        newSettings.saturation = 60;
-        break;
-      case "visually-impaired":
-        newSettings.contentScaling = 130;
-        newSettings.contrastTheme = "light-contrast";
-        newSettings.highlightLinks = true;
-        newSettings.fontSizing = 2;
-        break;
-      case "cognitive":
-        newSettings.dyslexiaFont = true;
-        newSettings.readingGuide = true;
-        newSettings.highlightTitles = true;
-        break;
-      case "adhd":
-        newSettings.stopAnimations = true;
-        newSettings.readingGuide = true;
-        newSettings.muteSounds = true;
-        newSettings.hideImages = true;
-        break;
-      case "blindness":
-        newSettings.screenReaderOptimize = true;
-        newSettings.stopAnimations = true;
-        break;
-      case "colorblind":
-        newSettings.colorblindPalette = true;
-        break;
-    }
-
-    setSettings(newSettings);
+  const applyProfile = (profile: AccessibilitySettings["profile"]) => {
+    dispatch({ type: "APPLY_PROFILE", profile });
   };
 
   const resetAll = () => {
-    setSettings(DEFAULT_SETTINGS);
+    dispatch({ type: "RESET_ALL" });
   };
 
   const toggleSetting = (key: keyof AccessibilitySettings) => {
-    setSettings((prev) => ({
-      ...prev,
-      profile: null,
-      [key]: !prev[key],
-    }) as any);
+    dispatch({ type: "TOGGLE_SETTING", key });
   };
 
   // Keyboard character inserter
@@ -362,16 +208,29 @@ export default function AccessibilityWidget() {
         </a>
       )}
 
-      {/* Floating Widget Toggle Button */}
-      <button
-        ref={triggerRef}
-        onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white shadow-xl flex items-center justify-center press z-[49] outline-none focus-visible:ring-4 focus-visible:ring-[var(--brand-pink)]/40 transition-all border border-white/10"
-        aria-label="Accessibility options"
-        aria-expanded={isOpen}
-      >
-        <Accessibility size={28} strokeWidth={2.25} />
-      </button>
+      {/* Floating Widget Trigger: Main Button or Small Screen Tab */}
+      {!settings.hideTriggerButton ? (
+        <button
+          ref={triggerRef}
+          onClick={() => setIsOpen(!isOpen)}
+          className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white shadow-xl flex items-center justify-center press z-[49] outline-none focus-visible:ring-4 focus-visible:ring-[var(--brand-pink)]/40 transition-all border border-white/10"
+          aria-label="Accessibility options"
+          aria-expanded={isOpen}
+        >
+          <Accessibility size={28} strokeWidth={2.25} />
+        </button>
+      ) : (
+        /* Small Edge Tab at Screen edge to bring it back */
+        <button
+          ref={tabRef}
+          onClick={() => setIsOpen(true)}
+          className="fixed right-0 top-1/3 w-3.5 h-16 bg-[var(--brand-pink)] hover:w-6 transition-all rounded-l-xl cursor-pointer z-[49] flex items-center justify-center text-white outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-pink)]/40 border border-r-0 border-white/20"
+          aria-label="Open accessibility suite"
+          title="Open accessibility suite"
+        >
+          <ChevronLeft size={12} className="-ml-0.5" />
+        </button>
+      )}
 
       {/* A. Text Magnifier Tooltip */}
       {settings.textMagnifier && magnifiedText && (
@@ -414,7 +273,7 @@ export default function AccessibilityWidget() {
               Minimize
             </button>
           </div>
-          {/* QWERTY Row Renderers */}
+          {/* QWERTY Rows */}
           {[
             ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "=", "Backspace"],
             ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
@@ -543,7 +402,7 @@ export default function AccessibilityWidget() {
                     max="200"
                     step="10"
                     value={settings.contentScaling}
-                    onChange={(e) => setSettings((prev) => ({ ...prev, profile: null, contentScaling: Number(e.target.value) }))}
+                    onChange={(e) => dispatch({ type: "SET_SCALING", value: Number(e.target.value) })}
                     className="w-full accent-[var(--brand-pink)] h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer"
                   />
                 </div>
@@ -555,7 +414,7 @@ export default function AccessibilityWidget() {
                     {[0, 1, 2, 3].map((stepVal) => (
                       <button
                         key={stepVal}
-                        onClick={() => setSettings((prev) => ({ ...prev, profile: null, fontSizing: stepVal as any }))}
+                        onClick={() => dispatch({ type: "SET_FONT_SIZE", value: stepVal as any })}
                         className={cn(
                           "flex-1 h-8 rounded-lg text-xs font-semibold transition-all press",
                           settings.fontSizing === stepVal ? "bg-[var(--brand-pink)] text-white" : "text-white/60 hover:text-white"
@@ -574,7 +433,7 @@ export default function AccessibilityWidget() {
                     {[0, 1, 2, 3].map((stepVal) => (
                       <button
                         key={stepVal}
-                        onClick={() => setSettings((prev) => ({ ...prev, profile: null, lineHeight: stepVal as any }))}
+                        onClick={() => dispatch({ type: "SET_LINE_HEIGHT", value: stepVal as any })}
                         className={cn(
                           "flex-1 h-8 rounded-lg text-xs font-semibold transition-all press",
                           settings.lineHeight === stepVal ? "bg-[var(--brand-pink)] text-white" : "text-white/60 hover:text-white"
@@ -593,7 +452,7 @@ export default function AccessibilityWidget() {
                     {[0, 1, 2, 3].map((stepVal) => (
                       <button
                         key={stepVal}
-                        onClick={() => setSettings((prev) => ({ ...prev, profile: null, letterSpacing: stepVal as any }))}
+                        onClick={() => dispatch({ type: "SET_LETTER_SPACING", value: stepVal as any })}
                         className={cn(
                           "flex-1 h-8 rounded-lg text-xs font-semibold transition-all press",
                           settings.letterSpacing === stepVal ? "bg-[var(--brand-pink)] text-white" : "text-white/60 hover:text-white"
@@ -619,7 +478,7 @@ export default function AccessibilityWidget() {
                       return (
                         <button
                           key={align.id}
-                          onClick={() => setSettings((prev) => ({ ...prev, profile: null, textAlignment: align.id as any }))}
+                          onClick={() => dispatch({ type: "SET_ALIGNMENT", value: align.id as any })}
                           className={cn(
                             "flex-1 h-8 rounded-lg text-xs font-semibold transition-all press flex items-center justify-center gap-1",
                             settings.textAlignment === align.id ? "bg-[var(--brand-pink)] text-white" : "text-white/60 hover:text-white"
@@ -683,7 +542,7 @@ export default function AccessibilityWidget() {
                     ].map((theme) => (
                       <button
                         key={theme.id}
-                        onClick={() => setSettings((prev) => ({ ...prev, profile: null, contrastTheme: theme.id as any }))}
+                        onClick={() => dispatch({ type: "SET_CONTRAST_THEME", value: theme.id as any })}
                         className={cn(
                           "flex-1 h-8 rounded-lg text-xs font-semibold transition-all press flex items-center justify-center gap-1",
                           settings.contrastTheme === theme.id ? "bg-[var(--brand-pink)] text-white" : "text-white/60 hover:text-white"
@@ -708,7 +567,7 @@ export default function AccessibilityWidget() {
                     max="200"
                     step="10"
                     value={settings.saturation}
-                    onChange={(e) => setSettings((prev) => ({ ...prev, profile: null, saturation: Number(e.target.value) }))}
+                    onChange={(e) => dispatch({ type: "SET_SATURATION", value: Number(e.target.value) })}
                     className="w-full accent-[var(--brand-pink)] h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer"
                   />
                 </div>
@@ -722,7 +581,7 @@ export default function AccessibilityWidget() {
                       return (
                         <button
                           key={idx}
-                          onClick={() => setSettings((prev) => ({ ...prev, profile: null, colorPreset: idx }))}
+                          onClick={() => dispatch({ type: "SET_COLOR_PRESET", value: idx })}
                           className={cn(
                             "p-2 rounded-xl text-[10px] font-semibold text-left border flex items-center justify-between press",
                             isSelected ? "border-[var(--brand-pink)]" : "border-white/5 bg-white/5"
@@ -787,7 +646,7 @@ export default function AccessibilityWidget() {
                     ].map((cursor) => (
                       <button
                         key={cursor.id}
-                        onClick={() => setSettings((prev) => ({ ...prev, profile: null, bigCursor: cursor.id as any }))}
+                        onClick={() => dispatch({ type: "SET_CURSOR", value: cursor.id as any })}
                         className={cn(
                           "flex-1 h-9 rounded-xl text-xs font-semibold transition-all border press",
                           settings.bigCursor === cursor.id
@@ -814,6 +673,7 @@ export default function AccessibilityWidget() {
                     { id: "highlightFocus", label: "Highlight Focused Keyboard Elements", desc: "Highlights tab-focused inputs and links." },
                     { id: "colorblindPalette", label: "Color Blind Safe Scheme", desc: "Modifies status colors globally to safe equivalents." },
                     { id: "screenReaderOptimize", label: "Screen-Reader Skip Navigation Link", desc: "Adds page-skip markers and optimized ARIA roles." },
+                    { id: "hideTriggerButton", label: "Hide Floating Suite Button", desc: "Removes floating circular button (restored via edge tab)." },
                   ].map((item) => {
                     const isChecked = settings[item.id as keyof AccessibilitySettings] === true;
                     return (
@@ -843,7 +703,7 @@ export default function AccessibilityWidget() {
             {/* Footer */}
             <div className="border-t border-white/10 pt-4 mt-6 text-center">
               <div className="text-[9px] text-white/30 uppercase tracking-widest font-black leading-tight">
-                Self-Hosted Native A11y Suite v2.0
+                Self-Hosted Native A11y Suite v3.0
               </div>
               <div className="text-[8px] text-white/20 mt-1">
                 Alt+1 to Open/Close panel | Escape to exit panel

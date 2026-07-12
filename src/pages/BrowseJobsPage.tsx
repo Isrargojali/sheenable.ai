@@ -181,7 +181,7 @@ export default function BrowseJobsPage() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 max-w-[1280px] w-full mx-auto px-5 lg:px-8 py-12 relative z-10">
+      <main id="main-content" className="flex-1 max-w-[1280px] w-full mx-auto px-5 lg:px-8 py-12 relative z-10 outline-none">
         {/* Filter bar */}
         <div className="bg-[var(--surface)] border border-[var(--ink-200)] rounded-2xl p-4 mb-8 flex flex-wrap items-center gap-3 shadow-card">
           <div className="flex-1 min-w-[260px] flex items-center gap-3 px-4 h-11 rounded-xl bg-white border border-[var(--ink-300)] focus-within:border-[var(--brand-pink)]/50 focus-within:ring-2 focus-within:ring-[var(--brand-pink)]/10 transition-all duration-300">

@@ -116,7 +116,7 @@ export default function SalaryGuidePage() {
       </section>
 
       {/* Main Content Area (Light) */}
-      <main className="flex-1 bg-[var(--surface)] text-[var(--ink-700)] -mt-8 relative z-10">
+      <main id="main-content" className="flex-1 bg-[var(--surface)] text-[var(--ink-700)] -mt-8 relative z-10 outline-none">
         <div className="max-w-[1200px] mx-auto w-full px-6 pb-16 space-y-8">
           
           {/* Intro Paragraph */}

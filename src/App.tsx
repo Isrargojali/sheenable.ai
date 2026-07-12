@@ -9,6 +9,7 @@ import { useAuthStore } from "@/store/authStore";
 import ScrollToTop from "@/components/ScrollToTop";
 import PageTransition from "@/components/PageTransition";
 import AccessibilityWidget from "@/components/AccessibilityWidget";
+import { AccessibilityProvider } from "@/context/AccessibilityContext";
 
 // Auth
 import LoginPage    from "@/pages/auth/LoginPage";
@@ -93,11 +94,12 @@ const Unauthorized = () => (
 );
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+  <AccessibilityProvider>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <ScrollToTop />
         <AccessibilityWidget />
         <PageTransition>
@@ -157,6 +159,7 @@ const App = () => (
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
+  </AccessibilityProvider>
 );
 
 export default App;
