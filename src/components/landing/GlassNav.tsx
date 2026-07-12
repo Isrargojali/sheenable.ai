@@ -20,7 +20,7 @@ export default function GlassNav() {
   const { hash } = useLocation();
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12);
+    const onScroll = () => setScrolled(window.scrollY > 0);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -30,9 +30,9 @@ export default function GlassNav() {
     <>
       <nav
         className={cn(
-          "sticky top-0 z-40 transition-all duration-300",
+          "sticky top-0 z-50 transition-all duration-300 ease-in-out",
           scrolled 
-            ? "bg-white/80 backdrop-blur-md border-b border-[var(--ink-300)] shadow-md" 
+            ? "glass-scrolled shadow-md" 
             : "bg-transparent border-b border-transparent"
         )}
       >
@@ -42,7 +42,10 @@ export default function GlassNav() {
             <img
               src={logo}
               alt="SheEnableAI logo"
-              className="w-48 h-24 object-contain transition-transform group-hover:scale-105"
+              className={cn(
+                "w-48 h-24 object-contain transition-all duration-300 ease-in-out group-hover:scale-105",
+                scrolled ? "" : "brightness-0 invert"
+              )}
             />
           </Link>
  
@@ -53,8 +56,12 @@ export default function GlassNav() {
                 key={l.label}
                 href={l.href}
                 className={cn(
-                  "text-[13px] font-medium relative group transition-colors",
-                  hash === l.href ? "text-[var(--brand-pink)]" : "text-[var(--ink-700)] hover:text-[var(--ink-900)]"
+                  "text-[13px] font-medium relative group transition-colors duration-300 ease-in-out",
+                  hash === l.href 
+                    ? "text-[var(--brand-pink)]" 
+                    : scrolled 
+                    ? "text-[var(--ink-700)] hover:text-[var(--ink-900)]" 
+                    : "text-white/80 hover:text-white"
                 )}
               >
                 {l.label}
@@ -67,7 +74,12 @@ export default function GlassNav() {
           <div className="flex items-center gap-2">
             <Link
               to="/auth/signup?role=EMPLOYER"
-              className="hidden md:inline-flex items-center px-4 h-9 rounded-xl text-[12px] font-semibold border-[1.5px] border-[var(--ink-300)] text-[var(--ink-700)] hover:border-[var(--brand-pink)] hover:text-[var(--brand-pink)] press"
+              className={cn(
+                "hidden md:inline-flex items-center px-4 h-9 rounded-xl text-[12px] font-semibold border-[1.5px] press transition-all duration-300 ease-in-out",
+                scrolled 
+                  ? "border-[var(--ink-300)] text-[var(--ink-700)] hover:border-[var(--brand-pink)] hover:text-[var(--brand-pink)]" 
+                  : "border-white/30 text-white hover:border-white hover:bg-white/10"
+              )}
             >
               Post a Job
             </Link>
@@ -80,7 +92,12 @@ export default function GlassNav() {
  
             <button
               onClick={() => setOpen(true)}
-              className="lg:hidden p-2 rounded-lg hover:bg-[var(--ink-100)] press"
+              className={cn(
+                "lg:hidden p-2 rounded-lg press transition-colors duration-300 ease-in-out",
+                scrolled 
+                  ? "hover:bg-[var(--ink-100)] text-[var(--ink-700)]" 
+                  : "hover:bg-white/10 text-white"
+              )}
               aria-label="Open menu"
             >
               <Menu size={18} />

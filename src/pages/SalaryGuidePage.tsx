@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { DollarSign, Plus, Check, Briefcase, RefreshCw, Send, Loader2, Search } from "lucide-react";
+import { DollarSign, Plus, Check, Briefcase, RefreshCw, Send, Loader2, Search, MapPin, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
 import SubpageNav from "@/components/landing/SubpageNav";
