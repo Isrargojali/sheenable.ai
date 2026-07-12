@@ -219,7 +219,7 @@
   * { @apply border-border; }
   html { scroll-behavior: smooth; }
   html, body { overflow-x: hidden; }
-  html, body, #root { height: 100%; }
+  html, body, #root { min-height: 100%; }
   body {
     @apply bg-background text-foreground;
     font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
