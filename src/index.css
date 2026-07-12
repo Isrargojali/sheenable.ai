@@ -326,12 +326,6 @@
     -webkit-backdrop-filter: saturate(160%) blur(14px);
     border-bottom: 1px solid hsl(var(--border));
   }
-  .glass-scrolled {
-    background: rgba(255, 255, 255, 0.95) !important;
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
-  }
   .glass-dark {
     background: rgba(20, 16, 31, 0.55);
     backdrop-filter: saturate(160%) blur(18px);

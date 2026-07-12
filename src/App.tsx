@@ -8,7 +8,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { useAuthStore } from "@/store/authStore";
 import ScrollToTop from "@/components/ScrollToTop";
 import PageTransition from "@/components/PageTransition";
-import AccessibilityWidget from "@/components/AccessibilityWidget";
+import AccessibilityWidget from "@/components/accessibility/AccessibilityWidget";
 import { AccessibilityProvider } from "@/context/AccessibilityContext";
 
 // Auth

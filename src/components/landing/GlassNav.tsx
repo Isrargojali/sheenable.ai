@@ -33,7 +33,7 @@ export default function GlassNav() {
         className={cn(
           "sticky top-0 z-50 transition-all duration-300 ease-in-out",
           scrolled
-            ? "glass-scrolled shadow-md"
+            ? "bg-white/95 backdrop-blur-md shadow-md border-b border-black/5"
             : "bg-transparent border-b border-transparent"
         )}
       >

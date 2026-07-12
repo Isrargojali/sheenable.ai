@@ -1,4 +1,4 @@
-// src/components/AccessibilityWidget.tsx
+// src/components/accessibility/AccessibilityWidget.tsx
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { 
@@ -213,7 +213,7 @@ export default function AccessibilityWidget() {
         <button
           ref={triggerRef}
           onClick={() => setIsOpen(!isOpen)}
-          className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white shadow-xl flex items-center justify-center press z-[49] outline-none focus-visible:ring-4 focus-visible:ring-[var(--brand-pink)]/40 transition-all border border-white/10"
+          className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white shadow-xl flex items-center justify-center press z-[60] outline-none focus-visible:ring-4 focus-visible:ring-[var(--brand-pink)]/40 transition-all border border-white/10"
           aria-label="Accessibility options"
           aria-expanded={isOpen}
         >
@@ -224,7 +224,7 @@ export default function AccessibilityWidget() {
         <button
           ref={tabRef}
           onClick={() => setIsOpen(true)}
-          className="fixed right-0 top-1/3 w-3.5 h-16 bg-[var(--brand-pink)] hover:w-6 transition-all rounded-l-xl cursor-pointer z-[49] flex items-center justify-center text-white outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-pink)]/40 border border-r-0 border-white/20"
+          className="fixed right-0 top-1/3 w-3.5 h-16 bg-[var(--brand-pink)] hover:w-6 transition-all rounded-l-xl cursor-pointer z-[60] flex items-center justify-center text-white outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-pink)]/40 border border-r-0 border-white/20"
           aria-label="Open accessibility suite"
           title="Open accessibility suite"
         >
