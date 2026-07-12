@@ -56,7 +56,7 @@ export default function SubpageNav({ actions, className }: SubpageNavProps = {})
             <img
               src={logo}
               alt="SheEnableAI logo"
-              className="w-48 h-24 object-contain transition-transform group-hover:scale-105"
+              className="w-48 h-24 object-contain transition-transform group-hover:scale-105 brightness-0 invert"
             />
           </Link>
  

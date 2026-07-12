@@ -20,7 +20,10 @@ export default function GlassNav() {
   const { hash } = useLocation();
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 0);
+    const onScroll = () => {
+      const scrollY = window.scrollY ?? document.documentElement?.scrollTop ?? document.body?.scrollTop ?? 0;
+      setScrolled(scrollY > 20);
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -60,8 +63,8 @@ export default function GlassNav() {
                   hash === l.href 
                     ? "text-[var(--brand-pink)]" 
                     : scrolled 
-                    ? "text-[var(--ink-700)] hover:text-[var(--ink-900)]" 
-                    : "text-white/80 hover:text-white"
+                    ? "text-[#111111] hover:text-[var(--brand-pink)]" 
+                    : "text-white hover:text-white/80"
                 )}
               >
                 {l.label}
@@ -77,7 +80,7 @@ export default function GlassNav() {
               className={cn(
                 "hidden md:inline-flex items-center px-4 h-9 rounded-xl text-[12px] font-semibold border-[1.5px] press transition-all duration-300 ease-in-out",
                 scrolled 
-                  ? "border-[var(--ink-300)] text-[var(--ink-700)] hover:border-[var(--brand-pink)] hover:text-[var(--brand-pink)]" 
+                  ? "border-[#111111]/30 text-[#111111] hover:border-[var(--brand-pink)] hover:text-[var(--brand-pink)]" 
                   : "border-white/30 text-white hover:border-white hover:bg-white/10"
               )}
             >
@@ -93,10 +96,10 @@ export default function GlassNav() {
             <button
               onClick={() => setOpen(true)}
               className={cn(
-                "lg:hidden p-2 rounded-lg press transition-colors duration-300 ease-in-out",
+                "lg:hidden p-2 rounded-lg press transition-all duration-300 ease-in-out",
                 scrolled 
-                  ? "hover:bg-[var(--ink-100)] text-[var(--ink-700)]" 
-                  : "hover:bg-white/10 text-white"
+                  ? "text-[#111111] hover:bg-black/5" 
+                  : "text-white hover:bg-white/10"
               )}
               aria-label="Open menu"
             >

@@ -8,6 +8,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { useAuthStore } from "@/store/authStore";
 import ScrollToTop from "@/components/ScrollToTop";
 import PageTransition from "@/components/PageTransition";
+import AccessibilityWidget from "@/components/AccessibilityWidget";
 
 // Auth
 import LoginPage    from "@/pages/auth/LoginPage";
@@ -98,6 +99,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <ScrollToTop />
+        <AccessibilityWidget />
         <PageTransition>
         <Routes>
           {/* Public */}
