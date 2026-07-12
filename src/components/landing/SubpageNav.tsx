@@ -43,10 +43,10 @@ export default function SubpageNav({ actions, className }: SubpageNavProps = {})
     <>
       <nav
         className={cn(
-          "sticky top-0 z-40 transition-all duration-300 bg-[var(--surface-dark)] border-b",
+          "sticky top-0 z-40 transition-all duration-300 border-b",
           scrolled 
-            ? "shadow-2xl border-white/10" 
-            : "border-white/5",
+            ? "bg-[var(--surface-dark)]/90 backdrop-blur-md shadow-2xl border-white/10" 
+            : "bg-[var(--surface-dark)] border-white/5",
           className
         )}
       >
