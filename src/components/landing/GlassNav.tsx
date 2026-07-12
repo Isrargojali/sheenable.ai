@@ -1,7 +1,5 @@
 // src/components/landing/GlassNav.tsx
-// @ts-expect-error: suppress missing react module/type errors in some environments
 import { useEffect, useState } from "react";
-// @ts-expect-error: suppress missing react-router-dom module/type errors in some environments
 import { Link, useLocation } from "react-router-dom";
 import logo from "@/assets/sheEnableAI-removebg-preview.png";
 import { Menu, X } from "lucide-react";
@@ -34,8 +32,8 @@ export default function GlassNav() {
       <nav
         className={cn(
           "sticky top-0 z-50 transition-all duration-300 ease-in-out",
-          scrolled 
-            ? "glass-scrolled shadow-md" 
+          scrolled
+            ? "glass-scrolled shadow-md"
             : "bg-transparent border-b border-transparent"
         )}
       >
@@ -51,7 +49,7 @@ export default function GlassNav() {
               )}
             />
           </Link>
- 
+
           {/* Center links */}
           <div className="hidden lg:flex items-center gap-7">
             {NAV_LINKS.map(l => (
@@ -60,11 +58,11 @@ export default function GlassNav() {
                 href={l.href}
                 className={cn(
                   "text-[13px] font-medium relative group transition-colors duration-300 ease-in-out",
-                  hash === l.href 
-                    ? "text-[var(--brand-pink)]" 
-                    : scrolled 
-                    ? "text-[#111111] hover:text-[var(--brand-pink)]" 
-                    : "text-white hover:text-white/80"
+                  hash === l.href
+                    ? "text-[var(--brand-pink)]"
+                    : scrolled
+                      ? "text-[#111111] hover:text-[var(--brand-pink)]"
+                      : "text-white hover:text-white/80"
                 )}
               >
                 {l.label}
@@ -72,15 +70,15 @@ export default function GlassNav() {
               </a>
             ))}
           </div>
- 
+
           {/* CTAs */}
           <div className="flex items-center gap-2">
             <Link
               to="/auth/signup?role=EMPLOYER"
               className={cn(
                 "hidden md:inline-flex items-center px-4 h-9 rounded-xl text-[12px] font-semibold border-[1.5px] press transition-all duration-300 ease-in-out",
-                scrolled 
-                  ? "border-[#111111]/30 text-[#111111] hover:border-[var(--brand-pink)] hover:text-[var(--brand-pink)]" 
+                scrolled
+                  ? "border-[#111111]/30 text-[#111111] hover:border-[var(--brand-pink)] hover:text-[var(--brand-pink)]"
                   : "border-white/30 text-white hover:border-white hover:bg-white/10"
               )}
             >
@@ -92,13 +90,13 @@ export default function GlassNav() {
             >
               Join Free
             </Link>
- 
+
             <button
               onClick={() => setOpen(true)}
               className={cn(
                 "lg:hidden p-2 rounded-lg press transition-all duration-300 ease-in-out",
-                scrolled 
-                  ? "text-[#111111] hover:bg-black/5" 
+                scrolled
+                  ? "text-[#111111] hover:bg-black/5"
                   : "text-white hover:bg-white/10"
               )}
               aria-label="Open menu"
