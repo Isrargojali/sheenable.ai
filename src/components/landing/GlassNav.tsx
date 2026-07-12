@@ -31,7 +31,9 @@ export default function GlassNav() {
       <nav
         className={cn(
           "sticky top-0 z-40 transition-all duration-300",
-          scrolled ? "bg-[var(--surface)] border-b border-[var(--ink-300)] shadow-card" : "bg-transparent"
+          scrolled 
+            ? "bg-white border-b border-[var(--ink-300)] shadow-md" 
+            : "bg-transparent border-b border-transparent"
         )}
       >
         <div className="max-w-[1280px] mx-auto h-16 px-5 lg:px-8 flex items-center justify-between gap-4">
