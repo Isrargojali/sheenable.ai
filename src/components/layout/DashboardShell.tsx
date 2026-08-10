@@ -548,7 +548,7 @@ function Sidebar({
       </div>
     </aside>
   );
-} 
+}
 
 const NOTIF_ICONS: Record<string, LucideIcon> = {
   JOB_MATCH: Sparkles,
@@ -567,7 +567,7 @@ type NotificationItem = {
   isRead?: boolean;
   createdAt: string;
 };
- 
+
 function Topbar({
   title = "", subtitle = "", actions, onMenu, onSettingsClick, onSearchClick, showHamburger = true, available,
 }: { title?: ReactNode; subtitle?: ReactNode; actions?: ReactNode; onMenu: () => void; onSettingsClick?: () => void; onSearchClick?: () => void; showHamburger?: boolean; available: boolean }) {
