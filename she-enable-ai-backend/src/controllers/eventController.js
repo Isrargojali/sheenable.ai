@@ -9,7 +9,7 @@ const SEED_EVENTS = [
     format: 'ONLINE',
     location: 'SheEnableAI Interactive Fair Platform (Zoom Space)',
     speakers: [
-      { name: 'Mumtaz Kakakhail', role: 'CEO, SheEnableAI', avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150' },
+      { name: 'Mumtaz Wali', role: 'fullstack developer', avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150' },
       { name: 'Zainab Mahmood', role: 'Director of HR, Techflow', avatarUrl: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?w=150' }
     ],
     coverUrl: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800'
@@ -40,6 +40,10 @@ const SEED_EVENTS = [
 
 async function checkAndSeedEvents() {
   try {
+    await Event.updateMany(
+      { 'speakers.name': 'Mumtaz Kakakhail' },
+      { $set: { 'speakers.$.name': 'Mumtaz Wali', 'speakers.$.role': 'fullstack developer' } }
+    );
     const count = await Event.countDocuments();
     if (count === 0) {
       await Event.create(SEED_EVENTS);

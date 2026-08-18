@@ -76,8 +76,8 @@ const SEED_ARTICLES = [
     `,
     category: 'COMPANY_BLOG',
     author: {
-      name: 'Mumtaz Kakakhail',
-      role: 'CEO & Founder, SheEnableAI',
+      name: 'Mumtaz Wali',
+      role: 'fullstack developer',
       avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'
     },
     coverUrl: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800',
@@ -111,6 +111,10 @@ const SEED_ARTICLES = [
 // Seed Helper
 async function checkAndSeedArticles() {
   try {
+    await BlogArticle.updateMany(
+      { 'author.name': 'Mumtaz Kakakhail' },
+      { $set: { 'author.name': 'Mumtaz Wali', 'author.role': 'fullstack developer' } }
+    );
     const count = await BlogArticle.countDocuments();
     if (count === 0) {
       await BlogArticle.create(SEED_ARTICLES);
