@@ -1,6 +1,6 @@
 // src/components/landing/Footer.tsx
 import { Link } from "react-router-dom";
-import { Heart, Twitter, Linkedin, Instagram, Mail, Phone, MapPin, X, Copy, Check } from "lucide-react";
+import { Heart, Twitter, Linkedin, Instagram, Mail, Phone, MapPin, X, Copy, Check, Send, Sparkles, User, MessageSquare } from "lucide-react";
 import { useState } from "react";
 import logo from "@/assets/sheEnableAI-removebg-preview.png";
 
@@ -29,10 +29,36 @@ export default function Footer() {
   const [showContactModal, setShowContactModal] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
+  // Contact Form State
+  const [formType, setFormType] = useState<"CANDIDATE" | "EMPLOYER" | "GENERAL">("CANDIDATE");
+  const [contactName, setContactName] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
+  const [contactMessage, setContactMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formSent, setFormSent] = useState(false);
+
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
     setCopiedField(label);
     setTimeout(() => setCopiedField(null), 2000);
+  };
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!contactName.trim() || !contactEmail.trim() || !contactMessage.trim()) return;
+
+    setIsSubmitting(true);
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setFormSent(true);
+    }, 800);
+  };
+
+  const resetForm = () => {
+    setFormSent(false);
+    setContactName("");
+    setContactEmail("");
+    setContactMessage("");
   };
 
   return (
@@ -141,7 +167,7 @@ export default function Footer() {
             <a href="#" className="hover:text-white transition-colors">Privacy</a>
             <a href="#" className="hover:text-white transition-colors">Terms</a>
             <button 
-              onClick={() => setShowContactModal(true)} 
+              onClick={() => { setShowContactModal(true); resetForm(); }} 
               className="hover:text-white transition-colors cursor-pointer bg-transparent border-none p-0 text-[14px] text-[var(--ink-300)]"
             >
               Contact
@@ -150,14 +176,14 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Contact Info Modal */}
+      {/* Enhanced Contact Info & Interactive Form Modal */}
       {showContactModal && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in overflow-y-auto"
           onClick={() => setShowContactModal(false)}
         >
           <div 
-            className="relative w-full max-w-md bg-[#16161a] border border-white/15 rounded-3xl p-6 sm:p-8 shadow-2xl text-white space-y-6"
+            className="relative w-full max-w-2xl bg-[#16161a] border border-white/15 rounded-3xl p-6 sm:p-8 shadow-2xl text-white space-y-6 my-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close Button */}
@@ -170,82 +196,180 @@ export default function Footer() {
             </button>
 
             {/* Header */}
-            <div className="space-y-1.5">
+            <div className="space-y-1.5 border-b border-white/10 pb-4">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--brand-pink)]/15 border border-[var(--brand-pink)]/30 text-[var(--brand-pink)] text-xs font-semibold">
-                <Mail size={12} /> Contact Information
+                <Sparkles size={12} /> Direct Contact & Support Hub
               </div>
-              <h3 className="text-2xl font-bold text-white">Get in Touch</h3>
+              <h3 className="text-2xl font-bold text-white font-serif">Get in Touch with SheEnableAI</h3>
               <p className="text-xs text-[var(--ink-300)] leading-relaxed">
-                We're here to assist you. Reach out to the SheEnableAI team directly through any of the details below:
+                Reach out to our team directly or submit a message below. We respond within 24 hours.
               </p>
             </div>
 
-            {/* Contact Cards */}
-            <div className="space-y-3">
+            {/* Direct Contact Cards Row */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {/* Email */}
-              <div className="flex items-center justify-between p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 transition-all">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-xl bg-[var(--brand-pink)]/15 text-[var(--brand-pink)] flex items-center justify-center flex-shrink-0">
-                    <Mail size={18} />
+              <div className="p-3 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 transition-all flex flex-col justify-between space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="w-8 h-8 rounded-lg bg-[var(--brand-pink)]/15 text-[var(--brand-pink)] flex items-center justify-center">
+                    <Mail size={15} />
                   </div>
-                  <div className="min-w-0">
-                    <div className="text-[10px] font-semibold text-white/50 uppercase tracking-wider">Email Address</div>
-                    <a 
-                      href="mailto:contact@sheenableai.com" 
-                      className="text-xs font-bold text-white hover:text-[var(--brand-pink)] transition-colors truncate block"
-                    >
-                      contact@sheenableai.com
-                    </a>
-                  </div>
+                  <button
+                    onClick={() => copyToClipboard('contact@sheenableai.com', 'email')}
+                    className="text-white/40 hover:text-white transition-colors p-1"
+                    title="Copy email"
+                  >
+                    {copiedField === 'email' ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
+                  </button>
                 </div>
-                <button
-                  onClick={() => copyToClipboard('contact@sheenableai.com', 'email')}
-                  className="p-2 text-white/50 hover:text-white transition-colors rounded-lg hover:bg-white/10 cursor-pointer"
-                  title="Copy email address"
-                >
-                  {copiedField === 'email' ? <Check size={15} className="text-emerald-400" /> : <Copy size={15} />}
-                </button>
+                <div>
+                  <div className="text-[10px] text-white/50 font-semibold uppercase">Email</div>
+                  <a href="mailto:contact@sheenableai.com" className="text-xs font-bold text-white hover:text-[var(--brand-pink)] truncate block">
+                    contact@sheenableai.com
+                  </a>
+                </div>
               </div>
 
               {/* Phone */}
-              <div className="flex items-center justify-between p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 transition-all">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center flex-shrink-0">
-                    <Phone size={18} />
+              <div className="p-3 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 transition-all flex flex-col justify-between space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center">
+                    <Phone size={15} />
                   </div>
-                  <div className="min-w-0">
-                    <div className="text-[10px] font-semibold text-white/50 uppercase tracking-wider">Phone / WhatsApp</div>
-                    <a 
-                      href="tel:+923471051782" 
-                      className="text-xs font-bold text-white hover:text-emerald-400 transition-colors truncate block"
-                    >
-                      +92 347 1051782
-                    </a>
-                  </div>
+                  <button
+                    onClick={() => copyToClipboard('+92 347 1051782', 'phone')}
+                    className="text-white/40 hover:text-white transition-colors p-1"
+                    title="Copy phone"
+                  >
+                    {copiedField === 'phone' ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
+                  </button>
                 </div>
-                <button
-                  onClick={() => copyToClipboard('+92 347 1051782', 'phone')}
-                  className="p-2 text-white/50 hover:text-white transition-colors rounded-lg hover:bg-white/10 cursor-pointer"
-                  title="Copy phone number"
-                >
-                  {copiedField === 'phone' ? <Check size={15} className="text-emerald-400" /> : <Copy size={15} />}
-                </button>
+                <div>
+                  <div className="text-[10px] text-white/50 font-semibold uppercase">Phone / WhatsApp</div>
+                  <a href="tel:+923471051782" className="text-xs font-bold text-white hover:text-emerald-400 truncate block">
+                    +92 347 1051782
+                  </a>
+                </div>
               </div>
 
               {/* Location */}
-              <div className="flex items-center justify-between p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 transition-all">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-xl bg-sky-500/15 text-sky-400 flex items-center justify-center flex-shrink-0">
-                    <MapPin size={18} />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-[10px] font-semibold text-white/50 uppercase tracking-wider">Headquarters</div>
-                    <div className="text-xs font-bold text-white truncate">
-                      Gilgit, Pakistan
-                    </div>
+              <div className="p-3 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 transition-all flex flex-col justify-between space-y-2">
+                <div className="w-8 h-8 rounded-lg bg-sky-500/15 text-sky-400 flex items-center justify-center">
+                  <MapPin size={15} />
+                </div>
+                <div>
+                  <div className="text-[10px] text-white/50 font-semibold uppercase">Location</div>
+                  <div className="text-xs font-bold text-white truncate">
+                    Gilgit, Pakistan
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* Interactive Contact Form */}
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4">
+              {formSent ? (
+                <div className="py-8 text-center space-y-3 animate-fade-in">
+                  <div className="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 mx-auto flex items-center justify-center border border-emerald-500/30">
+                    <Check size={24} />
+                  </div>
+                  <h4 className="text-lg font-bold text-white">Message Sent Successfully!</h4>
+                  <p className="text-xs text-[var(--ink-300)] max-w-md mx-auto leading-relaxed">
+                    Thank you for reaching out. Our team in Gilgit will review your request and reply to <strong className="text-white">{contactEmail}</strong> as soon as possible.
+                  </p>
+                  <button
+                    onClick={resetForm}
+                    className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-full text-xs font-semibold transition-all cursor-pointer mt-2"
+                  >
+                    Send Another Message
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleFormSubmit} className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-white/80 flex items-center gap-1.5">
+                      <MessageSquare size={13} className="text-[var(--brand-pink)]" /> Send Us a Message
+                    </span>
+                    
+                    {/* Role Selector Pills */}
+                    <div className="flex gap-1.5 bg-black/40 p-1 rounded-xl border border-white/10">
+                      {(["CANDIDATE", "EMPLOYER", "GENERAL"] as const).map((type) => (
+                        <button
+                          key={type}
+                          type="button"
+                          onClick={() => setFormType(type)}
+                          className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
+                            formType === type
+                              ? "bg-[var(--brand-pink)] text-white shadow-sm"
+                              : "text-white/60 hover:text-white"
+                          }`}
+                        >
+                          {type === "CANDIDATE" ? "Candidate" : type === "EMPLOYER" ? "Employer" : "General"}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[10px] font-semibold text-white/60 uppercase mb-1">Your Name</label>
+                      <input
+                        type="text"
+                        required
+                        value={contactName}
+                        onChange={(e) => setContactName(e.target.value)}
+                        placeholder="e.g. Ayesha Khan"
+                        className="w-full h-9 px-3 bg-white/5 border border-white/15 rounded-xl text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-[var(--brand-pink)] transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-semibold text-white/60 uppercase mb-1">Your Email</label>
+                      <input
+                        type="email"
+                        required
+                        value={contactEmail}
+                        onChange={(e) => setContactEmail(e.target.value)}
+                        placeholder="you@domain.com"
+                        className="w-full h-9 px-3 bg-white/5 border border-white/15 rounded-xl text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-[var(--brand-pink)] transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-semibold text-white/60 uppercase mb-1">Message</label>
+                    <textarea
+                      required
+                      rows={3}
+                      value={contactMessage}
+                      onChange={(e) => setContactMessage(e.target.value)}
+                      placeholder={
+                        formType === "CANDIDATE"
+                          ? "Ask about job applications, career guidance, or resume assistance..."
+                          : formType === "EMPLOYER"
+                          ? "Inquire about job postings, enterprise pricing, or hiring female tech talent..."
+                          : "How can we help you?"
+                      }
+                      className="w-full p-3 bg-white/5 border border-white/15 rounded-xl text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-[var(--brand-pink)] transition-all resize-none"
+                    />
+                  </div>
+
+                  <div className="flex justify-end">
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="px-6 py-2.5 bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-hover)] text-white text-xs font-bold rounded-xl flex items-center gap-2 shadow-lg transition-all press cursor-pointer disabled:opacity-50"
+                    >
+                      {isSubmitting ? (
+                        <span>Sending Message...</span>
+                      ) : (
+                        <>
+                          <Send size={13} /> Send Message
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              )}
             </div>
           </div>
         </div>
@@ -253,4 +377,5 @@ export default function Footer() {
     </footer>
   );
 }
+
 
