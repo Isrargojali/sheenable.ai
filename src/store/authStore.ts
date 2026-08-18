@@ -7,12 +7,13 @@ export type UserRole = "SUPER_ADMIN" | "ADMIN" | "EMPLOYER" | "CANDIDATE";
 // FIX 3 — Added firstName, lastName, avatarUrl.
 // These were missing, causing undefined renders throughout dashboards and navbars.
 export interface AuthUser {
-  id:        string;
-  email:     string;
-  role:      UserRole;
-  firstName: string;
-  lastName:  string;
-  avatarUrl?: string;
+  id:          string;
+  email:       string;
+  role:        UserRole;
+  firstName:   string;
+  lastName:    string;
+  avatarUrl?:  string;
+  isVerified?: boolean;
 }
 
 interface AuthStore {

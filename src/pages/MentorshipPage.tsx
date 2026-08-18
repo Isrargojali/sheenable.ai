@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Search, Sparkles, UserCheck, Loader2, MessageCircle, Calendar } from "lucide-react";
+import { Search, Sparkles, UserCheck, Loader2, MessageCircle, Calendar, Clock, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "sonner";
