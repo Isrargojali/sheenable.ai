@@ -242,3 +242,10 @@ export const apiPipeline = {
   updateStatus:     (id: string, status: string, data?: object) => apiApplications.updateStatus(id, status, data),
 };
 
+// ─── CONTACT ──────────────────────────────────────────────────────────────────
+export const apiContact = {
+  send: (data: { name: string; email: string; role?: string; message: string }) =>
+    api.post<{ success: boolean; message: string }>('/contact', data).then(unwrap),
+};
+
+

@@ -145,6 +145,59 @@ const emailTemplates = {
       </body>
       </html>
     `
+  }),
+
+  contactSubmission: (name, senderEmail, role, message) => ({
+    subject: `[SheEnableAI Contact] New Inquiry from ${name} (${role})`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%); padding: 24px; border-radius: 12px 12px 0 0; color: white; text-align: center; }
+          .content { background: #ffffff; padding: 28px; border: 1px solid #e4e4e7; border-radius: 0 0 12px 12px; }
+          .field { margin-bottom: 16px; }
+          .label { font-size: 11px; text-transform: uppercase; font-weight: bold; color: #71717a; letter-spacing: 0.5px; }
+          .value { font-size: 14px; color: #18181b; font-weight: 600; margin-top: 4px; }
+          .message-box { background: #f4f4f5; padding: 16px; border-radius: 8px; border-left: 4px solid #ec4899; margin-top: 6px; font-size: 14px; white-space: pre-wrap; color: #27272a; }
+          .footer { color: #a1a1aa; font-size: 12px; margin-top: 24px; text-align: center; border-top: 1px solid #e4e4e7; padding-top: 16px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h2 style="margin:0; font-size:22px;">New Contact Inquiry</h2>
+            <p style="margin:5px 0 0 0; opacity:0.9; font-size:13px;">SheEnableAI Direct Platform Hub</p>
+          </div>
+          <div class="content">
+            <div class="field">
+              <div class="label">Sender Name</div>
+              <div class="value">${name}</div>
+            </div>
+            <div class="field">
+              <div class="label">Sender Email</div>
+              <div class="value"><a href="mailto:${senderEmail}">${senderEmail}</a></div>
+            </div>
+            <div class="field">
+              <div class="label">User Category / Role</div>
+              <div class="value">${role}</div>
+            </div>
+            <div class="field">
+              <div class="label">Message</div>
+              <div class="message-box">${message}</div>
+            </div>
+            <div class="footer">
+              <p>This email was sent via the SheEnableAI Contact Form.</p>
+              <p>&copy; ${new Date().getFullYear()} SheEnableAI · Gilgit, Pakistan.</p>
+            </div>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
   })
 };
 
@@ -170,7 +223,7 @@ const sendEmail = async (options, retries = 3) => {
 
       // Development/Test: Log to console if no email service configured
       if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-        console.log(`\n📧 [DEV MODE] Email would be sent to: ${options.to}`);
+        console.log(`\n📧 [DEV MODE] Contact Form Email would be sent to: ${options.to}`);
         console.log(`📝 Subject: ${options.subject}`);
         console.log(`💡 Configure SENDGRID_API_KEY for production or EMAIL_USER/EMAIL_PASS for real emails\n`);
         return;
@@ -248,6 +301,16 @@ const sendInterviewEmail = async (to, firstName, jobTitle, date, type, meetingLi
   await sendEmail({ to, subject, html });
 };
 
+const sendContactFormEmail = async ({ name, email, role, message }) => {
+  const recipient = process.env.CONTACT_DESTINATION_EMAIL || 'contact@sheenableai.com';
+  const template = emailTemplates.contactSubmission(name, email, role, message);
+  await sendEmail({
+    to: recipient,
+    subject: template.subject,
+    html: template.html,
+  });
+};
+
 module.exports = {
   sendEmail,
   sendOtpEmail,
@@ -255,4 +318,5 @@ module.exports = {
   sendPasswordResetEmail,
   sendApplicationStatusEmail,
   sendInterviewEmail,
+  sendContactFormEmail,
 };

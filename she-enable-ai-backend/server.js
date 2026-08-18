@@ -35,6 +35,7 @@ const articleRoutes = require('./src/routes/articles');
 const salaryRoutes = require('./src/routes/salaries');
 const mentorRoutes = require('./src/routes/mentors');
 const eventRoutes = require('./src/routes/events');
+const contactRoutes = require('./src/routes/contact');
 
 // Initialize app
 const app = express();
@@ -122,6 +123,7 @@ app.use('/api/articles', articleRoutes);
 app.use('/api/salaries', salaryRoutes);
 app.use('/api/mentors', mentorRoutes);
 app.use('/api/events', eventRoutes);
+app.use('/api/contact', contactRoutes);
 
 // Error Handling Middleware — must be last
 app.use(errorHandler);
