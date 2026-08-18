@@ -7,10 +7,10 @@ import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/authStore";
 
 const NAV_LINKS = [
-  { label: "Find Jobs", href: "/#jobs" },
-  { label: "For Employers", href: "/#employers" },
+  { label: "Find Jobs", href: "/find-jobs-for-women-pakistan" },
+  { label: "For Employers", href: "/hire-female-talent-pakistan" },
   { label: "Community", href: "/#community" },
-  { label: "Success Stories", href: "/#stories" },
+  { label: "Contact Us", href: "/contact" },
 ];
 
 interface SubpageNavProps {

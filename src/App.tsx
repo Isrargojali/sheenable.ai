@@ -29,6 +29,7 @@ import InclusionResourcesPage from "@/pages/InclusionResourcesPage";
 import MentorshipPage from "@/pages/MentorshipPage";
 import EventsPage from "@/pages/EventsPage";
 import BlogPage from "@/pages/BlogPage";
+import ContactPage from "@/pages/ContactPage";
 
 // Candidate
 import CandidateDashboard from "@/pages/candidate/CandidateDashboard";
@@ -117,6 +118,8 @@ const App = () => (
           <Route path="/mentorship-women-pakistan"      element={<MentorshipPage />} />
           <Route path="/webinars-women-tech-pakistan"   element={<EventsPage />} />
           <Route path="/career-blog-women-pakistan"     element={<BlogPage />} />
+          <Route path="/contact"                        element={<ContactPage />} />
+          <Route path="/contact-us-pakistan"             element={<ContactPage />} />
           <Route path="/auth/login"            element={<LoginPage />} />
           <Route path="/admin/sign-in"         element={<LoginPage />} />
           <Route path="/auth/signup"           element={<SignupPage />} />
