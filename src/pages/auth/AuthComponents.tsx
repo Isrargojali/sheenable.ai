@@ -1,6 +1,7 @@
 // src/pages/auth/AuthComponents.tsx
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import * as SelectPrimitive from "@radix-ui/react-select";
 import { cn } from "@/lib/utils";
 import logo from "@/assets/sheEnableAI-removebg-preview.png";
 import { 
@@ -9,6 +10,7 @@ import {
   Eye, 
   EyeOff, 
   ChevronDown, 
+  Check,
   Sparkles, 
   Heart, 
   ShieldCheck 
@@ -303,9 +305,11 @@ interface AuthSelectProps {
   label?: string;
   id: string;
   value: string;
-  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  onChange: (value: any) => void;
   options: string[];
   error?: string | null;
+  icon?: React.ComponentType<any>;
+  placeholder?: string;
 }
 
 export function AuthSelect({
@@ -315,8 +319,22 @@ export function AuthSelect({
   onChange,
   options,
   error,
+  icon: Icon,
+  placeholder = "Select company size",
 }: AuthSelectProps) {
-  const [focused, setFocused] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  const handleValueChange = (val: string) => {
+    if (typeof onChange === "function") {
+      onChange(val);
+      const syntheticEvent = {
+        target: { value: val, name: id, id },
+        currentTarget: { value: val, name: id, id },
+      } as unknown as React.ChangeEvent<HTMLSelectElement>;
+      onChange(syntheticEvent);
+    }
+  };
+
   return (
     <div className="space-y-2 text-left">
       {label && (
@@ -324,30 +342,69 @@ export function AuthSelect({
           {label}
         </label>
       )}
-      <div className={cn(
-        "relative flex items-center h-12 bg-white transition-all duration-200 border rounded-[var(--radius-input)]",
-        error
-          ? "border-[#D92D20] ring-1 ring-[#D92D20]"
-          : focused 
-            ? "border-[var(--brand-pink)] ring-[3px] ring-[rgba(230,0,126,0.12)]" 
-            : "border-[var(--auth-border)]"
-      )}>
-        <select
+
+      <SelectPrimitive.Root value={value} onValueChange={handleValueChange} open={open} onOpenChange={setOpen}>
+        <SelectPrimitive.Trigger
           id={id}
-          value={value}
-          onChange={onChange}
-          onFocus={() => setFocused(true)}
-          onBlur={() => setFocused(false)}
-          className="w-full h-12 pl-3.5 pr-10 bg-transparent border-none rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] focus:outline-none focus:ring-0 cursor-pointer appearance-none"
+          className={cn(
+            "relative flex items-center justify-between w-full h-12 px-3.5 bg-white transition-all duration-200 border rounded-[var(--radius-input)] text-[13px] text-[var(--ink-900)] focus:outline-none cursor-pointer select-none",
+            error
+              ? "border-[#D92D20] ring-1 ring-[#D92D20]"
+              : open
+                ? "border-[var(--brand-pink)] ring-[3px] ring-[rgba(230,0,126,0.12)]"
+                : "border-[var(--auth-border)] hover:border-[var(--ink-300)]"
+          )}
         >
-          {options.map(o => (
-            <option key={o} value={o}>
-              {o} employees
-            </option>
-          ))}
-        </select>
-        <ChevronDown className="absolute right-3.5 text-[var(--ink-500)] pointer-events-none" size={18} />
-      </div>
+          <div className="flex items-center gap-2.5 min-w-0 pr-2">
+            {Icon && <Icon className="text-[var(--ink-500)] flex-shrink-0" size={18} />}
+            <SelectPrimitive.Value placeholder={placeholder}>
+              {value ? `${value} employees` : placeholder}
+            </SelectPrimitive.Value>
+          </div>
+          <SelectPrimitive.Icon asChild>
+            <ChevronDown
+              className={cn(
+                "text-[var(--ink-500)] transition-transform duration-200 flex-shrink-0",
+                open && "rotate-180 text-[var(--brand-pink)]"
+              )}
+              size={18}
+            />
+          </SelectPrimitive.Icon>
+        </SelectPrimitive.Trigger>
+
+        <SelectPrimitive.Portal>
+          <SelectPrimitive.Content
+            position="popper"
+            sideOffset={6}
+            className="z-50 w-[var(--radix-select-trigger-width)] max-h-60 overflow-y-auto rounded-[var(--radius-input)] border border-[var(--auth-border)] bg-white p-1.5 shadow-xl shadow-black/10 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
+          >
+            <SelectPrimitive.Viewport className="p-1 space-y-1">
+              {options.map((option) => {
+                const isSelected = value === option;
+                const displayText = `${option} employees`;
+                return (
+                  <SelectPrimitive.Item
+                    key={option}
+                    value={option}
+                    className={cn(
+                      "relative flex items-center justify-between w-full px-3 py-2.5 rounded-[8px] text-[13px] font-medium cursor-pointer outline-none select-none transition-all duration-150",
+                      isSelected
+                        ? "bg-pink-50 text-[var(--brand-pink)] font-semibold"
+                        : "text-[var(--ink-800)] hover:bg-[var(--auth-surface-muted)] hover:text-[var(--ink-900)] focus:bg-pink-50/60 focus:text-[var(--brand-pink)]"
+                    )}
+                  >
+                    <SelectPrimitive.ItemText>{displayText}</SelectPrimitive.ItemText>
+                    <SelectPrimitive.ItemIndicator>
+                      <Check size={16} className="text-[var(--brand-pink)]" />
+                    </SelectPrimitive.ItemIndicator>
+                  </SelectPrimitive.Item>
+                );
+              })}
+            </SelectPrimitive.Viewport>
+          </SelectPrimitive.Content>
+        </SelectPrimitive.Portal>
+      </SelectPrimitive.Root>
+
       {error && (
         <p className="text-[12px] text-[#D92D20] mt-1.5">{error}</p>
       )}

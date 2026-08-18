@@ -34,7 +34,7 @@ const uploadAvatar = multer({
 
 const uploadCv = multer({
   storage: cvStorage,
-  limits: { fileSize: 5 * 1024 * 1025 }, // 5MB max
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
   fileFilter: (req, file, cb) => {
     const filetypes = /pdf|doc|docx/;
     const extname = filetypes.test(path.extname(file.originalname).toLowerCase());

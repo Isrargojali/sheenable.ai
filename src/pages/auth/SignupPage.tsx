@@ -265,8 +265,9 @@ export default function SignupPage() {
                 label="Company size"
                 id="companySize"
                 value={companySize}
-                onChange={e => setCompanySize(e.target.value)}
+                onChange={e => setCompanySize(typeof e === 'string' ? e : e?.target?.value || e)}
                 options={COMPANY_SIZES}
+                icon={Building2}
               />
             </FormSection>
 

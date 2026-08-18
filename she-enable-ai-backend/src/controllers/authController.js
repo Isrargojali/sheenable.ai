@@ -356,6 +356,9 @@ const googleOAuth = async (req, res, next) => {
     let email, firstName, lastName, avatarUrl;
 
     if (isSimulation || !process.env.GOOGLE_CLIENT_ID) {
+      if (process.env.NODE_ENV === 'production' && isSimulation) {
+        return error(res, 'Simulation mode is disabled in production', 403);
+      }
       if (!simulationData || !simulationData.email || !simulationData.firstName || !simulationData.lastName) {
         return error(res, 'Simulation data is missing', 400);
       }
@@ -455,6 +458,9 @@ const linkedinOAuth = async (req, res, next) => {
     let email, firstName, lastName, avatarUrl;
 
     if (isSimulation || !process.env.LINKEDIN_CLIENT_ID) {
+      if (process.env.NODE_ENV === 'production' && isSimulation) {
+        return error(res, 'Simulation mode is disabled in production', 403);
+      }
       if (!simulationData || !simulationData.email || !simulationData.firstName || !simulationData.lastName) {
         return error(res, 'Simulation data is missing', 400);
       }

@@ -623,6 +623,7 @@ const getSystemHealth = async (req, res, next) => {
     let mailLatency = '85ms';
     let mailAffectedLabel = '';
     const hasSendGrid = !!process.env.SENDGRID_API_KEY;
+    const hasSmtp = !!(process.env.SMTP_HOST && process.env.SMTP_USER);
     if (!hasSendGrid && !hasSmtp) {
       if (process.env.NODE_ENV !== 'production') {
         mailStatus = 'HEALTHY';
