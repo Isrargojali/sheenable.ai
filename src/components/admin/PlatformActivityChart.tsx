@@ -1,5 +1,6 @@
 // src/components/admin/PlatformActivityChart.tsx
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   ResponsiveContainer,
   AreaChart,
@@ -10,6 +11,8 @@ import {
   Tooltip,
 } from "recharts";
 import { cn } from "@/lib/utils";
+import { apiAdmin } from "@/lib/api";
+import { Activity, RefreshCw } from "lucide-react";
 
 export type Timeframe = "today" | "7d" | "30d";
 
@@ -20,41 +23,53 @@ export interface ActivityDataPoint {
   fullDate?: string;
 }
 
+interface AnalyticsApiResponse {
+  timeline?: ActivityDataPoint[];
+  users?: Array<{ _id: string; count: number }>;
+  applications?: Array<{ _id: string; count: number }>;
+  jobs?: Array<{ _id: string; count: number }>;
+}
+
 interface PlatformActivityChartProps {
   timeframe?: Timeframe;
   onTimeframeChange?: (timeframe: Timeframe) => void;
   className?: string;
-  data?: Record<Timeframe, ActivityDataPoint[]>;
+  initialData?: Record<Timeframe, ActivityDataPoint[]>;
 }
 
-// Default high-fidelity dataset matching exact visual curves
-const DEFAULT_DATA: Record<Timeframe, ActivityDataPoint[]> = {
-  today: [
-    { label: "00:00", signups: 2, applications: 1, fullDate: "12:00 AM" },
-    { label: "04:00", signups: 1, applications: 0, fullDate: "04:00 AM" },
-    { label: "08:00", signups: 8, applications: 5, fullDate: "08:00 AM" },
-    { label: "12:00", signups: 18, applications: 24, fullDate: "12:00 PM" },
-    { label: "16:00", signups: 14, applications: 32, fullDate: "04:00 PM" },
-    { label: "20:00", signups: 22, applications: 16, fullDate: "08:00 PM" },
-    { label: "23:59", signups: 7, applications: 4, fullDate: "11:59 PM" },
-  ],
-  "7d": [
-    { label: "Mon", signups: 2, applications: 12, fullDate: "Monday" },
-    { label: "Tue", signups: 14, applications: 2, fullDate: "Tuesday" },
-    { label: "Wed", signups: 1, applications: 1, fullDate: "Wednesday" },
-    { label: "Thu", signups: 1, applications: 28, fullDate: "Thursday" },
-    { label: "Fri", signups: 13, applications: 2, fullDate: "Friday" },
-    { label: "Sat", signups: 1, applications: 14, fullDate: "Saturday" },
-    { label: "Sun", signups: 1, applications: 1, fullDate: "Sunday" },
-  ],
-  "30d": [
-    { label: "Week 1", signups: 45, applications: 38, fullDate: "Days 1–7" },
-    { label: "Week 2", signups: 68, applications: 92, fullDate: "Days 8–14" },
-    { label: "Week 3", signups: 84, applications: 76, fullDate: "Days 15–21" },
-    { label: "Week 4", signups: 110, applications: 135, fullDate: "Days 22–28" },
-    { label: "Current", signups: 32, applications: 44, fullDate: "Days 29–30" },
-  ],
-};
+// Generate continuous timeline fallback in case of fresh DB initialization
+function generateFallbackTimeline(timeframe: Timeframe): ActivityDataPoint[] {
+  if (timeframe === "today") {
+    return [
+      { label: "00:00", signups: 0, applications: 0, fullDate: "Today 12:00 AM" },
+      { label: "04:00", signups: 0, applications: 0, fullDate: "Today 04:00 AM" },
+      { label: "08:00", signups: 0, applications: 0, fullDate: "Today 08:00 AM" },
+      { label: "12:00", signups: 0, applications: 0, fullDate: "Today 12:00 PM" },
+      { label: "16:00", signups: 0, applications: 0, fullDate: "Today 04:00 PM" },
+      { label: "20:00", signups: 0, applications: 0, fullDate: "Today 08:00 PM" },
+      { label: "23:59", signups: 0, applications: 0, fullDate: "Today 11:59 PM" },
+    ];
+  }
+
+  const days = timeframe === "30d" ? 30 : 7;
+  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const list: ActivityDataPoint[] = [];
+  const now = new Date();
+
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(now);
+    d.setDate(d.getDate() - i);
+    const dayName = dayNames[d.getDay()];
+    list.push({
+      label: days === 7 ? dayName : `${d.getMonth() + 1}/${d.getDate()}`,
+      signups: 0,
+      applications: 0,
+      fullDate: d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+    });
+  }
+
+  return list;
+}
 
 interface CustomTooltipProps {
   active?: boolean;
@@ -74,7 +89,7 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
   const total = signups + apps;
 
   return (
-    <div className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border border-[var(--ink-200)] shadow-xl rounded-xl p-3 text-xs min-w-[170px] animate-fade-in z-50">
+    <div className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border border-[var(--ink-200)] shadow-xl rounded-xl p-3 text-xs min-w-[175px] animate-fade-in z-50">
       <div className="font-semibold text-[var(--ink-900)] dark:text-zinc-100 border-b border-[var(--ink-100)] pb-1.5 mb-2 flex items-center justify-between">
         <span>{label}</span>
         <span className="text-[10px] font-mono text-[var(--ink-500)]">Total: {total}</span>
@@ -103,7 +118,6 @@ export function PlatformActivityChart({
   timeframe: controlledTimeframe,
   onTimeframeChange,
   className,
-  data = DEFAULT_DATA,
 }: PlatformActivityChartProps) {
   const [internalTimeframe, setInternalTimeframe] = useState<Timeframe>("7d");
   const activeTimeframe = controlledTimeframe ?? internalTimeframe;
@@ -116,23 +130,70 @@ export function PlatformActivityChart({
     }
   };
 
-  const chartData = data[activeTimeframe] || DEFAULT_DATA[activeTimeframe];
+  // Real-time live data fetching from system database via apiAdmin
+  const {
+    data: liveAnalytics,
+    isLoading,
+    isFetching,
+    refetch,
+  } = useQuery<AnalyticsApiResponse>({
+    queryKey: ["adminAnalytics", activeTimeframe],
+    queryFn: () => apiAdmin.getAnalytics(activeTimeframe),
+    refetchInterval: 15000, // Live poll every 15s
+    staleTime: 10000,
+  });
+
+  // Merge and sanitize live backend timeline data
+  const chartData: ActivityDataPoint[] = useMemo(() => {
+    if (liveAnalytics?.timeline && Array.isArray(liveAnalytics.timeline) && liveAnalytics.timeline.length > 0) {
+      return liveAnalytics.timeline;
+    }
+
+    // Process raw user/app aggregation buckets if timeline is missing
+    if (liveAnalytics?.users || liveAnalytics?.applications) {
+      const userMap = Object.fromEntries((liveAnalytics.users || []).map((u) => [u._id, u.count]));
+      const appMap = Object.fromEntries((liveAnalytics.applications || []).map((a) => [a._id, a.count]));
+
+      const baseList = generateFallbackTimeline(activeTimeframe);
+      return baseList.map((item) => ({
+        ...item,
+        signups: userMap[item.label] ?? item.signups,
+        applications: appMap[item.label] ?? item.applications,
+      }));
+    }
+
+    return generateFallbackTimeline(activeTimeframe);
+  }, [liveAnalytics, activeTimeframe]);
+
+  // Calculate live cumulative period metrics
+  const totalSignups = useMemo(() => chartData.reduce((acc, curr) => acc + (curr.signups || 0), 0), [chartData]);
+  const totalApps = useMemo(() => chartData.reduce((acc, curr) => acc + (curr.applications || 0), 0), [chartData]);
 
   return (
     <div
       className={cn(
-        "bg-[var(--surface)] border border-[var(--ink-200)] rounded-[var(--radius-card)] p-5 sm:p-6 shadow-[var(--shadow-card)] transition-all",
+        "bg-[var(--surface)] border border-[var(--ink-200)] rounded-[var(--radius-card)] p-5 sm:p-6 shadow-[var(--shadow-card)] transition-all relative overflow-hidden",
         className
       )}
     >
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h3 className="text-xs font-bold text-[var(--ink-500)] dark:text-muted-foreground uppercase tracking-widest">
-            PLATFORM ACTIVITY
-          </h3>
+          <div className="flex items-center gap-2">
+            <h3 className="text-xs font-bold text-[var(--ink-500)] dark:text-muted-foreground uppercase tracking-widest">
+              PLATFORM ACTIVITY
+            </h3>
+            {/* Live System Indicator */}
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-emerald-50 border border-emerald-200 text-emerald-700 dark:bg-emerald-950/30 dark:border-emerald-800 dark:text-emerald-400">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              LIVE SYSTEM
+            </span>
+            {isFetching && !isLoading && (
+              <RefreshCw size={11} className="text-[var(--ink-400)] animate-spin" />
+            )}
+          </div>
           <p className="text-[12px] text-[var(--ink-400)] mt-0.5 font-normal">
-            Signups vs. applications · sample data, wire to your stats API
+            Real-time signups vs. applications from database ({totalSignups} signups · {totalApps} applications in this timeframe)
           </p>
         </div>
 
@@ -162,89 +223,96 @@ export function PlatformActivityChart({
       </div>
 
       {/* Chart Canvas Area */}
-      <div className="w-full h-56 sm:h-64">
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart
-            data={chartData}
-            margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
-          >
-            <defs>
-              <linearGradient id="signupsGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#E6007E" stopOpacity={0.18} />
-                <stop offset="95%" stopColor="#E6007E" stopOpacity={0.0} />
-              </linearGradient>
-              <linearGradient id="applicationsGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#6366F1" stopOpacity={0.18} />
-                <stop offset="95%" stopColor="#6366F1" stopOpacity={0.0} />
-              </linearGradient>
-            </defs>
+      <div className="w-full h-56 sm:h-64 relative">
+        {isLoading ? (
+          <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-[var(--ink-50)]/50 rounded-xl animate-pulse">
+            <Activity className="w-6 h-6 text-[var(--brand-pink)] animate-bounce" />
+            <span className="text-xs text-[var(--ink-500)] font-medium">Aggregating live system telemetry...</span>
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart
+              data={chartData}
+              margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
+            >
+              <defs>
+                <linearGradient id="signupsGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#E6007E" stopOpacity={0.18} />
+                  <stop offset="95%" stopColor="#E6007E" stopOpacity={0.0} />
+                </linearGradient>
+                <linearGradient id="applicationsGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#6366F1" stopOpacity={0.18} />
+                  <stop offset="95%" stopColor="#6366F1" stopOpacity={0.0} />
+                </linearGradient>
+              </defs>
 
-            <CartesianGrid
-              stroke="var(--ink-200)"
-              strokeOpacity={0.7}
-              vertical={false}
-            />
+              <CartesianGrid
+                stroke="var(--ink-200)"
+                strokeOpacity={0.7}
+                vertical={false}
+              />
 
-            <XAxis
-              dataKey="label"
-              axisLine={false}
-              tickLine={false}
-              dy={10}
-              tick={{
-                fill: "var(--ink-400)",
-                fontSize: 11,
-                fontWeight: 500,
-              }}
-            />
+              <XAxis
+                dataKey="label"
+                axisLine={false}
+                tickLine={false}
+                dy={10}
+                tick={{
+                  fill: "var(--ink-400)",
+                  fontSize: 11,
+                  fontWeight: 500,
+                }}
+              />
 
-            <YAxis hide domain={[0, "dataMax + 8"]} />
+              <YAxis hide domain={[0, "dataMax + 4"]} />
 
-            <Tooltip content={<CustomTooltip />} />
+              <Tooltip content={<CustomTooltip />} />
 
-            {/* Pink Area: Signups */}
-            <Area
-              type="monotone"
-              dataKey="signups"
-              stroke="#E6007E"
-              strokeWidth={2}
-              fillOpacity={1}
-              fill="url(#signupsGradient)"
-              activeDot={{
-                r: 5,
-                fill: "#E6007E",
-                stroke: "#FFFFFF",
-                strokeWidth: 2,
-              }}
-            />
+              {/* Pink Area: Signups */}
+              <Area
+                type="monotone"
+                dataKey="signups"
+                stroke="#E6007E"
+                strokeWidth={2}
+                fillOpacity={1}
+                fill="url(#signupsGradient)"
+                activeDot={{
+                  r: 5,
+                  fill: "#E6007E",
+                  stroke: "#FFFFFF",
+                  strokeWidth: 2,
+                }}
+              />
 
-            {/* Blue Area: Applications */}
-            <Area
-              type="monotone"
-              dataKey="applications"
-              stroke="#6366F1"
-              strokeWidth={2}
-              fillOpacity={1}
-              fill="url(#applicationsGradient)"
-              activeDot={{
-                r: 5,
-                fill: "#6366F1",
-                stroke: "#FFFFFF",
-                strokeWidth: 2,
-              }}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
+              {/* Blue Area: Applications */}
+              <Area
+                type="monotone"
+                dataKey="applications"
+                stroke="#6366F1"
+                strokeWidth={2}
+                fillOpacity={1}
+                fill="url(#applicationsGradient)"
+                activeDot={{
+                  r: 5,
+                  fill: "#6366F1",
+                  stroke: "#FFFFFF",
+                  strokeWidth: 2,
+                }}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        )}
       </div>
 
       {/* Centered Legend */}
       <div className="flex items-center justify-center gap-6 mt-4 pt-2 border-t border-[var(--ink-100)]">
         <div className="flex items-center gap-2 text-[12px] font-medium text-[#E6007E] select-none">
           <span className="w-2.5 h-2.5 rounded-full bg-[#E6007E]" />
-          <span>Signups</span>
+          <span>Signups ({totalSignups})</span>
         </div>
         <div className="flex items-center gap-2 text-[12px] font-medium text-[#6366F1] select-none">
           <span className="w-2.5 h-2.5 rounded-full bg-[#6366F1]" />
-          <span>Applications</span>
+          <span>Applications ({totalApps})</span>
         </div>
       </div>
     </div>

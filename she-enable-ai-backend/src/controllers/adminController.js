@@ -500,10 +500,75 @@ const getSecurityInfo = async (req, res, next) => {
 const getAnalytics = async (req, res, next) => {
   try {
     const { period = '7d' } = req.query;
-    const days = period === '90d' ? 90 : period === '30d' ? 30 : 7;
-    const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
-    const pipeline = [
+    if (period === 'today') {
+      const startOfToday = new Date();
+      startOfToday.setHours(0, 0, 0, 0);
+
+      const hourPipeline = [
+        { $match: { createdAt: { $gte: startOfToday } } },
+        {
+          $group: {
+            _id: { $dateToString: { format: '%H:00', date: '$createdAt' } },
+            count: { $sum: 1 }
+          }
+        },
+        { $sort: { _id: 1 } }
+      ];
+
+      const appPipeline = [
+        { $match: { $or: [{ createdAt: { $gte: startOfToday } }, { appliedAt: { $gte: startOfToday } }] } },
+        {
+          $group: {
+            _id: { $dateToString: { format: '%H:00', date: { $ifNull: ['$appliedAt', '$createdAt'] } } },
+            count: { $sum: 1 }
+          }
+        },
+        { $sort: { _id: 1 } }
+      ];
+
+      const [userHours, appHours] = await Promise.all([
+        User.aggregate(hourPipeline),
+        Application.aggregate(appPipeline)
+      ]);
+
+      const userMap = Object.fromEntries(userHours.map(u => [u._id, u.count]));
+      const appMap = Object.fromEntries(appHours.map(a => [a._id, a.count]));
+
+      const standardHours = ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '23:59'];
+      const timeline = standardHours.map(h => {
+        const hNum = parseInt(h.slice(0, 2), 10);
+        // Find counts in the surrounding window
+        const signups = Object.entries(userMap).reduce((acc, [k, v]) => {
+          const kNum = parseInt(k.slice(0, 2), 10);
+          return (kNum >= hNum && kNum < hNum + 4) ? acc + v : acc;
+        }, 0);
+        const apps = Object.entries(appMap).reduce((acc, [k, v]) => {
+          const kNum = parseInt(k.slice(0, 2), 10);
+          return (kNum >= hNum && kNum < hNum + 4) ? acc + v : acc;
+        }, 0);
+
+        return {
+          label: h,
+          signups,
+          applications: apps,
+          fullDate: `Today at ${h}`
+        };
+      });
+
+      return success(res, {
+        timeline,
+        users: userHours,
+        applications: appHours
+      });
+    }
+
+    const days = period === '30d' ? 30 : 7;
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - (days - 1));
+    startDate.setHours(0, 0, 0, 0);
+
+    const userPipeline = [
       { $match: { createdAt: { $gte: startDate } } },
       {
         $group: {
@@ -514,13 +579,49 @@ const getAnalytics = async (req, res, next) => {
       { $sort: { _id: 1 } }
     ];
 
-    const [users, jobs, applications] = await Promise.all([
-      User.aggregate(pipeline),
-      Job.aggregate(pipeline),
-      Application.aggregate(pipeline)
+    const appPipeline = [
+      { $match: { $or: [{ createdAt: { $gte: startDate } }, { appliedAt: { $gte: startDate } }] } },
+      {
+        $group: {
+          _id: { $dateToString: { format: '%Y-%m-%d', date: { $ifNull: ['$appliedAt', '$createdAt'] } } },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ];
+
+    const [userDays, jobDays, appDays] = await Promise.all([
+      User.aggregate(userPipeline),
+      Job.aggregate(userPipeline),
+      Application.aggregate(appPipeline)
     ]);
 
-    return success(res, { users, jobs, applications });
+    const userMap = Object.fromEntries(userDays.map(u => [u._id, u.count]));
+    const appMap = Object.fromEntries(appDays.map(a => [a._id, a.count]));
+
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const timeline = [];
+
+    for (let i = 0; i < days; i++) {
+      const d = new Date(startDate);
+      d.setDate(d.getDate() + i);
+      const key = d.toISOString().split('T')[0];
+      const dayName = dayNames[d.getDay()];
+
+      timeline.push({
+        label: days === 7 ? dayName : `${d.getMonth() + 1}/${d.getDate()}`,
+        signups: userMap[key] || 0,
+        applications: appMap[key] || 0,
+        fullDate: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+      });
+    }
+
+    return success(res, {
+      timeline,
+      users: userDays,
+      jobs: jobDays,
+      applications: appDays
+    });
   } catch (err) { next(err); }
 };
 
