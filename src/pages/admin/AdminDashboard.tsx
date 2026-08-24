@@ -10,6 +10,7 @@ import { DashboardShell, SectionCard } from "@/components/layout/DashboardShell"
 import { apiAdmin } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { PlatformActivityChart } from "@/components/admin/PlatformActivityChart";
 
 const STATS = [
   { 
@@ -141,7 +142,37 @@ function relTime(iso: string) {
   return `${Math.floor(h / 24)}d ago`;
 }
 
-const getAuditStory = (log: any) => {
+interface AuditLogItem {
+  id?: string;
+  _id?: string;
+  action: string;
+  userId?: string;
+  operator?: { name?: string };
+  detail?: string;
+  createdAt: string;
+}
+
+interface ThreatInfo {
+  recentFailedLogins?: number;
+  accountsLockedToday?: number;
+  unverifiedAccounts?: number;
+  suspendedUsers?: number;
+}
+
+interface AdminUserData {
+  id?: string;
+  email?: string;
+  role?: string;
+  firstName?: string;
+  lastName?: string;
+  profile?: {
+    firstName?: string;
+    lastName?: string;
+    availabilityStatus?: string;
+  };
+}
+
+const getAuditStory = (log: AuditLogItem) => {
   const name = log.userId || "System";
   const action = log.action;
   const detail = log.detail || "";
@@ -208,30 +239,30 @@ export default function AdminDashboard() {
     refetchInterval: 15000 
   });
 
-  const { data: threatData } = useQuery<any>({
+  const { data: threatData } = useQuery<ThreatInfo>({
     queryKey: ["threats"],
     queryFn: apiAdmin.getSecurityInfo,
     refetchInterval: 15000
   });
 
-  const { data: logsData = [] } = useQuery<any[]>({
+  const { data: logsData = [] } = useQuery<AuditLogItem[]>({
     queryKey: ["auditLog"],
     queryFn: () => apiAdmin.getAuditLogs({ limit: 50 }),
-    select: (data: any) => Array.isArray(data) ? data : []
+    select: (data: unknown) => Array.isArray(data) ? (data as AuditLogItem[]) : []
   });
 
-  const { data: usersData } = useQuery<any>({
+  const { data: usersData } = useQuery<AdminUserData[]>({
     queryKey: ["adminUsers"],
     queryFn: () => apiAdmin.getUsers({ role: 'ADMIN', limit: 20 }),
-    select: (data: any) => Array.isArray(data) ? data : []
+    select: (data: unknown) => Array.isArray(data) ? (data as AdminUserData[]) : []
   });
 
   // Use only real admin users for active sessions widget
-  const adminUsers: any[] = Array.isArray(usersData) ? usersData : [];
+  const adminUsers: AdminUserData[] = Array.isArray(usersData) ? usersData : [];
   const humanAdmins = adminUsers
-    .filter((u: any) => u.role === 'ADMIN' || u.role === 'SUPER_ADMIN')
+    .filter((u: AdminUserData) => u.role === 'ADMIN' || u.role === 'SUPER_ADMIN')
     .slice(0, 4)
-    .map((u: any) => ({
+    .map((u: AdminUserData) => ({
       name: `${u.profile?.firstName || u.firstName || ''} ${u.profile?.lastName || u.lastName || ''}`.trim() || u.email?.split('@')[0] || 'Admin',
       role: u.role,
       ip: '—',
@@ -242,7 +273,7 @@ export default function AdminDashboard() {
   const systemProcesses = [{ name: "System Daemon", role: "ADMIN", ip: "127.0.0.1", active: "Now", avatarInitials: "SD" }];
 
   // Use only real audit log data
-  const allLogs = (logsData ?? []).map((l: any) => ({
+  const allLogs = (logsData ?? []).map((l: AuditLogItem) => ({
     id: l.id || l._id,
     action: l.action,
     userId: l.operator?.name || l.userId || 'System',
@@ -301,30 +332,6 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in mb-6">
         {/* Left Column (Main Governance Panels) */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Header Row with Timeframe Selector */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[var(--surface)] p-4 rounded-[var(--radius-card)] border border-[var(--ink-200)] shadow-[var(--shadow-card)]">
-            <div>
-              <h3 className="text-xs font-bold text-ink-500 uppercase tracking-widest">Platform Activity Statistics</h3>
-              <p className="text-[11px] text-muted-foreground mt-0.5">Toggle timeframe to analyze signups and submissions</p>
-            </div>
-            <div className="flex bg-[var(--ink-100)] p-1 rounded-full h-10 items-center border-0 self-start sm:self-auto">
-              {(["today", "7d", "30d"] as const).map((t) => (
-                <button
-                  key={t}
-                  onClick={() => setTimeframe(t)}
-                  className={cn(
-                    "h-8 px-4 rounded-full text-[12px] font-semibold uppercase transition-all border-0 cursor-pointer flex items-center justify-center select-none",
-                    timeframe === t 
-                      ? "bg-[var(--brand-pink)] text-white shadow-none" 
-                      : "bg-transparent text-[var(--ink-500)] hover:text-[var(--ink-900)]"
-                  )}
-                >
-                  {t === "today" ? "Today" : t === "7d" ? "7 Days" : "30 Days"}
-                </button>
-              ))}
-            </div>
-          </div>
-
           {/* Dynamic Summary Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {STATS.map(s => {
@@ -398,6 +405,12 @@ export default function AdminDashboard() {
               );
             })}
           </div>
+
+          {/* Platform Activity Dual-Line Spline Graph */}
+          <PlatformActivityChart
+            timeframe={timeframe}
+            onTimeframeChange={setTimeframe}
+          />
 
           {/* Control Actions & Navigation Grid */}
           <div>

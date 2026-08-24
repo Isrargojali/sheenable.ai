@@ -6,12 +6,13 @@ import {
   ShieldAlert, UserCog, Activity, Server, Database, Key, 
   Users, Briefcase, FileText, Sparkles, TrendingUp, AlertTriangle, 
   CheckCircle, ArrowRight, UserPlus, Shield, Cpu, FileDown, Ban,
-  HardDrive, Layers, X, ScrollText
+  HardDrive, Layers, X, ScrollText, type LucideIcon
 } from "lucide-react";
 import { DashboardShell, SectionCard } from "@/components/layout/DashboardShell";
 import { apiAdmin } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { PlatformActivityChart } from "@/components/admin/PlatformActivityChart";
 
 interface ServiceInfo {
   name: string;
@@ -22,7 +23,8 @@ interface ServiceInfo {
   history: number[];
   logs: string[];
   affectedLabel?: string;
-  icon: any;
+  icon?: LucideIcon;
+  iconName?: string;
 }
 
 const SERVICES: ServiceInfo[] = [
@@ -137,46 +139,82 @@ function CircularGauge({ value, label, colorClass, size = 68 }: { value: number;
   );
 }
 
+interface SuperAdminStats {
+  totalUsers?: number;
+  activeJobs?: number;
+  aiMatchesToday?: number;
+  revenueGMV?: number;
+  todayGrowth?: {
+    users?: number;
+    jobs?: number;
+    employers?: number;
+    applications?: number;
+  };
+  [key: string]: unknown;
+}
+
+interface ThreatInfo {
+  recentFailedLogins?: number;
+  accountsLockedToday?: number;
+  unverifiedAccounts?: number;
+  suspendedUsers?: number;
+}
+
+interface AuditLogItem {
+  id?: string;
+  _id?: string;
+  action: string;
+  userId?: string;
+  operator?: { name?: string };
+  detail?: string;
+  createdAt: string;
+}
+
+interface SystemHealthInfo {
+  services?: ServiceInfo[];
+  [key: string]: unknown;
+}
+
 export default function SuperAdminDashboard() {
   const navigate = useNavigate();
   const [selectedService, setSelectedService] = useState<ServiceInfo | null>(null);
 
   // Stats query
-  const { data: stats } = useQuery<any>({ 
+  const { data: stats } = useQuery<SuperAdminStats>({ 
     queryKey: ["adminStats"], 
     queryFn: apiAdmin.getStats
   });
 
   // Security query
-  const { data: threatData } = useQuery<any>({
+  const { data: threatData } = useQuery<ThreatInfo>({
     queryKey: ["threats"],
     queryFn: apiAdmin.getSecurityInfo
   });
 
   // Audit Logs query
-  const { data: logsData = [] } = useQuery<any[]>({
+  const { data: logsData = [] } = useQuery<AuditLogItem[]>({
     queryKey: ["auditLog"],
     queryFn: apiAdmin.getAuditLogs
   });
 
   // System Health query
-  const { data: healthData } = useQuery<any>({
+  const { data: healthData } = useQuery<SystemHealthInfo>({
     queryKey: ["systemHealth"],
     queryFn: apiAdmin.getSystemHealth,
     refetchInterval: 10000
   });
 
-  const ICON_MAP: Record<string, any> = {
+  const ICON_MAP: Record<string, LucideIcon> = {
     Server,
     Database,
     Key,
     Layers
   };
 
-  const liveServices = (healthData?.services || SERVICES).map((s: any) => {
+  const liveServices = (healthData?.services || SERVICES).map((s: ServiceInfo) => {
     return {
       ...s,
-      icon: ICON_MAP[s.iconName] || s.icon || Server
+      icon: (s.iconName ? ICON_MAP[s.iconName] : null) || s.icon || Server
     };
   });
 
@@ -402,6 +440,9 @@ export default function SuperAdminDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         {/* Left column (2/3 width) */}
         <div className="lg:col-span-2 space-y-6">
+          {/* Platform Activity Dual-Line Graph */}
+          <PlatformActivityChart />
+
           {/* Pending Actions Panel */}
           <SectionCard 
             title="Pending Super Admin Action Items" 
