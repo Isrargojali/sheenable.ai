@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowRight, Building2, Mail } from "lucide-react";
 import { apiAuth } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import { useAuthStore } from "@/store/authStore";
+import { useAuthStore, type UserRole } from "@/store/authStore";
 import useSEO from "@/hooks/useSEO";
 import { 
   AuthLayout, 
@@ -115,7 +115,7 @@ export default function SignupPage() {
       setSession({
         id: user.id,
         email: user.email,
-        role: user.role as any,
+        role: user.role as UserRole,
         firstName: user.firstName,
         lastName: user.lastName,
         avatarUrl: user.avatarUrl,
