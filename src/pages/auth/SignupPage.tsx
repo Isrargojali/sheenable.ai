@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowRight, Building2, Mail } from "lucide-react";
 import { apiAuth } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import { useAuthStore, type UserRole } from "@/store/authStore";
+import { useAuthStore, type UserRole, type AuthUser } from "@/store/authStore";
 import useSEO from "@/hooks/useSEO";
 import { 
   AuthLayout, 
@@ -92,7 +92,7 @@ export default function SignupPage() {
     setLoading(true);
     setOauthModal(prev => ({ ...prev, isOpen: false }));
     try {
-      let response;
+      let response: { data: { data: { user: AuthUser; token: string } } };
       if (oauthModal.provider === 'Google') {
         response = await apiAuth.googleOAuth(undefined, true, {
           email: oauthEmail.trim().toLowerCase(),
@@ -115,7 +115,7 @@ export default function SignupPage() {
       setSession({
         id: user.id,
         email: user.email,
-        role: user.role as UserRole,
+        role: user.role,
         firstName: user.firstName,
         lastName: user.lastName,
         avatarUrl: user.avatarUrl,
