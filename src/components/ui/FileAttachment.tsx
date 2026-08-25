@@ -97,7 +97,7 @@ export default function FileAttachment({
         {/* Small type badge */}
         <span
           className={cn(
-            "absolute -bottom-1 -right-1 text-[7px] font-black text-white px-1 py-0.5 rounded-sm uppercase tracking-wide leading-none",
+            "absolute -bottom-1 -right-1 text-[9px] font-bold text-white px-1.5 py-0.5 rounded uppercase tracking-wide leading-none",
             getBadgeColor(type)
           )}
         >
@@ -108,14 +108,14 @@ export default function FileAttachment({
       {/* Name + size */}
       <div className="flex-1 min-w-0">
         <div
-          className="text-[11.5px] font-bold truncate leading-tight"
+          className="text-sm font-semibold truncate leading-tight"
           title={fileName}
         >
           {fileName}
         </div>
         <div
           className={cn(
-            "text-[9px] font-semibold mt-0.5",
+            "text-xs font-medium mt-0.5",
             isMe ? "text-primary-foreground/75" : "text-muted-foreground"
           )}
         >
@@ -135,7 +135,7 @@ export default function FileAttachment({
           }
         }}
         className={cn(
-          "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-extrabold",
+          "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold",
           "shadow-sm active:scale-95 transition-all flex-shrink-0 whitespace-nowrap",
           isMe
             ? "bg-white text-primary hover:bg-white/90"
@@ -144,7 +144,7 @@ export default function FileAttachment({
         title={`Download ${fileName}`}
         aria-label={`Download ${fileName}`}
       >
-        <Download size={10} />
+        <Download size={13} />
         <span>Download</span>
       </a>
     </div>

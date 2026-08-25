@@ -31,17 +31,17 @@ export function StatCard({ label, value, trend, icon, caption, className }: Prop
           </div>
         )}
         {trend && (
-          <span className={cn("inline-flex items-center gap-0.5 text-[10px] font-bold px-2 py-0.5 rounded-full", trendClass)}>
-            <Arrow size={9} strokeWidth={3} />
+          <span className={cn("inline-flex items-center gap-1 text-xs font-bold px-2.5 py-0.5 rounded-full", trendClass)}>
+            <Arrow size={12} strokeWidth={2.5} />
             {trend.value}
           </span>
         )}
       </div>
-      <div className="font-serif text-3xl text-foreground leading-none tracking-tight">
+      <div className="font-serif text-3xl font-extrabold text-foreground leading-none tracking-tight">
         {value}
       </div>
-      <div className="text-[11px] text-muted-foreground mt-1.5 font-medium">{label}</div>
-      {caption && <div className="text-[10px] text-muted-foreground/80 mt-1">{caption}</div>}
+      <div className="text-xs text-muted-foreground mt-2 font-semibold uppercase tracking-wider">{label}</div>
+      {caption && <div className="text-xs text-muted-foreground mt-1">{caption}</div>}
     </div>
   );
 }

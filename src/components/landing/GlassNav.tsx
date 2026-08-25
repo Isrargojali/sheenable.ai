@@ -57,7 +57,7 @@ export default function GlassNav() {
                 key={l.label}
                 href={l.href}
                 className={cn(
-                  "text-[13px] font-medium relative group transition-colors duration-300 ease-in-out",
+                  "text-sm font-medium relative group transition-colors duration-300 ease-in-out",
                   hash === l.href
                     ? "text-[var(--brand-pink)]"
                     : scrolled
@@ -72,11 +72,11 @@ export default function GlassNav() {
           </div>
 
           {/* CTAs */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <Link
               to="/auth/signup?role=EMPLOYER"
               className={cn(
-                "hidden md:inline-flex items-center px-4 h-9 rounded-xl text-[12px] font-semibold border-[1.5px] press transition-all duration-300 ease-in-out",
+                "hidden md:inline-flex items-center px-5 h-10 rounded-xl text-sm font-semibold border-[1.5px] press transition-all duration-300 ease-in-out",
                 scrolled
                   ? "border-[#111111]/30 text-[#111111] hover:border-[var(--brand-pink)] hover:text-[var(--brand-pink)]"
                   : "border-white/30 text-white hover:border-white hover:bg-white/10"
@@ -86,7 +86,7 @@ export default function GlassNav() {
             </Link>
             <Link
               to="/auth/signup"
-              className="hidden lg:inline-flex items-center px-4 h-9 rounded-xl text-[12px] font-bold bg-[var(--brand-pink)] text-white hover:bg-[var(--brand-pink)]/90 hover:-translate-y-0.5 hover:shadow-card press"
+              className="hidden lg:inline-flex items-center px-5 h-10 rounded-xl text-sm font-bold bg-[var(--brand-pink)] text-white hover:bg-[var(--brand-pink-hover)] hover:-translate-y-0.5 hover:shadow-md press"
             >
               Join Free
             </Link>
@@ -101,7 +101,7 @@ export default function GlassNav() {
               )}
               aria-label="Open menu"
             >
-              <Menu size={18} />
+              <Menu size={20} />
             </button>
           </div>
         </div>

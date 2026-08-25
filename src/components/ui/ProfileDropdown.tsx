@@ -122,8 +122,8 @@ export function ProfileDropdown({
             <p className="text-xs text-muted-foreground truncate leading-normal capitalize">{titleText.toLowerCase()}</p>
             {role === "CANDIDATE" && (
               <div className="flex items-center gap-1.5 mt-0.5">
-                <span className={cn("w-1.5 h-1.5 rounded-full", available ? "bg-[var(--accent-green)]" : "bg-[var(--ink-500)]")} />
-                <span className="text-[10px] font-semibold text-muted-foreground">
+                <span className={cn("w-2 h-2 rounded-full", available ? "bg-[var(--accent-green)]" : "bg-[var(--ink-500)]")} />
+                <span className="text-xs font-medium text-muted-foreground">
                   {available ? "Available for hire" : "Not available"}
                 </span>
               </div>

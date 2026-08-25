@@ -12,10 +12,10 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans:  ['Satoshi', 'Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
-        display: ['Cabinet Grotesk', 'Satoshi', 'sans-serif'],
-        serif: ['Cabinet Grotesk', 'Satoshi', 'Playfair Display', 'serif'],
-        mono:  ['ui-monospace', 'SF Mono', 'Menlo', 'monospace'],
+        sans:    ['"Plus Jakarta Sans"', 'Satoshi', 'Inter', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'system-ui', 'sans-serif'],
+        display: ['"Cabinet Grotesk"', '"Plus Jakarta Sans"', 'Satoshi', 'system-ui', 'sans-serif'],
+        serif:   ['"Playfair Display"', 'Georgia', 'serif'],
+        mono:    ['"JetBrains Mono"', 'ui-monospace', 'SF Mono', 'Menlo', 'monospace'],
       },
       screens: {
         // Briefed: 375 / 768 / 1280 / 1440

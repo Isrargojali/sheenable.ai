@@ -46,24 +46,24 @@ export function ConfirmationModal({
 
         {/* Content */}
         <div className="p-6 space-y-4 text-left">
-          <p className="text-xs text-muted-foreground leading-relaxed">
+          <p className="text-sm text-muted-foreground leading-relaxed">
             {description}
           </p>
 
-          <div className="p-3.5 bg-secondary/40 border border-border/60 rounded-xl space-y-2">
-            <div className="text-[10px] uppercase font-bold tracking-wider text-ink-300">
+          <div className="p-3.5 bg-secondary/40 border border-border/60 rounded-xl space-y-1.5">
+            <div className="text-xs uppercase font-semibold tracking-wider text-muted-foreground">
               Affected Entity
             </div>
-            <div className="text-xs font-mono font-bold text-foreground">
+            <div className="text-sm font-mono font-bold text-foreground">
               {affectedEntity}
             </div>
           </div>
 
-          <div className="p-3.5 bg-rose-500/5 border border-rose-500/10 rounded-xl space-y-2">
-            <div className="text-[10px] uppercase font-bold tracking-wider text-rose-550 font-extrabold text-rose-500">
+          <div className="p-3.5 bg-rose-500/5 border border-rose-500/10 rounded-xl space-y-1.5">
+            <div className="text-xs uppercase font-bold tracking-wider text-rose-500">
               Warning Consequence
             </div>
-            <div className="text-xs text-rose-600 dark:text-rose-400 font-medium">
+            <div className="text-sm text-rose-600 dark:text-rose-400 font-medium">
               {consequence}
             </div>
           </div>

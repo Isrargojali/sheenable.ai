@@ -367,9 +367,9 @@ function Sidebar({
           </div>
           {!collapsed && (
             <div className="min-w-0 flex-1 transition-opacity duration-300">
-              <div className="text-[13px] font-semibold text-foreground truncate leading-tight">{displayName}</div>
+              <div className="text-sm font-bold text-foreground truncate leading-tight">{displayName}</div>
               <div className="mt-1">
-                <span className="inline-block text-[10px] font-semibold px-2 py-[2px] rounded-[var(--radius-pill)] bg-[var(--ink-100)] text-[var(--ink-700)] uppercase leading-none">
+                <span className="inline-block text-xs font-semibold px-2 py-0.5 rounded-[var(--radius-pill)] bg-[var(--ink-100)] text-[var(--ink-700)] uppercase leading-none">
                   {ROLE_LABEL[role]}
                 </span>
               </div>
@@ -392,14 +392,14 @@ function Sidebar({
             <button
               onClick={() => setAvailable(!available)}
               className={cn(
-                "w-full flex items-center gap-2 px-2.5 py-2 rounded-[var(--radius-control)] transition-colors",
+                "w-full flex items-center gap-2 px-3 py-2 rounded-[var(--radius-control)] transition-colors",
                 available
                   ? "bg-[var(--status-success-bg)] text-[var(--status-success-fg)]"
                   : "bg-[var(--status-progress-bg)] text-[var(--status-progress-fg)]"
               )}
             >
-              <span className={cn("w-1.5 h-1.5 rounded-full", available ? "bg-[var(--status-success-fg)]" : "bg-[var(--status-progress-fg)]")} />
-              <span className="text-[11px] font-semibold">
+              <span className={cn("w-2 h-2 rounded-full", available ? "bg-[var(--status-success-fg)]" : "bg-[var(--status-progress-fg)]")} />
+              <span className="text-xs font-semibold">
                 {available ? "Available for hire" : "Not available"}
               </span>
             </button>
@@ -412,7 +412,7 @@ function Sidebar({
         {groups.map((g, gi) => (
           <div key={g.label} className={cn(gi > 0 && "mt-4")}>
             {!collapsed ? (
-              <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-500)] px-2.5 pt-1.5 pb-1 transition-opacity duration-300">
+              <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-3 pt-2 pb-1.5 transition-opacity duration-300">
                 {g.label}
               </div>
             ) : gi > 0 ? (
@@ -472,17 +472,17 @@ function Sidebar({
                   onClick={onNav}
                   title={collapsed ? item.label : undefined}
                   className={({ isActive }) => cn(
-                    "flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[12px] font-medium mb-0.5 transition-all border-l-[3px] border-transparent relative",
+                    "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium mb-1 transition-all border-l-[3px] border-transparent relative",
                     isActive
                       ? "bg-[var(--brand-pink-tint)] text-[var(--brand-pink)] font-semibold border-l-[var(--brand-pink)] rounded-l-none"
-                      : "text-[var(--ink-700)] bg-transparent hover:bg-[var(--ink-100)] hover:text-[var(--ink-900)]",
+                      : "text-foreground/85 bg-transparent hover:bg-secondary hover:text-foreground",
                     collapsed && "justify-center px-0 h-10 w-10 mx-auto rounded-xl border-l-0"
                   )}
                 >
                   {({ isActive }) => (
                     <>
                       <div className="relative flex-shrink-0 flex items-center justify-center">
-                        <Icon size={16} className={cn("transition-colors", isActive ? "text-[var(--brand-pink)]" : "text-[var(--ink-500)]")} />
+                        <Icon size={18} className={cn("transition-colors", isActive ? "text-[var(--brand-pink)]" : "text-muted-foreground")} />
                         {/* Ambient dot for Dashboard */}
                         {showDot && (
                           <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[var(--accent-green)] animate-pulse ring-2 ring-card" />
@@ -490,7 +490,7 @@ function Sidebar({
                         {collapsed && badge && (
                           <span
                             className={cn(
-                              "absolute -top-1.5 -right-1.5 w-4 h-4 flex items-center justify-center rounded-[var(--radius-pill)] text-[10px] font-semibold leading-none shadow-sm transition-all select-none pointer-events-none",
+                              "absolute -top-1.5 -right-1.5 w-4 h-4 flex items-center justify-center rounded-[var(--radius-pill)] text-xs font-bold leading-none shadow-sm transition-all select-none pointer-events-none",
                               isActive
                                 ? "bg-white text-[var(--brand-pink)]"
                                 : "bg-[var(--brand-pink)] text-white"
@@ -504,7 +504,7 @@ function Sidebar({
                       {!collapsed && badge && (
                         <span
                           className={cn(
-                            "absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center rounded-[var(--radius-pill)] text-[10px] font-semibold leading-none transition-all select-none pointer-events-none",
+                            "absolute right-3 top-1/2 -translate-y-1/2 min-w-[20px] h-5 px-1 flex items-center justify-center rounded-[var(--radius-pill)] text-xs font-bold leading-none transition-all select-none pointer-events-none",
                             isActive
                               ? "bg-white text-[var(--brand-pink)]"
                               : "bg-[var(--brand-pink)] text-white"
@@ -541,7 +541,7 @@ function Sidebar({
           )}
         </Link>
         {!collapsed && (
-          <div className="text-[9px] font-sans font-bold tracking-wider text-[var(--ink-500)] uppercase">
+          <div className="text-xs font-sans font-bold tracking-wider text-muted-foreground uppercase">
             Powered By Arbob Tech Team
           </div>
         )}
@@ -661,8 +661,8 @@ function Topbar({
         )}
         {(title || subtitle) && (
           <div className="min-w-0">
-            {title && <h1 className="text-[20px] font-semibold text-[var(--ink-900)] leading-tight tracking-tight truncate">{title}</h1>}
-            {subtitle && <p className="text-[14px] font-normal text-[var(--ink-500)] truncate mt-1">{subtitle}</p>}
+            {title && <h1 className="text-xl md:text-2xl font-bold text-foreground leading-tight tracking-tight truncate">{title}</h1>}
+            {subtitle && <p className="text-sm font-normal text-muted-foreground truncate mt-0.5">{subtitle}</p>}
           </div>
         )}
       </div>
@@ -670,13 +670,13 @@ function Topbar({
       {role === "CANDIDATE" && (
         <form onSubmit={handleNavSearchSubmit} className="w-full md:hidden mt-2 flex items-center gap-2">
           <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--ink-500)]" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
               type="text"
               value={navSearchQuery}
               onChange={(e) => setNavSearchQuery(e.target.value)}
               placeholder="Search jobs..."
-              className="w-full h-9 pl-9 pr-3 bg-secondary hover:bg-ink-100 border border-border/80 focus:border-[var(--brand-pink)] rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[rgba(230,0,126,0.15)] text-foreground placeholder:text-[var(--ink-400)] transition-all duration-200"
+              className="w-full h-10 pl-9 pr-3 bg-secondary hover:bg-secondary/80 border border-border/80 focus:border-[var(--brand-pink)] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[rgba(230,0,126,0.15)] text-foreground placeholder:text-muted-foreground transition-all duration-200"
             />
           </div>
         </form>
@@ -686,13 +686,13 @@ function Topbar({
         {role === "CANDIDATE" && (
           <form onSubmit={handleNavSearchSubmit} className="hidden md:flex items-center gap-2 mr-4">
             <div className="relative w-48 lg:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--ink-500)]" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 type="text"
                 value={navSearchQuery}
                 onChange={(e) => setNavSearchQuery(e.target.value)}
                 placeholder="Search jobs..."
-                className="w-full h-9 pl-9 pr-3 bg-secondary hover:bg-ink-100 border border-border/80 focus:border-[var(--brand-pink)] rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[rgba(230,0,126,0.15)] text-foreground placeholder:text-[var(--ink-400)] transition-all duration-200"
+                className="w-full h-10 pl-9 pr-3 bg-secondary hover:bg-secondary/80 border border-border/80 focus:border-[var(--brand-pink)] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[rgba(230,0,126,0.15)] text-foreground placeholder:text-muted-foreground transition-all duration-200"
               />
             </div>
           </form>
@@ -705,13 +705,13 @@ function Topbar({
             {/* Global Command Palette search input/button styled as a 36px input bar */}
             <button
               onClick={onSearchClick}
-              className="hidden md:flex items-center justify-between px-3 h-9 w-[280px] bg-[var(--surface)] border border-[var(--ink-200)] rounded-[var(--radius-input)] text-[13px] text-[var(--ink-700)] transition-all cursor-pointer relative select-none"
+              className="hidden md:flex items-center justify-between px-3 h-10 w-[280px] bg-card border border-border rounded-[var(--radius-input)] text-sm text-foreground transition-all cursor-pointer relative select-none hover:border-[var(--brand-pink)]/50"
             >
-              <div className="flex items-center gap-2 text-[var(--ink-400)]">
-                <Search size={14} strokeWidth={1.75} className="text-[var(--ink-500)]" />
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Search size={16} strokeWidth={1.75} className="text-muted-foreground" />
                 <span>Search platform...</span>
               </div>
-              <kbd className="bg-[var(--ink-100)] text-[var(--ink-500)] text-[10px] font-mono px-1.5 py-0.5 rounded-[4px] border-0 select-none">
+              <kbd className="bg-secondary text-muted-foreground text-xs font-mono font-medium px-2 py-0.5 rounded-[6px] border border-border/60 select-none">
                 ⌘K
               </kbd>
             </button>
@@ -721,11 +721,11 @@ function Topbar({
               <button
                 onClick={() => setShowNotif(v => !v)}
                 aria-label="Open notifications"
-                className="relative w-9 h-9 flex items-center justify-center bg-transparent border border-[var(--ink-200)] rounded-[var(--radius-input)] hover:bg-[var(--ink-100)]/30 hover:border-[var(--ink-500)] transition-all cursor-pointer shadow-none select-none"
+                className="relative w-10 h-10 flex items-center justify-center bg-transparent border border-border rounded-[var(--radius-input)] hover:bg-secondary transition-all cursor-pointer shadow-none select-none"
               >
-                <Bell size={18} strokeWidth={1.75} className="text-[var(--ink-500)]" />
+                <Bell size={18} strokeWidth={1.75} className="text-muted-foreground" />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[var(--status-danger)] border border-white" />
+                  <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-rose-500 border-2 border-card" />
                 )}
               </button>
 
@@ -735,13 +735,13 @@ function Topbar({
                   <div className="fixed sm:absolute top-16 sm:top-auto left-4 right-4 sm:left-auto sm:right-0 mt-2 sm:w-80 w-auto bg-card rounded-2xl border border-border shadow-xl z-40 overflow-hidden animate-fade-in">
                     <div className="px-4 py-3 border-b border-border flex items-center justify-between">
                       <span className="text-sm font-semibold">Notifications</span>
-                      <button onClick={() => markAllReadMut.mutate()} className="text-[11px] text-primary font-semibold hover:underline">
+                      <button onClick={() => markAllReadMut.mutate()} className="text-xs text-primary font-semibold hover:underline">
                         Mark all read
                       </button>
                     </div>
                     <div className="max-h-80 overflow-y-auto scrollbar-thin">
                       {notifsList.length === 0 && (
-                        <div className="px-4 py-8 text-center text-xs text-muted-foreground">No notifications</div>
+                        <div className="px-4 py-8 text-center text-sm text-muted-foreground">No notifications</div>
                       )}
                       {notifsList.map(n => (
                         <div
@@ -1094,10 +1094,10 @@ export function DashboardShell({
                   to={item.to}
                   className={cn(
                     "flex-1 flex flex-col items-center justify-center gap-0.5 py-2 transition-all duration-200",
-                    "text-[9px] font-bold uppercase tracking-wide rounded-token-md mx-0.5",
+                    "text-xs font-semibold rounded-token-md mx-0.5",
                     isActive
-                      ? "text-primary"
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "text-primary font-bold"
+                      : "text-muted-foreground hover:text-foreground font-medium"
                   )}
                 >
                   <span
@@ -1107,11 +1107,11 @@ export function DashboardShell({
                     )}
                   >
                     <Icon
-                      size={16}
+                      size={18}
                       className={cn("transition-transform duration-200", isActive && "scale-110")}
                     />
                     {badgeCount > 0 && (
-                      <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[8px] font-bold text-primary-foreground min-w-[14px]">
+                      <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground min-w-[14px]">
                         {badgeCount}
                       </span>
                     )}
@@ -1150,7 +1150,7 @@ export function SectionCard({
       {(title || headerActions) && (
         <header className="px-6 pt-6 flex items-center justify-between gap-3 flex-wrap">
           <div className="min-w-0">
-            {title && <h2 className="text-base font-semibold text-[var(--ink-900)]">{title}</h2>}
+            {title && <h2 className="text-base font-bold text-[var(--ink-900)]">{title}</h2>}
             {subtitle && <p className="text-xs text-[var(--ink-500)] mt-0.5">{subtitle}</p>}
           </div>
           {headerActions && <div className="flex items-center gap-2">{headerActions}</div>}
@@ -1246,7 +1246,15 @@ export function Stepper({
               {/* Label */}
               <span
                 className={cn(
-                  "text-[10px] mt-2 whitespace-nowrap transition-all duration-200 capitalize",
+                  "text-xs mt-2 whitespace-nowrap transition-all duration-200 capitalize",
+                  isRejected && "line-through text-[var(--ink-500)]",
+                  !isRejected && isCompleted && "text-[var(--ink-900)] font-medium",
+                  !isRejected && isCurrent && "text-[var(--ink-900)] font-semibold",
+                  !isRejected && isUpcoming && "text-[var(--ink-500)] font-medium"
+                )}
+              >
+                {label.toLowerCase()}
+              </span>
                   isRejected && "line-through text-[var(--ink-500)]",
                   !isRejected && isCompleted && "text-[var(--ink-900)] font-medium",
                   !isRejected && isCurrent && "text-[var(--ink-900)] font-semibold",
@@ -1817,11 +1825,11 @@ function CommandPaletteModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search users, audit logs, jobs, or admins..."
-            className="w-full bg-transparent border-0 focus:outline-none focus:ring-0 text-foreground text-xs placeholder:text-ink-300"
+            className="w-full bg-transparent border-0 focus:outline-none focus:ring-0 text-foreground text-sm placeholder:text-muted-foreground"
           />
           <button
             onClick={onClose}
-            className="text-[9px] font-bold text-muted-foreground hover:text-foreground bg-secondary px-2 py-1 rounded-lg border border-border cursor-pointer"
+            className="text-xs font-semibold text-muted-foreground hover:text-foreground bg-secondary px-2.5 py-1 rounded-lg border border-border cursor-pointer"
           >
             ESC
           </button>
@@ -1829,7 +1837,7 @@ function CommandPaletteModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
 
         <div className="overflow-y-auto scrollbar-thin p-4 flex-1 space-y-4 max-h-[50vh]">
           {filteredResults.length === 0 ? (
-            <div className="text-center py-8 text-xs text-muted-foreground">
+            <div className="text-center py-8 text-sm text-muted-foreground">
               No matching records found.
             </div>
           ) : (
@@ -1839,7 +1847,7 @@ function CommandPaletteModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
 
               return (
                 <div key={cat} className="space-y-1.5 text-left">
-                  <div className="text-[9px] font-bold uppercase tracking-widest text-ink-300 px-2">
+                  <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-2">
                     {cat}
                   </div>
                   <div className="space-y-1">
@@ -1850,17 +1858,17 @@ function CommandPaletteModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
                           navigate(item.route);
                           onClose();
                         }}
-                        className="px-3 py-2 hover:bg-secondary/40 rounded-xl cursor-pointer transition-all flex items-center justify-between group"
+                        className="px-3 py-2.5 hover:bg-secondary/60 rounded-xl cursor-pointer transition-all flex items-center justify-between group"
                       >
                         <div>
-                          <div className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
+                          <div className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
                             {item.title}
                           </div>
-                          <div className="text-[10px] text-muted-foreground mt-0.5 font-medium truncate max-w-sm">
+                          <div className="text-xs text-muted-foreground mt-0.5 font-normal truncate max-w-sm">
                             {item.subtitle}
                           </div>
                         </div>
-                        <ArrowUpRight size={13} className="text-muted-foreground opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all animate-fade-in" />
+                        <ArrowUpRight size={15} className="text-muted-foreground opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all animate-fade-in" />
                       </div>
                     ))}
                   </div>

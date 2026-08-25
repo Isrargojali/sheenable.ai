@@ -44,7 +44,7 @@ export function TagPill({ variant = "neutral", children, icon, className }: Prop
   const text = children ?? LABELS[variant];
   return (
     <span className={cn(
-      "inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-semibold tracking-wide",
+      "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-xs font-semibold tracking-normal transition-colors",
       STYLES[variant],
       className,
     )}>

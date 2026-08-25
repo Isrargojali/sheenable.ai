@@ -119,34 +119,34 @@ export default function FeaturedJobs() {
         </div>
         <Link
           to={user ? "/candidate/jobs" : "/auth/login"}
-          className="inline-flex items-center gap-1.5 text-[13px] text-[var(--ink-500)] underline hover:text-[var(--brand-pink)] transition-all duration-200"
+          className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--ink-700)] underline hover:text-[var(--brand-pink)] transition-all duration-200"
         >
-          View all jobs <ArrowRight size={13} />
+          View all jobs <ArrowRight size={15} />
         </Link>
       </div>
 
       {/* Filter bar */}
-      <div className="bg-[var(--surface)] border border-[var(--ink-300)] rounded-xl p-2 mb-8 flex flex-wrap items-center gap-2 shadow-card">
-        <div className="flex-1 min-w-[220px] flex items-center gap-2 px-3 h-11 rounded-xl bg-[var(--ink-100)]">
-          <Search size={14} className="text-[var(--ink-500)]" />
+      <div className="bg-[var(--surface)] border border-[var(--ink-300)] rounded-2xl p-2.5 mb-8 flex flex-wrap items-center gap-2.5 shadow-card">
+        <div className="flex-1 min-w-[220px] flex items-center gap-2.5 px-3.5 h-11 rounded-xl bg-[var(--ink-100)]">
+          <Search size={16} className="text-muted-foreground flex-shrink-0" />
           <input
             value={q}
             onChange={e => setQ(e.target.value)}
             placeholder="Search jobs, skills, or companies"
-            className="flex-1 bg-transparent text-[13px] text-[var(--ink-500)] focus:outline-none placeholder:text-[var(--ink-500)]"
+            className="flex-1 bg-transparent text-sm text-foreground focus:outline-none placeholder:text-muted-foreground font-medium"
             aria-label="Search jobs"
           />
         </div>
         <Select value={industry} onValueChange={setIndustry}>
-          <SelectTrigger className="h-11 w-full sm:w-[180px] px-3.5 rounded-xl bg-[var(--ink-100)] border border-transparent hover:bg-[var(--ink-300)]/40 text-[13px] font-semibold text-[var(--ink-700)] focus:ring-0 focus:ring-offset-0 focus:outline-none shadow-none cursor-pointer transition-colors duration-200">
+          <SelectTrigger className="h-11 w-full sm:w-[180px] px-3.5 rounded-xl bg-[var(--ink-100)] border border-transparent hover:bg-[var(--ink-300)]/40 text-sm font-semibold text-[var(--ink-700)] focus:ring-0 focus:ring-offset-0 focus:outline-none shadow-none cursor-pointer transition-colors duration-200">
             <SelectValue placeholder="Industry" />
           </SelectTrigger>
-          <SelectContent className="bg-[var(--surface)] border border-transparent rounded-xl shadow-card min-w-[180px] p-1">
+          <SelectContent className="bg-[var(--surface)] border border-[var(--ink-300)] rounded-xl shadow-card min-w-[180px] p-1">
             {INDUSTRIES.map(i => (
               <SelectItem
                 key={i}
                 value={i}
-                className="text-[13px] font-semibold text-[var(--ink-700)] focus:bg-[var(--ink-100)] focus:text-[var(--ink-900)] rounded-lg cursor-pointer py-2 pl-8 pr-2"
+                className="text-sm font-semibold text-[var(--ink-700)] focus:bg-[var(--ink-100)] focus:text-[var(--ink-900)] rounded-lg cursor-pointer py-2.5 pl-8 pr-2.5"
               >
                 {i}
               </SelectItem>
@@ -155,15 +155,15 @@ export default function FeaturedJobs() {
         </Select>
 
         <Select value={type} onValueChange={setType}>
-          <SelectTrigger className="h-11 w-full sm:w-[150px] px-3.5 rounded-xl bg-[var(--ink-100)] border border-transparent hover:bg-[var(--ink-300)]/40 text-[13px] font-semibold text-[var(--ink-700)] focus:ring-0 focus:ring-offset-0 focus:outline-none shadow-none cursor-pointer transition-colors duration-200">
+          <SelectTrigger className="h-11 w-full sm:w-[150px] px-3.5 rounded-xl bg-[var(--ink-100)] border border-transparent hover:bg-[var(--ink-300)]/40 text-sm font-semibold text-[var(--ink-700)] focus:ring-0 focus:ring-offset-0 focus:outline-none shadow-none cursor-pointer transition-colors duration-200">
             <SelectValue placeholder="Job Type" />
           </SelectTrigger>
-          <SelectContent className="bg-[var(--surface)] border border-transparent rounded-xl shadow-card min-w-[150px] p-1">
+          <SelectContent className="bg-[var(--surface)] border border-[var(--ink-300)] rounded-xl shadow-card min-w-[150px] p-1">
             {TYPES.map(t => (
               <SelectItem
                 key={t}
                 value={t}
-                className="text-[13px] font-semibold text-[var(--ink-700)] focus:bg-[var(--ink-100)] focus:text-[var(--ink-900)] rounded-lg cursor-pointer py-2 pl-8 pr-2"
+                className="text-sm font-semibold text-[var(--ink-700)] focus:bg-[var(--ink-100)] focus:text-[var(--ink-900)] rounded-lg cursor-pointer py-2.5 pl-8 pr-2.5"
               >
                 {t}
               </SelectItem>
@@ -172,9 +172,9 @@ export default function FeaturedJobs() {
         </Select>
         <button
           onClick={handleFilterClick}
-          className="inline-flex items-center gap-1.5 h-11 px-6 rounded-xl bg-[var(--brand-pink)] text-white text-[15px] font-semibold hover:bg-[var(--brand-pink)]/90 press"
+          className="inline-flex items-center gap-1.5 h-11 px-6 rounded-xl bg-[var(--brand-pink)] text-white text-sm font-semibold hover:bg-[var(--brand-pink-hover)] press shadow-sm"
         >
-          <SlidersHorizontal size={13} /> Filter
+          <SlidersHorizontal size={15} /> Filter
         </button>
       </div>
 
