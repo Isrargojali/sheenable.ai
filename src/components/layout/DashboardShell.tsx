@@ -1255,14 +1255,6 @@ export function Stepper({
               >
                 {label.toLowerCase()}
               </span>
-                  isRejected && "line-through text-[var(--ink-500)]",
-                  !isRejected && isCompleted && "text-[var(--ink-900)] font-medium",
-                  !isRejected && isCurrent && "text-[var(--ink-900)] font-semibold",
-                  !isRejected && isUpcoming && "text-[var(--ink-500)] font-medium"
-                )}
-              >
-                {label.toLowerCase()}
-              </span>
             </button>
 
             {/* Connector Line */}
