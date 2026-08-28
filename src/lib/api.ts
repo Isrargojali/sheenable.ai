@@ -215,6 +215,7 @@ export const apiAdmin = {
   getThreatData:    ()                               => api.get('/admin/security-threats').then(unwrap),
   getSystemHealth:  ()                               => api.get('/admin/system-health').then(unwrap),
   getAnalytics:     (period?: 'today' | '7d' | '30d' | '90d') => api.get('/admin/analytics', { params: { period } }).then(unwrap),
+  getTimeseries:    (range?: 'today' | '7d' | '30d') => api.get('/admin/stats/timeseries', { params: { range } }).then(unwrap),
   getJobs:          (params?: object)                => api.get('/admin/jobs', { params }).then(unwrap),
   updateJobStatus:  (jobId: string, status: string)  => api.patch(`/admin/jobs/${jobId}/status`, { status }).then(unwrap),
 };

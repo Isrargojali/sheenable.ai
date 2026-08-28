@@ -10,9 +10,24 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const logger = require('../utils/logger');
 
-const logAudit = async (action, resourceType, resourceId, userId = null) => {
+const logAudit = async (action, resourceType, resourceId, userId = null, req = null, extraMeta = {}) => {
   try {
-    await AuditLog.create({ action, resourceType, resourceId, userId });
+    const ip = req?.ip || req?.connection?.remoteAddress || req?.headers?.['x-forwarded-for'] || '0.0.0.0';
+    const userAgent = req?.headers?.['user-agent'] || '';
+    await AuditLog.create({
+      action,
+      resourceType,
+      resourceId,
+      userId,
+      ipAddress: ip,
+      userAgent,
+      changes: {
+        ip,
+        userAgent,
+        ...extraMeta
+      },
+      status: action.includes('FAIL') ? 'FAILURE' : 'SUCCESS'
+    });
   } catch (err) {
     console.error('AuditLog error:', err.message);
   }
@@ -58,7 +73,7 @@ const register = async (req, res, next) => {
       // Don't fail signup if email fails - allow manual resend
     }
     
-    await logAudit('USER_REGISTERED', 'user', user._id, user._id);
+    await logAudit('USER_REGISTERED', 'user', user._id, user._id, req, { email: user.email, role: user.role });
 
     return res.status(201).json({
       success: true,
@@ -146,7 +161,7 @@ const login = async (req, res, next) => {
         user.lockedUntil = new Date(Date.now() + 15 * 60 * 1000);
       }
       await user.save();
-      await logAudit('LOGIN_FAILED', 'user', user._id, user._id);
+      await logAudit('LOGIN_FAILED', 'user', user._id, user._id, req, { email: user.email });
       return error(res, 'Invalid credentials', 401);
     }
 
@@ -178,7 +193,7 @@ const login = async (req, res, next) => {
     user.refreshToken = hashToken(refreshToken);
     await user.save();
 
-    await logAudit('LOGIN_SUCCESS', 'user', user._id, user._id);
+    await logAudit('LOGIN_SUCCESS', 'user', user._id, user._id, req, { email: user.email, role: user.role });
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
@@ -241,7 +256,7 @@ const logout = async (req, res, next) => {
       user.refreshToken = undefined;
       await user.save();
     }
-    await logAudit('LOGOUT', 'user', req.user._id, req.user._id);
+    await logAudit('LOGOUT', 'user', req.user._id, req.user._id, req, { email: req.user.email });
     
     res.clearCookie('refreshToken');
     return success(res, null, 'Logged out successfully');
@@ -405,7 +420,7 @@ const googleOAuth = async (req, res, next) => {
         await EmployerProfile.create({ userId: user._id, companyName: `${firstName}'s Company`, industry: 'Other' });
       }
       isNewUser = true;
-      await logAudit('USER_REGISTERED_OAUTH', 'user', user._id, user._id);
+      await logAudit('USER_REGISTERED_OAUTH', 'user', user._id, user._id, req, { email: user.email, role: user.role, provider: 'google' });
     } else {
       if (!user.isVerified) {
         user.isVerified = true;
@@ -419,7 +434,7 @@ const googleOAuth = async (req, res, next) => {
     user.refreshToken = hashToken(newRefreshToken);
     await user.save();
 
-    await logAudit('LOGIN_SUCCESS_OAUTH', 'user', user._id, user._id);
+    await logAudit('LOGIN_SUCCESS_OAUTH', 'user', user._id, user._id, req, { email: user.email, role: user.role, provider: 'google' });
 
     if (isNewUser) {
       try {
@@ -522,7 +537,7 @@ const linkedinOAuth = async (req, res, next) => {
         await EmployerProfile.create({ userId: user._id, companyName: `${firstName}'s Company`, industry: 'Other' });
       }
       isNewUser = true;
-      await logAudit('USER_REGISTERED_OAUTH', 'user', user._id, user._id);
+      await logAudit('USER_REGISTERED_OAUTH', 'user', user._id, user._id, req, { email: user.email, role: user.role, provider: 'linkedin' });
     } else {
       if (!user.isVerified) {
         user.isVerified = true;
@@ -536,7 +551,7 @@ const linkedinOAuth = async (req, res, next) => {
     user.refreshToken = hashToken(newRefreshToken);
     await user.save();
 
-    await logAudit('LOGIN_SUCCESS_OAUTH', 'user', user._id, user._id);
+    await logAudit('LOGIN_SUCCESS_OAUTH', 'user', user._id, user._id, req, { email: user.email, role: user.role, provider: 'linkedin' });
 
     if (isNewUser) {
       try {

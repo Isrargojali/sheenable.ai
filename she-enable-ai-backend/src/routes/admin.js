@@ -4,7 +4,7 @@ const { protect } = require('../middleware/auth');
 const { authorize } = require('../middleware/roles');
 const {
   getStats, getUsers, getUserById, updateUserRole, updateUserStatus, deleteUser,
-  getAuditLogs, getSecurityInfo, getAnalytics, getJobsAdmin, updateJobStatusAdmin, getThreatData,
+  getAuditLogs, getSecurityInfo, getAnalytics, getTimeseries, getJobsAdmin, updateJobStatusAdmin, getThreatData,
   getSystemHealth, createAdminUser
 } = require('../controllers/adminController');
 
@@ -12,6 +12,7 @@ router.use(protect);
 router.use(authorize('ADMIN', 'SUPER_ADMIN'));
 
 router.get('/stats', getStats);
+router.get('/stats/timeseries', getTimeseries);
 router.get('/security-threats', getThreatData);
 router.get('/system-health', getSystemHealth);
 router.get('/users', getUsers);

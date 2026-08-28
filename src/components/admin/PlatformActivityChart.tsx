@@ -132,27 +132,27 @@ export function PlatformActivityChart({
 
   // Real-time live data fetching from system database via apiAdmin
   const {
-    data: liveAnalytics,
+    data: liveTimeseries,
     isLoading,
     isFetching,
     refetch,
   } = useQuery<AnalyticsApiResponse>({
-    queryKey: ["adminAnalytics", activeTimeframe],
-    queryFn: () => apiAdmin.getAnalytics(activeTimeframe),
+    queryKey: ["adminTimeseries", activeTimeframe],
+    queryFn: () => apiAdmin.getTimeseries(activeTimeframe),
     refetchInterval: 15000, // Live poll every 15s
     staleTime: 10000,
   });
 
   // Merge and sanitize live backend timeline data
   const chartData: ActivityDataPoint[] = useMemo(() => {
-    if (liveAnalytics?.timeline && Array.isArray(liveAnalytics.timeline) && liveAnalytics.timeline.length > 0) {
-      return liveAnalytics.timeline;
+    if (liveTimeseries?.timeline && Array.isArray(liveTimeseries.timeline) && liveTimeseries.timeline.length > 0) {
+      return liveTimeseries.timeline;
     }
 
     // Process raw user/app aggregation buckets if timeline is missing
-    if (liveAnalytics?.users || liveAnalytics?.applications) {
-      const userMap = Object.fromEntries((liveAnalytics.users || []).map((u) => [u._id, u.count]));
-      const appMap = Object.fromEntries((liveAnalytics.applications || []).map((a) => [a._id, a.count]));
+    if (liveTimeseries?.users || liveTimeseries?.applications) {
+      const userMap = Object.fromEntries((liveTimeseries.users || []).map((u) => [u._id, u.count]));
+      const appMap = Object.fromEntries((liveTimeseries.applications || []).map((a) => [a._id, a.count]));
 
       const baseList = generateFallbackTimeline(activeTimeframe);
       return baseList.map((item) => ({
@@ -163,11 +163,12 @@ export function PlatformActivityChart({
     }
 
     return generateFallbackTimeline(activeTimeframe);
-  }, [liveAnalytics, activeTimeframe]);
+  }, [liveTimeseries, activeTimeframe]);
 
   // Calculate live cumulative period metrics
   const totalSignups = useMemo(() => chartData.reduce((acc, curr) => acc + (curr.signups || 0), 0), [chartData]);
   const totalApps = useMemo(() => chartData.reduce((acc, curr) => acc + (curr.applications || 0), 0), [chartData]);
+  const hasActivity = totalSignups > 0 || totalApps > 0;
 
   return (
     <div
@@ -230,77 +231,89 @@ export function PlatformActivityChart({
             <span className="text-xs text-[var(--ink-500)] font-medium">Aggregating live system telemetry...</span>
           </div>
         ) : (
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart
-              data={chartData}
-              margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
-            >
-              <defs>
-                <linearGradient id="signupsGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#E6007E" stopOpacity={0.18} />
-                  <stop offset="95%" stopColor="#E6007E" stopOpacity={0.0} />
-                </linearGradient>
-                <linearGradient id="applicationsGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#6366F1" stopOpacity={0.18} />
-                  <stop offset="95%" stopColor="#6366F1" stopOpacity={0.0} />
-                </linearGradient>
-              </defs>
+          <>
+            {!hasActivity && (
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none">
+                <div className="bg-background/85 backdrop-blur-sm border border-[var(--ink-200)] shadow-sm px-4 py-2 rounded-full flex items-center gap-2 animate-fade-in">
+                  <Activity size={14} className="text-[var(--ink-400)]" />
+                  <span className="text-xs font-medium text-[var(--ink-600)]">
+                    No activity recorded in this {activeTimeframe === "today" ? "day" : activeTimeframe === "30d" ? "month" : "week"} yet
+                  </span>
+                </div>
+              </div>
+            )}
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart
+                data={chartData}
+                margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
+              >
+                <defs>
+                  <linearGradient id="signupsGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#E6007E" stopOpacity={0.18} />
+                    <stop offset="95%" stopColor="#E6007E" stopOpacity={0.0} />
+                  </linearGradient>
+                  <linearGradient id="applicationsGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#6366F1" stopOpacity={0.18} />
+                    <stop offset="95%" stopColor="#6366F1" stopOpacity={0.0} />
+                  </linearGradient>
+                </defs>
 
-              <CartesianGrid
-                stroke="var(--ink-200)"
-                strokeOpacity={0.7}
-                vertical={false}
-              />
+                <CartesianGrid
+                  stroke="var(--ink-200)"
+                  strokeOpacity={0.7}
+                  vertical={false}
+                />
 
-              <XAxis
-                dataKey="label"
-                axisLine={false}
-                tickLine={false}
-                dy={10}
-                tick={{
-                  fill: "var(--ink-400)",
-                  fontSize: 11,
-                  fontWeight: 500,
-                }}
-              />
+                <XAxis
+                  dataKey="label"
+                  axisLine={false}
+                  tickLine={false}
+                  dy={10}
+                  tick={{
+                    fill: "var(--ink-400)",
+                    fontSize: 11,
+                    fontWeight: 500,
+                  }}
+                />
 
-              <YAxis hide domain={[0, "dataMax + 4"]} />
+                <YAxis hide domain={[0, hasActivity ? "dataMax + 2" : 4]} allowDecimals={false} />
 
-              <Tooltip content={<CustomTooltip />} />
+                <Tooltip content={<CustomTooltip />} />
 
-              {/* Pink Area: Signups */}
-              <Area
-                type="monotone"
-                dataKey="signups"
-                stroke="#E6007E"
-                strokeWidth={2}
-                fillOpacity={1}
-                fill="url(#signupsGradient)"
-                activeDot={{
-                  r: 5,
-                  fill: "#E6007E",
-                  stroke: "#FFFFFF",
-                  strokeWidth: 2,
-                }}
-              />
+                {/* Pink Area: Signups */}
+                <Area
+                  type="monotone"
+                  dataKey="signups"
+                  stroke="#E6007E"
+                  strokeWidth={2}
+                  fillOpacity={1}
+                  fill="url(#signupsGradient)"
+                  activeDot={{
+                    r: 5,
+                    fill: "#E6007E",
+                    stroke: "#FFFFFF",
+                    strokeWidth: 2,
+                  }}
+                />
 
-              {/* Blue Area: Applications */}
-              <Area
-                type="monotone"
-                dataKey="applications"
-                stroke="#6366F1"
-                strokeWidth={2}
-                fillOpacity={1}
-                fill="url(#applicationsGradient)"
-                activeDot={{
-                  r: 5,
-                  fill: "#6366F1",
-                  stroke: "#FFFFFF",
-                  strokeWidth: 2,
-                }}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+                {/* Blue Area: Applications */}
+                <Area
+                  type="monotone"
+                  dataKey="applications"
+                  stroke="#6366F1"
+                  strokeWidth={2}
+                  fillOpacity={1}
+                  fill="url(#applicationsGradient)"
+                  activeDot={{
+                    r: 5,
+                    fill: "#6366F1",
+                    stroke: "#FFFFFF",
+                    strokeWidth: 2,
+                  }}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </>
         )}
       </div>
 

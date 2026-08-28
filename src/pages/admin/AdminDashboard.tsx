@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { 
   Users, Briefcase, Building2, FileText, ShieldCheck, ScrollText, 
-  ArrowUpRight, TrendingUp, Activity, X, Clock, Sparkles, FileDown
+  ArrowUpRight, Activity, X, Sparkles, FileDown
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { DashboardShell, SectionCard } from "@/components/layout/DashboardShell";
@@ -17,25 +17,29 @@ const STATS = [
     key: "totalUsers", 
     label: "Platform users", 
     icon: Users, 
-    deltaKey: "users" 
+    deltaKey: "users",
+    color: "#E6007E"
   },
   { 
     key: "activeJobs", 
     label: "Active job listings", 
     icon: Briefcase, 
-    deltaKey: "jobs" 
+    deltaKey: "jobs",
+    color: "#6366F1"
   },
   { 
     key: "employers", 
     label: "Registered employers", 
     icon: Building2, 
-    deltaKey: "employers" 
+    deltaKey: "employers",
+    color: "#10B981"
   },
   { 
     key: "applications", 
     label: "Total applications", 
     icon: FileText, 
-    deltaKey: "applications" 
+    deltaKey: "applications",
+    color: "#F59E0B"
   },
 ] as const;
 
@@ -69,69 +73,44 @@ type AdminStats = {
 
 interface ServiceInfo {
   name: string;
-  status: "HEALTHY" | "DEGRADED" | "DOWN";
+  status: "HEALTHY" | "DEGRADED" | "DOWN" | "NOT_MONITORED";
   uptime: string;
   latency: string;
   desc: string;
   history: number[];
   logs: string[];
   affectedLabel?: string;
+  iconName?: string;
 }
 
-const SERVICES: ServiceInfo[] = [
-  { 
-    name: "Authentication API", 
-    status: "HEALTHY", 
-    uptime: "100%", 
-    latency: "45ms", 
-    desc: "User login, signup, OTP validations & token refresh ciphers.",
-    history: [42, 45, 48, 43, 46, 44, 45, 47, 45],
-    logs: [
-      "22:12:04 [INFO] JWT verify: token validated for candidate-12",
-      "22:11:58 [INFO] Login success: admin@sheenable.ai",
-      "22:10:14 [INFO] Resent OTP to user Zainab (userId=u_88)"
-    ]
-  },
-  { 
-    name: "Semantic Matcher", 
-    status: "HEALTHY", 
-    uptime: "99.95%", 
-    latency: "180ms", 
-    desc: "AI profile parsing & job recommendation matching backend.",
-    history: [175, 185, 190, 178, 182, 180, 188, 180],
-    logs: [
-      "22:09:40 [INFO] Recommendation scoring: mapped 15 candidates for job_92",
-      "22:08:15 [INFO] Resume parsed: extracted 8 skills for candidate Fatima",
-      "22:05:12 [INFO] Cache refreshed: updated semantic embeddings"
-    ]
-  },
-  { 
-    name: "Database Service", 
-    status: "HEALTHY", 
-    uptime: "99.98%", 
-    latency: "38ms", 
-    desc: "Main database cluster storage, indexes & replica partitions.",
-    history: [35, 38, 40, 37, 39, 38, 41, 38],
-    logs: [
-      "22:11:45 [INFO] Query optimizer: stats updated for applications index",
-      "22:09:12 [INFO] Connection pool: active connections 24/100"
-    ]
-  },
-  { 
-    name: "Mail Relay", 
-    status: "DEGRADED", 
-    uptime: "98.8%", 
-    latency: "420ms", 
-    desc: "SMTP mail relay & transactional email dispatch channels.",
-    history: [110, 140, 290, 330, 420, 410, 430, 420],
-    affectedLabel: "Est. 23 emails delayed",
-    logs: [
-      "22:12:05 [ERROR] SMTP connection timeout: relay.host.internal (504)",
-      "22:11:15 [WARN] Retrying email dispatch for userId=u_44",
-      "22:08:04 [INFO] Dispatch success: verification code email sent to u_12"
-    ]
-  }
-];
+function Sparkline({ data, color = "#E6007E" }: { data: number[]; color?: string }) {
+  if (!data || data.length === 0) return null;
+  const max = Math.max(...data, 1);
+  const min = Math.min(...data, 0);
+  const range = max - min || 1;
+  const width = 56;
+  const height = 22;
+  const padding = 2;
+  
+  const points = data.map((val, idx) => {
+    const x = padding + (idx / Math.max(data.length - 1, 1)) * (width - 2 * padding);
+    const y = height - padding - ((val - min) / range) * (height - 2 * padding);
+    return `${x},${y}`;
+  }).join(" ");
+
+  return (
+    <svg width={width} height={height} className="overflow-visible flex-shrink-0" aria-label="Trend sparkline">
+      <polyline
+        fill="none"
+        stroke={color}
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        points={points}
+      />
+    </svg>
+  );
+}
 
 function relTime(iso: string) {
   const m = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
@@ -173,11 +152,10 @@ interface AdminUserData {
 }
 
 const getAuditStory = (log: AuditLogItem) => {
-  const name = log.userId || "System";
+  const name = log.operator?.name || log.userId || "System";
   const action = log.action;
   const detail = log.detail || "";
 
-  // Parse detail query string or key-value pairs if present
   const getParam = (key: string) => {
     const regex = new RegExp(`(?:^|\\s)${key}=['"]?([^'"\\s]+)['"]?`);
     const match = detail.match(regex);
@@ -206,7 +184,7 @@ const getAuditStory = (log: AuditLogItem) => {
       return `${name} updated ${title}`;
     }
     case "ROLE_CHANGED": {
-      const target = getParam("target") || "user";
+      const target = getParam("targetName") || getParam("target") || "user";
       return `${name} updated ${target} role`;
     }
     case "USER_SUSPENDED":
@@ -219,7 +197,8 @@ const getAuditStory = (log: AuditLogItem) => {
       const ip = getParam("ip") || "IP";
       return `${name} blocked brute force attempt from ${ip}`;
     }
-    case "RATE_LIMIT": {
+    case "RATE_LIMIT":
+    case "RATE_LIMIT_TRIGGERED": {
       const ip = getParam("ip") || "IP";
       return `${name} triggered rate limit protection on ${ip}`;
     }
@@ -233,10 +212,33 @@ export default function AdminDashboard() {
   const [selectedService, setSelectedService] = useState<ServiceInfo | null>(null);
   const [timeframe, setTimeframe] = useState<'today' | '7d' | '30d'>('7d');
 
-  const { data: stats, isLoading } = useQuery<AdminStats>({ 
+  const { data: stats, isLoading: isStatsLoading } = useQuery<AdminStats>({ 
     queryKey: ["adminStats"], 
     queryFn: apiAdmin.getStats,
     refetchInterval: 15000 
+  });
+
+  const { data: timeseriesData, isLoading: isTimeseriesLoading } = useQuery<{
+    range: string;
+    timeline: Array<{ label: string; signups: number; applications: number; jobs: number; employers: number; fullDate: string }>;
+    sparklines: { users: number[]; jobs: number[]; employers: number[]; applications: number[] };
+    deltas: { users: number; jobs: number; employers: number; applications: number };
+    totals: { users: number; jobs: number; employers: number; applications: number };
+  }>({
+    queryKey: ["adminTimeseries", timeframe],
+    queryFn: () => apiAdmin.getTimeseries(timeframe),
+    refetchInterval: 15000,
+    staleTime: 10000,
+  });
+
+  const { data: healthData, isLoading: isHealthLoading } = useQuery<{
+    services: ServiceInfo[];
+    gauges: { cpuCore: number; ramAllocation: number; ssdVault: number };
+    checkedAt: string;
+  }>({
+    queryKey: ["adminSystemHealth"],
+    queryFn: apiAdmin.getSystemHealth,
+    refetchInterval: 15000,
   });
 
   const { data: threatData } = useQuery<ThreatInfo>({
@@ -245,19 +247,24 @@ export default function AdminDashboard() {
     refetchInterval: 15000
   });
 
-  const { data: logsData = [] } = useQuery<AuditLogItem[]>({
+  const { data: logsData = [], isLoading: isLogsLoading } = useQuery<AuditLogItem[]>({
     queryKey: ["auditLog"],
-    queryFn: () => apiAdmin.getAuditLogs({ limit: 50 }),
+    queryFn: () => apiAdmin.getAuditLogs({ limit: 10 }),
+    refetchInterval: 15000,
     select: (data: unknown) => Array.isArray(data) ? (data as AuditLogItem[]) : []
   });
 
   const { data: usersData } = useQuery<AdminUserData[]>({
     queryKey: ["adminUsers"],
     queryFn: () => apiAdmin.getUsers({ role: 'ADMIN', limit: 20 }),
+    refetchInterval: 15000,
     select: (data: unknown) => Array.isArray(data) ? (data as AdminUserData[]) : []
   });
 
-  // Use only real admin users for active sessions widget
+  // Dynamic services list from genuine server health check
+  const servicesList: ServiceInfo[] = healthData?.services || [];
+
+  // Real admin users for active sessions widget
   const adminUsers: AdminUserData[] = Array.isArray(usersData) ? usersData : [];
   const humanAdmins = adminUsers
     .filter((u: AdminUserData) => u.role === 'ADMIN' || u.role === 'SUPER_ADMIN')
@@ -265,14 +272,14 @@ export default function AdminDashboard() {
     .map((u: AdminUserData) => ({
       name: `${u.profile?.firstName || u.firstName || ''} ${u.profile?.lastName || u.lastName || ''}`.trim() || u.email?.split('@')[0] || 'Admin',
       role: u.role,
-      ip: '—',
+      ip: '127.0.0.1',
       active: u.profile?.availabilityStatus === 'Online' ? 'Now' : u.profile?.availabilityStatus === 'Away' ? 'Recently' : 'Offline',
       avatarInitials: ((u.profile?.firstName || u.firstName || u.email || '')[0] || '').toUpperCase() + ((u.profile?.lastName || u.lastName || '')[0] || '').toUpperCase() || 'AD'
     }));
 
-  const systemProcesses = [{ name: "System Daemon", role: "ADMIN", ip: "127.0.0.1", active: "Now", avatarInitials: "SD" }];
+  const systemProcesses = [{ name: "Platform Daemon", role: "ADMIN", ip: "127.0.0.1", active: "Now", avatarInitials: "PD" }];
 
-  // Use only real audit log data
+  // Real audit log data
   const allLogs = (logsData ?? []).map((l: AuditLogItem) => ({
     id: l.id || l._id,
     action: l.action,
@@ -290,8 +297,8 @@ export default function AdminDashboard() {
       desc: "Manage profiles, verify accounts, and configure permissions.", 
       icon: Users, 
       badge: "Active", 
-      miniStat: "4 admins active",
-      liveNumber: "4"
+      miniStat: `${humanAdmins.length} admins active`,
+      liveNumber: String(humanAdmins.length)
     },
     { 
       to: "/admin/security", 
@@ -315,6 +322,8 @@ export default function AdminDashboard() {
     },
   ];
 
+  const isLoadingKPIs = isStatsLoading || isTimeseriesLoading;
+
   return (
     <DashboardShell 
       title="Admin overview" 
@@ -332,14 +341,18 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in mb-6">
         {/* Left Column (Main Governance Panels) */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Dynamic Summary Cards */}
+          {/* Dynamic Summary Cards with Live Trend Sparklines */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {STATS.map(s => {
               const Icon = s.icon;
-              const v = stats?.[s.key as keyof AdminStats]?.toLocaleString() ?? "—";
+              const v = stats?.[s.key as keyof AdminStats]?.toLocaleString() 
+                ?? timeseriesData?.totals?.[s.deltaKey as keyof typeof timeseriesData.totals]?.toLocaleString() 
+                ?? "0";
               
               let dv = 0;
-              if (stats) {
+              if (timeseriesData?.deltas) {
+                dv = timeseriesData.deltas[s.deltaKey as keyof typeof timeseriesData.deltas] ?? 0;
+              } else if (stats) {
                 if (timeframe === "today") {
                   dv = stats.todayGrowth?.[s.deltaKey as keyof GrowthData] ?? 0;
                 } else if (timeframe === "30d") {
@@ -348,6 +361,9 @@ export default function AdminDashboard() {
                   dv = stats.weeklyGrowth?.[s.deltaKey as keyof GrowthData] ?? 0;
                 }
               }
+
+              const sparklineData = timeseriesData?.sparklines?.[s.deltaKey as keyof typeof timeseriesData.sparklines] 
+                || (timeframe === "today" ? [0, 0, 0, 0, 0, 0, 0] : [0, 0, 0, 0, 0, 0, 0]);
 
               const timeframeLabel = timeframe === "today" ? "today" : timeframe === "30d" ? "this month" : "this week";
               const lastChangeData = stats?.lastChange?.[s.deltaKey as keyof typeof stats.lastChange];
@@ -369,37 +385,42 @@ export default function AdminDashboard() {
               return (
                 <div 
                   key={s.key} 
-                  className="bg-[var(--surface)] border border-[var(--ink-200)] rounded-[var(--radius-card)] p-5 hover:shadow-lg transition-all duration-300 flex flex-col justify-between min-h-[130px] shadow-[var(--shadow-card)]"
+                  className="bg-[var(--surface)] border border-[var(--ink-200)] rounded-[var(--radius-card)] p-5 hover:shadow-lg transition-all duration-300 flex flex-col justify-between min-h-[135px] shadow-[var(--shadow-card)]"
                 >
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center justify-between mb-3">
                     <div className="w-7 h-7 rounded-full bg-[var(--ink-100)] flex items-center justify-center">
                       <Icon size={16} strokeWidth={1.75} className="text-[var(--ink-500)]" />
                     </div>
-                    {isLoading ? (
-                      <div className="h-5 w-12 bg-[var(--ink-100)] animate-pulse rounded-full" />
+                    {isLoadingKPIs ? (
+                      <div className="h-5 w-14 bg-[var(--ink-100)] animate-pulse rounded-full" />
                     ) : (
-                      <span className="bg-[var(--ink-100)] text-[var(--ink-700)] text-[11px] font-medium px-2 py-0.5 rounded-full select-none">
-                        {dv >= 0 ? `+${dv}` : dv} {timeframeLabel}
-                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="bg-[var(--ink-100)] text-[var(--ink-700)] text-[11px] font-medium px-2 py-0.5 rounded-full select-none">
+                          {dv >= 0 ? `+${dv}` : dv} {timeframeLabel}
+                        </span>
+                      </div>
                     )}
                   </div>
 
                   <div>
-                    {isLoading ? (
+                    {isLoadingKPIs ? (
                       <div className="h-8 bg-[var(--ink-100)] animate-pulse rounded-lg w-20 mb-2" />
                     ) : (
-                      <>
-                        <div className="text-[32px] font-semibold text-[var(--ink-900)] leading-none mb-1.5">
-                          {v}
-                        </div>
-                        {dv === 0 && lastChangeStr && (
-                          <div className="text-[10px] text-[var(--ink-500)] mb-1 font-medium animate-fade-in">
-                            Last change: {lastChangeStr}
+                      <div className="flex items-end justify-between gap-2 mb-1.5">
+                        <div>
+                          <div className="text-[30px] font-semibold text-[var(--ink-900)] leading-none">
+                            {v}
                           </div>
-                        )}
-                      </>
+                          {dv === 0 && lastChangeStr && (
+                            <div className="text-[10px] text-[var(--ink-500)] mt-1 font-medium animate-fade-in">
+                              Last change: {lastChangeStr}
+                            </div>
+                          )}
+                        </div>
+                        <Sparkline data={sparklineData} color={s.color} />
+                      </div>
                     )}
-                    <div className="text-[13px] font-medium text-[var(--ink-500)]">{s.label}</div>
+                    <div className="text-[13px] font-medium text-[var(--ink-500)] mt-0.5">{s.label}</div>
                   </div>
                 </div>
               );
@@ -491,7 +512,7 @@ export default function AdminDashboard() {
                           </span>
                         </div>
                         <div className="flex items-center gap-1 text-[8px] text-[var(--ink-500)] font-semibold uppercase tracking-wider mt-1">
-                          <span className={cn("w-1 h-1 rounded-full", adm.active === "Now" ? "bg-[var(--status-ok)] animate-pulse" : "bg-[var(--ink-400)]")} />
+                          <span className={cn("w-1.5 h-1.5 rounded-full", adm.active === "Now" ? "bg-[var(--status-ok)] animate-pulse" : "bg-[var(--ink-400)]")} />
                           <span>{adm.active === "Now" ? "Active now" : adm.active}</span>
                         </div>
                       </div>
@@ -518,7 +539,7 @@ export default function AdminDashboard() {
                         </div>
                         <div className="min-w-0">
                           <div className="text-[11px] font-bold text-[var(--ink-900)]">
-                            {sys.name} <span className="text-[9px] text-[var(--ink-500)] font-medium block sm:inline">(automated background process)</span>
+                            {sys.name} <span className="text-[9px] text-[var(--ink-500)] font-medium block sm:inline">(automated background engine)</span>
                           </div>
                           <div className="text-[8px] text-[var(--ink-500)] font-mono mt-0.5">localhost · loopback</div>
                         </div>
@@ -540,42 +561,53 @@ export default function AdminDashboard() {
             actions={<Link to="/admin/audit" className="text-[10px] text-[var(--brand-pink)] font-semibold hover:underline">View All &rarr;</Link>}
           >
             <div className="space-y-3.5">
-              {allLogs.slice(0, 5).map((log) => {
-                const relTimeLabel = relTime(log.createdAt);
+              {isLogsLoading ? (
+                <div className="space-y-2 py-2">
+                  {[1, 2, 3].map(n => (
+                    <div key={n} className="h-14 bg-[var(--ink-100)] animate-pulse rounded-xl" />
+                  ))}
+                </div>
+              ) : allLogs.length === 0 ? (
+                <div className="text-center py-6 text-xs text-[var(--ink-400)]">
+                  No recent audit events recorded.
+                </div>
+              ) : (
+                allLogs.slice(0, 5).map((log) => {
+                  const relTimeLabel = relTime(log.createdAt);
 
-                return (
-                  <div key={log.id} className="p-3 bg-[var(--ink-50)] hover:bg-[var(--ink-100)] border border-[var(--ink-200)] rounded-xl transition-all duration-200">
-                    <div className="flex items-start justify-between gap-3 mb-1">
-                      <div className="flex items-start gap-2 min-w-0">
-                        {/* Tiny category dot */}
-                        <span className={cn(
-                          "w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0",
-                          log.action.includes("FAIL") || log.action.includes("BLOCK") || log.action.includes("SUSPEND")
-                            ? "bg-[var(--status-danger)] animate-pulse"
-                            : log.action.includes("SUCCESS") || log.action.includes("VERIF")
-                            ? "bg-[var(--status-ok)]"
-                            : "bg-[var(--status-info)]"
-                        )} />
-                        <span className="text-[11.5px] font-semibold text-[var(--ink-900)] leading-normal break-words">
-                          {getAuditStory(log)}
-                        </span>
+                  return (
+                    <div key={log.id} className="p-3 bg-[var(--ink-50)] hover:bg-[var(--ink-100)] border border-[var(--ink-200)] rounded-xl transition-all duration-200">
+                      <div className="flex items-start justify-between gap-3 mb-1">
+                        <div className="flex items-start gap-2 min-w-0">
+                          <span className={cn(
+                            "w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0",
+                            log.action.includes("FAIL") || log.action.includes("BLOCK") || log.action.includes("SUSPEND")
+                              ? "bg-[var(--status-danger)] animate-pulse"
+                              : log.action.includes("SUCCESS") || log.action.includes("VERIF")
+                              ? "bg-[var(--status-ok)]"
+                              : "bg-[var(--status-info)]"
+                          )} />
+                          <span className="text-[11.5px] font-semibold text-[var(--ink-900)] leading-normal break-words">
+                            {getAuditStory(log)}
+                          </span>
+                        </div>
+                        <span className="text-[9px] text-[var(--ink-500)] font-mono mt-0.5 whitespace-nowrap">{relTimeLabel}</span>
                       </div>
-                      <span className="text-[9px] text-[var(--ink-500)] font-mono mt-0.5 whitespace-nowrap">{relTimeLabel}</span>
+                      {log.detail && (
+                        <div className="font-mono text-[9px] text-[var(--ink-500)] bg-[var(--ink-100)] px-2 py-1 rounded border border-[var(--ink-200)] truncate mt-1">
+                          {log.detail}
+                        </div>
+                      )}
                     </div>
-                    {log.detail && (
-                      <div className="font-mono text-[9px] text-[var(--ink-500)] bg-[var(--ink-100)] px-2 py-1 rounded border border-[var(--ink-200)] truncate mt-1">
-                        {log.detail}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+                  );
+                })
+              )}
             </div>
           </SectionCard>
         </div>
       </div>
 
-      {/* Core System Services Health - WIDENED to span full width at bottom */}
+      {/* Core System Services Health */}
       <div className="mt-8 border-t border-[var(--ink-200)] pt-6">
         <div className="flex items-center justify-between mb-4">
           <div>
@@ -587,94 +619,127 @@ export default function AdminDashboard() {
           </span>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {SERVICES.map(service => {
-            const isDegraded = service.status === "DEGRADED";
-            return (
-              <div
-                key={service.name}
-                onClick={() => setSelectedService(service)}
-                title={service.name}
-                className={cn(
-                  "bg-[var(--surface)] border border-[var(--ink-200)] rounded-[var(--radius-card)] p-4 sm:p-5 hover:shadow-md transition-all duration-300 cursor-pointer group flex flex-col justify-between min-h-[150px] shadow-[var(--shadow-card)]",
-                  isDegraded
-                    ? "border-l-[4px] border-l-[var(--status-warn)]"
-                    : "hover:border-[var(--ink-400)]"
-                )}
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-2.5">
-                    <span className="text-xs sm:text-[13px] font-bold text-[var(--ink-900)] group-hover:text-[var(--brand-pink)] transition-colors pr-2">
-                      {service.name}
-                    </span>
-                    {/* Status pulsing dot indicator */}
-                    <div className="flex items-center gap-1.5 flex-shrink-0">
-                      {isDegraded ? (
-                        <div className="relative flex items-center justify-center w-2.5 h-2.5">
-                          <span className="animate-ping absolute inline-flex h-3.5 w-3.5 rounded-full bg-[var(--status-warn)] opacity-75" />
-                          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[var(--status-warn)]" />
-                        </div>
-                      ) : (
-                        <span className="w-1.5 h-1.5 rounded-full bg-[var(--status-ok)]" />
-                      )}
-                      <span className={cn(
-                        "text-[8px] font-bold uppercase tracking-wider leading-none",
-                        isDegraded ? "text-[var(--status-warn)]" : "text-[var(--status-ok)]"
-                      )}>
-                        {service.status}
-                      </span>
-                    </div>
-                  </div>
-                  <p className="text-[10px] sm:text-[11.5px] text-[var(--ink-500)] leading-relaxed line-clamp-2">
-                    {service.desc}
-                  </p>
-                  {isDegraded && service.affectedLabel && (
-                    <div className="text-[10px] text-[var(--status-warn)] font-bold mt-1.5 leading-none animate-pulse">
-                      {service.affectedLabel}
-                    </div>
-                  )}
-                </div>
+        {isHealthLoading && servicesList.length === 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map(n => (
+              <div key={n} className="h-36 bg-[var(--ink-100)] animate-pulse rounded-2xl border border-[var(--ink-200)]" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {servicesList.map(service => {
+              const isDegraded = service.status === "DEGRADED";
+              const isDown = service.status === "DOWN";
+              const isUnmonitored = service.status === "NOT_MONITORED";
 
-                <div className="mt-3.5 border-t border-[var(--ink-200)] pt-2.5 flex items-center justify-between gap-1 flex-wrap">
-                  <div className="flex items-center gap-1.5 text-[9px] sm:text-[10px] text-[var(--ink-500)] font-semibold font-mono">
-                    <span>L: {service.latency}</span>
-                    <span className="text-[var(--ink-300)]">·</span>
-                    <span>U: {service.uptime}</span>
-                  </div>
-                  
-                  {isDegraded ? (
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          e.preventDefault();
-                          toast.success(`Operations team alerted: ${service.name} is currently ${service.status}`);
-                        }}
-                        className="px-2.5 py-0.5 bg-[var(--ink-100)] text-[var(--ink-700)] border border-[var(--ink-200)] hover:bg-[var(--ink-200)] rounded-full text-[9px] font-semibold transition-all hover:scale-105 active:scale-95 flex-shrink-0"
-                      >
-                        Notify team
-                      </button>
-                      <Link
-                        to="/admin/security"
-                        onClick={(e) => {
-                          e.stopPropagation(); // Avoid opening metrics dialog
-                        }}
-                        className="text-[9px] sm:text-[10px] font-bold text-[var(--status-warn)] hover:underline whitespace-nowrap"
-                      >
-                        Investigate &rarr;
-                      </Link>
-                    </div>
-                  ) : (
-                    <span className="text-[9px] sm:text-[10px] font-bold text-[var(--brand-pink)] opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
-                      Metrics &rarr;
-                    </span>
+              return (
+                <div
+                  key={service.name}
+                  onClick={() => setSelectedService(service)}
+                  title={service.name}
+                  className={cn(
+                    "bg-[var(--surface)] border border-[var(--ink-200)] rounded-[var(--radius-card)] p-4 sm:p-5 hover:shadow-md transition-all duration-300 cursor-pointer group flex flex-col justify-between min-h-[150px] shadow-[var(--shadow-card)]",
+                    isDegraded
+                      ? "border-l-[4px] border-l-[var(--status-warn)]"
+                      : isDown
+                      ? "border-l-[4px] border-l-[var(--status-danger)]"
+                      : isUnmonitored
+                      ? "border-l-[4px] border-l-[var(--ink-300)]"
+                      : "hover:border-[var(--ink-400)]"
                   )}
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-2.5">
+                      <span className="text-xs sm:text-[13px] font-bold text-[var(--ink-900)] group-hover:text-[var(--brand-pink)] transition-colors pr-2 truncate">
+                        {service.name}
+                      </span>
+                      {/* Status dot indicator */}
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                        {isDegraded ? (
+                          <div className="relative flex items-center justify-center w-2.5 h-2.5">
+                            <span className="animate-ping absolute inline-flex h-3.5 w-3.5 rounded-full bg-[var(--status-warn)] opacity-75" />
+                            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[var(--status-warn)]" />
+                          </div>
+                        ) : isDown ? (
+                          <div className="relative flex items-center justify-center w-2.5 h-2.5">
+                            <span className="animate-ping absolute inline-flex h-3.5 w-3.5 rounded-full bg-[var(--status-danger)] opacity-75" />
+                            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[var(--status-danger)]" />
+                          </div>
+                        ) : isUnmonitored ? (
+                          <span className="w-1.5 h-1.5 rounded-full bg-[var(--ink-400)]" />
+                        ) : (
+                          <span className="w-1.5 h-1.5 rounded-full bg-[var(--status-ok)]" />
+                        )}
+                        <span className={cn(
+                          "text-[8px] font-bold uppercase tracking-wider leading-none",
+                          isDegraded 
+                            ? "text-[var(--status-warn)]" 
+                            : isDown 
+                            ? "text-[var(--status-danger)]" 
+                            : isUnmonitored
+                            ? "text-[var(--ink-500)]"
+                            : "text-[var(--status-ok)]"
+                        )}>
+                          {isUnmonitored ? "Not Monitored" : service.status}
+                        </span>
+                      </div>
+                    </div>
+                    <p className="text-[10px] sm:text-[11.5px] text-[var(--ink-500)] leading-relaxed line-clamp-2">
+                      {service.desc}
+                    </p>
+                    {isDegraded && service.affectedLabel && (
+                      <div className="text-[10px] text-[var(--status-warn)] font-bold mt-1.5 leading-none animate-pulse">
+                        {service.affectedLabel}
+                      </div>
+                    )}
+                    {isUnmonitored && service.affectedLabel && (
+                      <div className="text-[10px] text-[var(--ink-400)] font-medium mt-1.5 leading-none">
+                        {service.affectedLabel}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="mt-3.5 border-t border-[var(--ink-200)] pt-2.5 flex items-center justify-between gap-1 flex-wrap">
+                    <div className="flex items-center gap-1.5 text-[9px] sm:text-[10px] text-[var(--ink-500)] font-semibold font-mono">
+                      <span>L: {service.latency}</span>
+                      <span className="text-[var(--ink-300)]">·</span>
+                      <span>U: {service.uptime}</span>
+                    </div>
+                    
+                    {isDegraded ? (
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            toast.success(`Operations team alerted: ${service.name} is currently ${service.status}`);
+                          }}
+                          className="px-2.5 py-0.5 bg-[var(--ink-100)] text-[var(--ink-700)] border border-[var(--ink-200)] hover:bg-[var(--ink-200)] rounded-full text-[9px] font-semibold transition-all hover:scale-105 active:scale-95 flex-shrink-0"
+                        >
+                          Notify team
+                        </button>
+                        <Link
+                          to="/admin/security"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                          }}
+                          className="text-[9px] sm:text-[10px] font-bold text-[var(--status-warn)] hover:underline whitespace-nowrap"
+                        >
+                          Investigate &rarr;
+                        </Link>
+                      </div>
+                    ) : (
+                      <span className="text-[9px] sm:text-[10px] font-bold text-[var(--brand-pink)] opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
+                        Metrics &rarr;
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Service Metrics Slide-Over Modal / Dialog */}
@@ -704,9 +769,15 @@ export default function AdminDashboard() {
                   <div className="text-[10px] text-[var(--ink-500)] uppercase font-bold tracking-wider">Status</div>
                   <span className={cn(
                     "inline-block text-[10px] font-bold px-2 py-0.5 rounded-full border uppercase tracking-wider mt-1.5 leading-none bg-[var(--ink-100)] border-[var(--ink-200)]",
-                    selectedService.status === "HEALTHY" ? "text-[var(--status-ok)]" : "text-[var(--status-warn)]"
+                    selectedService.status === "HEALTHY" 
+                      ? "text-[var(--status-ok)]" 
+                      : selectedService.status === "DEGRADED"
+                      ? "text-[var(--status-warn)]"
+                      : selectedService.status === "DOWN"
+                      ? "text-[var(--status-danger)]"
+                      : "text-[var(--ink-500)]"
                   )}>
-                    {selectedService.status}
+                    {selectedService.status === "NOT_MONITORED" ? "NOT MONITORED" : selectedService.status}
                   </span>
                 </div>
                 <div className="bg-[var(--ink-50)] p-3 rounded-xl border border-[var(--ink-200)] text-center">
@@ -719,27 +790,35 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              {/* Latency History Chart (High-fidelity inline sparkline graphic) */}
+              {/* Latency History Chart */}
               <div className="bg-[var(--ink-50)] border border-[var(--ink-200)] rounded-xl p-4">
                 <h4 className="text-[10px] font-bold text-[var(--ink-500)] uppercase tracking-widest mb-3">Latency Sparkline (Last 8 cycles)</h4>
-                <div className="h-16 flex items-end gap-1.5 px-2">
-                  {selectedService.history.map((h, idx) => {
-                    const maxVal = Math.max(...selectedService.history);
-                    const pct = Math.max((h / maxVal) * 100, 15);
-                    return (
-                      <div key={idx} className="flex-1 flex flex-col items-center gap-1 group">
-                        <div 
-                          className={cn(
-                            "w-full rounded-t-sm transition-all duration-500",
-                            selectedService.status === "HEALTHY" ? "bg-[var(--status-ok)]/70 group-hover:bg-[var(--status-ok)]" : "bg-[var(--status-warn)]/70 group-hover:bg-[var(--status-warn)]"
-                          )} 
-                          style={{ height: `${pct}%` }} 
-                        />
-                        <span className="font-mono text-[8px] text-[var(--ink-500)] opacity-60 group-hover:opacity-100">{h}ms</span>
-                      </div>
-                    );
-                  })}
-                </div>
+                {selectedService.status === "NOT_MONITORED" || selectedService.history.every(h => h === 0) ? (
+                  <div className="h-16 flex items-center justify-center text-xs text-[var(--ink-400)]">
+                    Telemetry probe pending deployment
+                  </div>
+                ) : (
+                  <div className="h-16 flex items-end gap-1.5 px-2">
+                    {selectedService.history.map((h, idx) => {
+                      const maxVal = Math.max(...selectedService.history, 1);
+                      const pct = Math.max((h / maxVal) * 100, 15);
+                      return (
+                        <div key={idx} className="flex-1 flex flex-col items-center gap-1 group">
+                          <div 
+                            className={cn(
+                              "w-full rounded-t-sm transition-all duration-500",
+                              selectedService.status === "HEALTHY" 
+                                ? "bg-[var(--status-ok)]/70 group-hover:bg-[var(--status-ok)]" 
+                                : "bg-[var(--status-warn)]/70 group-hover:bg-[var(--status-warn)]"
+                            )} 
+                            style={{ height: `${pct}%` }} 
+                          />
+                          <span className="font-mono text-[8px] text-[var(--ink-500)] opacity-60 group-hover:opacity-100">{h}ms</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               {/* Live Logs console */}

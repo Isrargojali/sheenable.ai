@@ -16,7 +16,7 @@ import { PlatformActivityChart } from "@/components/admin/PlatformActivityChart"
 
 interface ServiceInfo {
   name: string;
-  status: "HEALTHY" | "DEGRADED" | "DOWN";
+  status: "HEALTHY" | "DEGRADED" | "DOWN" | "NOT_MONITORED";
   uptime: string;
   latency: string;
   desc: string;
