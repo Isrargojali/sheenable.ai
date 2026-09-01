@@ -13,13 +13,16 @@ import {
 import { cn } from "@/lib/utils";
 import { apiAdmin } from "@/lib/api";
 import { Activity, RefreshCw } from "lucide-react";
+import { DateRangePicker, type TimeframeOption } from "./DateRangePicker";
 
-export type Timeframe = "today" | "7d" | "30d";
+export type Timeframe = TimeframeOption;
 
 export interface ActivityDataPoint {
   label: string;
   signups: number;
   applications: number;
+  jobs?: number;
+  employers?: number;
   fullDate?: string;
 }
 
@@ -34,7 +37,8 @@ interface PlatformActivityChartProps {
   timeframe?: Timeframe;
   onTimeframeChange?: (timeframe: Timeframe) => void;
   className?: string;
-  initialData?: Record<Timeframe, ActivityDataPoint[]>;
+  title?: string;
+  subtitle?: string;
 }
 
 // Generate continuous timeline fallback in case of fresh DB initialization
@@ -51,7 +55,10 @@ function generateFallbackTimeline(timeframe: Timeframe): ActivityDataPoint[] {
     ];
   }
 
-  const days = timeframe === "30d" ? 30 : 7;
+  let days = 7;
+  if (timeframe === "30d") days = 30;
+  if (timeframe === "90d") days = 90;
+
   const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const list: ActivityDataPoint[] = [];
   const now = new Date();
@@ -118,6 +125,8 @@ export function PlatformActivityChart({
   timeframe: controlledTimeframe,
   onTimeframeChange,
   className,
+  title = "PLATFORM ACTIVITY",
+  subtitle = "Real-time signups vs. applications from database",
 }: PlatformActivityChartProps) {
   const [internalTimeframe, setInternalTimeframe] = useState<Timeframe>("7d");
   const activeTimeframe = controlledTimeframe ?? internalTimeframe;
@@ -130,16 +139,15 @@ export function PlatformActivityChart({
     }
   };
 
-  // Real-time live data fetching from system database via apiAdmin
+  // Real-time live data fetching from unified statsService via apiAdmin
   const {
     data: liveTimeseries,
     isLoading,
     isFetching,
-    refetch,
   } = useQuery<AnalyticsApiResponse>({
     queryKey: ["adminTimeseries", activeTimeframe],
     queryFn: () => apiAdmin.getTimeseries(activeTimeframe),
-    refetchInterval: 15000, // Live poll every 15s
+    refetchInterval: 15000,
     staleTime: 10000,
   });
 
@@ -148,20 +156,6 @@ export function PlatformActivityChart({
     if (liveTimeseries?.timeline && Array.isArray(liveTimeseries.timeline) && liveTimeseries.timeline.length > 0) {
       return liveTimeseries.timeline;
     }
-
-    // Process raw user/app aggregation buckets if timeline is missing
-    if (liveTimeseries?.users || liveTimeseries?.applications) {
-      const userMap = Object.fromEntries((liveTimeseries.users || []).map((u) => [u._id, u.count]));
-      const appMap = Object.fromEntries((liveTimeseries.applications || []).map((a) => [a._id, a.count]));
-
-      const baseList = generateFallbackTimeline(activeTimeframe);
-      return baseList.map((item) => ({
-        ...item,
-        signups: userMap[item.label] ?? item.signups,
-        applications: appMap[item.label] ?? item.applications,
-      }));
-    }
-
     return generateFallbackTimeline(activeTimeframe);
   }, [liveTimeseries, activeTimeframe]);
 
@@ -182,7 +176,7 @@ export function PlatformActivityChart({
         <div>
           <div className="flex items-center gap-2">
             <h3 className="text-xs font-bold text-[var(--ink-500)] dark:text-muted-foreground uppercase tracking-widest">
-              PLATFORM ACTIVITY
+              {title}
             </h3>
             {/* Live System Indicator */}
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-emerald-50 border border-emerald-200 text-emerald-700 dark:bg-emerald-950/30 dark:border-emerald-800 dark:text-emerald-400">
@@ -194,33 +188,21 @@ export function PlatformActivityChart({
             )}
           </div>
           <p className="text-[12px] text-[var(--ink-400)] mt-0.5 font-normal">
-            Real-time signups vs. applications from database ({totalSignups} signups · {totalApps} applications in this timeframe)
+            {subtitle} ({totalSignups} signups · {totalApps} applications in this timeframe)
           </p>
         </div>
 
-        {/* Segmented Filter Control */}
-        <div className="flex bg-[var(--ink-100)] p-1 rounded-full items-center self-start sm:self-auto select-none">
-          {(["today", "7d", "30d"] as const).map((t) => {
-            const isActive = activeTimeframe === t;
-            const label = t === "today" ? "Today" : t === "7d" ? "7 Days" : "30 Days";
-
-            return (
-              <button
-                key={t}
-                type="button"
-                onClick={() => handleTimeframeChange(t)}
-                className={cn(
-                  "h-7 px-3.5 rounded-full text-[11.5px] font-semibold transition-all duration-200 border-0 cursor-pointer flex items-center justify-center",
-                  isActive
-                    ? "bg-[#E6007E] text-white shadow-sm"
-                    : "bg-transparent text-[var(--ink-500)] hover:text-[var(--ink-900)]"
-                )}
-              >
-                {label}
-              </button>
-            );
-          })}
-        </div>
+        {/* Standardized Date Range Filter */}
+        <DateRangePicker
+          value={activeTimeframe}
+          onChange={handleTimeframeChange}
+          options={[
+            { key: "today", label: "Today" },
+            { key: "7d", label: "7 Days" },
+            { key: "30d", label: "30 Days" },
+            { key: "90d", label: "90 Days" },
+          ]}
+        />
       </div>
 
       {/* Chart Canvas Area */}
@@ -234,10 +216,10 @@ export function PlatformActivityChart({
           <>
             {!hasActivity && (
               <div className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none">
-                <div className="bg-background/85 backdrop-blur-sm border border-[var(--ink-200)] shadow-sm px-4 py-2 rounded-full flex items-center gap-2 animate-fade-in">
+                <div className="bg-background/90 backdrop-blur-sm border border-[var(--ink-200)] shadow-sm px-4 py-2 rounded-full flex items-center gap-2 animate-fade-in">
                   <Activity size={14} className="text-[var(--ink-400)]" />
                   <span className="text-xs font-medium text-[var(--ink-600)]">
-                    No activity recorded in this {activeTimeframe === "today" ? "day" : activeTimeframe === "30d" ? "month" : "week"} yet
+                    No activity recorded in this {activeTimeframe === "today" ? "day" : activeTimeframe === "90d" ? "quarter" : activeTimeframe === "30d" ? "month" : "week"} yet
                   </span>
                 </div>
               </div>

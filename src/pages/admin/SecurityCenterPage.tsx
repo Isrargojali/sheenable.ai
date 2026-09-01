@@ -9,6 +9,7 @@ import { apiAdmin } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { SecurityThreatChart } from "@/components/admin/SecurityThreatChart";
 
 type ThreatData = {
   threatLevel: string;
@@ -432,6 +433,9 @@ export default function SecurityCenterPage() {
           );
         })}
       </div>
+
+      {/* Real Live Security Incident & Threat Trend Visualization */}
+      <SecurityThreatChart className="mb-6" />
 
       {/* Protection Details Splits */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

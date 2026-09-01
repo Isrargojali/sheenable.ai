@@ -60,6 +60,13 @@ export default function ManageAdminsPage() {
     }
   });
 
+  const { data: adminAnalytics } = useQuery({
+    queryKey: ["adminActivityAnalytics"],
+    queryFn: () => apiAdmin.getAdminActivityAnalytics('30d'),
+    refetchInterval: 15000
+  });
+
+
   const updateRoleMutation = useMutation({
     mutationFn: async (payload: { id: string; role: string }) => {
       return apiAdmin.updateUserRole(payload.id, payload.role);
@@ -269,6 +276,60 @@ export default function ManageAdminsPage() {
           </div>
         </SectionCard>
       )}
+
+      {/* Admin KPI Summary Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 select-none">
+        <div className="bg-[var(--surface)] border border-[var(--ink-200)] rounded-[var(--radius-card)] p-5 shadow-[var(--shadow-card)] flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-7 h-7 rounded-full bg-[var(--ink-100)] flex items-center justify-center">
+              <ShieldCheck size={16} className="text-[var(--brand-pink)]" />
+            </div>
+            <span className="text-[11px] font-semibold text-[var(--ink-700)] bg-[var(--ink-100)] px-2 py-0.5 rounded-full">
+              Governed
+            </span>
+          </div>
+          <div>
+            <div className="text-[28px] font-semibold text-[var(--ink-900)] leading-none mb-1">
+              {admins.length}
+            </div>
+            <div className="text-[12px] font-medium text-[var(--ink-500)]">Total Provisioned Admins</div>
+          </div>
+        </div>
+
+        <div className="bg-[var(--surface)] border border-[var(--ink-200)] rounded-[var(--radius-card)] p-5 shadow-[var(--shadow-card)] flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-7 h-7 rounded-full bg-emerald-50 flex items-center justify-center">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+            </div>
+            <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
+              Live Session
+            </span>
+          </div>
+          <div>
+            <div className="text-[28px] font-semibold text-emerald-600 leading-none mb-1">
+              {adminAnalytics?.onlineAdmins?.length ?? Math.max(1, admins.filter(a => a.status === 'Active').length)}
+            </div>
+            <div className="text-[12px] font-medium text-[var(--ink-500)]">Active / Online Admins</div>
+          </div>
+        </div>
+
+        <div className="bg-[var(--surface)] border border-[var(--ink-200)] rounded-[var(--radius-card)] p-5 shadow-[var(--shadow-card)] flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-7 h-7 rounded-full bg-[var(--ink-100)] flex items-center justify-center">
+              <Lock size={16} className="text-[var(--ink-500)]" />
+            </div>
+            <span className="text-[11px] font-semibold text-[var(--ink-700)] bg-[var(--ink-100)] px-2 py-0.5 rounded-full">
+              Role Matrix
+            </span>
+          </div>
+          <div>
+            <div className="text-[28px] font-semibold text-[var(--ink-900)] leading-none mb-1">
+              {admins.filter(a => a.role === 'Full Admin').length} / {admins.filter(a => a.role === 'Moderator').length}
+            </div>
+            <div className="text-[12px] font-medium text-[var(--ink-500)]">Super Admins / Moderators</div>
+          </div>
+        </div>
+      </div>
 
       {/* Search Bar and Segmented Filters */}
       <div className="flex flex-col md:flex-row gap-3 mb-6 items-stretch md:items-center justify-between select-none">

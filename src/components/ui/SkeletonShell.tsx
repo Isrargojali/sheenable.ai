@@ -162,3 +162,30 @@ export function SkeletonText({ lines = 3, className }: { lines?: number; classNa
     </div>
   );
 }
+
+/** Chart Card Skeleton */
+export function SkeletonChartCard({ className }: { className?: string }) {
+  return (
+    <div className={cn("bg-[var(--surface)] border border-[var(--ink-200)] rounded-[var(--radius-card)] p-5 sm:p-6 shadow-[var(--shadow-card)] space-y-4", className)}>
+      <div className="flex items-center justify-between">
+        <div className="space-y-1.5">
+          <SkeletonBox className="w-36 h-4 rounded-full" />
+          <SkeletonBox className="w-56 h-3 rounded-full" />
+        </div>
+        <SkeletonBox className="w-48 h-7 rounded-full" />
+      </div>
+      <div className="h-56 w-full flex items-center justify-center bg-[var(--ink-50)]/50 rounded-xl">
+        <div className="flex items-end gap-3 h-32 w-4/5 px-4 pb-2">
+          {Array.from({ length: 7 }).map((_, i) => (
+            <SkeletonBox key={i} className="flex-1 rounded-t-md" style={{ height: `${25 + (i * 12) % 65}%` }} />
+          ))}
+        </div>
+      </div>
+      <div className="flex items-center justify-center gap-6 pt-2 border-t border-[var(--ink-100)]">
+        <SkeletonBox className="w-24 h-4 rounded-full" />
+        <SkeletonBox className="w-24 h-4 rounded-full" />
+      </div>
+    </div>
+  );
+}
+

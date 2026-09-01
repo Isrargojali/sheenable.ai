@@ -11,6 +11,8 @@ import { DashboardShell, SectionCard } from "@/components/layout/DashboardShell"
 import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { AuditVolumeChart } from "@/components/admin/AuditVolumeChart";
+
 
 type AuditLogEntry = {
   id: string;
@@ -364,6 +366,9 @@ export default function AuditLogPage() {
         </button>
       }
     >
+      {/* Real Live Audit Volume & Compliance Activity Visualization */}
+      <AuditVolumeChart className="mb-6" />
+
       {/* Filters Control Station */}
       <div className="flex flex-col md:flex-row gap-3 mb-6 items-stretch md:items-center justify-between">
         <div className="relative flex-1 max-w-md">

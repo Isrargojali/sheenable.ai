@@ -203,22 +203,27 @@ export const apiNotifications = {
 
 // ─── ADMIN ────────────────────────────────────────────────────────────────────
 export const apiAdmin = {
-  getStats:         ()                               => api.get('/admin/stats').then(unwrap),
-  getUsers:         (params?: object)                => api.get('/admin/users', { params }).then(unwrap),
-  getUserById:      (id: string)                     => api.get(`/admin/users/${id}`).then(unwrap),
-  createAdminUser:  (data: object)                   => api.post('/admin/users', data).then(unwrap),
-  updateUserRole:   (id: string, role: string)       => api.patch(`/admin/users/${id}/role`, { role }).then(unwrap),
-  updateUserStatus: (id: string, data: { isActive?: boolean; isVerified?: boolean }) => api.patch(`/admin/users/${id}/status`, data).then(unwrap),
-  deleteUser:       (id: string)                     => api.delete(`/admin/users/${id}`).then(unwrap),
-  getAuditLogs:     (params?: object)                => api.get('/admin/audit-logs', { params }).then(unwrap),
-  getSecurityInfo:  ()                               => api.get('/admin/security').then(unwrap),
-  getThreatData:    ()                               => api.get('/admin/security-threats').then(unwrap),
-  getSystemHealth:  ()                               => api.get('/admin/system-health').then(unwrap),
-  getAnalytics:     (period?: 'today' | '7d' | '30d' | '90d') => api.get('/admin/analytics', { params: { period } }).then(unwrap),
-  getTimeseries:    (range?: 'today' | '7d' | '30d') => api.get('/admin/stats/timeseries', { params: { range } }).then(unwrap),
-  getJobs:          (params?: object)                => api.get('/admin/jobs', { params }).then(unwrap),
-  updateJobStatus:  (jobId: string, status: string)  => api.patch(`/admin/jobs/${jobId}/status`, { status }).then(unwrap),
+  getStats:                 ()                               => api.get('/admin/stats').then(unwrap),
+  getUsers:                 (params?: object)                => api.get('/admin/users', { params }).then(unwrap),
+  getUserById:              (id: string)                     => api.get(`/admin/users/${id}`).then(unwrap),
+  createAdminUser:          (data: object)                   => api.post('/admin/users', data).then(unwrap),
+  updateUserRole:           (id: string, role: string)       => api.patch(`/admin/users/${id}/role`, { role }).then(unwrap),
+  updateUserStatus:         (id: string, data: { isActive?: boolean; isVerified?: boolean }) => api.patch(`/admin/users/${id}/status`, data).then(unwrap),
+  deleteUser:               (id: string)                     => api.delete(`/admin/users/${id}`).then(unwrap),
+  getAuditLogs:             (params?: object)                => api.get('/admin/audit-logs', { params }).then(unwrap),
+  getSecurityInfo:          ()                               => api.get('/admin/security').then(unwrap),
+  getThreatData:            ()                               => api.get('/admin/security-threats').then(unwrap),
+  getSystemHealth:          (params?: { fresh?: boolean })   => api.get('/admin/system-health', { params }).then(unwrap),
+  getAnalytics:             (period?: 'today' | '7d' | '30d' | '90d') => api.get('/admin/analytics', { params: { period } }).then(unwrap),
+  getTimeseries:            (range?: 'today' | '7d' | '30d' | '90d')  => api.get('/admin/stats/timeseries', { params: { range } }).then(unwrap),
+  getUserAnalytics:         (range?: 'today' | '7d' | '30d' | '90d')  => api.get('/admin/analytics/users', { params: { range } }).then(unwrap),
+  getSecurityAnalytics:     (range?: 'today' | '7d' | '30d' | '90d')  => api.get('/admin/analytics/security', { params: { range } }).then(unwrap),
+  getAuditAnalytics:        (range?: 'today' | '7d' | '30d' | '90d')  => api.get('/admin/analytics/audit', { params: { range } }).then(unwrap),
+  getAdminActivityAnalytics:(range?: 'today' | '7d' | '30d' | '90d')  => api.get('/admin/analytics/admins', { params: { range } }).then(unwrap),
+  getJobs:                  (params?: object)                => api.get('/admin/jobs', { params }).then(unwrap),
+  updateJobStatus:          (jobId: string, status: string)  => api.patch(`/admin/jobs/${jobId}/status`, { status }).then(unwrap),
 };
+
 
 // ─── UPLOAD ───────────────────────────────────────────────────────────────────
 export const apiUpload = {

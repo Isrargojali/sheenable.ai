@@ -209,8 +209,7 @@ const getAuditStory = (log: AuditLogItem) => {
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
-  const [selectedService, setSelectedService] = useState<ServiceInfo | null>(null);
-  const [timeframe, setTimeframe] = useState<'today' | '7d' | '30d'>('7d');
+  const [timeframe, setTimeframe] = useState<'today' | '7d' | '30d' | '90d'>('7d');
 
   const { data: stats, isLoading: isStatsLoading } = useQuery<AdminStats>({ 
     queryKey: ["adminStats"], 

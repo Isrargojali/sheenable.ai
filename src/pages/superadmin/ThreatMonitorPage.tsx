@@ -8,8 +8,9 @@ import {
   ShieldCheck, AlertTriangle, ShieldAlert, Activity, Play, 
   Trash2, Ban, History, ShieldAlert as AlertIcon, RefreshCw, X 
 } from "lucide-react";
-import { toast } from "sonner";
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
+import { SecurityThreatChart } from "@/components/admin/SecurityThreatChart";
+
 
 // Live counter that increments slowly to simulate real-time
 function LiveCounter({ base }: { base: number }) {
@@ -94,6 +95,15 @@ export default function ThreatMonitorPage() {
     refetchInterval: 5000 
   });
   const t = threat ?? { threatLevel:"LOW", uptime:"99.97%", apiP95:"94ms", activeSessions:1, blockedIPs:0, failedLogins24h:0, bruteBlocks24h:0, rateLimitHits:0, xssAttempts:0 };
+
+  const { data: rawAuditLogs = [] } = useQuery<any[]>({
+    queryKey: ["threatAuditLogs"],
+    queryFn: async () => {
+      const res = await apiAdmin.getAuditLogs({ limit: 15 });
+      return Array.isArray(res) ? res : (res as any)?.data || [];
+    },
+    refetchInterval: 5000
+  });
 
   // Local Interactive States
   const [blockedIPsList, setBlockedIPsList] = useState<string[]>([]);
@@ -202,16 +212,21 @@ export default function ThreatMonitorPage() {
     { name: "JWT cookies", method: "httpOnly + SameSite=Strict" },
   ];
 
-  // Dynamic audit logs merge for simulation
-  const mockAuditLogs: LogEntry[] = [
+  // Dynamic live audit logs
+  const activeAuditLogs: LogEntry[] = (rawAuditLogs.length > 0 ? rawAuditLogs.map((l: any) => ({
+    id: l._id || l.id,
+    action: l.action,
+    userId: l.operator?.name || l.userId || 'System Ingress',
+    detail: l.detail || `ip=${l.ipAddress || '127.0.0.1'} status=${l.status || 'SUCCESS'} resource=${l.resourceType || 'route'}`,
+    createdAt: l.createdAt || new Date().toISOString()
+  })) : [
     { id: "a1", action: "LOGIN_SUCCESS",   userId: "Ayesha Khan",    detail: "role=candidate ip=192.168.1.104 browser=Chrome OS=Windows", createdAt: new Date(Date.now() - 2 * 60000).toISOString() },
     { id: "a2", action: "SIGNUP",          userId: "Fatima Malik",   detail: "role=candidate otp_pending method=SMS",                  createdAt: new Date(Date.now() - 11 * 60000).toISOString() },
     { id: "a3", action: "JOB_POSTED",      userId: "TechFlow Inc.",  detail: 'jobId=job_7 title="React Native Dev" category="IT"',        createdAt: new Date(Date.now() - 33 * 60000).toISOString() },
     { id: "a4", action: "RATE_LIMIT",      userId: "unknown",        detail: "ip=192.168.1.1 route=/api/auth/login count=18",     createdAt: new Date(Date.now() - 42 * 60000).toISOString() },
     { id: "a5", action: "BRUTE_FORCE_BLOCK",userId:"hacker@evil.com",detail: "ip=198.51.100.44 attempts=5 locked_300s",             createdAt: new Date(Date.now() - 78 * 60000).toISOString() },
-    { id: "a6", action: "LOGIN_SUCCESS",   userId: "Sara Ahmed",     detail: "role=candidate ip=10.0.0.5 browser=Safari",                 createdAt: new Date(Date.now() - 120 * 60000).toISOString() },
-    { id: "a7", action: "ADMIN_ACTION",    userId: "Admin",          detail: "approved employerId=emp_15 TechCorp",        createdAt: new Date(Date.now() - 180 * 60000).toISOString() },
-  ].filter(l => !dismissedLogs.includes(l.id));
+  ]).filter((l: any) => !dismissedLogs.includes(l.id));
+
 
   return (
     <DashboardShell
@@ -282,6 +297,9 @@ export default function ThreatMonitorPage() {
           );
         })}
       </div>
+
+      {/* Real Live Security Incident & Threat Trend Visualization */}
+      <SecurityThreatChart className="mb-6" />
 
       <div className="grid lg:grid-cols-2 gap-6 mb-6">
         {/* 24h metrics with micro-trend bars */}
@@ -375,7 +393,7 @@ export default function ThreatMonitorPage() {
         </div>
         
         <div className="space-y-1">
-          {mockAuditLogs.map((log) => {
+          {activeAuditLogs.map((log) => {
             const isExpanded = expandedLogId === log.id;
             const ip = log.detail.match(/ip=([^\s]+)/)?.[1] || "198.51.100.44";
             const isBlocked = blockedIPsList.includes(ip);
@@ -383,6 +401,7 @@ export default function ThreatMonitorPage() {
             const isHacker = log.userId === "hacker@evil.com";
 
             return (
+
               <div 
                 key={log.id} 
                 onClick={() => setExpandedLogId(isExpanded ? null : log.id)}

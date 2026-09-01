@@ -13,6 +13,8 @@ import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 import { toast } from "sonner";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { UserGrowthChart } from "@/components/admin/UserGrowthChart";
+
 
 interface User {
   id: string;
@@ -216,6 +218,9 @@ export default function UsersPage() {
         </button>
       }
     >
+      {/* Real Live User Growth & Role Distribution Visualization */}
+      <UserGrowthChart />
+
       {/* Filters Control Center */}
       <div className="flex flex-col xl:flex-row gap-4 mb-6 items-stretch xl:items-center justify-between">
         <div className="relative flex-1 max-w-md">
