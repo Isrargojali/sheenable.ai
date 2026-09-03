@@ -29,7 +29,9 @@ const JobSchema = new mongoose.Schema({
 // Full-text search
 JobSchema.index({ title: 'text', description: 'text', skillsRequired: 'text' });
 // Compound for filtered list queries
+JobSchema.index({ status: 1, createdAt: -1 });
 JobSchema.index({ status: 1, category: 1, jobType: 1, jobMode: 1, createdAt: -1 });
 JobSchema.index({ employerId: 1, status: 1 });
 
 module.exports = mongoose.model('Job', JobSchema);
+

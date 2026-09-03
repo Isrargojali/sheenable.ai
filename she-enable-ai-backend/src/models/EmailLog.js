@@ -16,4 +16,9 @@ const EmailLogSchema = new mongoose.Schema({
   ]
 }, { timestamps: true });
 
+EmailLogSchema.index({ status: 1, createdAt: -1 });
+EmailLogSchema.index({ createdAt: -1 });
+
 module.exports = mongoose.model('EmailLog', EmailLogSchema);
+
+

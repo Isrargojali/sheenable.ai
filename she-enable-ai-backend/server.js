@@ -19,6 +19,7 @@ const { connectDB } = require('./src/config/database');
 const errorHandler = require('./src/middleware/errorHandler');
 const { generalLimiter } = require('./src/middleware/rateLimiter');
 const { initializeSocket } = require('./src/sockets/chatSocket');
+const mongoSanitize = require('express-mongo-sanitize');
 
 // Route imports
 const authRoutes = require('./src/routes/auth');
@@ -40,6 +41,9 @@ const contactRoutes = require('./src/routes/contact');
 // Initialize app
 const app = express();
 const server = http.createServer(app);
+
+// Trust reverse proxy (Nginx, ALB, Cloudflare, Render) for accurate client IP in rate limiters
+app.set('trust proxy', 1);
 
 // Connect Database (with MockDB fallback)
 connectDB();
@@ -102,13 +106,20 @@ app.use(morgan(isProd ? 'combined' : 'dev'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
+
+// Sanitize request bodies and query parameters against NoSQL injection
+app.use(mongoSanitize({ allowDots: true }));
+
+// Dedicated health endpoint (exempt from general rate limits for load balancers and uptime checks)
+app.get('/health', (req, res) => res.status(200).json({ status: 'ok', timestamp: new Date() }));
+
+// Apply rate limiting to all standard application routes
 app.use(generalLimiter);
 
 // Serve static uploads folder for local testing
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes
-app.get('/health', (req, res) => res.status(200).json({ status: 'ok', timestamp: new Date() }));
 app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/jobs', jobRoutes);
@@ -134,8 +145,14 @@ server.listen(PORT, () => {
   logger.info(`🚀 Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
 });
 
-// Handle unhandled promise rejections gracefully
-process.on('unhandledRejection', (err, promise) => {
-  console.error(`Error: ${err.message}`);
-  // In production: server.close(() => process.exit(1));
+// Handle unhandled promise rejections and uncaught exceptions with structured logger
+process.on('unhandledRejection', (err) => {
+  logger.error('CRITICAL: Unhandled Promise Rejection', { error: err?.message, stack: err?.stack });
 });
+
+process.on('uncaughtException', (err) => {
+  logger.error('FATAL: Uncaught Exception', { error: err?.message, stack: err?.stack });
+  // Clean exit for process manager (PM2/Kubernetes) to restart container
+  process.exit(1);
+});
+

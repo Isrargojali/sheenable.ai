@@ -183,10 +183,34 @@ const getMatchedCandidates = async (req, res, next) => {
     const jobSkills = [...new Set(jobs.flatMap(j => j.skillsRequired || []).map(s => s.toLowerCase()))];
     const jobCategories = [...new Set(jobs.map(j => j.category))];
 
-    // 3. Fetch all active candidate profiles
-    const candidates = await CandidateProfile.find({ isAvailable: true })
+    // 3. Fetch candidate profiles (bounded to active pool to prevent memory cliffs)
+    const candidateQuery = { isAvailable: true };
+    if (jobCategories.length > 0) {
+      candidateQuery.$or = [
+        { category: { $in: jobCategories } },
+        { 'skills.name': { $in: jobSkills } }
+      ];
+    }
+
+    let candidates = await CandidateProfile.find(candidateQuery)
       .populate('userId', 'firstName lastName avatarUrl email phone')
+      .limit(60)
       .lean();
+
+    // Fallback if targeted query yields low volume
+    if (candidates.length < 5) {
+      const fallbackCandidates = await CandidateProfile.find({ isAvailable: true })
+        .populate('userId', 'firstName lastName avatarUrl email phone')
+        .limit(30)
+        .lean();
+      
+      const existingIds = new Set(candidates.map(c => c._id.toString()));
+      fallbackCandidates.forEach(fc => {
+        if (!existingIds.has(fc._id.toString())) {
+          candidates.push(fc);
+        }
+      });
+    }
 
     // 4. Score each candidate
     const matches = candidates.map(c => {
@@ -244,6 +268,7 @@ const getMatchedCandidates = async (req, res, next) => {
 const searchCandidates = async (req, res, next) => {
   try {
     const { q, filter } = req.query;
+    const limit = Math.min(parseInt(req.query.limit) || 30, 50);
     
     const dbFilter = {};
     if (filter && filter !== 'All') {
@@ -267,7 +292,7 @@ const searchCandidates = async (req, res, next) => {
             { lastName: { $regex: term, $options: 'i' } },
             { email: { $regex: term, $options: 'i' } }
           ])
-        }).select('_id').lean();
+        }).select('_id').limit(20).lean();
         const matchedUserIds = matchedUsers.map(u => u._id);
 
         dbFilter.$or = [
@@ -291,9 +316,10 @@ const searchCandidates = async (req, res, next) => {
       }
     }
 
-    // Query candidates
+    // Query candidates bounded to limit
     candidates = await CandidateProfile.find(dbFilter)
       .populate('userId', 'firstName lastName avatarUrl email phone')
+      .limit(limit)
       .lean();
 
     // Filter out orphaned candidate profiles (where userId is null)
@@ -307,6 +333,7 @@ const searchCandidates = async (req, res, next) => {
         textFilter.$text = { $search: q };
         const rawCandidates = await CandidateProfile.find(textFilter)
           .populate('userId', 'firstName lastName avatarUrl email phone')
+          .limit(limit)
           .lean();
         candidates = rawCandidates.filter(c => c.userId);
       } catch (err) {
@@ -357,6 +384,7 @@ const searchCandidates = async (req, res, next) => {
     });
   } catch (err) { next(err); }
 };
+
 
 const improveJob = async (req, res, next) => {
   try {
